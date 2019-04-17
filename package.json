@@ -1,0 +1,16 @@
+{
+  "name": "pactole",
+  "version": "0.0.0",
+  "description": "",
+  "main": "main/main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "repository": "",
+  "keywords": [
+    "budget"
+  ],
+  "author": "drakmaniso",
+  "license": "MIT",
+  "devDependencies": {}
+}
