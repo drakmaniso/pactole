@@ -36,6 +36,12 @@ class Ledger {
   }
 
   addTransaction (transaction) {
+    let p = this.transactions.findIndex(t => t.date > transaction.date)
+    if (p === -1) {
+      this.transactions.push(transaction)
+      return
+    }
+    this.transactions.splice(p, 0, transaction)
   }
 }
 

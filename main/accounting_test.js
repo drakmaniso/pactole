@@ -3,6 +3,8 @@
 const assert = require('assert').strict
 const acc = require('./accounting.js')
 
+let err
+
 let l = new acc.Ledger('simple')
 assert.ok(l instanceof acc.Ledger)
 assert.equal(l.name, 'simple')
@@ -40,15 +42,30 @@ e = new acc.Transaction(new Date(), [new acc.Debit(foo, 33)], [new acc.Debit(bar
 assert.ok(e instanceof Error)
 
 let t1 = new acc.Transaction(
-  new Date(),
+  new Date(2000, 0, 1, 8),
   [new acc.Debit(foo, 33)],
   [new acc.Credit(bar, 33)]
 )
 assert.ok(t1 instanceof acc.Transaction)
 
 let t2 = new acc.Transaction(
-  new Date(),
+  new Date(2000, 0, 3, 8),
   [new acc.Debit(foo, 20), new acc.Debit(foo, 80)],
   [new acc.Credit(bar, 70), new acc.Credit(baz, 30)]
 )
 assert.ok(t2 instanceof acc.Transaction)
+
+let t3 = new acc.Transaction(
+  new Date(2000, 0, 2, 8),
+  [new acc.Debit(foo, 20), new acc.Debit(foo, 80)],
+  [new acc.Credit(bar, 70), new acc.Credit(baz, 30)]
+)
+assert.ok(t2 instanceof acc.Transaction)
+
+err = l.addTransaction(t1)
+assert.equal(err, undefined, err)
+err = l.addTransaction(t3)
+assert.equal(err, undefined, err)
+err = l.addTransaction(t2)
+assert.equal(err, undefined, err)
+console.log(l)

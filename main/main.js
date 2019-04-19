@@ -1,7 +1,7 @@
 'use strict'
 
 let datastore = require('./datastore.js')
-let expanses = require('./list.js')
+let expanses = require('./accounting.js')
 
 const { app, BrowserWindow } = require('electron')
 
