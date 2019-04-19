@@ -2,16 +2,16 @@
 
 const acc = require('./accounting.js')
 
-let l = new acc.Ledger("simple")
+let l = new acc.Ledger('simple')
 console.log(l)
-console.log(l.setDescription("My simple ledger"))
+console.log(l.setDescription('My simple ledger'))
 
-let foo = new acc.Account("foo")
+let foo = new acc.Account('foo')
 console.log(foo)
 
-let bar = new acc.Account("bar")
-let foobar = new acc.Account("foo")
-let baz = new acc.Account("baz", bar)
+let bar = new acc.Account('bar')
+let foobar = new acc.Account('foo')
+let baz = new acc.Account('baz', bar)
 
 console.log(l.addAccount(foo))
 console.log(l.addAccount(baz))
@@ -29,7 +29,6 @@ e = new acc.Transaction(new Date(), [new acc.Credit(foo, 33)], [new acc.Credit(b
 console.log(e)
 e = new acc.Transaction(new Date(), [new acc.Debit(foo, 33)], [new acc.Debit(bar, 33)])
 console.log(e)
-
 
 let t1 = new acc.Transaction(
   new Date(),

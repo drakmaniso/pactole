@@ -6,7 +6,6 @@ class Ledger {
   // accounts: a Map from string to Accounts objects
   // transactions: an array of Transaction objects
 
-
   constructor (name) {
     this.name = name
     this.description = ''
@@ -94,10 +93,6 @@ class Transaction {
 
   setDescription (description) {
     this.description = description
-  }
-
-  isBalanced() {
-    return sum === 0
   }
 }
 

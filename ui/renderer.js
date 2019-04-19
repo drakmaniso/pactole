@@ -12,7 +12,7 @@ document.getElementById('add-expanse').addEventListener('click', evt => {
   let exp = {
     date: document.getElementById('add-date').value,
     description: document.getElementById('add-description').value,
-    value: document.getElementById('add-value').value,
+    value: document.getElementById('add-value').value
   }
   ipcRenderer.send('add-expanse', exp)
 })
