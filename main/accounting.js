@@ -36,7 +36,7 @@ class Ledger {
   }
 
   addTransaction (transaction) {
-    let p = this.transactions.findIndex(t => t.date > transaction.date)
+    let p = this.transactions.findIndex(t => t.date.getTime() > transaction.date.getTime())
     if (p === -1) {
       this.transactions.push(transaction)
       return
@@ -68,6 +68,9 @@ class Transaction {
   // credits: array of Credit objects.
 
   constructor (date, debits, credits) {
+    if (!(date instanceof Date)) {
+      throw new Error('wrong date')
+    }
     let sum = 0
     if (debits.length === 0) {
       return new Error('no debit in transaction')

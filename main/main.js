@@ -1,7 +1,7 @@
 'use strict'
 
 let datastore = require('./datastore.js')
-let expanses = require('./accounting.js')
+let ipc = require('./ipc.js')
 
 const { app, BrowserWindow } = require('electron')
 
@@ -29,7 +29,7 @@ function createWindow () {
 
   win.webContents.on('dom-ready', () => {
     console.log('window shown')
-    expanses.render()
+    ipc.ledgerUpdated()
   })
 }
 

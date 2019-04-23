@@ -5,25 +5,26 @@
 'use strict'
 
 const { ipcRenderer } = require('electron')
+const acc = require('../main/accounting.js')
 
 document.getElementById('add-expanse').addEventListener('click', evt => {
   evt.preventDefault()
   console.log('plop')
   let exp = {
-    date: document.getElementById('add-date').value,
+    date: document.getElementById('add-date').valueAsDate.getTime(),
     description: document.getElementById('add-description').value,
-    value: document.getElementById('add-value').value
+    value: document.getElementById('add-value').valueAsNumber
   }
   ipcRenderer.send('add-expanse', exp)
 })
 
-ipcRenderer.on('update-list', (evt, expanses) => {
-  console.log(`update-list: ${expanses.length}`)
-  const expEl = document.getElementById('expanse-list')
+ipcRenderer.on('ledgerUpdated', (evt, ledger) => {
+  console.log(`ledgerUpdated: ${ledger}`)
+  const expEl = document.getElementById('transactions')
   expEl.innerHTML = ''
-  for (let e of expanses) {
+  for (let t of ledger.transactions) {
     let item = document.createElement('li')
-    item.textContent = `${e.date}: ${e.description} ${e.value}`
+    item.textContent = `${t.date}: ${t.description}`
     expEl.appendChild(item)
   }
 })
