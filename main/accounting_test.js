@@ -24,48 +24,45 @@ assert.ok(foobar instanceof acc.Account)
 let baz = new acc.Account('baz', bar)
 assert.ok(baz instanceof acc.Account)
 
-assert.ok(l.addAccount(foo) instanceof acc.Ledger)
-assert.ok(l.addAccount(baz) instanceof Error)
-assert.ok(l.addAccount(bar) instanceof acc.Ledger)
-assert.ok(l.addAccount(foobar) instanceof Error)
-assert.ok(l.addAccount(baz) instanceof acc.Ledger)
+assert.doesNotThrow(() => l.addAccount(foo))
+assert.throws(() => l.addAccount(baz))
+assert.doesNotThrow(() => l.addAccount(bar))
+assert.throws(() => l.addAccount(foobar))
+assert.doesNotThrow(() => l.addAccount(baz))
 
-let e = new acc.Transaction(new Date(), [], [])
-assert.ok(e instanceof Error, e)
-e = new acc.Transaction(new Date(), [new acc.Debit(foo, 33)], [])
-assert.ok(e instanceof Error)
-e = new acc.Transaction(new Date(), [new acc.Debit(foo, 22)], [new acc.Credit(bar, 33)])
-assert.ok(e instanceof Error)
-e = new acc.Transaction(new Date(), [new acc.Credit(foo, 33)], [new acc.Credit(bar, 33)])
-assert.ok(e instanceof Error)
-e = new acc.Transaction(new Date(), [new acc.Debit(foo, 33)], [new acc.Debit(bar, 33)])
-assert.ok(e instanceof Error)
+let e
+  
+assert.throws(() => e = new acc.Transaction(new Date(), [], []))
+assert.throws(() => e = new acc.Transaction(new Date(), [new acc.Debit(foo, 33)], []))
+assert.throws(() => e = new acc.Transaction(new Date(), [new acc.Debit(foo, 22)], [new acc.Credit(bar, 33)]))
+assert.throws(() => e = new acc.Transaction(new Date(), [new acc.Credit(foo, 33)], [new acc.Credit(bar, 33)]))
+assert.throws(() => e = new acc.Transaction(new Date(), [new acc.Debit(foo, 33)], [new acc.Debit(bar, 33)]))
 
-let t1 = new acc.Transaction(
+let t1
+assert.doesNotThrow(() => t1 = new acc.Transaction(
   new Date(2000, 0, 1, 8),
   [new acc.Debit(foo, 33)],
   [new acc.Credit(bar, 33)]
-)
+))
 assert.ok(t1 instanceof acc.Transaction)
 
-let t2 = new acc.Transaction(
+let t2
+assert.doesNotThrow(() => t2 = new acc.Transaction(
   new Date(2000, 0, 3, 8),
   [new acc.Debit(foo, 20), new acc.Debit(foo, 80)],
   [new acc.Credit(bar, 70), new acc.Credit(baz, 30)]
-)
+))
 assert.ok(t2 instanceof acc.Transaction)
 
-let t3 = new acc.Transaction(
+let t3
+assert.doesNotThrow(() => t3 = new acc.Transaction(
   new Date(2000, 0, 2, 8),
   [new acc.Debit(foo, 20), new acc.Debit(foo, 80)],
   [new acc.Credit(bar, 70), new acc.Credit(baz, 30)]
-)
+))
 assert.ok(t2 instanceof acc.Transaction)
 
 err = l.addTransaction(t1)
-assert.equal(err, undefined, err)
 err = l.addTransaction(t3)
-assert.equal(err, undefined, err)
 err = l.addTransaction(t2)
-assert.equal(err, undefined, err)
 console.log(l)

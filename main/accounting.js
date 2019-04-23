@@ -19,12 +19,12 @@ class Ledger {
 
   addAccount (account) {
     if (this.accounts.has(account.name)) {
-      return new Error('ledger already contains an account with the same name')
+      throw new Error('ledger already contains an account with the same name')
     }
 
     if (account.parent !== null) {
       if (!this.accounts.has(account.parent.name)) {
-        return new Error('parent of the account is not in the ledger')
+        throw new Error('parent of the account is not in the ledger')
       }
       const p = this.accounts.get(account.parent.name)
       p.children.push(account)
@@ -39,9 +39,10 @@ class Ledger {
     let p = this.transactions.findIndex(t => t.date.getTime() > transaction.date.getTime())
     if (p === -1) {
       this.transactions.push(transaction)
-      return
+      return this
     }
     this.transactions.splice(p, 0, transaction)
+    return this
   }
 }
 
@@ -73,25 +74,25 @@ class Transaction {
     }
     let sum = 0
     if (debits.length === 0) {
-      return new Error('no debit in transaction')
+      throw new Error('no debit in transaction')
     }
     for (let d of debits) {
       if (!(d instanceof Debit)) {
-        return new Error('wrong object type in debits')
+        throw new Error('wrong object type in debits')
       }
       sum += d.amount
     }
     if (credits.length === 0) {
-      return new Error('no credit in transaction')
+      throw new Error('no credit in transaction')
     }
     for (let c of credits) {
       if (!(c instanceof Credit)) {
-        return new Error('wrong object type in credits')
+        throw new Error('wrong object type in credits')
       }
       sum -= c.amount
     }
     if (sum !== 0) {
-      return new Error('imbalanced transaction')
+      throw new Error('imbalanced transaction')
     }
 
     this.date = date
@@ -109,6 +110,9 @@ class Debit {
   // - account: an Account object
   // - amount: an integer (amount in cents)
   constructor (account, amount) {
+    if (!(account instanceof Account)) {
+      throw new Error('no account')
+    }
     this.account = account
     this.amount = amount
   }
@@ -118,6 +122,9 @@ class Credit {
   // - account: an Account object
   // - amount: an integer (amount in cents)
   constructor (account, amount) {
+    if (!(account instanceof Account)) {
+      throw new Error('no account')
+    }
     this.account = account
     this.amount = amount
   }
