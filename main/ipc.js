@@ -19,9 +19,9 @@ ledger.addTransaction(t)
 ipcMain.on('addTransaction', (evt, transaction) => {
   console.log(`addTransaction: ${transaction.description}`)
   let t = new acc.Transaction(
-    new Date(transaction.date), 
-    transaction.debits.map(d => new acc.Debit(ledger.accounts.get(d.account), d.amount)), 
-    transaction.credits.map(c => new acc.Credit(ledger.accounts.get(c.account), c.amount)) 
+    new Date(transaction.date),
+    transaction.debits.map(d => new acc.Debit(ledger.accounts.get(d.account), d.amount)),
+    transaction.credits.map(c => new acc.Credit(ledger.accounts.get(c.account), c.amount))
   )
   t.setDescription(transaction.description)
   ledger.addTransaction(t)

@@ -5,8 +5,6 @@
 'use strict'
 
 const { ipcRenderer } = require('electron')
-const acc = require('../main/accounting.js')
-
 
 document.getElementById('add-expanse').addEventListener('click', evt => {
   evt.preventDefault()
@@ -14,10 +12,10 @@ document.getElementById('add-expanse').addEventListener('click', evt => {
   let desc = document.getElementById('add-description').value
   let value = document.getElementById('add-value').valueAsNumber
   ipcRenderer.send('addTransaction', {
-    date: date, 
-    description: desc, 
-    debits: [{account: 'Expenses', amount: value}],
-    credits: [{account: 'Bank Account', amount: value}]
+    date: date,
+    description: desc,
+    debits: [{ account: 'Expenses', amount: value }],
+    credits: [{ account: 'Bank Account', amount: value }]
   })
 })
 

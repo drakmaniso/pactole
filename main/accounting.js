@@ -44,6 +44,15 @@ class Ledger {
     this.transactions.splice(p, 0, transaction)
     return this
   }
+
+  toJSON (key) {
+    return {
+      name: this.name,
+      description: this.description,
+      accounts: [...this.accounts.values()],
+      transactions: this.transactions
+    }
+  }
 }
 
 class Account {
@@ -59,6 +68,17 @@ class Account {
 
   setDescription (description) {
     this.description = description
+  }
+
+  toJSON (key) {
+    if (key === 'account' || key === 'parent') {
+      return this.name
+    }
+    return {
+      name: this.name,
+      description: this.description,
+      parent: this.parent
+    }
   }
 }
 
@@ -99,6 +119,7 @@ class Transaction {
     this.description = ''
     this.debits = debits
     this.credits = credits
+    this.reconciled = false
   }
 
   setDescription (description) {

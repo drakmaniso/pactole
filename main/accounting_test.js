@@ -3,7 +3,8 @@
 const assert = require('assert').strict
 const acc = require('./accounting.js')
 
-let err
+let _ // used to silence standard 'variable not used' complaints
+if (_) {}
 
 let l = new acc.Ledger('simple')
 assert.ok(l instanceof acc.Ledger)
@@ -30,39 +31,43 @@ assert.doesNotThrow(() => l.addAccount(bar))
 assert.throws(() => l.addAccount(foobar))
 assert.doesNotThrow(() => l.addAccount(baz))
 
-let e
-  
-assert.throws(() => e = new acc.Transaction(new Date(), [], []))
-assert.throws(() => e = new acc.Transaction(new Date(), [new acc.Debit(foo, 33)], []))
-assert.throws(() => e = new acc.Transaction(new Date(), [new acc.Debit(foo, 22)], [new acc.Credit(bar, 33)]))
-assert.throws(() => e = new acc.Transaction(new Date(), [new acc.Credit(foo, 33)], [new acc.Credit(bar, 33)]))
-assert.throws(() => e = new acc.Transaction(new Date(), [new acc.Debit(foo, 33)], [new acc.Debit(bar, 33)]))
+assert.throws(() => { _ = new acc.Transaction(new Date(), [], []) })
+assert.throws(() => { _ = new acc.Transaction(new Date(), [new acc.Debit(foo, 33)], []) })
+assert.throws(() => { _ = new acc.Transaction(new Date(), [new acc.Debit(foo, 22)], [new acc.Credit(bar, 33)]) })
+assert.throws(() => { _ = new acc.Transaction(new Date(), [new acc.Credit(foo, 33)], [new acc.Credit(bar, 33)]) })
+assert.throws(() => { _ = new acc.Transaction(new Date(), [new acc.Debit(foo, 33)], [new acc.Debit(bar, 33)]) })
 
 let t1
-assert.doesNotThrow(() => t1 = new acc.Transaction(
-  new Date(2000, 0, 1, 8),
-  [new acc.Debit(foo, 33)],
-  [new acc.Credit(bar, 33)]
-))
+assert.doesNotThrow(() => {
+  t1 = new acc.Transaction(
+    new Date(2000, 0, 1, 8),
+    [new acc.Debit(foo, 33)],
+    [new acc.Credit(bar, 33)]
+  )
+})
 assert.ok(t1 instanceof acc.Transaction)
 
 let t2
-assert.doesNotThrow(() => t2 = new acc.Transaction(
-  new Date(2000, 0, 3, 8),
-  [new acc.Debit(foo, 20), new acc.Debit(foo, 80)],
-  [new acc.Credit(bar, 70), new acc.Credit(baz, 30)]
-))
+assert.doesNotThrow(() => {
+  t2 = new acc.Transaction(
+    new Date(2000, 0, 3, 8),
+    [new acc.Debit(foo, 20), new acc.Debit(foo, 80)],
+    [new acc.Credit(bar, 70), new acc.Credit(baz, 30)]
+  )
+})
 assert.ok(t2 instanceof acc.Transaction)
 
 let t3
-assert.doesNotThrow(() => t3 = new acc.Transaction(
-  new Date(2000, 0, 2, 8),
-  [new acc.Debit(foo, 20), new acc.Debit(foo, 80)],
-  [new acc.Credit(bar, 70), new acc.Credit(baz, 30)]
-))
+assert.doesNotThrow(() => {
+  t3 = new acc.Transaction(
+    new Date(2000, 0, 2, 8),
+    [new acc.Debit(foo, 20), new acc.Debit(foo, 80)],
+    [new acc.Credit(bar, 70), new acc.Credit(baz, 30)]
+  )
+})
 assert.ok(t2 instanceof acc.Transaction)
 
-err = l.addTransaction(t1)
-err = l.addTransaction(t3)
-err = l.addTransaction(t2)
-console.log(l)
+l.addTransaction(t1)
+l.addTransaction(t3)
+l.addTransaction(t2)
+console.log(JSON.stringify(l, null, 2))
