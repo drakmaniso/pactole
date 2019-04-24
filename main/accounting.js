@@ -95,7 +95,7 @@ class Transaction {
       throw new Error('imbalanced transaction')
     }
 
-    this.date = date
+    this.date = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 12)
     this.description = ''
     this.debits = debits
     this.credits = credits

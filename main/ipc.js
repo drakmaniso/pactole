@@ -16,11 +16,14 @@ let t = new acc.Transaction(new Date(), [new acc.Debit(expenses, 50)], [new acc.
 t.setDescription('First transaction')
 ledger.addTransaction(t)
 
-ipcMain.on('add-expanse', (evt, exp) => {
-  console.log(exp)
-  let t = new acc.Transaction(new Date(exp.date), [new acc.Debit(expenses, exp.value)], [new acc.Credit(bank, exp.value)])
-  console.log(t)
-  t.setDescription(exp.description)
+ipcMain.on('addTransaction', (evt, transaction) => {
+  console.log(`addTransaction: ${transaction.description}`)
+  let t = new acc.Transaction(
+    new Date(transaction.date), 
+    transaction.debits.map(d => new acc.Debit(ledger.accounts.get(d.account), d.amount)), 
+    transaction.credits.map(c => new acc.Credit(ledger.accounts.get(c.account), c.amount)) 
+  )
+  t.setDescription(transaction.description)
   ledger.addTransaction(t)
   ledgerUpdated()
 })

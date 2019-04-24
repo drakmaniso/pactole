@@ -7,15 +7,18 @@
 const { ipcRenderer } = require('electron')
 const acc = require('../main/accounting.js')
 
+
 document.getElementById('add-expanse').addEventListener('click', evt => {
   evt.preventDefault()
-  console.log('plop')
-  let exp = {
-    date: document.getElementById('add-date').valueAsDate.getTime(),
-    description: document.getElementById('add-description').value,
-    value: document.getElementById('add-value').valueAsNumber
-  }
-  ipcRenderer.send('add-expanse', exp)
+  let date = document.getElementById('add-date').valueAsDate.getTime()
+  let desc = document.getElementById('add-description').value
+  let value = document.getElementById('add-value').valueAsNumber
+  ipcRenderer.send('addTransaction', {
+    date: date, 
+    description: desc, 
+    debits: [{account: 'Expenses', amount: value}],
+    credits: [{account: 'Bank Account', amount: value}]
+  })
 })
 
 ipcRenderer.on('ledgerUpdated', (evt, ledger) => {
