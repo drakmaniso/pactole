@@ -7,14 +7,19 @@ module.exports = Object.freeze({
 const { ipcMain, BrowserWindow } = require('electron')
 const acc = require('./accounting.js')
 
-let ledger = new acc.Ledger('simple')
-let bank = new acc.Account('Bank Account')
-ledger.addAccount(bank)
-let expenses = new acc.Account('Expenses')
-ledger.addAccount(expenses)
-let t = new acc.Transaction(new Date(), [new acc.Debit(expenses, 50)], [new acc.Credit(bank, 50)])
-t.setDescription('First transaction')
+const ledger = new acc.Ledger('simple')
+ledger.assets.addChild(new acc.Assets('Bank Account'))
+
+let t = new acc.Transaction(new Date(), [new acc.Debit(ledger.assets.children[0], 3000)],
+  [new acc.Credit(ledger.equity, 3000)])
+t.setDescription('Opening Balance')
 ledger.addTransaction(t)
+
+t = new acc.Transaction(new Date(), [new acc.Debit(ledger.expenses, 50)], [new acc.Credit(ledger.assets.children[0], 50)])
+t.setDescription('First expense')
+ledger.addTransaction(t)
+
+console.log(JSON.stringify(ledger, null, 2))
 
 ipcMain.on('addTransaction', (evt, transaction) => {
   console.log(`addTransaction: ${transaction.description}`)

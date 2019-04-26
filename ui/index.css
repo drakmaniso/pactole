@@ -1,0 +1,18 @@
+.wrapper {
+    grid-template-columns: 3fr 1fr;
+    grid-template-areas:
+        "content sidebar"
+        "footer footer";
+}
+
+aside {
+    grid-area: sidebar;
+}
+
+.content {
+    grid-area: content;
+}
+
+footer {
+    grid-area: footer;
+}

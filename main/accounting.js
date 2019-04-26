@@ -9,29 +9,16 @@ class Ledger {
   constructor (name) {
     this.name = name
     this.description = ''
-    this.accounts = new Map()
+    this.assets = new Assets('Assets')
+    this.liabilities = new Liabilities('Liabilities')
+    this.equity = new Equity('Equity')
+    this.income = new Income('Income')
+    this.expenses = new Expenses('Expenses')
     this.transactions = []
   }
 
   setDescription (description) {
     this.description = description
-  }
-
-  addAccount (account) {
-    if (this.accounts.has(account.name)) {
-      throw new Error('ledger already contains an account with the same name')
-    }
-
-    if (account.parent !== null) {
-      if (!this.accounts.has(account.parent.name)) {
-        throw new Error('parent of the account is not in the ledger')
-      }
-      const p = this.accounts.get(account.parent.name)
-      p.children.push(account)
-    }
-
-    this.accounts.set(account.name, account)
-
     return this
   }
 
@@ -44,41 +31,71 @@ class Ledger {
     this.transactions.splice(p, 0, transaction)
     return this
   }
-
-  toJSON (key) {
-    return {
-      name: this.name,
-      description: this.description,
-      accounts: [...this.accounts.values()],
-      transactions: this.transactions
-    }
-  }
 }
 
 class Account {
   // - name: string that uniquely identifies the account
   // - description: informal string
   // - parent: Account object, or null
-  constructor (name, parent = null) {
+  constructor (name) {
     this.name = name
     this.description = ''
-    this.parent = parent
     this.children = []
   }
 
   setDescription (description) {
     this.description = description
+    return this
+  }
+
+  addChild (account) {
+    if (Object.getPrototypeOf(account) !== Object.getPrototypeOf(this)) {
+      throw new Error ('Child account type does not match its parent')
+    }
+    for (let a of this.children) {
+      if (a.name === account.name) {
+        throw new Error ('Account name already exists')
+      }
+    }
+    this.children.push(account)
+    return this
   }
 
   toJSON (key) {
-    if (key === 'account' || key === 'parent') {
+    if (key === 'account') {
       return this.name
     }
-    return {
-      name: this.name,
-      description: this.description,
-      parent: this.parent
-    }
+    return this
+  }
+}
+
+class Equity extends Account {
+  constructor (name) {
+    super(name)
+  }
+}
+
+class Assets extends Account {
+  constructor (name) {
+    super(name)
+  }
+}
+
+class Liabilities extends Account {
+  constructor (name) {
+    super(name)
+  }
+}
+
+class Expenses extends Account {
+  constructor (name) {
+    super(name)
+  }
+}
+
+class Income extends Account {
+  constructor (name) {
+    super(name)
   }
 }
 
@@ -154,6 +171,11 @@ class Credit {
 module.exports = Object.freeze({
   Ledger: Ledger,
   Account: Account,
+  Equity: Equity,
+  Assets: Assets,
+  Liabilities: Liabilities,
+  Expenses: Expenses,
+  Income: Income,
   Transaction: Transaction,
   Debit: Debit,
   Credit: Credit

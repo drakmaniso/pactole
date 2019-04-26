@@ -3,22 +3,56 @@
   <head>
     <meta charset="UTF-8">
     <meta http-equiv="Content-Security-Policy" content="default-src 'unsafe-inline'">
+<style>
+.wrapper {
+    display: grid;
+    grid-template-columns: 3fr 1fr;
+    grid-template-areas:
+        "content sidebar"
+        "footer footer";
+}
+
+aside {
+    grid-area: sidebar;
+    display: flex;
+    flex-direction: column;
+}
+
+.content {
+    grid-area: content;
+}
+
+footer {
+    font-size: 0.6rem;
+    grid-area: footer;
+}
+</style>
     <title>Pactole</title>
   </head>
   <body>
-    <!-- All of the Node.js APIs are available in this renderer process. -->
-    <p>We are using Node.js <script>document.write(process.versions.node)</script>,
-    Chromium <script>document.write(process.versions.chrome)</script>,
-    and Electron <script>document.write(process.versions.electron)</script>.</p>
 
-    <form>
-      <input id="add-date" type="date" value="2019-04-14">
-      <input id="add-description" type="text">
-      <input id="add-value" type="number">
-      <button id="add-expanse" type="button">Ajouter</button>
-    </form>
+    <div class="wrapper">
 
-    <ul id="transactions"></ul>
+      <div class="content">
+        <ul id="transactions"></ul>
+      </div>
+
+      <aside>
+        <form>
+          <div>Date: <input id="add-date" type="date" value="2019-04-14"></div>
+          <div>Desc: <input id="add-description" type="text"></div>
+          <div>Amount: <input id="add-value" type="number"></div>
+          <div><button id="add-expanse" type="button">Add</button></div>
+        </form>
+      </aside>
+
+      <footer>
+          Node.js <script>document.write(process.versions.node)</script>,
+          Chromium <script>document.write(process.versions.chrome)</script>,
+          Electron <script>document.write(process.versions.electron)</script>.
+      </footer>
+
+    </div>
 
     <script>
       // You can also require other files to run in this process

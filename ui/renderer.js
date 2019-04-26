@@ -1,7 +1,3 @@
-// This file is required by the index.html file and will
-// be executed in the renderer process for that window.
-// All of the Node.js APIs are available in this process.
-
 'use strict'
 
 const { ipcRenderer } = require('electron')
@@ -24,8 +20,9 @@ ipcRenderer.on('ledgerUpdated', (evt, ledger) => {
   const expEl = document.getElementById('transactions')
   expEl.innerHTML = ''
   for (let t of ledger.transactions) {
+    t.date = new Date(t.date)
     let item = document.createElement('li')
-    item.textContent = `${t.date}: ${t.description}`
+    item.textContent = `${t.date.getFullYear()}/${t.date.getMonth()+1}/${t.date.getDate()}: ${t.description}`
     expEl.appendChild(item)
   }
 })
