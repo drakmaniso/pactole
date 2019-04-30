@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="style-src 'self'; script-src 'self'; default-src 'unsafe-inline'">
+    <link rel="stylesheet" href="index.css">
+    <title>Pactole</title>
+  </head>
+  <body>
+
+    <div class="wrapper">
+
+      <div class="content">
+        <ul id="transactions"></ul>
+      </div>
+
+      <aside>
+        <button id="expense-button-1">New Expense</button>
+      </aside>
+
+      <!--footer>
+          Node.js <script>document.write(process.versions.node)</script>,
+          Chromium <script>document.write(process.versions.chrome)</script>,
+          Electron <script>document.write(process.versions.electron)</script>.
+      </footer-->
+
+    </div>
+
+    <dialog id="expense-dialog">
+        <form>
+          <div>Date: <input id="expense-date" type="date"></div>
+          <div>Desc: <input id="expense-description" type="text"></div>
+          <div>Amount: <input id="expense-amount" type="number"></div>
+          <div>
+            <button id="expense-ok" type="button">Ok</button>
+            <button id="expense-cancel" type="button">Cancel</button>
+          </div>
+        </form>
+    </dialog>
+
+    <script src="accounting.js"></script>
+    <script src="dummy.js"></script>
+    <script src="index.js"></script>
+  </body>
+</html>

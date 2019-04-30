@@ -5,7 +5,7 @@ module.exports = Object.freeze({
 })
 
 const { ipcMain, BrowserWindow } = require('electron')
-const acc = require('./accounting.js')
+const acc = require('../app/accounting.js')
 
 const ledger = new acc.Ledger('simple')
 ledger.assets.addChild(new acc.Assets('Bank Account'))

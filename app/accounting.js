@@ -1,11 +1,6 @@
 'use strict'
 
 class Ledger {
-  // name: a string that uniquely identifies the ledger
-  // description: an informal string
-  // accounts: a Map from string to Accounts objects
-  // transactions: an array of Transaction objects
-
   constructor (name) {
     this.name = name
     this.description = ''
@@ -34,9 +29,6 @@ class Ledger {
 }
 
 class Account {
-  // - name: string that uniquely identifies the account
-  // - description: informal string
-  // - parent: Account object, or null
   constructor (name) {
     this.name = name
     this.description = ''
@@ -100,11 +92,6 @@ class Income extends Account {
 }
 
 class Transaction {
-  // date: a javascript Date, corresponding to the date of the transaction.
-  // description: string (possibly empty) to describe the transaction.
-  // debits: array of Debit objects.
-  // credits: array of Credit objects.
-
   constructor (date, debits, credits) {
     if (!(date instanceof Date)) {
       throw new Error('wrong date')
@@ -145,8 +132,6 @@ class Transaction {
 }
 
 class Debit {
-  // - account: an Account object
-  // - amount: an integer (amount in cents)
   constructor (account, amount) {
     if (!(account instanceof Account)) {
       throw new Error('no account')
@@ -157,8 +142,6 @@ class Debit {
 }
 
 class Credit {
-  // - account: an Account object
-  // - amount: an integer (amount in cents)
   constructor (account, amount) {
     if (!(account instanceof Account)) {
       throw new Error('no account')
@@ -168,6 +151,7 @@ class Credit {
   }
 }
 
+/*
 module.exports = Object.freeze({
   Ledger: Ledger,
   Account: Account,
@@ -180,3 +164,4 @@ module.exports = Object.freeze({
   Debit: Debit,
   Credit: Credit
 })
+*/

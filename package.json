@@ -2,7 +2,7 @@
   "name": "pactole",
   "version": "0.0.0",
   "description": "",
-  "main": "main/main.js",
+  "main": "electron/main.js",
   "scripts": {
     "start": "electron ."
   },
