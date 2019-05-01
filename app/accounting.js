@@ -1,6 +1,6 @@
 'use strict'
 
-class Ledger {
+export class Ledger {
   constructor (name) {
     this.name = name
     this.description = ''
@@ -26,9 +26,18 @@ class Ledger {
     this.transactions.splice(p, 0, transaction)
     return this
   }
+
+  getAccount (kind, name) {
+    for (let a of this[kind].children) {
+      if (a.name === name) {
+        return a
+      }
+    }
+    throw new Error('unknown account')
+  }
 }
 
-class Account {
+export class Account {
   constructor (name) {
     this.name = name
     this.description = ''
@@ -61,37 +70,37 @@ class Account {
   }
 }
 
-class Equity extends Account {
+export class Equity extends Account {
   constructor (name) {
     super(name)
   }
 }
 
-class Assets extends Account {
+export class Assets extends Account {
   constructor (name) {
     super(name)
   }
 }
 
-class Liabilities extends Account {
+export class Liabilities extends Account {
   constructor (name) {
     super(name)
   }
 }
 
-class Expenses extends Account {
+export class Expenses extends Account {
   constructor (name) {
     super(name)
   }
 }
 
-class Income extends Account {
+export class Income extends Account {
   constructor (name) {
     super(name)
   }
 }
 
-class Transaction {
+export class Transaction {
   constructor (date, debits, credits) {
     if (!(date instanceof Date)) {
       throw new Error('wrong date')
@@ -131,7 +140,7 @@ class Transaction {
   }
 }
 
-class Debit {
+export class Debit {
   constructor (account, amount) {
     if (!(account instanceof Account)) {
       throw new Error('no account')
@@ -141,7 +150,7 @@ class Debit {
   }
 }
 
-class Credit {
+export class Credit {
   constructor (account, amount) {
     if (!(account instanceof Account)) {
       throw new Error('no account')

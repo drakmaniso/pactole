@@ -1,12 +1,16 @@
 'use strict'
 
-//const acc = import("accounting.js")
+import * as accounting from './accounting.js'
+import ledger from './dummy.js' 
+
 
 document.getElementById('expense-date').valueAsDate = new Date()
 
-document.getElementById('expense-button-1').addEventListener('click', evt => {
-  document.getElementById('expense-dialog').showModal()
-})
+for (let d of document.getElementsByClassName('expense-button')) {
+  d.addEventListener('click', evt => {
+    document.getElementById('expense-dialog').showModal()
+  })
+}
 document.getElementById('expense-ok').addEventListener('click', evt => {
   evt.preventDefault()
   let date = document.getElementById('expense-date').valueAsDate
@@ -17,7 +21,9 @@ document.getElementById('expense-ok').addEventListener('click', evt => {
     document.getElementById('expense-dialog').close()
     return  
   }
-  let t = new Transaction(date, [new Debit(ledger.expenses, amount)], [new Credit(ledger.assets.children[0], amount)])
+  let t = new accounting.Transaction(date,
+    [new accounting.Debit(ledger.expenses, amount)],
+    [new accounting.Credit(ledger.assets.children[0], amount)])
   t.setDescription(desc)
   ledger.addTransaction(t)
   updateTransactionList()
@@ -32,9 +38,24 @@ function updateTransactionList() {
   expEl.innerHTML = ''
   for (let t of ledger.transactions) {
     t.date = new Date(t.date)
-    let item = document.createElement('li')
-    item.textContent = `${t.date.getFullYear()}/${t.date.getMonth()+1}/${t.date.getDate()}: ${t.description}`
-    expEl.appendChild(item)
+    let row = document.createElement('tr')
+    let col
+    col = document.createElement('td')
+    col.textContent = `${t.date.getDate()}/${t.date.getMonth()+1}/${t.date.getFullYear()}:` 
+    row.appendChild(col)
+    col = document.createElement('td')
+    col.textContent = `${t.debits[0].account.name}`
+    row.appendChild(col)
+    col = document.createElement('td')
+    col.textContent = `${t.credits[0].account.name}`
+    row.appendChild(col)
+    col = document.createElement('td')
+    col.textContent = `${t.debits[0].amount}`
+    row.appendChild(col)
+    col = document.createElement('td')
+    col.textContent = `${t.description}`
+    row.appendChild(col)
+    expEl.appendChild(row)
   }
 }
 
