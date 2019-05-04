@@ -28,12 +28,38 @@ export class Ledger {
   }
 
   getAccount (kind, name) {
+    if (name === '' || name === undefined) {
+      return this[kind]
+    }
     for (let a of this[kind].children) {
       if (a.name === name) {
         return a
       }
     }
     throw new Error('unknown account')
+  }
+
+  getBalance (kind, name) {
+    let account = this[kind]
+    for (let a of this[kind].children) {
+      if (a.name === name) {
+        account = a
+      }
+    }
+    let bal = 0
+    for (let t of this.transactions) {
+      for (let td of t.debits) {
+        if (td.account === account) {
+          bal = bal + td.amount
+        }
+      }
+      for (let tc of t.credits) {
+        if (tc.account === account) {
+          bal = bal - tc.amount
+        }
+      }
+    }
+    return bal
   }
 }
 

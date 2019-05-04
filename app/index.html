@@ -10,28 +10,31 @@
 
     <div class="wrapper">
 
+      <header>
+        Compte courant: <span id="balance"></span>
+      </header>
+
       <div class="content">
-        <table id="transactions">
+        <table id="transactions-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Débit</th>
+              <th>Crédit</th>
+              <th>Montant</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody id="transactions">
+          </tbody>
         </table>
       </div>
 
       <aside>
-        <h3>Revenus</h3>
+        <h3>Ajouter de l'argent:</h3>
         <div id="income-button-list"></div>
-        <button class="income-button">Allocations</button>
-        <button class="income-button">Salaire</button>
-        <button class="income-button">Autre</button>
-        <h3>Dépenses</h3>
+        <h3>Faire une dépense:</h3>
         <div id="expense-button-list"></div>
-        <button class="expense-button">Alimentation</button>
-        <button class="expense-button">Factures</button>
-        <button class="expense-button">Frais bancaires</button>
-        <button class="expense-button">Habillement</button>
-        <button class="expense-button">Loisirs</button>
-        <button class="expense-button">Loyer</button>
-        <button class="expense-button">Santé</button>
-        <button class="expense-button">Transports</button>
-        <button class="expense-button">Autre</button>
       </aside>
 
       <!--footer>
@@ -45,8 +48,9 @@
     <dialog id="expense-dialog">
         <form>
           <div>Date: <input id="expense-date" type="date"></div>
-          <div>Amount: <input id="expense-amount" type="number" autofocus></div>
-          <div>Desc: <input id="expense-description" type="text"></div>
+          <div>Catégorie: <select id="expense-category"></select></div>
+          <div>Montant: <input id="expense-amount" type="number" autofocus></div>
+          <div>Description: <input id="expense-description" type="text"></div>
           <div>
             <button id="expense-ok" type="submit">Ok</button>
             <button id="expense-cancel" type="button">Cancel</button>
