@@ -1,14 +1,18 @@
 'use strict'
 
 let datastore = require('./datastore.js')
-let ipc = require('./ipc.js')
+//let ipc = require('./ipc.js')
 
 const { app, BrowserWindow } = require('electron')
 
 let win
 
+//app.commandLine.appendSwitch('disable-web-security');
+
 function createWindow () {
   win = new BrowserWindow({
+    //webPreferences: {webSecurity: false},
+    //'web-preferences': {'web-security': false},
     width: 800,
     height: 600,
     webPreferences: {
@@ -17,7 +21,7 @@ function createWindow () {
     }
   })
 
-  win.loadFile('ui/index.html')
+  win.loadFile('app/index.html')
   datastore.setup()
   datastore.save()
 
@@ -29,7 +33,7 @@ function createWindow () {
 
   win.webContents.on('dom-ready', () => {
     console.log('window shown')
-    ipc.ledgerUpdated()
+    //ipc.ledgerUpdated()
   })
 }
 

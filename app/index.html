@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8">
     <meta http-equiv="Content-Security-Policy" content="style-src 'self'; script-src 'self'; default-src 'self'">
+    <link rel="stylesheet" href="bootstrap-reboot.css">
     <link rel="stylesheet" href="index.css">
     <title>Pactole</title>
   </head>
@@ -11,10 +12,47 @@
     <div class="wrapper">
 
       <header>
-        Compte courant: <span id="balance"></span>
+        <nav>
+          <button id="nav-calendar" name="calendar">Calendrier</button>
+          <button id="nav-transactions" name="transactions">Opérations</button>
+          <button id="nav-summary" name="summary">Catégories</button>
+        </nav>
       </header>
 
-      <div class="content">
+      <main id="calendar-main" hidden>
+        <div class="calendar-month">
+            <div class="calendar-day" id="calendar-day-0-0">Lundi</div>
+            <div class="calendar-day" id="calendar-day-0-1">Mardi</div>
+            <div class="calendar-day" id="calendar-day-0-2">Mercredi</div>
+            <div class="calendar-day" id="calendar-day-0-3">Jeudi</div>
+            <div class="calendar-day" id="calendar-day-0-4">Vendredi</div>
+            <div class="calendar-day" id="calendar-day-0-5">Samedi</div>
+            <div class="calendar-day" id="calendar-day-0-6">Dimanche</div>
+            <div class="calendar-day" id="calendar-day-1-0">Lundi</div>
+            <div class="calendar-day" id="calendar-day-1-1">Mardi</div>
+            <div class="calendar-day" id="calendar-day-1-2">Mercredi</div>
+            <div class="calendar-day" id="calendar-day-1-3">Jeudi</div>
+            <div class="calendar-day" id="calendar-day-1-4">Vendredi</div>
+            <div class="calendar-day" id="calendar-day-1-5">Samedi</div>
+            <div class="calendar-day" id="calendar-day-1-6">Dimanche</div>
+            <div class="calendar-day" id="calendar-day-2-0">Lundi</div>
+            <div class="calendar-day" id="calendar-day-2-1">Mardi</div>
+            <div class="calendar-day" id="calendar-day-2-2">Mercredi</div>
+            <div class="calendar-day" id="calendar-day-2-3">Jeudi</div>
+            <div class="calendar-day" id="calendar-day-2-4">Vendredi</div>
+            <div class="calendar-day" id="calendar-day-2-5">Samedi</div>
+            <div class="calendar-day" id="calendar-day-2-6">Dimanche</div>
+            <div class="calendar-day" id="calendar-day-3-0">Lundi</div>
+            <div class="calendar-day" id="calendar-day-3-1">Mardi</div>
+            <div class="calendar-day" id="calendar-day-3-2">Mercredi</div>
+            <div class="calendar-day" id="calendar-day-3-3">Jeudi</div>
+            <div class="calendar-day" id="calendar-day-3-4">Vendredi</div>
+            <div class="calendar-day" id="calendar-day-3-5">Samedi</div>
+            <div class="calendar-day" id="calendar-day-3-6">Dimanche</div>
+        </div>
+      </main>
+
+      <main id="transactions-main" hidden>
         <table id="transactions-table">
           <thead>
             <tr>
@@ -25,37 +63,41 @@
               <th>Description</th>
             </tr>
           </thead>
-          <tbody id="transactions">
+          <tbody id="transactions-content">
           </tbody>
         </table>
-      </div>
+      </main>
 
-      <aside>
+      <aside id="transactions-sidebar">
         <h3>Ajouter de l'argent:</h3>
-        <div id="income-button-list"></div>
+        <ul id="transactions-income-actions"></ul>
         <h3>Faire une dépense:</h3>
-        <div id="expense-button-list"></div>
+        <ul id="transactions-expense-actions"></ul>
       </aside>
 
-      <!--footer>
-          Node.js <script>document.write(process.versions.node)</script>,
-          Chromium <script>document.write(process.versions.chrome)</script>,
-          Electron <script>document.write(process.versions.electron)</script>.
-      </footer-->
+      <main id="summary-main" hidden>
+        <h1>catégories</h1>
+      </main>
+
+      <footer>
+        Solde actuel: <span id="balance"></span>
+      </footer>
 
     </div>
 
     <dialog id="expense-dialog">
-        <form>
-          <div>Date: <input id="expense-date" type="date"></div>
-          <div>Catégorie: <select id="expense-category"></select></div>
-          <div>Montant: <input id="expense-amount" type="number" autofocus></div>
-          <div>Description: <input id="expense-description" type="text"></div>
-          <div>
-            <button id="expense-ok" type="submit">Ok</button>
-            <button id="expense-cancel" type="button">Cancel</button>
-          </div>
-        </form>
+      <h2>Dépense: <span id="expense-category-description"></span></h2>
+      <form>
+        <div>Date: <input id="expense-date" type="date"></div>
+        <!-- div>Catégorie: <select id="expense-categories"></select></div -->
+        <input hidden id="expense-category" type="text"></input>
+        <div>Montant: <input id="expense-amount" type="number" autofocus></div>
+        <div>Description: <input id="expense-description" type="text"></div>
+        <div>
+          <button id="expense-submit" type="submit">Ok</button>
+          <button id="expense-cancel" type="button">Cancel</button>
+        </div>
+      </form>
     </dialog>
 
     <script src="index.js" type="module"></script>

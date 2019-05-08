@@ -3,8 +3,9 @@
   "version": "0.0.0",
   "description": "",
   "main": "electron/main.js",
+  "type" : "module",
   "scripts": {
-    "start": "electron ."
+    "start": "electron --experimental-modules ."
   },
   "repository": "",
   "keywords": [

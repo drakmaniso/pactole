@@ -13,8 +13,8 @@ body {
     grid-template-rows: 4rem 1fr 2rem;
     grid-template-areas:
         "header header"
-        "content sidebar"
-        "footer sidebar";
+        "main sidebar"
+        "footer footer";
 }
 
 aside {
@@ -24,8 +24,8 @@ aside {
     flex-direction: column;
 }
 
-.content {
-    grid-area: content;
+main {
+    grid-area: main;
 }
 
 header {
@@ -33,13 +33,19 @@ header {
     grid-area: header;
 }
 
+header nav {
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+}
+
 footer {
     background: #beb;
-    font-size: 0.6rem;
+    font-size: 1.2rem;
     grid-area: footer;
 }
 
-#income-button-list, #expense-button-list {
+#transactions-sidebar ul {
     display: flex;
     flex-direction: column;
 }
@@ -48,7 +54,52 @@ footer {
     width: 100%;
 }
 
-th {
+#transactions-table th {
     text-align: left;
 }
 
+
+.calendar-month {
+    height: 100%;
+    height: 100%;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+    grid-template-areas:
+        "d00 d01 d02 d03 d04 d05 d06"
+        "d10 d11 d12 d13 d14 d15 d16"
+        "d20 d21 d22 d23 d24 d25 d26"
+        "d30 d31 d32 d33 d34 d35 d36";
+}
+
+#calendar-day-0-0 { grid-area: d00; }
+#calendar-day-0-1 { grid-area: d01; }
+#calendar-day-0-2 { grid-area: d02; }
+#calendar-day-0-3 { grid-area: d03; }
+#calendar-day-0-4 { grid-area: d04; }
+#calendar-day-0-5 { grid-area: d05; }
+#calendar-day-0-6 { grid-area: d06; }
+
+#calendar-day-1-0 { grid-area: d10; }
+#calendar-day-1-1 { grid-area: d11; }
+#calendar-day-1-2 { grid-area: d12; }
+#calendar-day-1-3 { grid-area: d13; }
+#calendar-day-1-4 { grid-area: d14; }
+#calendar-day-1-5 { grid-area: d15; }
+#calendar-day-1-6 { grid-area: d16; }
+
+#calendar-day-2-0 { grid-area: d20; }
+#calendar-day-2-1 { grid-area: d21; }
+#calendar-day-2-2 { grid-area: d22; }
+#calendar-day-2-3 { grid-area: d23; }
+#calendar-day-2-4 { grid-area: d24; }
+#calendar-day-2-5 { grid-area: d25; }
+#calendar-day-2-6 { grid-area: d26; }
+
+#calendar-day-3-0 { grid-area: d30; }
+#calendar-day-3-1 { grid-area: d31; }
+#calendar-day-3-2 { grid-area: d32; }
+#calendar-day-3-3 { grid-area: d33; }
+#calendar-day-3-4 { grid-area: d34; }
+#calendar-day-3-5 { grid-area: d35; }
+#calendar-day-3-6 { grid-area: d36; }
