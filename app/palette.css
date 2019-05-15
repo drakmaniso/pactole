@@ -1,0 +1,10 @@
+:root {
+    --header-fg: #101024;
+    --header-bg: #55a894;
+    --header-highlight-bg: #8bd0ba;
+
+    --sidebar-fg: #101024;
+    --sidebar-bg: #8bd0ba;
+
+    --minicalendar-highlight-bg: #ffcc68;
+}

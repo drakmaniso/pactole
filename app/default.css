@@ -1,3 +1,6 @@
+@import "bootstrap-reboot.css";
+@import "palette.css";
+
 html {
     height: 100%;
 }
@@ -18,7 +21,7 @@ body {
 }
 
 aside {
-    background: #dfd;
+    background: var(--sidebar-bg);
     grid-area: sidebar;
     display: flex;
     flex-direction: column;
@@ -28,19 +31,39 @@ main {
     grid-area: main;
 }
 
-header {
-    background: #beb;
-    grid-area: header;
+div.main {
+    width: 100%;
+    height: 100%;
 }
 
-header nav {
+header[role="banner"] {
+    color: var(--header-fg);
+    background: var(--header-bg);
+    grid-area: header;
+    user-select: none;
+}
+
+nav.banner {
     height: 100%;
     display: flex;
     flex-direction: row;
 }
 
+a.banner.navlink {
+    display: flex;
+    flex-direction: column;
+    color: var(--header-fg);
+    text-decoration: none;
+    width: 8rem;
+    text-align: center;
+    justify-content: center;
+}
+a.banner.navlink:hover {
+    background: var(--header-highlight-bg);
+}
+
 footer {
-    background: #beb;
+    background: var(--header-bg);
     font-size: 1.2rem;
     grid-area: footer;
 }
@@ -103,3 +126,63 @@ footer {
 #calendar-day-3-4 { grid-area: d34; }
 #calendar-day-3-5 { grid-area: d35; }
 #calendar-day-3-6 { grid-area: d36; }
+
+
+dialog > div {
+    display: flex;
+    flex-flow: row wrap;
+}
+dialog > div.dialog-buttons {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: flex-end;
+}
+
+
+section.minicalendar {
+    border: solid;
+    display: flex;
+    flex-flow: column;
+    user-select: none;
+    margin: 1rem;
+}
+
+section.minicalendar > header {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+}
+
+section.minicalendar > header > button {
+    flex: 0 0 auto;
+    background: none;
+    width: 2.5rem;
+    height: 3rem;
+    border: none;
+}
+section.minicalendar > header > button:hover {
+    background: var(--minicalendar-highlight-bg);
+}
+
+section.minicalendar > header > h3 {
+    flex: 1 1 auto;
+    text-align: center;
+    margin: 0;
+}
+
+section.minicalendar > table > thead > tr > td {
+    text-align: center;
+    height: 1rem;
+    font-size: 0.75rem;
+    color: gray;
+}
+
+section.minicalendar > table > tbody > tr > td {
+    text-align: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 1.25rem;
+}
+section.minicalendar > table > tbody > tr > td:hover {
+    background: var(--minicalendar-highlight-bg);
+}

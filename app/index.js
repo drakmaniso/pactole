@@ -3,26 +3,56 @@
 import * as accounting from './accounting.js'
 import ledger from './dummy.js' 
 
-
-document.getElementById('expense-date').valueAsDate = new Date()
-
-document.getElementById('nav-calendar').addEventListener('click', evt => {
-  document.getElementById('transactions-main').hidden = true
-  document.getElementById('summary-main').hidden = true
-  document.getElementById('calendar-main').hidden = false
-  document.getElementById('transactions-sidebar').hidden = false
-})
-document.getElementById('nav-transactions').addEventListener('click', evt => {
-  document.getElementById('summary-main').hidden = true
-  document.getElementById('calendar-main').hidden = true
-  document.getElementById('transactions-main').hidden = false
-  document.getElementById('transactions-sidebar').hidden = false
-})
-document.getElementById('nav-summary').addEventListener('click', evt => {
-  document.getElementById('transactions-sidebar').hidden = true
+window.addEventListener('hashchange', function() {
   document.getElementById('calendar-main').hidden = true
   document.getElementById('transactions-main').hidden = true
-  document.getElementById('summary-main').hidden = false
+  document.getElementById('summary-main').hidden = true
+  document.getElementById(`${location.hash}-main`.slice(1)).hidden = false
+})
+
+
+let selectedDate = new Date()
+document.getElementById('expense-date').valueAsDate = selectedDate
+function deltaDate(date, deltaYear, deltaMonth, deltaDay) {
+  const day = date.getDate()
+  const month = date.getMonth()
+  const year = date.getFullYear()
+  return new Date(year + deltaYear, month + deltaMonth, day + deltaDay)
+}
+function updateMinicalendar(date) {
+  const month = date.getMonth()
+  const year = date.getFullYear()
+  const monthNames = [
+    'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet',
+    'Aout', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
+  ]
+  document.getElementById('expense-month').innerHTML = `${monthNames[month]} ${year}`
+  let start = new Date(date.getFullYear(), date.getMonth())
+  let weekday = start.getDay() - 1 
+  if (weekday < 0) {
+    weekday += 7
+  }
+  let d = deltaDate(start, 0, 0, -weekday)
+  for (let week = 0; week < 6; week++) {
+    for (let day = 0; day < 7; day++) {
+      let e = document.getElementById(`expense-day-${week}-${day}`)
+      if (d.getMonth() !== month) {
+        e.innerHTML = ''
+      } else {
+        e.innerHTML = '' + d.getDate()
+      }
+      d = deltaDate(d, 0, 0, 1)
+    }
+  }
+}
+updateMinicalendar(selectedDate)
+document.getElementById('expense-prevmonth').addEventListener('click', evt => {
+  selectedDate = deltaDate(selectedDate, 0, -1, 0)
+  updateMinicalendar(selectedDate)
+})
+document.getElementById('expense-nextmonth').addEventListener('click', evt => {
+  selectedDate = deltaDate(selectedDate, 0, +1, 0)
+  updateMinicalendar(selectedDate)
 })
 
 let btnList = document.getElementById('transactions-income-actions')
