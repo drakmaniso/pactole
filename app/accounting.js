@@ -1,5 +1,48 @@
 'use strict'
 
+let database = null
+let accounts = null
+let transactions = null
+
+export function open(name) {
+  return new Promise(function (resolve, reject) {
+
+    if (database !== null) {
+      reject(Error('ledger.open: already opened'))
+    }
+    if (!window.indexedDB) {
+      reject(Error('ledger.open: IndexedDB not supported by browser'))
+    }
+
+    let req = window.indexedDB.open(name, 1)
+    req.onerror = function(event) {
+      reject(new Error(`ledger.open: failed to open database: ${event.target.error}`))
+    }
+    req.onsuccess = function(event) {
+      log(`Ledger ${name} opened.`)
+      database = event.target.result
+      database.onerror = function(event) {
+        //TODO
+        log(`Ledger database error: ${event.target.errorCode}`)
+      }
+      resolve()
+    }
+    req.onupgradeneeded = function(event) {
+      log('Ledger database: upgrade needed...')
+      const db = event.target.result
+      let os = db.createObjectStore('accounts')
+      os.add([], 'assets')
+      os.add([], 'expenses')
+      os.transaction.oncomplete = function(event) {
+
+      }
+      os = db.createObjectStore('transactions', {autoincrement: true})
+    }
+
+  })
+}
+
+
 export class Ledger {
   constructor (name) {
     this.name = name
