@@ -33,6 +33,20 @@ onfetch = (event) => {
 }
 
 onmessage = (event) => {
-	log(`Message: ${event.data}`)
-  event.ports[0].postMessage('Hi Client, this is Service!')
+  log(`Received ${event.data.msg}.`)
+  switch(event.data.msg) {
+    case 'open':
+      send({msg: 'update'})
+      break
+  }
+}
+
+async function send(message) {
+  const all = await clients.matchAll({
+    includeUnctonrolled: true
+  })
+  log(`Sending ${message.msg} to ${all.length} client(s)...`)
+  for(const c of all) {
+    c.postMessage(message)
+  }
 }

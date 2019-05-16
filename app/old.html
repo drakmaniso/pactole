@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8">
     <meta http-equiv="Content-Security-Policy" content="style-src 'self'; script-src 'self'; default-src 'self'">
-    <link rel="stylesheet" href="default.css">
+    <link rel="stylesheet" href="old.css">
     <title>Pactole</title>
   </head>
   <body role="application">
@@ -12,15 +12,46 @@
 
       <header role="banner">
         <nav role="navigation" class="banner">
-          <div class="banner navlink home"></div>
+          <a href="#calendar" class="banner navlink"><div>Calendrier</div></a>
           <a href="#transactions" class="banner navlink"><div>Opérations</div></a>
-          <a href="#summary" class="banner navlink"><div>Bilan</div></a>
-          <div class="banner spacer"></div>
-          <a href="#settings" class="banner navlink settings"><div>Configurer</div></a>
+          <a href="#summary" class="banner navlink"><div>Catégories</div></a>
         </nav>
       </header>
 
       <main>
+
+        <div id="calendar-main" class="main" hidden>
+          <div class="calendar-month">
+              <div class="calendar-day" id="calendar-day-0-0">Lundi</div>
+              <div class="calendar-day" id="calendar-day-0-1">Mardi</div>
+              <div class="calendar-day" id="calendar-day-0-2">Mercredi</div>
+              <div class="calendar-day" id="calendar-day-0-3">Jeudi</div>
+              <div class="calendar-day" id="calendar-day-0-4">Vendredi</div>
+              <div class="calendar-day" id="calendar-day-0-5">Samedi</div>
+              <div class="calendar-day" id="calendar-day-0-6">Dimanche</div>
+              <div class="calendar-day" id="calendar-day-1-0">Lundi</div>
+              <div class="calendar-day" id="calendar-day-1-1">Mardi</div>
+              <div class="calendar-day" id="calendar-day-1-2">Mercredi</div>
+              <div class="calendar-day" id="calendar-day-1-3">Jeudi</div>
+              <div class="calendar-day" id="calendar-day-1-4">Vendredi</div>
+              <div class="calendar-day" id="calendar-day-1-5">Samedi</div>
+              <div class="calendar-day" id="calendar-day-1-6">Dimanche</div>
+              <div class="calendar-day" id="calendar-day-2-0">Lundi</div>
+              <div class="calendar-day" id="calendar-day-2-1">Mardi</div>
+              <div class="calendar-day" id="calendar-day-2-2">Mercredi</div>
+              <div class="calendar-day" id="calendar-day-2-3">Jeudi</div>
+              <div class="calendar-day" id="calendar-day-2-4">Vendredi</div>
+              <div class="calendar-day" id="calendar-day-2-5">Samedi</div>
+              <div class="calendar-day" id="calendar-day-2-6">Dimanche</div>
+              <div class="calendar-day" id="calendar-day-3-0">Lundi</div>
+              <div class="calendar-day" id="calendar-day-3-1">Mardi</div>
+              <div class="calendar-day" id="calendar-day-3-2">Mercredi</div>
+              <div class="calendar-day" id="calendar-day-3-3">Jeudi</div>
+              <div class="calendar-day" id="calendar-day-3-4">Vendredi</div>
+              <div class="calendar-day" id="calendar-day-3-5">Samedi</div>
+              <div class="calendar-day" id="calendar-day-3-6">Dimanche</div>
+          </div>
+        </div>
 
         <div id="transactions-main" class="main" hidden>
           <table id="transactions-table">
@@ -39,14 +70,14 @@
         </div>
 
         <div id="summary-main" class="main" hidden>
-          <h2>Bilan</h2>
+          <h1>catégories</h1>
         </div>
 
       </main>
 
       <aside>
 
-        <div id="transactions-sidebar" hidden>
+        <div id="transactions-sidebar">
           <h3>Ajouter de l'argent:</h3>
           <ul id="transactions-income-actions"></ul>
           <h3>Faire une dépense:</h3>
@@ -56,9 +87,7 @@
       </aside>
 
       <footer>
-        <div hidden>
-          Solde actuel: <span id="balance"></span>
-        </div>
+        Solde actuel: <span id="balance"></span>
       </footer>
 
     </div>
@@ -154,6 +183,6 @@
       </div>
     </dialog>
 
-    <script src="main.js" type="module"></script>
+    <script src="old.js" type="module"></script>
   </body>
 </html>
