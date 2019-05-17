@@ -3,58 +3,33 @@
 
 html {
     height: 100%;
+    font-size: 18px;
 }
 
 body {
     height: 100%;
 }
 
-.wrapper {
-    height: 100%;
-    display: grid;
-    grid-template-columns: 16rem 1fr;
-    grid-template-rows: 4rem 1fr 2rem;
-    grid-template-areas:
-        "header header"
-        "sidebar main"
-        "sidebar footer";
-}
-
-aside#sidebar {
-    background: var(--sidebar-bg);
-    grid-area: sidebar;
-    display: flex;
-    flex-direction: column;
-}
-aside#sidebar ul {
-    display: flex;
-    flex-direction: column;
-}
-
-
-main {
-    grid-area: main;
-}
-
-div.main {
-    width: 100%;
-    height: 100%;
-}
-
 header[role="banner"] {
     color: var(--header-fg);
     background: var(--header-bg);
-    grid-area: header;
     user-select: none;
+    box-shadow: 0px 0px 10px 2px grey;
+    z-index: 1000;
+    position: fixed;
+    width: 100%;
+    height: 2.5rem;
+    top: 0;
 }
 
-nav.banner {
+nav {
+    user-select: none;
     height: 100%;
     display: flex;
     flex-direction: row;
 }
 
-a.banner.navlink {
+a.tab {
     display: flex;
     flex-direction: column;
     color: var(--header-fg);
@@ -62,21 +37,71 @@ a.banner.navlink {
     width: 8rem;
     text-align: center;
     justify-content: center;
+    font-weight: bold;
 }
-a.banner.navlink:hover {
+a.tab.right {
+    margin-left: auto;
+}
+a.tab:hover {
     background: var(--header-highlight-bg);
 }
-div.banner.home {
-    width: 16rem;
-}
-div.banner.spacer {
-    flex-grow: 1;
+div.home {
+    width: 2.5rem;
 }
 
-footer {
+main {
+    margin-top: 3rem;
+    padding-bottom: 5rem;
+}
+
+main > div {
+    width: 100%;
+    height: 100%;
+}
+
+.actions {
+    display: flex;
+    flex-flow: row wrap;
+    align-items: flex-end;
+    justify-content: center;
+    flex-gap: 2rem;
+    position: fixed;
+    width: 100%;
+    height: 5rem;
+    left: 0;
+    bottom: 0;
+    user-select: none;
+    background-image: linear-gradient(transparent, white, white);
+}
+
+.action {
+    display: flex;
+    border: solid 1px black;
+    border: none;
+    border-radius: 1.25rem;
+    height: 2.5rem;
+    font-weight: bold;
+    padding: 0 1rem 0 1rem;
     background: var(--header-bg);
-    font-size: 1.2rem;
-    grid-area: footer;
+    margin-left: 1rem;
+    margin-right: 1rem;
+    margin-bottom: 0.5rem;
+    flex: 1;
+}
+.action:first-child {
+    margin-left: 10%;
+}
+.action:last-child {
+    margin-right: 10%;
+}
+.action:hover {
+    background: var(--header-highlight-bg);
+}
+.action > div {
+    width: 100%;
+    text-align: center;
+    margin-top: auto;
+    margin-bottom: auto;
 }
 
 #transactions-table {

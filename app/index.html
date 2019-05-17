@@ -8,52 +8,115 @@
   </head>
   <body role="application">
 
-    <div class="wrapper">
+    <header role="banner">
+      <nav role="navigation">
+        <div class="home"></div>
+        <a href="#transactions" class="tab"><div>Opérations</div></a>
+        <a href="#summary" class="tab"><div>Bilan</div></a>
+        <a href="#settings" class="tab right"><div>Configurer</div></a>
+      </nav>
+    </header>
 
-      <header role="banner">
-        <nav role="navigation" class="banner">
-          <div class="banner navlink home"></div>
-          <a href="#transactions" class="banner navlink"><div>Opérations</div></a>
-          <a href="#summary" class="banner navlink"><div>Bilan</div></a>
-          <div class="banner spacer"></div>
-          <a href="#settings" class="banner navlink settings"><div>Configurer</div></a>
-        </nav>
-      </header>
+    <main>
 
-      <main id="main">
+      <div id="transactions-main" class="tabcontent">
+        <section class="actions">
+          <a class="action"><div>Ajouter de l'argent</div></a>
+          <a class="action"><div>Dépenser</div></a>
+          <a class="action"><div>Pointer</div></a>
+        </section>
+        <table id="transactions-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Débit</th>
+              <th>Crédit</th>
+              <th>Montant</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody id="transactions-content">
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+            <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
+          </tbody>
+        </table>
+      </div>
 
-        <div id="transactions-main" class="main" hidden>
-          <table id="transactions-table">
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Débit</th>
-                <th>Crédit</th>
-                <th>Montant</th>
-                <th>Description</th>
-              </tr>
-            </thead>
-            <tbody id="transactions-content">
-            </tbody>
-          </table>
-        </div>
+      <div id="summary-main" class="tabcontent" hidden>
+        <h2>Bilan</h2>
+      </div>
 
-        <div id="summary-main" class="main" hidden>
-          <h2>Bilan</h2>
-        </div>
+    </main>
 
-      </main>
-
-      <aside id="sidebar">
-      </aside>
-
-      <footer>
-        <div hidden>
-          Solde actuel: <span id="balance"></span>
-        </div>
-      </footer>
-
-    </div>
 
     <dialog id="expense-dialog">
       <h2>Dépense: <span id="expense-category-description"></span></h2>
