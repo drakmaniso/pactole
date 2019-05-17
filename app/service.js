@@ -38,6 +38,16 @@ onmessage = (event) => {
     case 'open':
       send({msg: 'update'})
       break
+    case 'get accounts':
+      send({
+        msg: 'accounts',
+        accounts: [
+          {name: 'Mon Compte', kind: 'assets'},
+          {name: 'Solde Initial', kind: 'equity'},
+          {name: 'Alimentation', kind: 'expense'},
+        ]
+      })
+      break
   }
 }
 

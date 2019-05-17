@@ -41,6 +41,32 @@ navigator.serviceWorker.ready.then((registration) => {
 
 function main() {
 	log(`Starting application...`)
-	client.send({msg: 'open', ledgerName: 'Mon Compte'})
+  client.addUpdateListener(onUpdate)
+  client.addAccountsListener(onAccounts)
+	client.send({msg: 'open', name: 'Mon Compte'})
 }
 
+function onUpdate(message) {
+  log(`onUpdate ${message}`)
+  client.send({msg: 'get accounts'})
+}
+
+function onAccounts(message) {
+  log(`onAccounts (${message.accounts.length})`)
+  const sidebar = document.getElementById('sidebar')
+  while(sidebar.hasChildNodes()) {
+    sidebar.removeChild(sidebar.firstChild)
+  }
+  //const shadow = sidebar.attachShadow({mode: 'open'})
+  const list = document.createElement('ul')
+  list.id = 'transactions-income-actions'
+  //shadow.appendChild(list)
+  for(const a of message.accounts) {
+    const b = document.createElement('button')
+    b.textContent = a.name
+    b.setAttribute('class', 'action')
+    b.setAttribute('value', a.name)
+    list.appendChild(b)
+  }
+  sidebar.appendChild(list)
+}
