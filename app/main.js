@@ -57,10 +57,12 @@ function main() {
   }
 
   document.getElementById('expense-action').onclick = () => {
-    document.getElementById('expense-dialog').showModal()
+    document.getElementById('transactions-list').hidden = true
+    document.getElementById('expense-dialog').hidden = false
   }
   document.getElementById('expense-cancel').onclick = () => {
-    document.getElementById('expense-dialog').close()
+    document.getElementById('expense-dialog').hidden = true
+    document.getElementById('transactions-list').hidden = false
   }
 }
 
