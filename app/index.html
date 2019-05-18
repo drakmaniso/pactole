@@ -20,11 +20,6 @@
     <main>
 
       <div id="transactions-main" class="tabcontent">
-        <section class="actions">
-          <a class="action"><div>Ajouter de l'argent</div></a>
-          <a class="action"><div>Dépenser</div></a>
-          <a class="action"><div>Pointer</div></a>
-        </section>
         <table id="transactions-table">
           <thead>
             <tr>
@@ -109,18 +104,28 @@
             <tr><td>00/00/000</td><td>-</td><td>-</td><td>000</td><td>Bla bla bla...</td></tr>
           </tbody>
         </table>
+        <section class="actions">
+          <a id="income-action" class="action income"><div>Ajouter de l'argent</div></a>
+          <a id="expense-action" class="action expense"><div>Dépenser</div></a>
+        </section>
       </div>
 
       <div id="summary-main" class="tabcontent" hidden>
         <h2>Bilan</h2>
       </div>
 
+      <div id="settings-main" class="tabcontent" hidden>
+        <h2>Configuration</h2>
+      </div>
+
     </main>
 
 
-    <dialog id="expense-dialog">
-      <h2>Dépense: <span id="expense-category-description"></span></h2>
-      <div>
+    <dialog id="expense-dialog" class="transaction-dialog">
+      <form method="dialog" class="dialog">
+        <header>
+          <h2>Nouvelle dépense</h2>
+        </header>
         <section class="minicalendar">
           <header>
             <button id="expense-prevmonth">&lt;</button>
@@ -195,18 +200,22 @@
             </tr>
           </table>
         </section>
-        <form>
-          <div>Date: <input id="expense-date" type="date"></div>
-          <!-- div>Catégorie: <select id="expense-categories"></select></div -->
-          <input hidden id="expense-category" type="text"></input>
-          <div>Montant: <input id="expense-amount" type="number" autofocus></div>
-          <div>Description: <input id="expense-description" type="text"></div>
-        </form>
-      </div>
-      <div class="dialog-buttons">
-        <button id="expense-submit" type="submit">Ok</button>
-        <button id="expense-cancel" type="button">Cancel</button>
-      </div>
+        <input hidden id="expense-date" type="date" hidden>
+        <!-- div>Catégorie: <select id="expense-categories"></select></div -->
+        <input hidden id="expense-category" type="text"></input>
+        <section class="amount">
+          <label for="expense-amount">Montant:</label>
+          <input id="expense-amount" type="number" autofocus>
+        </section>
+        <section class="description">
+          <label for="expense-description">Description:</label>
+          <input id="expense-description" type="text">
+        </section>
+        <section class="dialog-buttons">
+          <button id="expense-cancel" type="button">Annuler</button>
+          <button id="expense-submit" type="submit">Enregistrer la dépense</button>
+        </section>
+      </form>
     </dialog>
 
     <script src="main.js" type="module"></script>

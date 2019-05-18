@@ -43,14 +43,14 @@ a.tab.right {
     margin-left: auto;
 }
 a.tab:hover {
-    background: var(--header-highlight-bg);
+    background: var(--header-hl);
 }
 div.home {
     width: 2.5rem;
 }
 
 main {
-    margin-top: 3rem;
+    padding-top: 3rem;
     padding-bottom: 5rem;
 }
 
@@ -82,22 +82,42 @@ main > div {
     height: 2.5rem;
     font-weight: bold;
     padding: 0 1rem 0 1rem;
+    color: var(--header-fg);
     background: var(--header-bg);
-    margin-left: 1rem;
-    margin-right: 1rem;
+    margin-left: 2rem;
+    margin-right: 2rem;
     margin-bottom: 0.5rem;
     flex: 1;
+    text-decoration: none;
+    color: inherit;
+}
+.action.income {
+    color: var(--income-fg);
+    background: var(--income-bg);
+}
+.action.income:hover {
+    background: var(--income-hl);
+}
+.action.expense {
+    color: var(--expense-fg);
+    background: var(--expense-bg);
+}
+.action.expense:hover {
+    background: var(--expense-hl);
 }
 .action:first-child {
-    margin-left: 10%;
+    margin-left: 20%;
 }
 .action:last-child {
-    margin-right: 10%;
+    margin-right: 20%;
 }
 .action:hover {
-    background: var(--header-highlight-bg);
+    text-decoration: none;
+    color: inherit;
+    background: var(--header-hl);
 }
 .action > div {
+    color: var(--header-fg);
     width: 100%;
     text-align: center;
     margin-top: auto;
@@ -112,14 +132,68 @@ main > div {
     text-align: left;
 }
 
-dialog > div {
-    display: flex;
+dialog {
+    border: 1px solid var(--header-bg);
+    border-radius: 1.25rem;
+    padding: 0;
+    contain: content;
+    bottom: 1.25rem;
+    box-shadow: 0px 0px 10px 0px grey;
+    z-index: 2000;
+}
+
+form.dialog {
+    display: grid;
+    grid-template-rows: 2.5rem 2rem 1fr 4rem;
+    grid-template-areas: 
+        "header       header      header"
+        "minicalendar amount      categories"
+        "minicalendar description categories"
+        "buttons      buttons     buttons";
     flex-flow: row wrap;
 }
-dialog > div.dialog-buttons {
+form.dialog > header {
+    grid-area: header;
+    color: var(--header-fg);
+    background: var(--header-bg);
+}
+form.dialog > header > h2 {
+    text-align: center;
+}
+form.dialog > section {
+    padding: 1rem;
+}
+form.dialog > section.amount {
+    grid-area: amount;
+}
+form.dialog > section.description {
+    grid-area: description;
+}
+form.dialog > section.minicalendar {
+    grid-area: minicalendar;
+}
+form.dialog > section.dialog-buttons {
+    grid-area: buttons;
     display: flex;
     flex-flow: row wrap;
     justify-content: flex-end;
+    padding: 0rem;
+}
+form.dialog > section.dialog-buttons > button {
+    border: none;
+    border-radius: 1.25rem;
+    height: 2.5rem;
+    color: var(--header-fg);
+    background: var(--header-bg);
+    margin-right: 2rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+    align-self: flex-end;
+}
+form.dialog > section.dialog-buttons > button:hover {
+    background: var(--header-hl);
 }
 
 

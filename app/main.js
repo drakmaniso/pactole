@@ -41,9 +41,27 @@ navigator.serviceWorker.ready.then((registration) => {
 
 function main() {
 	log(`Starting application...`)
+
   client.addUpdateListener(onUpdate)
   client.addAccountsListener(onAccounts)
+
 	client.send({msg: 'open', name: 'Mon Compte'})
+
+  window.scrollTo(0, document.body.scrollHeight)
+
+  window.onhashchange = () => {
+    document.getElementById('transactions-main').hidden = true
+    document.getElementById('summary-main').hidden = true
+    document.getElementById('settings-main').hidden = true
+    document.getElementById(`${location.hash}-main`.slice(1)).hidden = false
+  }
+
+  document.getElementById('expense-action').onclick = () => {
+    document.getElementById('expense-dialog').showModal()
+  }
+  document.getElementById('expense-cancel').onclick = () => {
+    document.getElementById('expense-dialog').close()
+  }
 }
 
 function onUpdate(message) {
@@ -53,6 +71,7 @@ function onUpdate(message) {
 
 function onAccounts(message) {
   log(`onAccounts (${message.accounts.length})`)
+  return
   const sidebar = document.getElementById('sidebar')
   while(sidebar.hasChildNodes()) {
     sidebar.removeChild(sidebar.firstChild)

@@ -1,10 +1,15 @@
 :root {
-    --header-fg: #101024;
-    --header-bg: #55a894;
-    --header-highlight-bg: #8bd0ba;
+    --header-fg: #fff;
+    --header-bg: #145;
+    --header-hl: #356;
 
-    --sidebar-fg: #101024;
-    --sidebar-bg: #8bd0ba;
+    --income-fg: var(--header-fg);
+    --income-bg: #161;
+    --income-hl: #272;
+
+    --expense-fg: var(--header-fg);
+    --expense-bg: #820;
+    --expense-hl: #941;
 
     --minicalendar-highlight-bg: #ffcc68;
 }
