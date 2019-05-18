@@ -113,9 +113,11 @@
 
         <div id="expense-dialog" class="tabcontent" hidden>
           <form class="dialog">
-            <header>
-              <h2>Nouvelle dépense</h2>
-            </header>
+            <section class="amount">
+              <label for="expense-amount">Nouvelle dépense:</label>
+              <input id="expense-amount" type="text" class="amount" autofocus>
+              <p>€</p>
+            </section>
             <section class="minicalendar">
               <header>
                 <button id="expense-prevmonth">&lt;</button>
@@ -193,13 +195,16 @@
             <input hidden id="expense-date" type="date" hidden>
             <!-- div>Catégorie: <select id="expense-categories"></select></div -->
             <input hidden id="expense-category" type="text"></input>
-            <section class="amount">
-              <label for="expense-amount">Montant:</label>
-              <input id="expense-amount" type="number" autofocus>
+            <section class="categories">
+              <div aria-role="listbox">
+                <button aria-role="option">Foo</button>
+                <button aria-role="option">Bar</button>
+                <button aria-role="option">Baz</button>
+              </div>
             </section>
             <section class="description">
-              <label for="expense-description">Description:</label>
-              <input id="expense-description" type="text">
+              <label for="expense-description" hidden>Description:</label>
+              <input type="text" id="expense-description" placeholder="Description"></input>
             </section>
             <section class="dialog-buttons">
               <button id="expense-cancel" type="button">Annuler</button>
