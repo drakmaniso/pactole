@@ -8,12 +8,19 @@
   </head>
   <body role="application">
 
-    <header role="banner">
+    <header role="banner" class="banner" id="banner">
       <nav role="navigation">
         <div class="home"></div>
         <a href="#transactions" class="tab"><div>Opérations</div></a>
         <a href="#summary" class="tab"><div>Résumé</div></a>
-        <a href="#settings" class="tab right"><div>Configurer</div></a>
+        <a href="#settings" class="tab right"><div class="fa">&#xf013;</div></a>
+      </nav>
+    </header>
+
+    <header role="banner" class="banner dialog" id="banner-dialog" hidden>
+      <nav role="navigation">
+        <a class="tab"><div class="fa">&#xf060;</div></a>
+        <a class="tab right" hidden><div class="fa">&#xf00d;</div></a>
       </nav>
     </header>
 

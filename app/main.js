@@ -58,10 +58,14 @@ function main() {
 
   document.getElementById('expense-action').onclick = () => {
     document.getElementById('transactions-list').hidden = true
+    document.getElementById('banner').hidden = true
+    document.getElementById('banner-dialog').hidden = false
     document.getElementById('expense-dialog').hidden = false
   }
   document.getElementById('expense-cancel').onclick = () => {
     document.getElementById('expense-dialog').hidden = true
+    document.getElementById('banner-dialog').hidden = true
+    document.getElementById('banner').hidden = false
     document.getElementById('transactions-list').hidden = false
   }
 }
