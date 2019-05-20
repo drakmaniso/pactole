@@ -1,237 +1,233 @@
 <!DOCTYPE html>
 <html>
+
   <head>
     <meta charset="UTF-8">
     <meta http-equiv="Content-Security-Policy" content="style-src 'self'; script-src 'self'; default-src 'self'">
     <link rel="stylesheet" href="default.css">
     <title>Pactole</title>
   </head>
-  <body role="application">
 
-    <header role="banner" class="banner" id="banner">
-      <nav role="navigation">
-        <div class="home"></div>
-        <a href="#transactions" class="tab"><div>Opérations</div></a>
-        <a href="#summary" class="tab"><div>Résumé</div></a>
-        <a href="#settings" class="tab right"><div class="fa">&#xf013;</div></a>
-      </nav>
-    </header>
+  <body>
 
-    <header role="banner" class="banner dialog" id="banner-dialog" hidden>
-      <nav role="navigation">
-        <a class="tab"><div class="fa">&#xf060;</div></a>
-        <a class="tab right" hidden><div class="fa">&#xf00d;</div></a>
-      </nav>
-    </header>
+    <nav id="navigation">
+      <a href="#transactions">Opérations</a>
+      <a href="#summary">Résumé</a>
+      <a href="#settings" class="at-end fa">&#xf013;</a>
+    </nav>
 
-    <main>
+    <nav hidden id="expense-navigation" class="dialog">
+      <a class="fa" id="expense-close">&#xf060;</a>
+      <a hidden class="at-end fa" id="expense-close">&#xf00d;</a>
+    </nav>
 
-      <div id="transactions-main" class="tabcontent">
-
-        <div id="transactions-list">
-          <table id="transactions-table">
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Catégorie</th>
-                <th>Montant</th>
-                <th>Description</th>
-              </tr>
-            </thead>
-            <tbody id="transactions-content">
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-              <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
-            </tbody>
-          </table>
-          <section class="actions">
-            <a id="income-action" class="action income"><div>Arrivée d'argent</div></a>
-            <a id="expense-action" class="action expense"><div>Nouvelle dépense</div></a>
-          </section>
-        </div>
-
-        <div id="expense-dialog" class="tabcontent" hidden>
-          <form class="dialog">
-            <section class="amount">
-              <label for="expense-amount">Nouvelle dépense:</label>
-              <input id="expense-amount" type="text" class="amount" autofocus>
-              <p>€</p>
-            </section>
-            <section class="minicalendar">
-              <header>
-                <button id="expense-prevmonth">&lt;</button>
-                <h3 id="expense-month">Month</h3>
-                <button id="expense-nextmonth">&gt;</button>
-              </header>
-              <table>
-                <thead>
-                  <tr>
-                    <td>Lun</td>
-                    <td>Mar</td>
-                    <td>Mer</td>
-                    <td>Jeu</td>
-                    <td>Ven</td>
-                    <td>Sam</td>
-                    <td>Dim</td>
-                  </tr>
-                </thead>
-                <tr>
-                  <td id="expense-day-0-0">00</td>
-                  <td id="expense-day-0-1">00</td>
-                  <td id="expense-day-0-2">00</td>
-                  <td id="expense-day-0-3">00</td>
-                  <td id="expense-day-0-4">00</td>
-                  <td id="expense-day-0-5">00</td>
-                  <td id="expense-day-0-6">00</td>
-                </tr>
-                <tr>
-                  <td id="expense-day-1-0">00</td>
-                  <td id="expense-day-1-1">00</td>
-                  <td id="expense-day-1-2">00</td>
-                  <td id="expense-day-1-3">00</td>
-                  <td id="expense-day-1-4">00</td>
-                  <td id="expense-day-1-5">00</td>
-                  <td id="expense-day-1-6">00</td>
-                </tr>
-                <tr>
-                  <td id="expense-day-2-0">00</td>
-                  <td id="expense-day-2-1">00</td>
-                  <td id="expense-day-2-2">00</td>
-                  <td id="expense-day-2-3">00</td>
-                  <td id="expense-day-2-4">00</td>
-                  <td id="expense-day-2-5">00</td>
-                  <td id="expense-day-2-6">00</td>
-                </tr>
-                <tr>
-                  <td id="expense-day-3-0">00</td>
-                  <td id="expense-day-3-1">00</td>
-                  <td id="expense-day-3-2">00</td>
-                  <td id="expense-day-3-3">00</td>
-                  <td id="expense-day-3-4">00</td>
-                  <td id="expense-day-3-5">00</td>
-                  <td id="expense-day-3-6">00</td>
-                </tr>
-                <tr>
-                  <td id="expense-day-4-0">00</td>
-                  <td id="expense-day-4-1">00</td>
-                  <td id="expense-day-4-2">00</td>
-                  <td id="expense-day-4-3">00</td>
-                  <td id="expense-day-4-4">00</td>
-                  <td id="expense-day-4-5">00</td>
-                  <td id="expense-day-4-6">00</td>
-                </tr>
-                <tr>
-                  <td id="expense-day-5-0">00</td>
-                  <td id="expense-day-5-1">00</td>
-                  <td id="expense-day-5-2">00</td>
-                  <td id="expense-day-5-3">00</td>
-                  <td id="expense-day-5-4">00</td>
-                  <td id="expense-day-5-5">00</td>
-                  <td id="expense-day-5-6">00</td>
-                </tr>
-              </table>
-            </section>
-            <input hidden id="expense-date" type="date" hidden>
-            <!-- div>Catégorie: <select id="expense-categories"></select></div -->
-            <input hidden id="expense-category" type="text"></input>
-            <section class="categories">
-              <div aria-role="listbox">
-                <button aria-role="option">Foo</button>
-                <button aria-role="option">Bar</button>
-                <button aria-role="option">Baz</button>
-              </div>
-            </section>
-            <section class="description">
-              <label for="expense-description" hidden>Description:</label>
-              <input type="text" id="expense-description" placeholder="Description"></input>
-            </section>
-            <section class="dialog-buttons">
-              <button id="expense-cancel" type="button">Annuler</button>
-              <button id="expense-submit" type="button">Confirmer la dépense</button>
-            </section>
-          </form>
-        </div>
-      </div>
-
-      <div id="summary-main" class="tabcontent" hidden>
-        <h2>Résumé</h2>
-      </div>
-
-      <div id="settings-main" class="tabcontent" hidden>
-        <h2>Configuration</h2>
-      </div>
-
+    <main hidden id="home">
     </main>
 
+    <main id="transactions">
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Catégorie</th>
+            <th>Montant</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+          <tr><td>00/00/0000</td><td>-</td><td>0.00</td><td>...</td></tr>
+        </tbody>
+      </table>
+      <section class="actions">
+        <a href="#income">Arrivée d'argent</a>
+        <a href="#expense">Nouvelle dépense</a>
+      </section>
+    </main>
 
+    <main hidden id="expense">
+      <form class="dialog">
+        <section class="amount">
+          <label for="expense-amount">Nouvelle dépense:</label>
+          <input id="expense-amount" type="text" class="amount" autofocus>
+          <p>€</p>
+        </section>
+        <section class="description">
+          <label for="expense-description">Description:&nbsp;</label>
+          <input type="text" id="expense-description"></input>
+        </section>
+        <section class="minicalendar">
+          <input hidden id="expense-date" type="date" hidden>
+          <header>
+            <div id="expense-prevmonth">&lt;</div>
+            <h3 id="expense-month">Month</h3>
+            <div id="expense-nextmonth">&gt;</div>
+          </header>
+          <table>
+            <thead>
+              <tr>
+                <td>Lun</td>
+                <td>Mar</td>
+                <td>Mer</td>
+                <td>Jeu</td>
+                <td>Ven</td>
+                <td>Sam</td>
+                <td>Dim</td>
+              </tr>
+            </thead>
+            <tr>
+              <td id="expense-day-0-0">00</td>
+              <td id="expense-day-0-1">00</td>
+              <td id="expense-day-0-2">00</td>
+              <td id="expense-day-0-3">00</td>
+              <td id="expense-day-0-4">00</td>
+              <td id="expense-day-0-5">00</td>
+              <td id="expense-day-0-6">00</td>
+            </tr>
+            <tr>
+              <td id="expense-day-1-0">00</td>
+              <td id="expense-day-1-1">00</td>
+              <td id="expense-day-1-2">00</td>
+              <td id="expense-day-1-3">00</td>
+              <td id="expense-day-1-4">00</td>
+              <td id="expense-day-1-5">00</td>
+              <td id="expense-day-1-6">00</td>
+            </tr>
+            <tr>
+              <td id="expense-day-2-0">00</td>
+              <td id="expense-day-2-1">00</td>
+              <td id="expense-day-2-2">00</td>
+              <td id="expense-day-2-3">00</td>
+              <td id="expense-day-2-4">00</td>
+              <td id="expense-day-2-5">00</td>
+              <td id="expense-day-2-6">00</td>
+            </tr>
+            <tr>
+              <td id="expense-day-3-0">00</td>
+              <td id="expense-day-3-1">00</td>
+              <td id="expense-day-3-2">00</td>
+              <td id="expense-day-3-3">00</td>
+              <td id="expense-day-3-4">00</td>
+              <td id="expense-day-3-5">00</td>
+              <td id="expense-day-3-6">00</td>
+            </tr>
+            <tr>
+              <td id="expense-day-4-0">00</td>
+              <td id="expense-day-4-1">00</td>
+              <td id="expense-day-4-2">00</td>
+              <td id="expense-day-4-3">00</td>
+              <td id="expense-day-4-4">00</td>
+              <td id="expense-day-4-5">00</td>
+              <td id="expense-day-4-6">00</td>
+            </tr>
+            <tr>
+              <td id="expense-day-5-0">00</td>
+              <td id="expense-day-5-1">00</td>
+              <td id="expense-day-5-2">00</td>
+              <td id="expense-day-5-3">00</td>
+              <td id="expense-day-5-4">00</td>
+              <td id="expense-day-5-5">00</td>
+              <td id="expense-day-5-6">00</td>
+            </tr>
+          </table>
+        </section>
+        <section class="categories">
+          <div id="expense-categories" class="listbox">
+            <div class="listbox-item"><label><input type="radio" name="expense-category" value="Alimentation"><span class="fa">&#xf2e7;</span>Alimentation</label></div>
+            <div class="listbox-item"><label><input type="radio" name="expense-category" value="Électricité et téléphone"><span class="fa">&#xf0e7;</span><span hidden class="fa">&#xf095;</span>Électricité et téléphone</label></div>
+            <div class="listbox-item"><label><input type="radio" name="expense-category" value="Frais bancaires"><span class="fa">&#xf19c;</span>Frais bancaires</label></div>
+            <div class="listbox-item"><label><input type="radio" name="expense-category" value="Habillement"><span class="fa">&#xf553;</span>Habillement</label></div>
+            <div class="listbox-item"><label><input type="radio" name="expense-category" value="Loisirs"><span class="fa">&#xf2e7;</span>Loisirs</label></div>
+            <div class="listbox-item"><label><input type="radio" name="expense-category" value="Loyer"><span class="fa">&#xf015;</span>Loyer</label></div>
+            <div class="listbox-item"><label><input type="radio" name="expense-category" value="Santé"><span class="fa">&#xf0f1;</span>Santé</label></div>
+            <div class="listbox-item"><label><input type="radio" name="expense-category" value="Transports"><span class="fa">&#xf55e;</span><span hidden class="fa">&#xf1b9;&#xf206;</span>Transports</label></div>
+            <div class="listbox-item"><label><input type="radio" name="expense-category" value="Divers"><span class="fa">&#xf4d3;</span>Économies</label></div>
+            <div class="listbox-item"><label><input type="radio" name="expense-category" value="Divers"><span class="fa">&#xf128;</span><span hidden class="fa">&#xf141;</span>Divers</label></div>
+          </div>
+        </section>
+        <section class="dialog-buttons">
+          <button id="expense-cancel" type="button">Annuler</button>
+          <button id="expense-submit" type="button">Confirmer la dépense</button>
+        </section>
+      </form>
+    </main>
+
+    <main hidden id="summary">
+      <h2>Résumé</h2>
+    </main>
+
+    <main hidden id="settings">
+      <h2>Configuration</h2>
+    </main>
 
     <script src="main.js" type="module"></script>
   </body>

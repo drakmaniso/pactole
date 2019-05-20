@@ -13,92 +13,87 @@ body {
     grid-template-rows: 2.5rem 1fr;
     grid-template-columns: 1fr;
     grid-template-areas:
-        "banner"
+        "navigation"
         "main";
 }
 
-header.banner {
+/* Navigation Menu */
+
+nav {
+    grid-area: navigation;
+    z-index: 1000;
+    user-select: none;
+    display: flex;
+    flex-direction: row;
     color: var(--header-fg);
     background: var(--header-bg);
-    user-select: none;
     box-shadow: 0px 0px 10px 2px grey;
-    z-index: 1000;
-    grid-area: banner;
 }
 
-#banner-dialog {
+nav a {
+    display: flex;
+    flex-direction: row;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+    text-decoration: none;
+    font-weight: bold;
+    color: inherit;
+}
+
+nav a.at-end {
+    margin-left: auto;
+}
+
+nav a:hover {
+    text-decoration: inherit;
+    color: inherit;
+    background: var(--header-hl);
+}
+
+nav.dialog {
     background: var(--expense-bg);
     color: var(--expense-fg);
 }
 
-#banner-dialog a.tab:hover {
+nav.dialog a:hover {
     background: var(--expense-hl);
-}
-
-nav {
-    user-select: none;
-    height: 100%;
-    display: flex;
-    flex-direction: row;
-}
-
-a.tab {
-    display: flex;
-    flex-direction: row;
-    color: inherit;
-    text-decoration: none;
-    text-align: center;
-    justify-content: center;
-    align-items: center;
-    font-weight: bold;
-    padding-left: 1.25rem;
-    padding-right: 1.25rem;
-}
-a.tab.right {
-    margin-left: auto;
-}
-a.tab:hover {
-    background: var(--header-hl);
-}
-div.home {
-    width: 2.5rem;
 }
 
 main {
     grid-area: main;
+    overflow: hidden;
     overflow-y: auto;
 }
 
-div.tabcontent {
-    width: 100%;
-    height: 100%;
-}
-
-#transactions-list {
+main#transactions {
     padding-bottom: 5rem;
 }
 
-.actions {
+section.actions {
     display: flex;
     flex-flow: row wrap;
     align-items: flex-end;
     justify-content: center;
-    flex-gap: 2rem;
     position: fixed;
     width: 100%;
     height: 5rem;
     left: 0;
     bottom: 0;
     user-select: none;
-    // background-image: linear-gradient(transparent, white, white);
+    /* background-image: linear-gradient(transparent, white, white); */
 }
 
-.action {
+section.actions a {
     display: flex;
+    flex-direction: row;
+    align-items: center;
+    height: 2.5rem;
     border: solid 1px black;
     border: none;
     border-radius: 1.25rem;
-    height: 2.5rem;
     font-weight: bold;
     padding-left: 1.25rem;
     padding-right: 1.25rem;
@@ -107,49 +102,43 @@ div.tabcontent {
     margin-left: 1rem;
     margin-right: 1rem;
     margin-bottom: 0.5rem;
-    // flex: 1;
     text-decoration: none;
     color: inherit;
     box-shadow: 0px 4px 10px 0px grey;
 }
-.action.income {
+section.actions a[href="#income"] {
     color: var(--income-fg);
     background: var(--income-bg);
 }
-.action.income:hover {
+section.actions a[href="#income"]:hover {
+    color: var(--expense-fg);
     background: var(--income-hl);
 }
-.action.expense {
+section.actions a[href="#expense"] {
     color: var(--expense-fg);
     background: var(--expense-bg);
 }
-.action.expense:hover {
+section.actions a[href="#expense"]:hover {
+    color: var(--expense-fg);
     background: var(--expense-hl);
 }
-.action:first-child {
+section.actions a:first-child {
     margin-left: 20%;
 }
-.action:last-child {
+section.actions a:last-child {
     margin-right: 20%;
 }
-.action:hover {
+section.actions a:hover {
     text-decoration: none;
     color: inherit;
     background: var(--header-hl);
 }
-.action > div {
-    color: var(--header-fg);
-    width: 100%;
-    text-align: center;
-    margin-top: auto;
-    margin-bottom: auto;
-}
 
-#transactions-table {
+#transactions table {
     width: 100%;
 }
 
-#transactions-table th {
+#transactions table th {
     text-align: left;
 }
 
@@ -157,13 +146,13 @@ form.dialog {
     width: 100%;
     height: 100%;
     display: grid;
-    grid-template-rows: 5rem 4rem 1fr 4rem;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 5rem 4rem minmax(0, 1fr) 4rem;
+    grid-template-columns: 10% 1fr 1fr 1fr 10%;
     grid-template-areas: 
-        "header       header      header"
-        "description  description description"
-        "minicalendar categories  categories"
-        "buttons      buttons     buttons";
+        "header  header       header      header      header"
+        "lmargin description  description description rmargin"
+        "lmargin minicalendar categories  categories  rmargin"
+        "lmargin buttons      buttons     buttons     rmargin";
     flex-flow: row wrap;
 }
 form.dialog > header {
@@ -236,8 +225,39 @@ form.dialog > section.description > input {
 form.dialog > section.categories {
     grid-area: categories;
     display: flex;
-    flex-flow: column wrap;
+    flex-flow: column;
+    overflow: none;
 }
+
+.listbox {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.listbox label .fa {
+    width: 1.25rem;
+    margin-right: 0.75rem;
+}
+.listbox label {
+    display: flex;
+    align-items: baseline;
+    outline: none;
+    margin: 0;
+    padding: 0.75rem;
+    border: solid 8px #fff;
+    border-radius: 1.5rem;
+    color: #000;
+    background: #fff;
+    text-align: left;
+    user-select: none;
+}
+.listbox label:hover {
+    color: #000;
+    background: #fc9;
+}
+.listbox label input {
+    margin-right: 0.75rem;
+}
+
 form.dialog > section.dialog-buttons {
     grid-area: buttons;
     display: flex;
@@ -283,14 +303,14 @@ section.minicalendar > header {
     align-items: center;
 }
 
-section.minicalendar > header > button {
+section.minicalendar > header > div {
     flex: 0 0 auto;
     background: none;
     width: 2.5rem;
     height: 3rem;
     border: none;
 }
-section.minicalendar > header > button:hover {
+section.minicalendar > header > div:hover {
     background: var(--minicalendar-highlight-bg);
 }
 

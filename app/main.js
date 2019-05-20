@@ -11,6 +11,17 @@ if (!('serviceWorker' in navigator)) {
   throw(new Error('FATAL: Service workers are not supported by the navigator.'))
 }
 
+navigator.storage.persist().then(persisted => {
+  if(persisted) {
+    log('Persistent storage allowed.')
+    navigator.storage.estimate().then(info => {
+      log(`Persistent usage: ${Math.round(info.usage/1024)}kb (quota: ${Math.round(info.quota/1024)}kb).`)
+    })
+  } else {
+    log('*** NOT Persisted! ***')
+  }
+})
+
 onload = () => {
   navigator.serviceWorker.register('/app/service.js')
     .then((registration) => {
@@ -49,25 +60,7 @@ function main() {
 
   window.scrollTo(0, document.body.scrollHeight)
 
-  window.onhashchange = () => {
-    document.getElementById('transactions-main').hidden = true
-    document.getElementById('summary-main').hidden = true
-    document.getElementById('settings-main').hidden = true
-    document.getElementById(`${location.hash}-main`.slice(1)).hidden = false
-  }
-
-  document.getElementById('expense-action').onclick = () => {
-    document.getElementById('transactions-list').hidden = true
-    document.getElementById('banner').hidden = true
-    document.getElementById('banner-dialog').hidden = false
-    document.getElementById('expense-dialog').hidden = false
-  }
-  document.getElementById('expense-cancel').onclick = () => {
-    document.getElementById('expense-dialog').hidden = true
-    document.getElementById('banner-dialog').hidden = true
-    document.getElementById('banner').hidden = false
-    document.getElementById('transactions-list').hidden = false
-  }
+  wireHTML()
 }
 
 function onUpdate(message) {
@@ -94,4 +87,44 @@ function onAccounts(message) {
     list.appendChild(b)
   }
   sidebar.appendChild(list)
+}
+
+function id(id) { return document.getElementById(id) }
+
+function wireHTML() {
+  window.onhashchange = () => {
+    id('transactions').hidden = true
+    id('summary').hidden = true
+    id('settings').hidden = true
+    id('expense').hidden = true
+    switch(location.hash) {
+      case '#transactions':
+        id('expense-navigation').hidden = true
+        id('navigation').hidden = false
+        id('transactions').hidden = false
+        break
+      case '#summary':
+        id('expense-navigation').hidden = true
+        id('navigation').hidden = false
+        id('summary').hidden = false
+        break
+      case '#settings':
+        id('expense-navigation').hidden = true
+        id('navigation').hidden = false
+        id('settings').hidden = false
+        break
+      case '#expense':
+        id('navigation').hidden = true
+        id('expense-navigation').hidden = false
+        id('expense').hidden = false
+        break
+    }
+  }
+
+  id('expense-cancel').onclick = () => {
+    window.history.back()
+  }
+  id('expense-close').onclick = () => {
+    window.history.back()
+  }
 }
