@@ -4,7 +4,7 @@
 
 html {
     height: 100%;
-    font-size: 18px;
+    font-size: 20px;
 }
 
 body {
@@ -68,8 +68,49 @@ main {
     overflow-y: auto;
 }
 
-main#transactions {
+#transactions {
+    display: grid;
+    grid-template-columns: 20% minmax(0, 1fr) 20%;
+    grid-template-areas:
+        "lmargin content rmargin";
     padding-bottom: 5rem;
+    user-select: none;
+}
+
+#transactions-list {
+    grid-area: content;
+}
+
+li.date {
+    list-style: none;
+    color: var(--header-bg);
+    font-weight: bold;
+}
+
+#transactions-list > ul > ul {
+    margin-bottom: 1rem;
+}
+
+li.income,
+li.expense {
+    list-style: none;
+    display: flex;
+    flex-flow: row wrap;
+    flex: 1 0 auto;
+}
+
+span.amount {
+    width: 6rem;
+    margin-right: 1rem;
+    text-align: right;
+}
+
+li.income span.amount {
+    color: var(--income-bg);
+}
+
+li.expense span.amount {
+    color: var(--expense-bg);
 }
 
 section.actions {
@@ -134,24 +175,17 @@ section.actions a:hover {
     background: var(--header-hl);
 }
 
-#transactions table {
-    width: 100%;
-}
-
-#transactions table th {
-    text-align: left;
-}
 
 form.dialog {
     width: 100%;
     height: 100%;
     display: grid;
-    grid-template-rows: 5rem 4rem minmax(0, 1fr) 4rem;
+    grid-template-rows: 5rem minmax(0, 1fr) 3rem 5rem;
     grid-template-columns: 10% 1fr 1fr 1fr 10%;
     grid-template-areas: 
         "header  header       header      header      header"
-        "lmargin description  description description rmargin"
         "lmargin minicalendar categories  categories  rmargin"
+        "lmargin description  description description rmargin"
         "lmargin buttons      buttons     buttons     rmargin";
     flex-flow: row wrap;
 }
@@ -168,7 +202,6 @@ form.dialog > section {
 }
 form.dialog > section.amount {
     grid-area: header;
-    font-size: 1.5rem;
     font-weight: bold;
     color: var(--expense-bg);
     display: flex;
@@ -203,8 +236,8 @@ form.dialog > section.description {
     grid-area: description;
     display: flex;
     flex-flow: row nowrap;
-    font-size: 1.25rem;
     justify-content: center;
+    align-items: baseline;
 }
 form.dialog > section.description > * {
     margin-left: 0.5 rem;
@@ -242,9 +275,9 @@ form.dialog > section.categories {
     align-items: baseline;
     outline: none;
     margin: 0;
-    padding: 0.75rem;
-    border: solid 8px #fff;
-    border-radius: 1.5rem;
+    padding: 0.5rem;
+    border: solid 4px #fff;
+    border-radius: 0.75rem;
     color: #000;
     background: #fff;
     text-align: left;
@@ -291,9 +324,9 @@ form.dialog > section.dialog-buttons > button#expense-cancel {
 form.dialog > section.minicalendar {
     border: 2px solid var(--header-bg);
     display: flex;
-    flex-flow: column;
+    flex-flow: column nowrap;
     user-select: none;
-    margin: 1rem;
+    margin: 0.5rem;
     padding: 0;
 }
 
@@ -301,13 +334,14 @@ section.minicalendar > header {
     display: flex;
     flex-flow: row nowrap;
     align-items: center;
+    height: 2rem;
 }
 
 section.minicalendar > header > div {
     flex: 0 0 auto;
     background: none;
     width: 2.5rem;
-    height: 3rem;
+    height: 2rem;
     border: none;
 }
 section.minicalendar > header > div:hover {

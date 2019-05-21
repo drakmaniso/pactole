@@ -61,6 +61,9 @@ function main() {
   window.scrollTo(0, document.body.scrollHeight)
 
   wireHTML()
+
+  //TODO: better way to achieve this?
+  document.location = '#transactions'
 }
 
 function onUpdate(message) {
