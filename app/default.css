@@ -264,19 +264,26 @@ form.dialog > section.categories {
 }
 
 .listbox {
+    /*
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(min-content, max-content));
+    */
+    display: flex;
+    flex-flow: column wrap;
+    column-gap: 1rem;
+    row-gap: 0.25rem;
 }
-.listbox label .fa {
-    width: 1.25rem;
-    margin-right: 0.75rem;
+.listbox div {
+    display: flex;
+    margin: 0;
+    padding: 0;
 }
 .listbox label {
     display: flex;
     align-items: baseline;
     outline: none;
     margin: 0;
-    padding: 0.5rem;
+    padding: 0.5rem 1rem;
     border: none;
     border-radius: 0.75rem;
     color: #000;
@@ -288,8 +295,17 @@ form.dialog > section.categories {
     color: #000;
     background: #fc9;
 }
-.listbox label input {
+.listbox input:checked ~ label {
+    color: #fff;
+    background: #820;
+}
+.listbox .fa {
+    width: 1.25rem;
     margin-right: 0.75rem;
+}
+.listbox input {
+    -webkit-appearance: none;
+    /* margin-right: 0.75rem; */
 }
 
 form.dialog > section.dialog-buttons {
