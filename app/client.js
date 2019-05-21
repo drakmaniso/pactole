@@ -6,7 +6,6 @@ function log(msg) {
 
 let service = null
 let updateListeners = []
-let accountsListeners = []
 
 export function setup(serv) {
   service = serv
@@ -19,19 +18,24 @@ export function setup(serv) {
           f(event.data)
         }
         break
-      case 'accounts':
-        for(const f of accountsListeners) {
-          f(event.data)
-        }
-        break
     }
   }
 }
 
 export function send(message) {
   log(`Sending ${message.msg} to service...`)
-  service.postMessage(message)
+  return new Promise((resolve, reject) => {
+    const chan = new MessageChannel()
+    chan.port1.onmessage = (event) => {
+      log(`received reply ${event.data}`)
+      if (event.data.error) {
+        reject(event.data.error)
+      } else {
+        resolve(event.data)
+      }
+    }
+    service.postMessage(message, [chan.port2])
+  })
 }
 
 export function addUpdateListener(func) { updateListeners.push(func) }
-export function addAccountsListener(func) { accountsListeners.push(func) }

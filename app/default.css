@@ -4,10 +4,10 @@
 
 html {
     height: 100%;
-    font-size: 20px;
 }
 
 body {
+    font-size: 1.25rem;
     height: 100%;
     display: grid;
     grid-template-rows: 2.5rem 1fr;
@@ -202,6 +202,7 @@ form.dialog > section {
 }
 form.dialog > section.amount {
     grid-area: header;
+    font-size: 1.5rem;
     font-weight: bold;
     color: var(--expense-bg);
     display: flex;
@@ -276,7 +277,7 @@ form.dialog > section.categories {
     outline: none;
     margin: 0;
     padding: 0.5rem;
-    border: solid 4px #fff;
+    border: none;
     border-radius: 0.75rem;
     color: #000;
     background: #fff;

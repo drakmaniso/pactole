@@ -1,10 +1,13 @@
 'use strict'
 
 import * as client from './client.js'
+import * as calendar from './calendar.js'
 
 function log(msg) {
   console.log(`[client] ${msg}`)
 }
+
+const accounts = new Map()
 
 if (!('serviceWorker' in navigator)) {
   log('FATAL: Service workers are not supported by the navigator.')
@@ -54,25 +57,85 @@ function main() {
 	log(`Starting application...`)
 
   client.addUpdateListener(onUpdate)
-  client.addAccountsListener(onAccounts)
 
 	client.send({msg: 'open', name: 'Mon Compte'})
-
-  window.scrollTo(0, document.body.scrollHeight)
 
   wireHTML()
 
   //TODO: better way to achieve this?
   document.location = '#transactions'
+  window.scrollTo(0, document.body.scrollHeight)
 }
 
 function onUpdate(message) {
   log(`onUpdate ${message}`)
-  client.send({msg: 'get accounts'})
+  client.send({msg: 'get accounts'}).then((data) => {
+    log(`reply contains ${data.accounts.length} accounts`)
+    fillAccounts(data.accounts)
+  }).catch(() => {
+    log(`reply error`)
+  })
+
+  client.send({msg: 'get transactions'}).then((data) => {
+    log(`reply contains ${data.transactions.length} transactions`)
+    fillTransactions(data.transactions)
+  }).catch(() => {
+    log(`reply error`)
+  })
 }
 
-function onAccounts(message) {
-  log(`onAccounts (${message.accounts.length})`)
+function fillTransactions(transactions) {
+  const transList = id('transactions-list')
+  while(transList.hasChildNodes()) {
+    transList.removeChild(transList.firstChild)
+  }
+  const dateList = document.createElement('ul')
+  let currentDate = new Date(0, 0, 0)
+  let currentList = null
+  for(const t of transactions) {
+    if(!calendar.sameDate(t.date, currentDate)) {
+      const li = document.createElement('li')
+      li.setAttribute('class', 'date')
+      li.innerHTML = '' + calendar.dayName(t.date) 
+        + ' ' + calendar.dayNumber(t.date)
+        + ' ' + calendar.monthName(t.date)
+      dateList.appendChild(li)
+      currentList = document.createElement('ul')
+      dateList.appendChild(currentList)
+      currentDate = t.date
+    }
+    //TODO: multiple credits and/or debits in the same transaction
+    const debit = t.debits[0]
+    const li = document.createElement('li')
+    const amountSpan = document.createElement('span')
+    amountSpan.setAttribute('class', 'amount')
+    let amount = '' + (debit.amount/100) + ' €'
+    const account = accounts.get(debit.account)
+    li.setAttribute('class', account.kind)
+    switch (account.kind) {
+      case 'income':
+        amount = '+' + amount
+        break
+      case 'expense':
+        amount = '-' + amount
+        break
+    }
+    amountSpan.appendChild(document.createTextNode(amount))
+    li.appendChild(amountSpan)
+    li.appendChild(document.createTextNode(' ' + account.name))
+    if(t.description !== '') {
+      li.appendChild(document.createTextNode(' (' + t.description + ')'))
+    }
+    currentList.appendChild(li)
+  }
+  transList.appendChild(dateList)
+}
+
+function fillAccounts(acc) {
+  accounts.clear()
+  for(const a of acc) {
+    accounts.set(a.name, a)
+  }
   return
   const sidebar = document.getElementById('sidebar')
   while(sidebar.hasChildNodes()) {
