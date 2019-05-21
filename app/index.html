@@ -11,8 +11,8 @@
   <body>
 
     <nav id="navigation">
-      <a href="#transactions">Opérations</a>
-      <a href="#summary">Résumé</a>
+      <a href="#transactions">Mon Compte</a>
+      <a hidden href="#summary">Résumé</a>
       <a href="#settings" class="at-end fa">&#xf013;</a>
     </nav>
 
@@ -37,7 +37,12 @@
           </ul>
         </ul>
       </section>
+      <section class="balance">
+        <div>Solde actuel:</div>
+        <div id="balance">1200 €</div>
+      </section>
       <section class="actions">
+        <a href="#summary"><span hidden class="fa">&#xf080;</span><span class="fa">&#xf201;</span><span hidden class="fa">&#xf200;</span>&nbsp;Graphique</a>
         <a href="#income">Arrivée d'argent</a>
         <a href="#expense">Nouvelle dépense</a>
       </section>
