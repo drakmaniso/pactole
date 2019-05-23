@@ -238,6 +238,9 @@ function fillMinicalendar(dateId, calId, date) {
     div.setAttribute('class', 'day')
     if (d.getMonth() == date.getMonth()) {
       div.appendChild(document.createTextNode(d.getDate()))
+      if (calendar.sameDate(d, dateInput.valueAsDate)) {
+        div.setAttribute('checked', 'true')
+      }
       const thisdiv = div
       div.addEventListener('click', (event) => {
         let s = `${d.getFullYear()}-`
