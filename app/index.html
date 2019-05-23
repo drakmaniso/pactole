@@ -17,8 +17,8 @@
     </nav>
 
     <nav hidden id="expense-navigation" class="dialog">
-      <a class="fa" id="expense-close">&#xf060;</a>
-      <a hidden class="at-end fa" id="expense-close">&#xf00d;</a>
+      <a hidden class="fa" id="expense-close">&#xf060;</a>
+      <a class="at-end fa" id="expense-close">&#xf00d;</a>
     </nav>
 
     <main hidden id="home">
@@ -55,80 +55,10 @@
           <input id="expense-amount" type="text" class="amount" autofocus>
           <p>€</p>
         </section>
-        <section class="minicalendar">
-          <input hidden id="expense-date" type="date" hidden>
-          <header>
-            <div id="expense-prevmonth">&lt;</div>
-            <h3 id="expense-month">Month</h3>
-            <div id="expense-nextmonth">&gt;</div>
-          </header>
-          <table>
-            <thead>
-              <tr>
-                <td>Lun</td>
-                <td>Mar</td>
-                <td>Mer</td>
-                <td>Jeu</td>
-                <td>Ven</td>
-                <td>Sam</td>
-                <td>Dim</td>
-              </tr>
-            </thead>
-            <tr>
-              <td id="expense-day-0-0">00</td>
-              <td id="expense-day-0-1">00</td>
-              <td id="expense-day-0-2">00</td>
-              <td id="expense-day-0-3">00</td>
-              <td id="expense-day-0-4">00</td>
-              <td id="expense-day-0-5">00</td>
-              <td id="expense-day-0-6">00</td>
-            </tr>
-            <tr>
-              <td id="expense-day-1-0">00</td>
-              <td id="expense-day-1-1">00</td>
-              <td id="expense-day-1-2">00</td>
-              <td id="expense-day-1-3">00</td>
-              <td id="expense-day-1-4">00</td>
-              <td id="expense-day-1-5">00</td>
-              <td id="expense-day-1-6">00</td>
-            </tr>
-            <tr>
-              <td id="expense-day-2-0">00</td>
-              <td id="expense-day-2-1">00</td>
-              <td id="expense-day-2-2">00</td>
-              <td id="expense-day-2-3">00</td>
-              <td id="expense-day-2-4">00</td>
-              <td id="expense-day-2-5">00</td>
-              <td id="expense-day-2-6">00</td>
-            </tr>
-            <tr>
-              <td id="expense-day-3-0">00</td>
-              <td id="expense-day-3-1">00</td>
-              <td id="expense-day-3-2">00</td>
-              <td id="expense-day-3-3">00</td>
-              <td id="expense-day-3-4">00</td>
-              <td id="expense-day-3-5">00</td>
-              <td id="expense-day-3-6">00</td>
-            </tr>
-            <tr>
-              <td id="expense-day-4-0">00</td>
-              <td id="expense-day-4-1">00</td>
-              <td id="expense-day-4-2">00</td>
-              <td id="expense-day-4-3">00</td>
-              <td id="expense-day-4-4">00</td>
-              <td id="expense-day-4-5">00</td>
-              <td id="expense-day-4-6">00</td>
-            </tr>
-            <tr>
-              <td id="expense-day-5-0">00</td>
-              <td id="expense-day-5-1">00</td>
-              <td id="expense-day-5-2">00</td>
-              <td id="expense-day-5-3">00</td>
-              <td id="expense-day-5-4">00</td>
-              <td id="expense-day-5-5">00</td>
-              <td id="expense-day-5-6">00</td>
-            </tr>
-          </table>
+        <section class="date">
+          <input hidden id="expense-date" type="date">
+          <div class="minicalendar" id="expense-calendar">
+          </div>
         </section>
         <section class="categories">
           <label for="expense-category">Catégorie:</label>

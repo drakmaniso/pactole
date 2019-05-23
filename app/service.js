@@ -90,6 +90,8 @@ const dummyTransactions = [
   {date: new Date(2019, 4, 3), debits: [{account: 'Loyer', amount: 56000}], credits: [{account: 'Mon Compte', amount: 56000}], description: '', reconciled: false},
   {date: new Date(2019, 4, 3), debits: [{account: 'Électricité', amount: 15000}], credits: [{account: 'Mon Compte', amount: 15000}], description: '', reconciled: false},
   {date: new Date(2019, 4, 3), debits: [{account: 'Téléphone', amount: 3000}], credits: [{account: 'Mon Compte', amount: 3000}], description: '', reconciled: false},
+  {date: new Date(2019, 4, 6), debits: [{account: 'Santé', amount: 2300}], credits: [{account: 'Mon Compte', amount: 2300}], description: 'pharmacie', reconciled: false},
+  {date: new Date(2019, 4, 9), debits: [{account: 'Transports', amount: 700}], credits: [{account: 'Mon Compte', amount: 700}], description: '', reconciled: false},
   {date: new Date(2019, 4, 18), debits: [{account: 'Alimentation', amount: 6000}], credits: [{account: 'Mon Compte', amount: 6000}], description: 'courses Super U', reconciled: false},
   {date: new Date(2019, 4, 18), debits: [{account: 'Divers', amount: 2000}], credits: [{account: 'Mon Compte', amount: 2000}], description: 'distributeur', reconciled: false},
   {date: new Date(2019, 4, 20), debits: [{account: 'Habillement', amount: 3200}], credits: [{account: 'Mon Compte', amount: 3200}], description: 'La Halle aux Vêtements', reconciled: false},

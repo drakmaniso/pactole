@@ -182,6 +182,8 @@ function wireHTML() {
       case '#expense':
         id('navigation').hidden = true
         id('expense-navigation').hidden = false
+        id('expense-date').valueAsDate = calendar.today()
+        fillMinicalendar('expense-date', 'expense-calendar', calendar.today())
         id('expense').hidden = false
         break
     }
@@ -194,3 +196,68 @@ function wireHTML() {
     window.history.back()
   }
 }
+
+function fillMinicalendar(dateId, calId, date) {
+  const dateInput = id(dateId)
+  const cal = id(calId)
+  while(cal.hasChildNodes()) {
+    cal.removeChild(cal.firstChild)
+  }
+
+  let div = document.createElement('div')
+  div.setAttribute('class', 'fa')
+  div.appendChild(document.createTextNode('\uf060'))
+  div.addEventListener('click', (event) => {
+    fillMinicalendar(dateId, calId, calendar.delta(date, 0, -1, 0))
+  })
+  cal.appendChild(div)
+
+  div = document.createElement('div')
+  div.setAttribute('class', 'month')
+  div.appendChild(document.createTextNode(`${calendar.monthName(date)} ${date.getFullYear()}`))
+  cal.appendChild(div)
+
+  div = document.createElement('div')
+  div.setAttribute('class', 'fa')
+  div.appendChild(document.createTextNode('\uf061'))
+  div.addEventListener('click', (event) => {
+    fillMinicalendar(dateId, calId, calendar.delta(date, 0, +1, 0))
+  })
+  cal.appendChild(div)
+
+  
+  for(const w of ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim']) {
+    div = document.createElement('div')
+    div.setAttribute('class', 'weekday')
+    div.appendChild(document.createTextNode(w))
+    cal.appendChild(div)
+  }
+
+  calendar.grid(date, (d, row, col) => {
+    div = document.createElement('div')
+    div.setAttribute('class', 'day')
+    if (d.getMonth() == date.getMonth()) {
+      div.appendChild(document.createTextNode(d.getDate()))
+      const thisdiv = div
+      div.addEventListener('click', (event) => {
+        let s = `${d.getFullYear()}-`
+        if(d.getMonth()+1 < 10) { 
+          s = s + '0' 
+        }
+        s = s + `${d.getMonth()+1}-`
+        if(d.getDate() < 10) {
+          s = s + '0' 
+        }
+        s = s + `${d.getDate()}`
+        dateInput.value = s
+        const alldays = document.querySelectorAll('#'+calId+' .day')
+        for(const a of alldays) {
+          a.removeAttribute('checked')
+        }
+        thisdiv.setAttribute('checked', 'true')
+      })
+    }
+    cal.appendChild(div)
+  })
+}
+
