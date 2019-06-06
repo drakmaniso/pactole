@@ -51,7 +51,12 @@ onmessage = (event) => {
         msg: 'transactions',
         transactions: dummyTransactions,
       })
-      break;
+      break
+    case 'new transaction':
+      dummyTransactions.push(event.data.transaction)
+      event.ports[0].postMessage({ msg: 'done' })
+      send({msg: 'update'})
+      break
   }
 }
 
@@ -98,4 +103,11 @@ const dummyTransactions = [
   {date: new Date(2019, 4, 21), debits: [{account: 'Divers', amount: 2000}], credits: [{account: 'Mon Compte', amount: 2000}], description: 'distributeur', reconciled: false},
   {date: new Date(2019, 4, 23), debits: [{account: 'Transports', amount: 5500}], credits: [{account: 'Mon Compte', amount: 5500}], description: 'essence', reconciled: false},
   {date: new Date(2019, 4, 24), debits: [{account: 'Loisirs', amount: 3500}], credits: [{account: 'Mon Compte', amount: 3500}], description: 'Raspberry Pi', reconciled: false},
+  {date: new Date(2019, 5, 1), debits: [{account: 'Allocations', amount: 50000}], credits: [{account: 'Mon Compte', amount: 50000}], description: 'AAH', reconciled: false},
+  {date: new Date(2019, 5, 2), debits: [{account: 'Allocations', amount: 20000}], credits: [{account: 'Mon Compte', amount: 20000}], description: '', reconciled: false},
+  {date: new Date(2019, 5, 2), debits: [{account: 'Divers', amount: 2000}], credits: [{account: 'Mon Compte', amount: 2000}], description: '', reconciled: false},
+  {date: new Date(2019, 5, 3), debits: [{account: 'Loyer', amount: 56000}], credits: [{account: 'Mon Compte', amount: 56000}], description: 'Loyer', reconciled: false},
+  {date: new Date(2019, 5, 3), debits: [{account: 'Téléphone', amount: 3000}], credits: [{account: 'Mon Compte', amount: 3000}], description: 'Facture téléphone', reconciled: false},
+  {date: new Date(2019, 5, 11), debits: [{account: 'Transports', amount: 800}], credits: [{account: 'Mon Compte', amount: 800}], description: '', reconciled: false},
+  {date: new Date(2019, 5, 18), debits: [{account: 'Alimentation', amount: 6500}], credits: [{account: 'Mon Compte', amount: 6500}], description: 'courses Super U', reconciled: false},
 ]

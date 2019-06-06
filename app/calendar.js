@@ -74,3 +74,21 @@ export function grid(date, dayFunc) {
     }
   }
 }
+
+export function dateID(date) {
+  let result = `${date.getFullYear()}-`
+
+  const m = date.getMonth() + 1
+  if(m < 10) {
+    result += ' '
+  }
+  result += `${m}-`
+
+  const d = date.getDate()
+  if(d < 10) {
+    result += ' '
+  }
+  result += `${d}`
+
+  return result
+}

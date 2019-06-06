@@ -17,14 +17,138 @@
     </nav>
 
     <nav hidden id="expense-navigation" class="dialog">
-      <a hidden class="fa" id="expense-close">&#xf060;</a>
+      <a hidden class="fa">&#xf060;</a>
       <a class="at-end fa" id="expense-close">&#xf00d;</a>
     </nav>
 
     <main hidden id="home">
     </main>
 
-    <main id="transactions">
+    <main id="calendar">
+      <!--
+      <header>
+        <div class="fa">&#xf060;</div>
+        <p>Month</p>
+        <div class="fa">&#xf061;</div>
+      </header>
+
+      <section>
+        <header>Lundi 1</header>
+      </section>
+      <section>
+        <header>Mardi 2</header>
+      </section>
+      <section>
+        <header>3</header>
+        <ul>
+          <li class="income">+1200 €</li>
+        </ul>
+      </section>
+      <section>
+        <header>4</header>
+        <ul>
+          <li class="expense">-560 €</li>
+        </ul>
+      </section>
+      <section>
+        <header>5</header>
+      </section>
+      <section>
+        <header>6</header>
+      </section>
+      <section>
+        <header>7</header>
+      </section>
+
+      <section>
+        <header>Lundi 1</header>
+      </section>
+      <section>
+        <header>Mardi 2</header>
+        <ul>
+          <li class="expense">-50 €</li>
+          <li class="expense">-14 €</li>
+        </ul>
+      </section>
+      <section>
+        <header>3</header>
+      </section>
+      <section>
+        <header>4</header>
+      </section>
+      <section>
+        <header>5</header>
+      </section>
+      <section>
+        <header>6</header>
+      </section>
+      <section>
+        <header>7</header>
+      </section>
+
+      <section>
+        <header>Lundi 1</header>
+      </section>
+      <section>
+        <header>Mardi 2</header>
+      </section>
+      <section>
+        <header>3</header>
+      </section>
+      <section>
+        <header>4</header>
+      </section>
+      <section>
+        <header>5</header>
+      </section>
+      <section>
+        <header>6</header>
+      </section>
+      <section>
+        <header>7</header>
+      </section>
+
+      <section>
+        <header>Lundi 1</header>
+      </section>
+      <section>
+        <header>Mardi 2</header>
+      </section>
+      <section>
+        <header>3</header>
+      </section>
+      <section>
+        <header>4</header>
+      </section>
+      <section>
+        <header>5</header>
+      </section>
+      <section>
+        <header>6</header>
+      </section>
+      <section>
+        <header>7</header>
+      </section>
+
+      <section>
+        <header>Lundi 1</header>
+      </section>
+      <section>
+        <header>Mardi 2</header>
+      </section>
+      <section>
+        <header>3</header>
+      </section>
+      <section>
+        <header>4</header>
+      </section>
+      <section>
+        <header>5</header>
+      </section>
+      -->
+    </main>
+
+    <main hidden id="transactions">
       <section id="transactions-list">
         <ul>
           <li class="date">Jeudi 2 Mai</li>
@@ -49,7 +173,7 @@
     </main>
 
     <main hidden id="expense">
-      <form class="dialog">
+      <form class="dialog" name="expense">
         <section class="amount">
           <label for="expense-amount">Nouvelle dépense:</label>
           <input id="expense-amount" type="text" class="amount" autofocus>

@@ -8,6 +8,7 @@ function log(msg) {
 }
 
 const accounts = new Map()
+const transactionsByDate = new Map()
 
 if (!('serviceWorker' in navigator)) {
   log('FATAL: Service workers are not supported by the navigator.')
@@ -63,7 +64,7 @@ function main() {
   wireHTML()
 
   //TODO: better way to achieve this?
-  document.location = '#transactions'
+  document.location = '#calendar'
   window.scrollTo(0, document.body.scrollHeight)
 }
 
@@ -79,12 +80,23 @@ function onUpdate(message) {
   client.send({msg: 'get transactions'}).then((data) => {
     log(`reply contains ${data.transactions.length} transactions`)
     fillTransactions(data.transactions)
-  }).catch(() => {
-    log(`reply error`)
+  }).catch((e) => {
+    log(`reply error ${e}`)
   })
 }
 
 function fillTransactions(transactions) {
+  transactionsByDate.clear()
+  for(const t of transactions) {
+    const d = calendar.dateID(t.date)
+    if(!transactionsByDate.get(d)) {
+      transactionsByDate.set(d, [])
+    }
+    transactionsByDate.get(d).push(t)
+  }
+
+  renderCalendar(new Date())
+
   const transList = id('transactions-list')
   while(transList.hasChildNodes()) {
     transList.removeChild(transList.firstChild)
@@ -136,6 +148,7 @@ function fillAccounts(acc) {
   for(const a of acc) {
     accounts.set(a.name, a)
   }
+  //TODO
   return
   const sidebar = document.getElementById('sidebar')
   while(sidebar.hasChildNodes()) {
@@ -194,6 +207,25 @@ function wireHTML() {
   }
   id('expense-close').onclick = () => {
     window.history.back()
+  }
+  id('expense-submit').onclick = () => {
+    const f = document.forms['expense']
+    const transac = {
+      date: f['expense-date'].valueAsDate,
+      debits: [
+        {account: f['expense-category'].value, amount: 100*f['expense-amount'].value},
+      ],
+      credits: [
+        {account: 'Mon Compte', amount: 100*f['expense-amount'].value},
+      ],
+      description: f['expense-description'].value,
+      reconciled: false,
+    }
+    client.send({
+      msg: 'new transaction',
+      transaction: transac,
+    })
+    window.location = '#transactions'
   }
 }
 
@@ -264,3 +296,146 @@ function fillMinicalendar(dateId, calId, date) {
   })
 }
 
+
+function renderCalendar(date) {
+  const main = id('calendar')
+  while(main.hasChildNodes()) {
+    main.removeChild(main.firstChild)
+  }
+  const cal = document.createElement('div')
+  cal.id = 'calendar-month'
+
+  {
+    const header = document.createElement('header')
+    const prev = document.createElement('div')
+    prev.setAttribute('class', 'fa')
+    prev.appendChild(document.createTextNode('\uf060'))
+    prev.addEventListener('click', (event) => {
+      renderCalendar(calendar.delta(date, 0, -1, 0))
+    })
+    header.appendChild(prev)
+
+    const par = document.createElement('p')
+    par.appendChild(document.createTextNode(`${calendar.monthName(date)} ${date.getFullYear()}`))
+    header.appendChild(par)
+
+    const next = document.createElement('div')
+    next.setAttribute('class', 'fa')
+    next.appendChild(document.createTextNode('\uf061'))
+    next.addEventListener('click', (event) => {
+      renderCalendar(calendar.delta(date, 0, +1, 0))
+    })
+    header.appendChild(next)
+
+    cal.appendChild(header)
+  }
+
+  
+  for(const w of ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche']) {
+    const div = document.createElement('div')
+    div.setAttribute('class', 'weekday')
+    div.appendChild(document.createTextNode(w))
+    cal.appendChild(div)
+  }
+
+  const today = new Date()
+
+  calendar.grid(date, (d, row, col) => {
+    const section = document.createElement('section')
+    if (d.getMonth() == date.getMonth()) {
+      const header = document.createElement('header')
+      if(calendar.sameDate(d, today)) {
+        header.appendChild(document.createTextNode('Aujourd\'hui'))
+      } else {
+        header.appendChild(document.createTextNode(d.getDate()))
+      }
+      /* TODO
+      if (calendar.sameDate(d, date)) {
+        header.setAttribute('checked', 'true')
+      }
+      */
+      section.appendChild(header)
+
+      const dd = calendar.dateID(d)
+      const transacs = transactionsByDate.get(dd)
+      if(transacs) {
+        const ul = document.createElement('ul')
+        for(const t of transacs) {
+          const account = accounts.get(t.debits[0].account)
+          const li = document.createElement('li')
+          li.setAttribute('class', account.kind)
+          switch(account.kind) {
+            case 'income':
+              li.appendChild(document.createTextNode(`+${t.debits[0].amount/100}€`))
+              break
+            case 'expense':
+              li.appendChild(document.createTextNode(`-${t.debits[0].amount/100}€`))
+              break
+          }
+          //    li.appendChild(document.createTextNode('€'))
+          ul.appendChild(li)
+        }
+        section.appendChild(ul)
+      }
+
+      section.addEventListener('click', (event) => {
+        renderCalendarDay(d)
+      })
+    }
+    cal.appendChild(section)
+  })
+
+  const day = document.createElement('div')
+  day.id = 'calendar-day'
+
+  main.appendChild(cal)
+  main.appendChild(day)
+}
+
+function renderCalendarDay(date) {
+  const day = id('calendar-day')
+  while(day.hasChildNodes()){
+    day.removeChild(day.firstChild)
+  }
+
+  const header = document.createElement('header')
+  //header.appendChild(document.createTextNode(`${calendar.dayName(date)} ${calendar.dayNumber(date)} ${calendar.monthName(date)}`))
+  header.appendChild(document.createTextNode(`${calendar.dayName(date)} ${calendar.dayNumber(date)}`))
+  day.appendChild(header)
+
+  const ul = document.createElement('ul')
+  const dd = calendar.dateID(date)
+  const transacs = transactionsByDate.get(dd)
+  if(transacs) {
+    for(const t of transacs) {
+      const li = document.createElement('li')
+      const account = accounts.get(t.debits[0].account)
+      li.setAttribute('class', account.kind)
+      const desc = document.createElement('div')
+      const amount = document.createElement('div')
+      switch (account.kind) {
+        case 'income':
+          if(t.description !== '') {
+            desc.appendChild(document.createTextNode(t.description + ':'))
+          } else {
+            desc.appendChild(document.createTextNode('Entrée d\'argent:'))
+          }
+          amount.appendChild(document.createTextNode(`+${t.debits[0].amount/100} €`))
+          break
+        case 'expense':
+          if(t.description !== '') {
+            desc.appendChild(document.createTextNode(t.description + ':'))
+          } else {
+            desc.appendChild(document.createTextNode('Dépense:'))
+          }
+          amount.appendChild(document.createTextNode(`-${t.debits[0].amount/100} €`))
+          break
+      }
+      li.appendChild(desc)
+      li.appendChild(amount)
+      ul.appendChild(li)
+    }
+  }
+
+  day.appendChild(ul)
+}

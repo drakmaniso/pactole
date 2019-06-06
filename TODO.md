@@ -1,0 +1,3 @@
+- Store dates using a custom date string rather than javascript's date type.
+- Create a small 'dom' module.
+- Clean-up default.css.
