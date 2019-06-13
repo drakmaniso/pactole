@@ -64,8 +64,8 @@ function main() {
   wireHTML()
 
   //TODO: better way to achieve this?
-  document.location = '#calendar'
-  window.scrollTo(0, document.body.scrollHeight)
+  //document.location = '#calendar'
+  //window.scrollTo(0, document.body.scrollHeight)
 }
 
 function onUpdate(message) {
@@ -172,11 +172,17 @@ function id(id) { return document.getElementById(id) }
 
 function wireHTML() {
   window.onhashchange = () => {
+    id('calendar').hidden = true
     id('transactions').hidden = true
     id('summary').hidden = true
     id('settings').hidden = true
     id('expense').hidden = true
     switch(location.hash) {
+      case '#calendar':
+        id('expense-navigation').hidden = true
+        id('navigation').hidden = false
+        id('calendar').hidden = false
+        break
       case '#transactions':
         id('expense-navigation').hidden = true
         id('navigation').hidden = false
@@ -200,6 +206,52 @@ function wireHTML() {
         id('expense').hidden = false
         break
     }
+  }
+
+  id('calendar-income').onclick = () => {
+    openCalendarIncomeDialog()
+  }
+
+  id('calendar-expense').onclick = () => {
+    openCalendarExpenseDialog()
+  }
+  
+  id('calendar-income-dialog-cancel').onclick = (event) => {
+    event.preventDefault()
+    closeCalendarDialog()
+  }
+  
+  id('calendar-income-dialog-confirm').onclick = (event) => {
+    event.preventDefault()
+    closeCalendarDialog()
+  }
+  
+  id('calendar-expense-dialog-cancel').onclick = (event) => {
+    event.preventDefault()
+    closeCalendarDialog()
+  }
+  
+  id('calendar-expense-dialog-confirm').onclick = (event) => {
+    event.preventDefault()
+    const f = document.forms['calendar-expense-dialog']
+    const transac = {
+      date: f['date'].valueAsDate,
+      debits: [
+        {account: 'Divers', amount: 100*f['amount'].value},
+      ],
+      credits: [
+        {account: 'Mon Compte', amount: 100*f['amount'].value},
+      ],
+      description: f['description'].value,
+      reconciled: false,
+    }
+    /*
+    client.send({
+      msg: 'new transaction',
+      transaction: transac,
+    })
+    */
+    closeCalendarDialog()
   }
 
   id('expense-cancel').onclick = () => {
@@ -298,44 +350,48 @@ function fillMinicalendar(dateId, calId, date) {
 
 
 function renderCalendar(date) {
-  const main = id('calendar')
-  while(main.hasChildNodes()) {
-    main.removeChild(main.firstChild)
+  id('calendar-day').hidden = true
+  const cal = id('calendar-month')
+  while(cal.hasChildNodes()) {
+    cal.removeChild(cal.firstChild)
   }
-  const cal = document.createElement('div')
-  cal.id = 'calendar-month'
 
   {
     const header = document.createElement('header')
     const prev = document.createElement('div')
-    prev.setAttribute('class', 'fa')
+    prev.setAttribute('class', 'fa button')
     prev.appendChild(document.createTextNode('\uf060'))
     prev.addEventListener('click', (event) => {
+      closeCalendarDialog()
       renderCalendar(calendar.delta(date, 0, -1, 0))
     })
     header.appendChild(prev)
 
     const par = document.createElement('p')
-    par.appendChild(document.createTextNode(`${calendar.monthName(date)} ${date.getFullYear()}`))
+    if (date.getFullYear() === (new Date()).getFullYear()) {
+      par.appendChild(document.createTextNode(`${calendar.monthName(date)}`))
+    } else {
+      par.appendChild(document.createTextNode(`${calendar.monthName(date)} ${date.getFullYear()}`))
+    }
     header.appendChild(par)
 
     const next = document.createElement('div')
-    next.setAttribute('class', 'fa')
+    next.setAttribute('class', 'fa button')
     next.appendChild(document.createTextNode('\uf061'))
     next.addEventListener('click', (event) => {
+      closeCalendarDialog()
       renderCalendar(calendar.delta(date, 0, +1, 0))
     })
     header.appendChild(next)
+  
+    for(const w of ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche']) {
+      const div = document.createElement('div')
+      div.setAttribute('class', 'weekday')
+      div.appendChild(document.createTextNode(w))
+      header.appendChild(div)
+    }
 
     cal.appendChild(header)
-  }
-
-  
-  for(const w of ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche']) {
-    const div = document.createElement('div')
-    div.setAttribute('class', 'weekday')
-    div.appendChild(document.createTextNode(w))
-    cal.appendChild(div)
   }
 
   const today = new Date()
@@ -345,6 +401,7 @@ function renderCalendar(date) {
     if (d.getMonth() == date.getMonth()) {
       const header = document.createElement('header')
       if(calendar.sameDate(d, today)) {
+        header.setAttribute('class', 'today')
         header.appendChild(document.createTextNode('Aujourd\'hui'))
       } else {
         header.appendChild(document.createTextNode(d.getDate()))
@@ -372,38 +429,38 @@ function renderCalendar(date) {
               li.appendChild(document.createTextNode(`-${t.debits[0].amount/100}€`))
               break
           }
-          //    li.appendChild(document.createTextNode('€'))
           ul.appendChild(li)
         }
         section.appendChild(ul)
       }
 
       section.addEventListener('click', (event) => {
+        for(const s of document.querySelectorAll('#calendar-month > section')) {
+          s.setAttribute('class', '')
+        }
+        event.currentTarget.setAttribute('class', 'checked')
         renderCalendarDay(d)
       })
     }
     cal.appendChild(section)
   })
-
-  const day = document.createElement('div')
-  day.id = 'calendar-day'
-
-  main.appendChild(cal)
-  main.appendChild(day)
 }
 
 function renderCalendarDay(date) {
-  const day = id('calendar-day')
-  while(day.hasChildNodes()){
-    day.removeChild(day.firstChild)
+  const header = id('calendar-day-header')
+  while(header.hasChildNodes()) {
+    header.removeChild(header.lastChild)
+  }
+  if(calendar.sameDate(date, new Date())) {
+    header.appendChild(document.createTextNode('Aujourd\'hui'))
+  } else {
+    header.appendChild(document.createTextNode(`${calendar.dayName(date)} ${calendar.dayNumber(date)}`))
   }
 
-  const header = document.createElement('header')
-  //header.appendChild(document.createTextNode(`${calendar.dayName(date)} ${calendar.dayNumber(date)} ${calendar.monthName(date)}`))
-  header.appendChild(document.createTextNode(`${calendar.dayName(date)} ${calendar.dayNumber(date)}`))
-  day.appendChild(header)
-
-  const ul = document.createElement('ul')
+  const ul = id('calendar-day-ul')
+  while(ul.hasChildNodes()) {
+    ul.removeChild(ul.lastChild)
+  }
   const dd = calendar.dateID(date)
   const transacs = transactionsByDate.get(dd)
   if(transacs) {
@@ -436,6 +493,41 @@ function renderCalendarDay(date) {
       ul.appendChild(li)
     }
   }
+  closeCalendarDialog()
+        let s = `${date.getFullYear()}-`
+        if(date.getMonth()+1 < 10) { 
+          s = s + '0' 
+        }
+        s = s + `${date.getMonth()+1}-`
+        if(date.getDate() < 10) {
+          s = s + '0' 
+        }
+        s = s + `${date.getDate()}`
+  document.forms['calendar-expense-dialog'].elements['date'].value = s
+  id('calendar-day').hidden = false
+}
 
-  day.appendChild(ul)
+function openCalendarIncomeDialog() {
+  const form = document.forms['calendar-income-dialog']
+  id('calendar-day-ul').hidden = true
+  id('calendar-day-actions').hidden = true
+  id('calendar-income-dialog').hidden = false
+  form.elements['amount'].focus()
+}
+
+function openCalendarExpenseDialog() {
+  const form = document.forms['calendar-expense-dialog']
+  id('calendar-day-ul').hidden = true
+  id('calendar-day-actions').hidden = true
+  id('calendar-expense-dialog').hidden = false
+  form.elements['amount'].focus()
+}
+
+function closeCalendarDialog() {
+  document.forms['calendar-income-dialog'].reset()
+  document.forms['calendar-expense-dialog'].reset()
+  id('calendar-income-dialog').hidden = true
+  id('calendar-expense-dialog').hidden = true
+  id('calendar-day-ul').hidden = false
+  id('calendar-day-actions').hidden = false
 }

@@ -121,8 +121,8 @@ li.date {
     padding-bottom: 0.75rem;
 }
 
-li.income,
-li.expense {
+#transactions-list li.income,
+#transactions-list li.expense {
     list-style: none;
     display: flex;
     flex-flow: row wrap;
@@ -132,17 +132,17 @@ li.expense {
     padding-bottom: 0.25rem;
 }
 
-span.amount {
+#transactions-list span.amount {
     width: 6rem;
     margin-right: 1rem;
     text-align: right;
 }
 
-li.income span.amount {
+#transactions-list li.income span.amount {
     color: var(--income-bg);
 }
 
-li.expense span.amount {
+#transactions-list li.expense span.amount {
     color: var(--expense-bg);
 }
 
@@ -421,38 +421,45 @@ form.dialog > section.dialog-buttons > button#expense-cancel {
 }
 
 #calendar {
-    display: flex;
-    justify-content: stretch;
-    background: #fff;
+    display: grid;
+    grid-template-columns: minmax(min-content, 5fr) minmax(min-content, 2fr);
+    grid-template-rows: 1fr 14rem;
+    grid-template-areas: 
+        "month day"
+        "month balance";
+    grid-gap: 0.75rem;
+    background: #eee;
+    padding: 0.5rem;
 }
 
 #calendar-month {
-    margin: 1rem;
+    grid-area: month;
     border: solid 3px #099;
     border-radius: 1.25rem;
-    flex: 2;
     display: grid;
-    grid-template-columns: repeat(7, minmax(min-content, 1fr));
-    grid-template-rows: 3rem 1rem repeat(auto-fit, minmax(10px, 1fr));
+    grid-template-columns: repeat(7, minmax(4rem, 1fr));
+    grid-template-rows: 4rem repeat(auto-fit, minmax(10px, 1fr));
     grid-gap: 3px;
     padding: 0;
     user-select: none;
     contain: content;
     background: #099;
+    z-index: 100;
+    box-shadow: 0px 4px 10px 0px grey;
 }
 
 #calendar-month > header {
     grid-area: span 1 / span 7;
-    display: flex;
-    flex-flow: row nowrap;
-    justify-content: stretch;
-    align-items: stretch;
-    color: #fff;
-    background: #099;
+    display: grid;
+    grid-template-columns: repeat(7, minmax(4rem, 1fr));
+    grid-template-rows: 3rem 1rem;
+    grid-gap: 0;
+    color: #099;
+    background: #fff;
 }
 
 #calendar-month > header > p {
-    flex: 1;
+    grid-area: span 1 / span 3;
     display: flex;
     flex-flow: column nowrap;
     justify-content: center;
@@ -462,25 +469,25 @@ form.dialog > section.dialog-buttons > button#expense-cancel {
     font-size: 2rem;
 }
 
-#calendar-month > header > div {
+#calendar-month > header > div.button {
+    grid-area: span 1 / span 2;
     display: flex;
     justify-content: center;
     align-items: center;
     font-size: 2rem;
     padding: 0 2rem;
-    margin: 0.25rem;
+    margin: 0.25rem 5rem;
     border-radius: 1rem;
 }
 
-#calendar-month > div {
-    font-size: 0.75rem;
-    text-align: center;
-    color: #fff;
-    background: #099;
+#calendar-month > header > div.button:hover {
+    background: #cee;
 }
 
-#calendar-month > header > div:hover {
-    background: #088;
+#calendar-month > header > div.weekday {
+    font-size: 0.75rem;
+    text-align: center;
+    color: #099;
 }
 
 #calendar-month > section {
@@ -488,7 +495,7 @@ form.dialog > section.dialog-buttons > button#expense-cancel {
     flex-flow: column nowrap;
     border: none;
     background: #fff;
-    contain: content;
+    contain: strict;
 }
 
 #calendar-month > section > header {
@@ -496,11 +503,25 @@ form.dialog > section.dialog-buttons > button#expense-cancel {
     color: #099;
 }
 
-#calendar-month > section:hover {
-    background: #ffc;
+#calendar-month > section > header.today {
+    font-variant-caps: all-small-caps;
+    font-weight: bold;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
-#calendar-month > section:hover > header { 
+#calendar-month > section.checked {
+    background: #cee;
+}
+
+#calendar-month > section.checked > header {
+    color: #fff;
+    background: #099;
+}
+
+#calendar-month > section:hover {
+    /* background: #ffa; */
 }
 
 #calendar-month > section > ul {
@@ -508,7 +529,7 @@ form.dialog > section.dialog-buttons > button#expense-cancel {
     display: flex;
     flex-flow: row wrap;
     justify-content: flex-start;
-    align-items: flex-start;
+    /* align-items: flex-start; */
     padding: 0;
     margin: 0;
 }
@@ -519,7 +540,7 @@ form.dialog > section.dialog-buttons > button#expense-cancel {
     margin-top: 0.125rem;
     margin-bottom: 0;
     height: 1.75rem;
-    flex: none;
+    /* flex: none; */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -541,16 +562,17 @@ form.dialog > section.dialog-buttons > button#expense-cancel {
 }
 
 #calendar-day {
-    flex: 1;
-    margin: 1rem;
-    border: solid 3px #84a;
+    grid-area: day;
+    border: solid 3px #099;
     border-radius: 1.25rem;
-    background: #84a;
+    background: #099;
     display: flex;
     flex-flow: column nowrap;
-    justify-content: stretch;
+    justify-content: flex-start;
     contain: content;
     user-select: none;
+    z-index: 100;
+    box-shadow: 0px 4px 10px 0px grey;
 }
 
 #calendar-day:empty {
@@ -560,6 +582,7 @@ form.dialog > section.dialog-buttons > button#expense-cancel {
     border-radius: 1.25rem;
     background: transparent;
     contain: content;
+    box-shadow: none;
 }
 
 #calendar-day > header {
@@ -574,6 +597,7 @@ form.dialog > section.dialog-buttons > button#expense-cancel {
 
 #calendar-day > ul {
     flex: 1;
+    /* background: #cee; */
     background: #fff;
     margin: 0;
     padding: 0;
@@ -583,12 +607,14 @@ form.dialog > section.dialog-buttons > button#expense-cancel {
 #calendar-day > ul > li {
     display: flex;
     justify-content: stretch;
-    padding: 0.75rem 2rem;
+    padding: 0.25rem 2rem;
 }
 
+/*
 #calendar-day > ul > li:nth-child(even) {
-    background: #ffb;
+    background: #add;
 }
+*/
 
 #calendar-day > ul > li.income {
     color: var(--income-bg);
@@ -600,4 +626,186 @@ form.dialog > section.dialog-buttons > button#expense-cancel {
 
 #calendar-day > ul > li > div:first-child {
     flex: 1;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+#calendar-day > ul > li.input > input {
+    align-self: baseline;
+    outline: none;
+    margin: 0;
+    padding: 0;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    border-bottom: 2px dotted;
+    color: inherit;
+    font-size: inherit;
+    font-weight: inherit;
+}
+
+#calendar-day > ul > li.input > input:nth-child(1) {
+    width: calc(var(--day-size) - 12rem);
+}
+
+#calendar-day > ul > li.input > input:nth-child(3) {
+    width: 6rem;
+    text-align: right;
+    margin-right: 0.5rem;
+    margin-left: 0.5rem;
+}
+
+#calendar-day > .actions {
+    height: 4rem;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    align-items: flex-end;
+    background: #fff;
+    padding-bottom: 0.5rem;
+}
+
+#calendar-day > .actions > a {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    color: #fff;
+    height: 2.5rem;
+    padding: 0 1.5rem;
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    font-weight: bold;
+    border-radius: 1.25rem;
+}
+
+#calendar-day > .actions > a.income {
+    background: var(--income-bg);
+    border-radius: 3px; 
+    border: solid 3px var(--income-bg);
+}
+
+#calendar-day > .actions > a.income:hover {
+    background: var(--income-hl);
+    border: solid 3px var(--income-hl);
+}
+
+#calendar-day > .actions > a.expense {
+    background: var(--expense-bg);
+    border: solid 3px var(--expense-bg);
+}
+
+#calendar-day > .actions > a.expense:hover {
+    background: var(--expense-hl);
+    border-radius: 1.25rem;
+    border: solid 3px var(--expense-hl);
+}
+
+.calendar-dialog {
+    flex: 1;
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: stretch;
+    padding: 0;
+    --local-primary: #f0f;
+}
+
+#calendar-income-dialog {
+    --local-primary: var(--income-bg);
+    color: var(--income-bg);
+    background: var(--income-bg);
+}
+
+#calendar-expense-dialog {
+    --local-primary: var(--expense-bg);
+    color: var(--expense-bg);
+    background: var(--expense-bg);
+}
+
+.calendar-dialog header {
+    color: #fff;
+    flex: 0 0 3rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+}
+
+.calendar-dialog section.amount,
+.calendar-dialog section.description {
+    background: #fff;
+    margin: 0;
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: flex-stretch;
+    align-items: center;
+    padding: 0.5rem 2rem;
+}
+
+.calendar-dialog input {
+    align-self: baseline;
+    outline: none;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    border-bottom: 2px dotted;
+    color: inherit;
+    font-size: inherit;
+    font-weight: inherit;
+}
+
+.calendar-dialog .amount input {
+    width: 8rem;
+    margin: 1rem 0;
+    margin-left: auto;
+    font-size: 1.5rem;
+    text-align: right;
+}
+
+.calendar-dialog .description input {
+    width: 10rem;
+    margin-left: auto;
+}
+
+.calendar-dialog .amount p {
+    margin: 1rem 0.5rem;
+    font-size: 1.5rem;
+}
+
+.calendar-dialog section.actions {
+    flex: 1;
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: flex-end;
+    align-items: flex-end;
+    background: #fff;
+    padding: 0.5rem 0;
+}
+
+.calendar-dialog section.actions button {
+    border: solid 2px var(--local-primary);
+    border-radius: 1.25rem;
+    height: 2.5rem;
+    color: var(--local-primary);
+    background: #fff;
+    margin-right: 2rem;
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+    align-self: flex-end;
+}
+
+.calendar-dialog section.actions button:last-child {
+    color: #fff;
+    background: var(--local-primary);
+}
+
+#calendar .balance {
+    grid-area: balance;
+    bottom: 0.5rem;
+    right: 0.5rem;
+    z-index: 0;
 }

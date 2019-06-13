@@ -11,7 +11,8 @@
   <body>
 
     <nav id="navigation">
-      <a href="#transactions">Mon Compte</a>
+      <a href="#calendar">Calendrier</a>
+      <a href="#transactions">Liste</a>
       <a hidden href="#summary">Résumé</a>
       <a href="#settings" class="at-end fa">&#xf013;</a>
     </nav>
@@ -25,127 +26,60 @@
     </main>
 
     <main id="calendar">
-      <!--
-      <header>
-        <div class="fa">&#xf060;</div>
-        <p>Month</p>
-        <div class="fa">&#xf061;</div>
-      </header>
 
-      <section>
-        <header>Lundi 1</header>
+      <section id="calendar-month">
       </section>
-      <section>
-        <header>Mardi 2</header>
-      </section>
-      <section>
-        <header>3</header>
-        <ul>
-          <li class="income">+1200 €</li>
+
+      <section id="calendar-day" hidden="true">
+        <header id="calendar-day-header">
+        </header>
+        <ul id="calendar-day-ul">
         </ul>
-      </section>
-      <section>
-        <header>4</header>
-        <ul>
-          <li class="expense">-560 €</li>
-        </ul>
-      </section>
-      <section>
-        <header>5</header>
-      </section>
-      <section>
-        <header>6</header>
-      </section>
-      <section>
-        <header>7</header>
-      </section>
-
-      <section>
-        <header>Lundi 1</header>
-      </section>
-      <section>
-        <header>Mardi 2</header>
-        <ul>
-          <li class="expense">-50 €</li>
-          <li class="expense">-14 €</li>
-        </ul>
-      </section>
-      <section>
-        <header>3</header>
-      </section>
-      <section>
-        <header>4</header>
-      </section>
-      <section>
-        <header>5</header>
-      </section>
-      <section>
-        <header>6</header>
-      </section>
-      <section>
-        <header>7</header>
+        <div id="calendar-day-actions" class="actions">
+          <a id="calendar-income" class="income">Revenu</a>
+          <a id="calendar-expense" class="expense">Dépense</a>
+        </div>
+        <form class="calendar-dialog" id="calendar-income-dialog" name="calendar-income-dialog" hidden="true">
+          <header>Nouvelle entrée d'argent</header>
+          <input hidden="true" type="date" name="date">
+          <section class="amount">
+            <label for="amount">Montant:</label>
+            <input name="amount" type="text">
+            <p>€</p>
+          </section>
+          <section class="description">
+            <label for="description">Description:</label>
+            <input name="description" type="text">
+          </section>
+          <section class="actions">
+            <button type="button" id="calendar-income-dialog-cancel">Annuler</button>
+            <button type="submit" id="calendar-income-dialog-confirm">Confirmer</button>
+          </section>
+        </form>
+        <form class="calendar-dialog" id="calendar-expense-dialog" name="calendar-expense-dialog" hidden="true">
+          <header>Nouvelle dépense</header>
+          <input hidden="true" type="date" name="date">
+          <section class="amount">
+            <label for="amount">Montant:</label>
+            <input name="amount" type="text">
+            <p>€</p>
+          </section>
+          <section class="description">
+            <label for="description">Description:</label>
+            <input name="description" type="text">
+          </section>
+          <section class="actions">
+            <button type="button" id="calendar-expense-dialog-cancel">Annuler</button>
+            <button type="submit" id="calendar-expense-dialog-confirm">Confirmer</button>
+          </section>
+        </form>
       </section>
 
-      <section>
-        <header>Lundi 1</header>
-      </section>
-      <section>
-        <header>Mardi 2</header>
-      </section>
-      <section>
-        <header>3</header>
-      </section>
-      <section>
-        <header>4</header>
-      </section>
-      <section>
-        <header>5</header>
-      </section>
-      <section>
-        <header>6</header>
-      </section>
-      <section>
-        <header>7</header>
+      <section class="balance">
+        <div>Solde actuel:</div>
+        <div id="balance">1200 €</div>
       </section>
 
-      <section>
-        <header>Lundi 1</header>
-      </section>
-      <section>
-        <header>Mardi 2</header>
-      </section>
-      <section>
-        <header>3</header>
-      </section>
-      <section>
-        <header>4</header>
-      </section>
-      <section>
-        <header>5</header>
-      </section>
-      <section>
-        <header>6</header>
-      </section>
-      <section>
-        <header>7</header>
-      </section>
-
-      <section>
-        <header>Lundi 1</header>
-      </section>
-      <section>
-        <header>Mardi 2</header>
-      </section>
-      <section>
-        <header>3</header>
-      </section>
-      <section>
-        <header>4</header>
-      </section>
-      <section>
-        <header>5</header>
-      </section>
-      -->
     </main>
 
     <main hidden id="transactions">
