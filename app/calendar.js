@@ -31,9 +31,11 @@ const monthNames = [
 ]
 
 export function sameDate(a, b) {
-  return a.getDate() === b.getDate()
-    && a.getMonth() === b.getMonth()
-    && a.getFullYear() === b.getFullYear()
+  return (
+    a.getDate() === b.getDate() &&
+    a.getMonth() === b.getMonth() &&
+    a.getFullYear() === b.getFullYear()
+  )
 }
 
 export function dayNumber(date) {
@@ -58,14 +60,16 @@ export function delta(date, deltaYear, deltaMonth, deltaDay) {
 
 export function grid(date, dayFunc) {
   let start = new Date(date.getFullYear(), date.getMonth())
-  let weekday = start.getDay() - 1 
+  let weekday = start.getDay() - 1
   if (weekday < 0) {
     weekday += 7
   }
   let d = delta(start, 0, 0, -weekday)
   for (let row = 0; row < 6; row++) {
-    if (d.getMonth() > date.getMonth()
-      && d.getFullYear() >= date.getFullYear()) {
+    if (
+      d.getMonth() > date.getMonth() &&
+      d.getFullYear() >= date.getFullYear()
+    ) {
       return
     }
     for (let col = 0; col < 7; col++) {
@@ -79,13 +83,13 @@ export function dateID(date) {
   let result = `${date.getFullYear()}-`
 
   const m = date.getMonth() + 1
-  if(m < 10) {
+  if (m < 10) {
     result += ' '
   }
   result += `${m}-`
 
   const d = date.getDate()
-  if(d < 10) {
+  if (d < 10) {
     result += ' '
   }
   result += `${d}`

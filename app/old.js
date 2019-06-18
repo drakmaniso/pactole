@@ -1,7 +1,7 @@
 'use strict'
 
 import * as accounting from './accounting.js'
-import ledger from './dummy.js' 
+import ledger from './dummy.js'
 
 window.addEventListener('hashchange', function() {
   document.getElementById('calendar-main').hidden = true
@@ -9,7 +9,6 @@ window.addEventListener('hashchange', function() {
   document.getElementById('summary-main').hidden = true
   document.getElementById(`${location.hash}-main`.slice(1)).hidden = false
 })
-
 
 let selectedDate = new Date()
 document.getElementById('expense-date').valueAsDate = selectedDate
@@ -23,12 +22,24 @@ function updateMinicalendar(date) {
   const month = date.getMonth()
   const year = date.getFullYear()
   const monthNames = [
-    'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet',
-    'Aout', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
+    'Janvier',
+    'Février',
+    'Mars',
+    'Avril',
+    'Mai',
+    'Juin',
+    'Juillet',
+    'Aout',
+    'Septembre',
+    'Octobre',
+    'Novembre',
+    'Décembre',
   ]
-  document.getElementById('expense-month').innerHTML = `${monthNames[month]} ${year}`
+  document.getElementById(
+    'expense-month',
+  ).innerHTML = `${monthNames[month]} ${year}`
   let start = new Date(date.getFullYear(), date.getMonth())
-  let weekday = start.getDay() - 1 
+  let weekday = start.getDay() - 1
   if (weekday < 0) {
     weekday += 7
   }
@@ -90,17 +101,19 @@ for (let d of document.getElementsByClassName('action')) {
   d.addEventListener('click', evt => {
     //let i = 0
     //for (let o of document.getElementById('expense-categories').options) {
-      //if (o.value === evt.target.value) {
-        //break
-      //}
-      //i++
+    //if (o.value === evt.target.value) {
+    //break
+    //}
+    //i++
     //}
     //document.getElementById('expense-categories').selectedIndex = i
-    document.getElementById('expense-category').value = evt.target.value 
+    document.getElementById('expense-category').value = evt.target.value
     if (evt.target.value === '') {
-      document.getElementById('expense-category-description').innerHTML = 'Divers'
+      document.getElementById('expense-category-description').innerHTML =
+        'Divers'
     } else {
-      document.getElementById('expense-category-description').innerHTML = evt.target.value
+      document.getElementById('expense-category-description').innerHTML =
+        evt.target.value
     }
     document.getElementById('expense-dialog').showModal()
   })
@@ -108,10 +121,10 @@ for (let d of document.getElementsByClassName('action')) {
 
 //const catList = document.getElementById('expense-categories')
 //for (let a of ledger.expenses.children) {
-  //const o = document.createElement('option')
-  //o.textContent = a.name
-  //o.setAttribute('value', a.name)
-  //catList.appendChild(o)
+//const o = document.createElement('option')
+//o.textContent = a.name
+//o.setAttribute('value', a.name)
+//catList.appendChild(o)
 //}
 //const o = document.createElement('option')
 //o.textContent = 'Autre'
@@ -127,11 +140,13 @@ document.getElementById('expense-submit').addEventListener('click', evt => {
   if (!(amount > 0)) {
     //TODO
     document.getElementById('expense-dialog').close()
-    return  
+    return
   }
-  let t = new accounting.Transaction(date,
+  let t = new accounting.Transaction(
+    date,
     [new accounting.Debit(ledger.getAccount('expenses', cat), amount)],
-    [new accounting.Credit(ledger.assets.children[0], amount)])
+    [new accounting.Credit(ledger.assets.children[0], amount)],
+  )
   t.setDescription(desc)
   ledger.addTransaction(t)
   updateTransactionList()
@@ -149,7 +164,8 @@ function updateTransactionList() {
     let row = document.createElement('tr')
     let col
     col = document.createElement('td')
-    col.textContent = `${t.date.getDate()}/${t.date.getMonth()+1}/${t.date.getFullYear()}:` 
+    col.textContent = `${t.date.getDate()}/${t.date.getMonth() +
+      1}/${t.date.getFullYear()}:`
     row.appendChild(col)
     col = document.createElement('td')
     col.textContent = `${t.debits[0].account.name}`
@@ -168,4 +184,3 @@ function updateTransactionList() {
 }
 
 updateTransactionList(ledger)
-

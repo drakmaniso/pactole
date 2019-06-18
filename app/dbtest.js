@@ -3,19 +3,20 @@
 import * as datastore from './datastore.js'
 
 const foo = {
-  name: "Foo",
+  name: 'Foo',
   children: [],
 }
 foo.children.push(foo)
 const bar = {
-  name: "Bar",
+  name: 'Bar',
   descendants: [],
 }
 bar.descendants.push(foo)
 
 console.log('Opening database...')
 
-datastore.open()
+datastore
+  .open()
   .then(function() {
     console.log('Datastore opened. Adding foo...')
     return datastore.add2(foo, 'assets')
@@ -41,7 +42,7 @@ datastore.open()
     console.log('Bar added. Getting foo and bar...')
     return datastore.get3('Foo', 'Bar')
   })
-  .then(function (args) {
+  .then(function(args) {
     console.log('Foo and Bar received:')
     console.log(args)
     let [foo2, bar2] = args

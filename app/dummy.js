@@ -15,24 +15,32 @@ ledger.expenses.addChild(new accounting.Expenses('Transports'))
 ledger.income.addChild(new accounting.Income('Allocations'))
 ledger.income.addChild(new accounting.Income('Salaire'))
 
-let t = new accounting.Transaction(new Date(),
+let t = new accounting.Transaction(
+  new Date(),
   [new accounting.Debit(ledger.getAccount('assets', 'Compte courant'), 3000)],
-  [new accounting.Credit(ledger.equity, 3000)])
+  [new accounting.Credit(ledger.equity, 3000)],
+)
 t.setDescription('Montant initial')
 ledger.addTransaction(t)
 
-t = new accounting.Transaction(new Date(),
+t = new accounting.Transaction(
+  new Date(),
   [new accounting.Debit(ledger.getAccount('expenses', 'Loyer'), 500)],
-  [new accounting.Credit(ledger.getAccount('assets', 'Compte courant'), 500)])
+  [new accounting.Credit(ledger.getAccount('assets', 'Compte courant'), 500)],
+)
 t.setDescription('First expense')
 ledger.addTransaction(t)
 
-function addTransaction (evt, transaction) {
+function addTransaction(evt, transaction) {
   console.log(`addTransaction: ${transaction.description}`)
   let t = new accounting.Transaction(
     new Date(transaction.date),
-    transaction.debits.map(d => new Debit(ledger.accounts.get(d.account), d.amount)),
-    transaction.credits.map(c => new Credit(ledger.accounts.get(c.account), c.amount))
+    transaction.debits.map(
+      d => new Debit(ledger.accounts.get(d.account), d.amount),
+    ),
+    transaction.credits.map(
+      c => new Credit(ledger.accounts.get(c.account), c.amount),
+    ),
   )
   t.setDescription(transaction.description)
   ledger.addTransaction(t)
@@ -40,127 +48,127 @@ function addTransaction (evt, transaction) {
 }
 
 const dummy = {
-  "name": "simple",
-  "description": "",
-  "assets": {
-    "name": "Assets",
-    "description": "",
-    "children": [
+  name: 'simple',
+  description: '',
+  assets: {
+    name: 'Assets',
+    description: '',
+    children: [
       {
-        "name": "Compte courant",
-        "description": "",
-        "children": []
-      }
-    ]
+        name: 'Compte courant',
+        description: '',
+        children: [],
+      },
+    ],
   },
-  "liabilities": {
-    "name": "Liabilities",
-    "description": "",
-    "children": []
+  liabilities: {
+    name: 'Liabilities',
+    description: '',
+    children: [],
   },
-  "equity": {
-    "name": "Equity",
-    "description": "",
-    "children": []
+  equity: {
+    name: 'Equity',
+    description: '',
+    children: [],
   },
-  "income": {
-    "name": "Income",
-    "description": "",
-    "children": [
+  income: {
+    name: 'Income',
+    description: '',
+    children: [
       {
-        "name": "Allocations",
-        "description": "",
-        "children": []
+        name: 'Allocations',
+        description: '',
+        children: [],
       },
       {
-        "name": "Salaire",
-        "description": "",
-        "children": []
-      }
-    ]
+        name: 'Salaire',
+        description: '',
+        children: [],
+      },
+    ],
   },
-  "expenses": {
-    "name": "Expenses",
-    "description": "",
-    "children": [
+  expenses: {
+    name: 'Expenses',
+    description: '',
+    children: [
       {
-        "name": "Alimentation",
-        "description": "",
-        "children": []
+        name: 'Alimentation',
+        description: '',
+        children: [],
       },
       {
-        "name": "Factures",
-        "description": "",
-        "children": []
+        name: 'Factures',
+        description: '',
+        children: [],
       },
       {
-        "name": "Frais bancaires",
-        "description": "",
-        "children": []
+        name: 'Frais bancaires',
+        description: '',
+        children: [],
       },
       {
-        "name": "Habillement",
-        "description": "",
-        "children": []
+        name: 'Habillement',
+        description: '',
+        children: [],
       },
       {
-        "name": "Loisirs",
-        "description": "",
-        "children": []
+        name: 'Loisirs',
+        description: '',
+        children: [],
       },
       {
-        "name": "Loyer",
-        "description": "",
-        "children": []
+        name: 'Loyer',
+        description: '',
+        children: [],
       },
       {
-        "name": "Santé",
-        "description": "",
-        "children": []
+        name: 'Santé',
+        description: '',
+        children: [],
       },
       {
-        "name": "Transports",
-        "description": "",
-        "children": []
-      }
-    ]
+        name: 'Transports',
+        description: '',
+        children: [],
+      },
+    ],
   },
-  "transactions": [
+  transactions: [
     {
-      "date": "2019-05-09T10:00:00.000Z",
-      "description": "Montant initial",
-      "debits": [
+      date: '2019-05-09T10:00:00.000Z',
+      description: 'Montant initial',
+      debits: [
         {
-          "account": "Compte courant",
-          "amount": 3000
-        }
+          account: 'Compte courant',
+          amount: 3000,
+        },
       ],
-      "credits": [
+      credits: [
         {
-          "account": "Equity",
-          "amount": 3000
-        }
+          account: 'Equity',
+          amount: 3000,
+        },
       ],
-      "reconciled": false
+      reconciled: false,
     },
     {
-      "date": "2019-05-09T10:00:00.000Z",
-      "description": "First expense",
-      "debits": [
+      date: '2019-05-09T10:00:00.000Z',
+      description: 'First expense',
+      debits: [
         {
-          "account": "Loyer",
-          "amount": 500
-        }
+          account: 'Loyer',
+          amount: 500,
+        },
       ],
-      "credits": [
+      credits: [
         {
-          "account": "Compte courant",
-          "amount": 500
-        }
+          account: 'Compte courant',
+          amount: 500,
+        },
       ],
-      "reconciled": false
-    }
-  ]
+      reconciled: false,
+    },
+  ],
 }
 
 console.log(JSON.stringify(ledger, null, 2))

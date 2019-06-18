@@ -4,39 +4,39 @@ function log(msg) {
   console.log(`[service] ${msg}`)
 }
 
-oninstall = (event) => {
-	log('Installed.')
+oninstall = event => {
+  log('Installed.')
 }
 
-onactivate = (event) => {
-	event.waitUntil(clients.claim())
-	log('Activated.')
+onactivate = event => {
+  event.waitUntil(clients.claim())
+  log('Activated.')
 }
 
-onfetch = (event) => {
-	//log(`Fetch: ${event.request.url}`)
-	switch(event.request.url) {
+onfetch = event => {
+  //log(`Fetch: ${event.request.url}`)
+  switch (event.request.url) {
     case 'http://localhost:8383/accounts.json':
-			event.respondWith(new Response('{"name": "foobar"}'))
-		default:
-	}
-//  event.respondWith(
-//    caches.match(event.request)
-//      .then(function(response) {
-//         if (response) {
-//           return response
-//         }
-//        return fetch(event.request)
-//      }
-//    )
-//  )
+      event.respondWith(new Response('{"name": "foobar"}'))
+    default:
+  }
+  //  event.respondWith(
+  //    caches.match(event.request)
+  //      .then(function(response) {
+  //         if (response) {
+  //           return response
+  //         }
+  //        return fetch(event.request)
+  //      }
+  //    )
+  //  )
 }
 
-onmessage = (event) => {
+onmessage = event => {
   log(`Received ${event.data.msg}.`)
-  switch(event.data.msg) {
+  switch (event.data.msg) {
     case 'open':
-      send({msg: 'update'})
+      send({ msg: 'update' })
       break
     case 'get accounts':
       log('sending accounts reply')
@@ -55,59 +55,179 @@ onmessage = (event) => {
     case 'new transaction':
       dummyTransactions.push(event.data.transaction)
       event.ports[0].postMessage({ msg: 'done' })
-      send({msg: 'update'})
+      send({ msg: 'update' })
       break
   }
 }
 
 async function send(message) {
   const all = await clients.matchAll({
-    includeUnctonrolled: true
+    includeUnctonrolled: true,
   })
   log(`Sending ${message.msg} to ${all.length} client(s)...`)
-  for(const c of all) {
+  for (const c of all) {
     c.postMessage(message)
   }
 }
 
 const dummyAccounts = [
-  {name: 'Mon Compte', kind: 'assets'},
-  {name: 'Solde Initial', kind: 'equity'},
-  {name: 'Salaire', kind: 'income'},
-  {name: 'Allocations', kind: 'income'},
-  {name: 'Autre', kind: 'income'},
-  {name: 'Alimentation', kind: 'expense'},
-  {name: 'Habillement', kind: 'expense'},
-  {name: 'Loyer', kind: 'expense'},
-  {name: 'Frais bancaires', kind: 'expense'},
-  {name: 'Électricité', kind: 'expense'},
-  {name: 'Téléphone', kind: 'expense'},
-  {name: 'Santé', kind: 'expense'},
-  {name: 'Loisirs', kind: 'expense'},
-  {name: 'Transports', kind: 'expense'},
-  {name: 'Économies', kind: 'expense'},
-  {name: 'Divers', kind: 'expense'},
+  { name: 'Mon Compte', kind: 'assets' },
+  { name: 'Solde Initial', kind: 'equity' },
+  { name: 'Salaire', kind: 'income' },
+  { name: 'Allocations', kind: 'income' },
+  { name: 'Autre', kind: 'income' },
+  { name: 'Alimentation', kind: 'expense' },
+  { name: 'Habillement', kind: 'expense' },
+  { name: 'Loyer', kind: 'expense' },
+  { name: 'Frais bancaires', kind: 'expense' },
+  { name: 'Électricité', kind: 'expense' },
+  { name: 'Téléphone', kind: 'expense' },
+  { name: 'Santé', kind: 'expense' },
+  { name: 'Loisirs', kind: 'expense' },
+  { name: 'Transports', kind: 'expense' },
+  { name: 'Économies', kind: 'expense' },
+  { name: 'Divers', kind: 'expense' },
 ]
 
 const dummyTransactions = [
-  {date: new Date(2019, 4, 2), debits: [{account: 'Allocations', amount: 50000}], credits: [{account: 'Mon Compte', amount: 50000}], description: 'AAH', reconciled: false},
-  {date: new Date(2019, 4, 2), debits: [{account: 'Allocations', amount: 20000}], credits: [{account: 'Mon Compte', amount: 20000}], description: '', reconciled: false},
-  {date: new Date(2019, 4, 3), debits: [{account: 'Loyer', amount: 56000}], credits: [{account: 'Mon Compte', amount: 56000}], description: '', reconciled: false},
-  {date: new Date(2019, 4, 3), debits: [{account: 'Électricité', amount: 15000}], credits: [{account: 'Mon Compte', amount: 15000}], description: '', reconciled: false},
-  {date: new Date(2019, 4, 3), debits: [{account: 'Téléphone', amount: 3000}], credits: [{account: 'Mon Compte', amount: 3000}], description: '', reconciled: false},
-  {date: new Date(2019, 4, 6), debits: [{account: 'Santé', amount: 2300}], credits: [{account: 'Mon Compte', amount: 2300}], description: 'pharmacie', reconciled: false},
-  {date: new Date(2019, 4, 9), debits: [{account: 'Transports', amount: 700}], credits: [{account: 'Mon Compte', amount: 700}], description: '', reconciled: false},
-  {date: new Date(2019, 4, 18), debits: [{account: 'Alimentation', amount: 6000}], credits: [{account: 'Mon Compte', amount: 6000}], description: 'courses Super U', reconciled: false},
-  {date: new Date(2019, 4, 18), debits: [{account: 'Divers', amount: 2000}], credits: [{account: 'Mon Compte', amount: 2000}], description: 'distributeur', reconciled: false},
-  {date: new Date(2019, 4, 20), debits: [{account: 'Habillement', amount: 3200}], credits: [{account: 'Mon Compte', amount: 3200}], description: 'La Halle aux Vêtements', reconciled: false},
-  {date: new Date(2019, 4, 21), debits: [{account: 'Divers', amount: 2000}], credits: [{account: 'Mon Compte', amount: 2000}], description: 'distributeur', reconciled: false},
-  {date: new Date(2019, 4, 23), debits: [{account: 'Transports', amount: 5500}], credits: [{account: 'Mon Compte', amount: 5500}], description: 'essence', reconciled: false},
-  {date: new Date(2019, 4, 24), debits: [{account: 'Loisirs', amount: 3500}], credits: [{account: 'Mon Compte', amount: 3500}], description: 'Raspberry Pi', reconciled: false},
-  {date: new Date(2019, 5, 1), debits: [{account: 'Allocations', amount: 50000}], credits: [{account: 'Mon Compte', amount: 50000}], description: 'AAH', reconciled: false},
-  {date: new Date(2019, 5, 2), debits: [{account: 'Allocations', amount: 20000}], credits: [{account: 'Mon Compte', amount: 20000}], description: '', reconciled: false},
-  {date: new Date(2019, 5, 2), debits: [{account: 'Divers', amount: 2000}], credits: [{account: 'Mon Compte', amount: 2000}], description: '', reconciled: false},
-  {date: new Date(2019, 5, 3), debits: [{account: 'Loyer', amount: 56000}], credits: [{account: 'Mon Compte', amount: 56000}], description: 'Loyer', reconciled: false},
-  {date: new Date(2019, 5, 3), debits: [{account: 'Téléphone', amount: 3000}], credits: [{account: 'Mon Compte', amount: 3000}], description: 'Facture téléphone', reconciled: false},
-  {date: new Date(2019, 5, 11), debits: [{account: 'Transports', amount: 800}], credits: [{account: 'Mon Compte', amount: 800}], description: '', reconciled: false},
-  {date: new Date(2019, 5, 18), debits: [{account: 'Alimentation', amount: 6500}], credits: [{account: 'Mon Compte', amount: 6500}], description: 'courses Super U', reconciled: false},
+  {
+    date: new Date(2019, 4, 2),
+    debits: [{ account: 'Allocations', amount: 50000 }],
+    credits: [{ account: 'Mon Compte', amount: 50000 }],
+    description: 'AAH',
+    reconciled: false,
+  },
+  {
+    date: new Date(2019, 4, 2),
+    debits: [{ account: 'Allocations', amount: 20000 }],
+    credits: [{ account: 'Mon Compte', amount: 20000 }],
+    description: '',
+    reconciled: false,
+  },
+  {
+    date: new Date(2019, 4, 3),
+    debits: [{ account: 'Loyer', amount: 56000 }],
+    credits: [{ account: 'Mon Compte', amount: 56000 }],
+    description: '',
+    reconciled: false,
+  },
+  {
+    date: new Date(2019, 4, 3),
+    debits: [{ account: 'Électricité', amount: 15000 }],
+    credits: [{ account: 'Mon Compte', amount: 15000 }],
+    description: '',
+    reconciled: false,
+  },
+  {
+    date: new Date(2019, 4, 3),
+    debits: [{ account: 'Téléphone', amount: 3000 }],
+    credits: [{ account: 'Mon Compte', amount: 3000 }],
+    description: '',
+    reconciled: false,
+  },
+  {
+    date: new Date(2019, 4, 6),
+    debits: [{ account: 'Santé', amount: 2300 }],
+    credits: [{ account: 'Mon Compte', amount: 2300 }],
+    description: 'pharmacie',
+    reconciled: false,
+  },
+  {
+    date: new Date(2019, 4, 9),
+    debits: [{ account: 'Transports', amount: 700 }],
+    credits: [{ account: 'Mon Compte', amount: 700 }],
+    description: '',
+    reconciled: false,
+  },
+  {
+    date: new Date(2019, 4, 18),
+    debits: [{ account: 'Alimentation', amount: 6000 }],
+    credits: [{ account: 'Mon Compte', amount: 6000 }],
+    description: 'courses Super U',
+    reconciled: false,
+  },
+  {
+    date: new Date(2019, 4, 18),
+    debits: [{ account: 'Divers', amount: 2000 }],
+    credits: [{ account: 'Mon Compte', amount: 2000 }],
+    description: 'distributeur',
+    reconciled: false,
+  },
+  {
+    date: new Date(2019, 4, 20),
+    debits: [{ account: 'Habillement', amount: 3200 }],
+    credits: [{ account: 'Mon Compte', amount: 3200 }],
+    description: 'La Halle aux Vêtements',
+    reconciled: false,
+  },
+  {
+    date: new Date(2019, 4, 21),
+    debits: [{ account: 'Divers', amount: 2000 }],
+    credits: [{ account: 'Mon Compte', amount: 2000 }],
+    description: 'distributeur',
+    reconciled: false,
+  },
+  {
+    date: new Date(2019, 4, 23),
+    debits: [{ account: 'Transports', amount: 5500 }],
+    credits: [{ account: 'Mon Compte', amount: 5500 }],
+    description: 'essence',
+    reconciled: false,
+  },
+  {
+    date: new Date(2019, 4, 24),
+    debits: [{ account: 'Loisirs', amount: 3500 }],
+    credits: [{ account: 'Mon Compte', amount: 3500 }],
+    description: 'Raspberry Pi',
+    reconciled: false,
+  },
+  {
+    date: new Date(2019, 5, 1),
+    debits: [{ account: 'Allocations', amount: 50000 }],
+    credits: [{ account: 'Mon Compte', amount: 50000 }],
+    description: 'AAH',
+    reconciled: false,
+  },
+  {
+    date: new Date(2019, 5, 2),
+    debits: [{ account: 'Allocations', amount: 20000 }],
+    credits: [{ account: 'Mon Compte', amount: 20000 }],
+    description: '',
+    reconciled: false,
+  },
+  {
+    date: new Date(2019, 5, 2),
+    debits: [{ account: 'Divers', amount: 2000 }],
+    credits: [{ account: 'Mon Compte', amount: 2000 }],
+    description: '',
+    reconciled: false,
+  },
+  {
+    date: new Date(2019, 5, 3),
+    debits: [{ account: 'Loyer', amount: 56000 }],
+    credits: [{ account: 'Mon Compte', amount: 56000 }],
+    description: 'Loyer',
+    reconciled: false,
+  },
+  {
+    date: new Date(2019, 5, 3),
+    debits: [{ account: 'Téléphone', amount: 3000 }],
+    credits: [{ account: 'Mon Compte', amount: 3000 }],
+    description: 'Facture téléphone',
+    reconciled: false,
+  },
+  {
+    date: new Date(2019, 5, 11),
+    debits: [{ account: 'Transports', amount: 800 }],
+    credits: [{ account: 'Mon Compte', amount: 800 }],
+    description: '',
+    reconciled: false,
+  },
+  {
+    date: new Date(2019, 5, 18),
+    debits: [{ account: 'Alimentation', amount: 6500 }],
+    credits: [{ account: 'Mon Compte', amount: 6500 }],
+    description: 'courses Super U',
+    reconciled: false,
+  },
 ]

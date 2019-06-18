@@ -26,8 +26,7 @@ export function error() {
 let database = null
 
 export function open() {
-  return new Promise(function (resolve, reject) {
-
+  return new Promise(function(resolve, reject) {
     if (database !== null) {
       reject(Error('internal error: database already opened'))
     }
@@ -51,27 +50,24 @@ export function open() {
     req.onupgradeneeded = function(event) {
       log('Database: upgrade needed...')
       let db = event.target.result
-      let os = db.createObjectStore('ledgers', {keyPath: 'name'})
-      os.transaction.oncomplete = function(event) {
-      }
-      os = db.createObjectStore('assets', {keyPath: 'name'})
+      let os = db.createObjectStore('ledgers', { keyPath: 'name' })
+      os.transaction.oncomplete = function(event) {}
+      os = db.createObjectStore('assets', { keyPath: 'name' })
     }
-
   })
 }
 
-export function add (ledger) {
-  return new Promise(function (resolve, reject) {
-
+export function add(ledger) {
+  return new Promise(function(resolve, reject) {
     if (database === null) {
       reject(new Error('datastore not opened'))
     }
 
     let tr = database.transaction('ledgers', 'readwrite')
-    tr.onerror = function (event) {
+    tr.onerror = function(event) {
       reject(new Error(`datastore add transaction: ${event.target.error}`))
     }
-    tr.oncomplete = function (event) {
+    tr.oncomplete = function(event) {
       resolve()
     }
 
@@ -80,44 +76,42 @@ export function add (ledger) {
   })
 }
 
-export function get (name) {
-  return new Promise(function (resolve, reject) {
-
+export function get(name) {
+  return new Promise(function(resolve, reject) {
     if (database === null) {
       reject(new Error('datastore not opened'))
     }
 
     let tr = database.transaction('ledgers', 'readonly')
-    tr.onerror = function (event) {
+    tr.onerror = function(event) {
       reject(new Error(`datastore get transaction: ${event.target.error}`))
     }
-    tr.oncomplete = function (event) {
+    tr.oncomplete = function(event) {
       console.log('datastore get transaction completed')
     }
 
     let os = tr.objectStore('ledgers')
     let req = os.get(name)
-    req.onerror = function (event) {
+    req.onerror = function(event) {
       reject(new Error(`datastore get request: ${event.target.error}`))
     }
-    req.onsuccess = function (event) {
+    req.onsuccess = function(event) {
       resolve(req.result)
     }
   })
 }
 
-export function add2 (ledger, ledgers) {
-  return new Promise(function (resolve, reject) {
-
+export function add2(ledger, ledgers) {
+  return new Promise(function(resolve, reject) {
     if (database === null) {
       reject(new Error('datastore not opened'))
     }
 
     let tr = database.transaction(ledgers, 'readwrite')
-    tr.onerror = function (event) {
+    tr.onerror = function(event) {
       reject(new Error(`datastore add transaction: ${event.target.error}`))
     }
-    tr.oncomplete = function (event) {
+    tr.oncomplete = function(event) {
       resolve()
     }
 
@@ -126,60 +120,62 @@ export function add2 (ledger, ledgers) {
   })
 }
 
-export function get2 (name, ledgers) {
-  return new Promise(function (resolve, reject) {
-
+export function get2(name, ledgers) {
+  return new Promise(function(resolve, reject) {
     if (database === null) {
       reject(new Error('datastore not opened'))
     }
 
     let tr = database.transaction(ledgers, 'readonly')
-    tr.onerror = function (event) {
+    tr.onerror = function(event) {
       reject(new Error(`datastore get transaction: ${event.target.error}`))
     }
-    tr.oncomplete = function (event) {
+    tr.oncomplete = function(event) {
       console.log('datastore get transaction completed')
     }
 
     let os = tr.objectStore(ledgers)
     let req = os.get(name)
-    req.onerror = function (event) {
+    req.onerror = function(event) {
       reject(new Error(`datastore get request: ${event.target.error}`))
     }
-    req.onsuccess = function (event) {
+    req.onsuccess = function(event) {
       resolve(req.result)
     }
   })
 }
 
-export function get3 (fooname, barname) {
-  return new Promise(function (resolve, reject) {
-
+export function get3(fooname, barname) {
+  return new Promise(function(resolve, reject) {
     if (database === null) {
       reject(new Error('datastore not opened'))
     }
 
     let tr = database.transaction(['ledgers', 'assets'], 'readonly')
-    tr.onerror = function (event) {
+    tr.onerror = function(event) {
       reject(new Error(`datastore get transaction: ${event.target.error}`))
     }
-    tr.oncomplete = function (event) {
+    tr.oncomplete = function(event) {
       console.log('datastore get transaction completed')
     }
 
     let os = tr.objectStore('ledgers')
     let req = os.get(barname)
-    req.onerror = function (event) {
+    req.onerror = function(event) {
       reject(new Error(`datastore get barname request: ${event.target.error}`))
     }
-    req.onsuccess = function (event) {
+    req.onsuccess = function(event) {
       const bar2 = req.result
       let os2 = tr.objectStore('assets')
       let req2 = os2.get(fooname)
-      req2.onerror = function (event) {
-        reject(new Error(`datastore get fooname request: ${event.target.error}`))
+      req2.onerror = function(event) {
+        reject(
+          new Error(`datastore get fooname request: ${event.target.error}`),
+        )
       }
-      req2.onsuccess = function (event) { resolve([req2.result, bar2]) }
+      req2.onsuccess = function(event) {
+        resolve([req2.result, bar2])
+      }
     }
   })
 }

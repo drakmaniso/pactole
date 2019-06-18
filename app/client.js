@@ -10,11 +10,11 @@ let updateListeners = []
 export function setup(serv) {
   service = serv
 
-  navigator.serviceWorker.onmessage = (event) => {
+  navigator.serviceWorker.onmessage = event => {
     log(`Received ${event.data.msg}.`)
-    switch(event.data.msg) {
+    switch (event.data.msg) {
       case 'update':
-        for(const f of updateListeners) {
+        for (const f of updateListeners) {
           f(event.data)
         }
         break
@@ -26,7 +26,7 @@ export function send(message) {
   log(`Sending ${message.msg} to service...`)
   return new Promise((resolve, reject) => {
     const chan = new MessageChannel()
-    chan.port1.onmessage = (event) => {
+    chan.port1.onmessage = event => {
       log(`received reply ${event.data}`)
       if (event.data.error) {
         reject(event.data.error)
@@ -38,4 +38,6 @@ export function send(message) {
   })
 }
 
-export function addUpdateListener(func) { updateListeners.push(func) }
+export function addUpdateListener(func) {
+  updateListeners.push(func)
+}

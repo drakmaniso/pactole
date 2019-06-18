@@ -5,8 +5,7 @@ let accounts = null
 let transactions = null
 
 export function open(name) {
-  return new Promise(function (resolve, reject) {
-
+  return new Promise(function(resolve, reject) {
     if (database !== null) {
       reject(Error('ledger.open: already opened'))
     }
@@ -16,7 +15,11 @@ export function open(name) {
 
     let req = window.indexedDB.open(name, 1)
     req.onerror = function(event) {
-      reject(new Error(`ledger.open: failed to open database: ${event.target.error}`))
+      reject(
+        new Error(
+          `ledger.open: failed to open database: ${event.target.error}`,
+        ),
+      )
     }
     req.onsuccess = function(event) {
       log(`Ledger ${name} opened.`)
@@ -33,18 +36,14 @@ export function open(name) {
       let os = db.createObjectStore('accounts')
       os.add([], 'assets')
       os.add([], 'expenses')
-      os.transaction.oncomplete = function(event) {
-
-      }
-      os = db.createObjectStore('transactions', {autoincrement: true})
+      os.transaction.oncomplete = function(event) {}
+      os = db.createObjectStore('transactions', { autoincrement: true })
     }
-
   })
 }
 
-
 export class Ledger {
-  constructor (name) {
+  constructor(name) {
     this.name = name
     this.description = ''
     this.assets = new Assets('Assets')
@@ -55,13 +54,15 @@ export class Ledger {
     this.transactions = []
   }
 
-  setDescription (description) {
+  setDescription(description) {
     this.description = description
     return this
   }
 
-  addTransaction (transaction) {
-    let p = this.transactions.findIndex(t => t.date.getTime() > transaction.date.getTime())
+  addTransaction(transaction) {
+    let p = this.transactions.findIndex(
+      t => t.date.getTime() > transaction.date.getTime(),
+    )
     if (p === -1) {
       this.transactions.push(transaction)
       return this
@@ -70,7 +71,7 @@ export class Ledger {
     return this
   }
 
-  getAccount (kind, name) {
+  getAccount(kind, name) {
     if (name === '' || name === undefined) {
       return this[kind]
     }
@@ -82,7 +83,7 @@ export class Ledger {
     throw new Error('unknown account')
   }
 
-  getBalance (kind, name) {
+  getBalance(kind, name) {
     let account = this[kind]
     for (let a of this[kind].children) {
       if (a.name === name) {
@@ -107,31 +108,31 @@ export class Ledger {
 }
 
 export class Account {
-  constructor (name) {
+  constructor(name) {
     this.name = name
     this.description = ''
     this.children = []
   }
 
-  setDescription (description) {
+  setDescription(description) {
     this.description = description
     return this
   }
 
-  addChild (account) {
+  addChild(account) {
     if (Object.getPrototypeOf(account) !== Object.getPrototypeOf(this)) {
-      throw new Error ('Child account type does not match its parent')
+      throw new Error('Child account type does not match its parent')
     }
     for (let a of this.children) {
       if (a.name === account.name) {
-        throw new Error ('Account name already exists')
+        throw new Error('Account name already exists')
       }
     }
     this.children.push(account)
     return this
   }
 
-  toJSON (key) {
+  toJSON(key) {
     if (key === 'account') {
       return this.name
     }
@@ -140,37 +141,37 @@ export class Account {
 }
 
 export class Equity extends Account {
-  constructor (name) {
+  constructor(name) {
     super(name)
   }
 }
 
 export class Assets extends Account {
-  constructor (name) {
+  constructor(name) {
     super(name)
   }
 }
 
 export class Liabilities extends Account {
-  constructor (name) {
+  constructor(name) {
     super(name)
   }
 }
 
 export class Expenses extends Account {
-  constructor (name) {
+  constructor(name) {
     super(name)
   }
 }
 
 export class Income extends Account {
-  constructor (name) {
+  constructor(name) {
     super(name)
   }
 }
 
 export class Transaction {
-  constructor (date, debits, credits) {
+  constructor(date, debits, credits) {
     if (!(date instanceof Date)) {
       throw new Error('wrong date')
     }
@@ -197,20 +198,25 @@ export class Transaction {
       throw new Error('imbalanced transaction')
     }
 
-    this.date = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 12)
+    this.date = new Date(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate(),
+      12,
+    )
     this.description = ''
     this.debits = debits
     this.credits = credits
     this.reconciled = false
   }
 
-  setDescription (description) {
+  setDescription(description) {
     this.description = description
   }
 }
 
 export class Debit {
-  constructor (account, amount) {
+  constructor(account, amount) {
     if (!(account instanceof Account)) {
       throw new Error('no account')
     }
@@ -220,7 +226,7 @@ export class Debit {
 }
 
 export class Credit {
-  constructor (account, amount) {
+  constructor(account, amount) {
     if (!(account instanceof Account)) {
       throw new Error('no account')
     }
