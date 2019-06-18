@@ -316,6 +316,7 @@ form.dialog > section.categories {
     background: #fff;
     text-align: left;
     user-select: none;
+    cursor: pointer;
 }
 .listbox label:hover {
     color: #000;
@@ -392,6 +393,7 @@ form.dialog > section.dialog-buttons > button#expense-cancel {
 .minicalendar div.day {
     border: solid 3px #fff;
     border-radius: 50%;
+    cursor: pointer;
 }
 
 .minicalendar div:hover {
@@ -422,12 +424,12 @@ form.dialog > section.dialog-buttons > button#expense-cancel {
 
 #calendar {
     display: grid;
-    grid-template-columns: minmax(min-content, 5fr) minmax(min-content, 2fr);
-    grid-template-rows: 1fr 14rem;
+    grid-template-columns: calc(70% - .25rem) calc(30% - .25rem) ;
+    grid-template-rows: calc(100% - 14.5rem) 14rem;
     grid-template-areas: 
         "month day"
         "month balance";
-    grid-gap: 0.75rem;
+    grid-gap: 0.5rem;
     background: #eee;
     padding: 0.5rem;
 }
@@ -445,7 +447,7 @@ form.dialog > section.dialog-buttons > button#expense-cancel {
     contain: content;
     background: #099;
     z-index: 100;
-    box-shadow: 0px 4px 10px 0px grey;
+    /* box-shadow: 0px 4px 10px 0px grey; */ 
 }
 
 #calendar-month > header {
@@ -496,6 +498,11 @@ form.dialog > section.dialog-buttons > button#expense-cancel {
     border: none;
     background: #fff;
     contain: strict;
+    cursor: pointer;
+}
+
+#calendar-month > section:empty {
+    cursor: default;
 }
 
 #calendar-month > section > header {
@@ -572,7 +579,7 @@ form.dialog > section.dialog-buttons > button#expense-cancel {
     contain: content;
     user-select: none;
     z-index: 100;
-    box-shadow: 0px 4px 10px 0px grey;
+    /* box-shadow: 0px 4px 10px 0px grey; */
 }
 
 #calendar-day:empty {
@@ -602,6 +609,7 @@ form.dialog > section.dialog-buttons > button#expense-cancel {
     margin: 0;
     padding: 0;
     padding-top: 2rem;
+    overflow-y: scroll;
 }
 
 #calendar-day > ul > li {
@@ -624,36 +632,17 @@ form.dialog > section.dialog-buttons > button#expense-cancel {
     color: var(--expense-bg);
 }
 
-#calendar-day > ul > li > div:first-child {
+#calendar-day > ul > li > div:last-child {
     flex: 1;
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
 }
 
-#calendar-day > ul > li.input > input {
-    align-self: baseline;
-    outline: none;
-    margin: 0;
-    padding: 0;
-    border-top: none;
-    border-left: none;
-    border-right: none;
-    border-bottom: 2px dotted;
-    color: inherit;
-    font-size: inherit;
-    font-weight: inherit;
-}
-
-#calendar-day > ul > li.input > input:nth-child(1) {
-    width: calc(var(--day-size) - 12rem);
-}
-
-#calendar-day > ul > li.input > input:nth-child(3) {
+#calendar-day > ul > li > div:first-child {
     width: 6rem;
     text-align: right;
-    margin-right: 0.5rem;
-    margin-left: 0.5rem;
+    margin-right: 1rem;
 }
 
 #calendar-day > .actions {
@@ -672,10 +661,12 @@ form.dialog > section.dialog-buttons > button#expense-cancel {
     overflow: hidden;
     color: #fff;
     height: 2.5rem;
+    width: 8rem;
     padding: 0 1.5rem;
     margin-right: 0.5rem;
     margin-bottom: 0.5rem;
     display: flex;
+    justify-content: center;
     align-items: center;
     font-weight: bold;
     border-radius: 1.25rem;
@@ -703,49 +694,75 @@ form.dialog > section.dialog-buttons > button#expense-cancel {
     border: solid 3px var(--expense-hl);
 }
 
-.calendar-dialog {
-    flex: 1;
+#calendar .balance {
+    grid-area: balance;
+    bottom: 0.5rem;
+    right: 0.5rem;
+    z-index: 0;
+}
+
+
+/* Transaction Dialog */
+
+dialog.transaction {
+    padding: 0;
+    border: none;
+    border-radius: 1.25rem;
+    contain: content;
+    --local-primary: #f0f;
+    box-shadow: 0px 4px 10px 0px black;
+}
+
+dialog.transaction.income {
+    --local-primary: var(--income-bg);
+    color: var(--income-bg);
+}
+
+dialog.transaction.expense {
+    --local-primary: var(--expense-bg);
+    color: var(--expense-bg);
+}
+
+dialog.transaction::backdrop {
+    background: #3338;
+}
+
+dialog.transaction form {
     display: flex;
     flex-flow: column nowrap;
     justify-content: stretch;
     padding: 0;
-    --local-primary: #f0f;
 }
 
-#calendar-income-dialog {
-    --local-primary: var(--income-bg);
-    color: var(--income-bg);
-    background: var(--income-bg);
-}
-
-#calendar-expense-dialog {
-    --local-primary: var(--expense-bg);
-    color: var(--expense-bg);
-    background: var(--expense-bg);
-}
-
-.calendar-dialog header {
+dialog.transaction header {
+    background: var(--local-primary);
     color: #fff;
     flex: 0 0 3rem;
     display: flex;
     justify-content: center;
     align-items: center;
     font-weight: bold;
+    margin-bottom: 1.5rem;
 }
 
-.calendar-dialog section.amount,
-.calendar-dialog section.description {
+dialog.transaction section.amount-description {
     background: #fff;
     margin: 0;
-    display: flex;
-    flex-flow: row nowrap;
-    justify-content: flex-stretch;
-    align-items: center;
+    display: grid;
+    grid-template-columns: max-content 1fr;
     padding: 0.5rem 2rem;
 }
 
-.calendar-dialog input {
+dialog.transaction section > * {
     align-self: baseline;
+}
+
+dialog.transaction section > label {
+    text-align: right;
+    margin-right: 1rem;
+}
+
+dialog.transaction section > input {
     outline: none;
     border-top: none;
     border-left: none;
@@ -756,56 +773,44 @@ form.dialog > section.dialog-buttons > button#expense-cancel {
     font-weight: inherit;
 }
 
-.calendar-dialog .amount input {
+dialog.transaction section > input[name="amount"] {
     width: 8rem;
-    margin: 1rem 0;
-    margin-left: auto;
-    font-size: 1.5rem;
     text-align: right;
 }
 
-.calendar-dialog .description input {
-    width: 10rem;
-    margin-left: auto;
+dialog.transaction section > .money-symbol {
+    border: none;
+    padding: 2px 1rem;
+    border-bottom: 2px;
 }
 
-.calendar-dialog .amount p {
-    margin: 1rem 0.5rem;
-    font-size: 1.5rem;
+dialog.transaction section > input[name="description"] {
 }
 
-.calendar-dialog section.actions {
+dialog.transaction section.actions {
     flex: 1;
     display: flex;
     flex-flow: row wrap;
     justify-content: flex-end;
     align-items: flex-end;
     background: #fff;
-    padding: 0.5rem 0;
+    padding: 1.5rem 2rem 0.5rem;
 }
 
-.calendar-dialog section.actions button {
+dialog.transaction section.actions button {
     border: solid 2px var(--local-primary);
     border-radius: 1.25rem;
     height: 2.5rem;
     color: var(--local-primary);
     background: #fff;
-    margin-right: 2rem;
     padding-left: 1.25rem;
     padding-right: 1.25rem;
-    margin-bottom: 0.5rem;
+    margin: 0.5rem 0.5rem;
     font-weight: bold;
     align-self: flex-end;
 }
 
-.calendar-dialog section.actions button:last-child {
+dialog.transaction section.actions button:last-child {
     color: #fff;
     background: var(--local-primary);
-}
-
-#calendar .balance {
-    grid-area: balance;
-    bottom: 0.5rem;
-    right: 0.5rem;
-    z-index: 0;
 }

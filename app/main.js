@@ -207,33 +207,15 @@ function wireHTML() {
         break
     }
   }
-
-  id('calendar-income').onclick = () => {
-    openCalendarIncomeDialog()
-  }
-
-  id('calendar-expense').onclick = () => {
-    openCalendarExpenseDialog()
-  }
   
-  id('calendar-income-dialog-cancel').onclick = (event) => {
-    event.preventDefault()
+  id('calendar-dialog-cancel').onclick = (event) => {
+    //event.preventDefault()
     closeCalendarDialog()
   }
   
-  id('calendar-income-dialog-confirm').onclick = (event) => {
-    event.preventDefault()
-    closeCalendarDialog()
-  }
-  
-  id('calendar-expense-dialog-cancel').onclick = (event) => {
-    event.preventDefault()
-    closeCalendarDialog()
-  }
-  
-  id('calendar-expense-dialog-confirm').onclick = (event) => {
-    event.preventDefault()
-    const f = document.forms['calendar-expense-dialog']
+  id('calendar-dialog-confirm').onclick = (event) => {
+    //event.preventDefault()
+    const f = document.forms['calendar-dialog-form']
     const transac = {
       date: f['date'].valueAsDate,
       debits: [
@@ -245,12 +227,10 @@ function wireHTML() {
       description: f['description'].value,
       reconciled: false,
     }
-    /*
     client.send({
       msg: 'new transaction',
       transaction: transac,
     })
-    */
     closeCalendarDialog()
   }
 
@@ -447,6 +427,7 @@ function renderCalendar(date) {
 }
 
 function renderCalendarDay(date) {
+  closeCalendarDialog()
   const header = id('calendar-day-header')
   while(header.hasChildNodes()) {
     header.removeChild(header.lastChild)
@@ -472,62 +453,62 @@ function renderCalendarDay(date) {
       const amount = document.createElement('div')
       switch (account.kind) {
         case 'income':
+          amount.appendChild(document.createTextNode(`+${t.debits[0].amount/100}€`))
           if(t.description !== '') {
-            desc.appendChild(document.createTextNode(t.description + ':'))
+            desc.appendChild(document.createTextNode(t.description))
           } else {
-            desc.appendChild(document.createTextNode('Entrée d\'argent:'))
+            desc.appendChild(document.createTextNode('Entrée d\'argent'))
           }
-          amount.appendChild(document.createTextNode(`+${t.debits[0].amount/100} €`))
           break
         case 'expense':
+          amount.appendChild(document.createTextNode(`-${t.debits[0].amount/100}€`))
           if(t.description !== '') {
-            desc.appendChild(document.createTextNode(t.description + ':'))
+            desc.appendChild(document.createTextNode(t.description))
           } else {
-            desc.appendChild(document.createTextNode('Dépense:'))
+            desc.appendChild(document.createTextNode('Dépense'))
           }
-          amount.appendChild(document.createTextNode(`-${t.debits[0].amount/100} €`))
           break
       }
-      li.appendChild(desc)
       li.appendChild(amount)
+      li.appendChild(desc)
       ul.appendChild(li)
     }
   }
-  closeCalendarDialog()
-        let s = `${date.getFullYear()}-`
-        if(date.getMonth()+1 < 10) { 
-          s = s + '0' 
-        }
-        s = s + `${date.getMonth()+1}-`
-        if(date.getDate() < 10) {
-          s = s + '0' 
-        }
-        s = s + `${date.getDate()}`
-  document.forms['calendar-expense-dialog'].elements['date'].value = s
+
+  id('calendar-income').onclick = () => {
+    openCalendarDialog(date, 'income')
+  }
+
+  id('calendar-expense').onclick = () => {
+    openCalendarDialog(date, 'expense')
+  }
+
   id('calendar-day').hidden = false
 }
 
-function openCalendarIncomeDialog() {
-  const form = document.forms['calendar-income-dialog']
-  id('calendar-day-ul').hidden = true
-  id('calendar-day-actions').hidden = true
-  id('calendar-income-dialog').hidden = false
-  form.elements['amount'].focus()
-}
+function openCalendarDialog(date, kind) {
+  const dialog = id('calendar-dialog')
+  dialog.classList.remove('income','expense')
+  dialog.classList.add(kind)
 
-function openCalendarExpenseDialog() {
-  const form = document.forms['calendar-expense-dialog']
-  id('calendar-day-ul').hidden = true
-  id('calendar-day-actions').hidden = true
-  id('calendar-expense-dialog').hidden = false
+  const form = document.forms['calendar-dialog-form']
+  form.reset()
+
+  let s = `${date.getFullYear()}-`
+  if(date.getMonth()+1 < 10) { 
+    s = s + '0' 
+  }
+  s = s + `${date.getMonth()+1}-`
+  if(date.getDate() < 10) {
+    s = s + '0' 
+  }
+  s = s + `${date.getDate()}`
+  form.elements['date'].value = s
+
+  dialog.showModal()
   form.elements['amount'].focus()
 }
 
 function closeCalendarDialog() {
-  document.forms['calendar-income-dialog'].reset()
-  document.forms['calendar-expense-dialog'].reset()
-  id('calendar-income-dialog').hidden = true
-  id('calendar-expense-dialog').hidden = true
-  id('calendar-day-ul').hidden = false
-  id('calendar-day-actions').hidden = false
+  id('calendar-dialog').close()
 }

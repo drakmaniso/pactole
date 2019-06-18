@@ -36,43 +36,9 @@
         <ul id="calendar-day-ul">
         </ul>
         <div id="calendar-day-actions" class="actions">
-          <a id="calendar-income" class="income">Revenu</a>
-          <a id="calendar-expense" class="expense">Dépense</a>
+          <a id="calendar-income" class="income">+</a>
+          <a id="calendar-expense" class="expense">-</a>
         </div>
-        <form class="calendar-dialog" id="calendar-income-dialog" name="calendar-income-dialog" hidden="true">
-          <header>Nouvelle entrée d'argent</header>
-          <input hidden="true" type="date" name="date">
-          <section class="amount">
-            <label for="amount">Montant:</label>
-            <input name="amount" type="text">
-            <p>€</p>
-          </section>
-          <section class="description">
-            <label for="description">Description:</label>
-            <input name="description" type="text">
-          </section>
-          <section class="actions">
-            <button type="button" id="calendar-income-dialog-cancel">Annuler</button>
-            <button type="submit" id="calendar-income-dialog-confirm">Confirmer</button>
-          </section>
-        </form>
-        <form class="calendar-dialog" id="calendar-expense-dialog" name="calendar-expense-dialog" hidden="true">
-          <header>Nouvelle dépense</header>
-          <input hidden="true" type="date" name="date">
-          <section class="amount">
-            <label for="amount">Montant:</label>
-            <input name="amount" type="text">
-            <p>€</p>
-          </section>
-          <section class="description">
-            <label for="description">Description:</label>
-            <input name="description" type="text">
-          </section>
-          <section class="actions">
-            <button type="button" id="calendar-expense-dialog-cancel">Annuler</button>
-            <button type="submit" id="calendar-expense-dialog-confirm">Confirmer</button>
-          </section>
-        </form>
       </section>
 
       <section class="balance">
@@ -81,6 +47,33 @@
       </section>
 
     </main>
+
+    <dialog id="calendar-dialog" class="transaction">
+      <form id="calendar-dialog-form" name="calendar-dialog-form" method="dialog">
+        <header>Nouvelle opération</header>
+        <input hidden="true" type="date" name="date">
+        <section class="amount-description">
+          <label for="amount">Montant:</label>
+          <input name="amount" type="text">
+          <!-- span class="money-symbol">€</span -->
+          <label for="description">Description:</label>
+          <input name="description" type="text">
+        </section>
+        <!-- section class="amount">
+          <label for="amount">Montant:</label>
+          <input name="amount" type="text">
+          <p>€</p>
+        </section>
+        <section class="description">
+          <label for="description">Description:</label>
+          <input name="description" type="text" placeholder="Description">
+        </section -->
+        <section class="actions">
+          <button type="reset" id="calendar-dialog-cancel">Annuler</button>
+          <button type="submit" id="calendar-dialog-confirm">Confirmer</button>
+        </section>
+      </form>
+    </dialog>
 
     <main hidden id="transactions">
       <section id="transactions-list">
