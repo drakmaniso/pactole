@@ -188,6 +188,9 @@ function id(id) {
 }
 
 function wireHTML() {
+  window.onpopstate = () => {
+    log(`*** POPSTATE: ${window.location.pathname} ***`)
+  }
   window.onhashchange = () => {
     id('calendar').hidden = true
     id('transactions').hidden = true
