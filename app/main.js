@@ -4,10 +4,12 @@ import * as client from './client.js'
 import * as calendar from './calendar.js'
 
 function log(msg) {
-  console.log(`[client] ${msg}`)
+  console.log(`${msg}`)
 }
 
 const accounts = new Map()
+const categories = new Map()
+const transactions = []
 const transactionsByDate = new Map()
 
 if (!('serviceWorker' in navigator)) {
@@ -32,7 +34,7 @@ navigator.storage.persist().then(persisted => {
 
 onload = () => {
   navigator.serviceWorker
-    .register('/app/service.js')
+    .register('/service.js')
     .then(registration => {
       log(`Service registration successful (scope: ${registration.scope})`)
       registration.onupdatefound = () => {
@@ -64,7 +66,7 @@ function main() {
 
   client.addUpdateListener(onUpdate)
 
-  client.send({ msg: 'open', name: 'Mon Compte' })
+  client.send({ msg: 'connect' })
 
   wireHTML()
 
@@ -199,28 +201,28 @@ function wireHTML() {
     id('expense').hidden = true
     switch (location.hash) {
       case '#calendar':
-        id('expense-navigation').hidden = true
-        id('navigation').hidden = false
+        //id('expense-navigation').hidden = true
+        //id('navigation').hidden = false
         id('calendar').hidden = false
         break
       case '#transactions':
-        id('expense-navigation').hidden = true
-        id('navigation').hidden = false
+        //id('expense-navigation').hidden = true
+        //id('navigation').hidden = false
         id('transactions').hidden = false
         break
       case '#summary':
-        id('expense-navigation').hidden = true
-        id('navigation').hidden = false
+        //id('expense-navigation').hidden = true
+        //id('navigation').hidden = false
         id('summary').hidden = false
         break
       case '#settings':
-        id('expense-navigation').hidden = true
-        id('navigation').hidden = false
+        //id('expense-navigation').hidden = true
+        //id('navigation').hidden = false
         id('settings').hidden = false
         break
       case '#expense':
-        id('navigation').hidden = true
-        id('expense-navigation').hidden = false
+        //id('navigation').hidden = true
+        //id('expense-navigation').hidden = false
         id('expense-date').valueAsDate = calendar.today()
         fillMinicalendar('expense-date', 'expense-calendar', calendar.today())
         id('expense').hidden = false

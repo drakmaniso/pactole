@@ -1,5 +1,26 @@
 'use strict'
 
+export class Month {
+  constructor(year, month) {
+    this.year = year
+    this.month = month
+  }
+
+  string() {
+  }
+}
+
+export class Day {
+  constructor(year, month, day) {
+    this.year = year
+    this.month = month
+    this.day = day
+  }
+
+  string() {
+  }
+}
+
 export function today() {
   const d = new Date()
   return new Date(d.getFullYear(), d.getMonth(), d.getDate(), 10)

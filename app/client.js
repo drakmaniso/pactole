@@ -1,11 +1,14 @@
 'use strict'
 
 function log(msg) {
-  console.log(`[client] ${msg}`)
+  console.log(`${msg}`)
 }
 
-let service = null
+let accounts, categories, transactions, transactionsByDate
+
 let updateListeners = []
+
+let service = null
 
 export function setup(serv) {
   service = serv
@@ -13,6 +16,32 @@ export function setup(serv) {
   navigator.serviceWorker.onmessage = event => {
     log(`Received ${event.data.msg}.`)
     switch (event.data.msg) {
+
+      case 'update accounts':
+        accounts = new Map()
+        for (const a of event.data.accounts) {
+          accounts.set(a.name, a)
+        }
+        break
+
+      case 'update categories':
+        categories = new Map()
+        for (const c of event.data.categories) {
+          categories.set(c.name, c)
+        }
+        break
+
+      case 'update transactions':
+        transactions = event.data.transactions
+        for (const t of transactions) {
+          if (!transactionsByDate.get(t.date)) {
+            transactionsByDate.set(t.date, [])
+          }
+          transactionsByDate.get(t.date).push(t)
+        }
+        break
+        
+
       case 'update':
         for (const f of updateListeners) {
           f(event.data)

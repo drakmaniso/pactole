@@ -1,5 +1,17 @@
 'use strict'
 
+// Module datastore implements the storage of all the application data.
+//
+// A transaction is an object:
+//
+//     {
+//       date:        string  // "YYYY-MM-DD" (always 10 characters)
+//       account:     string
+//       amount:      integer // in cents
+//       category:    string
+//       description: string
+//     }
+
 const log = console.log
 
 let stickyError = null
@@ -26,33 +38,54 @@ export function error() {
 let database = null
 
 export function open() {
-  return new Promise(function(resolve, reject) {
+  return new Promise((resolve, reject) => {
     if (database !== null) {
-      reject(Error('internal error: database already opened'))
+      reject(new Error('internal error: database already opened'))
     }
     if (!window.indexedDB) {
-      reject(Error('IndexedDB not supported by browser'))
+      reject(new Error('IndexedDB not supported by browser'))
     }
 
     let req = window.indexedDB.open('Pactole', 1)
-    req.onerror = function(event) {
+    req.onerror = event => {
       reject(new Error(`failed to open database: ${event.target.error}`))
     }
-    req.onsuccess = function(event) {
+    req.onsuccess = event => {
       log('Database opened.')
       database = event.target.result
-      database.onerror = function(event) {
+      database.onerror = event => {
         //TODO
-        setError(`database error: ${event.target.errorCode}`)
+        log(new Error(`database error: ${event.target.errorCode}`))
       }
       resolve()
     }
-    req.onupgradeneeded = function(event) {
+    req.onupgradeneeded = event => {
       log('Database: upgrade needed...')
-      let db = event.target.result
-      let os = db.createObjectStore('ledgers', { keyPath: 'name' })
-      os.transaction.oncomplete = function(event) {}
-      os = db.createObjectStore('assets', { keyPath: 'name' })
+      const db = event.target.result
+
+      const accounts = db.createObjectStore('accounts', { keyPath: 'name' })
+      accounts.transaction.oncomplete = event => {
+        const os = db.transaction('accounts', 'readwrite').objectStore('accounts')
+        os.add({name: 'Compte'})
+      }
+
+      const categories = db.createObjectStore('categories', { keyPath: 'name' })
+      categories.transaction.oncomplete = event => {
+        const os = db.transaction('categories', 'readwrite').objectStore('categories')
+        os.add({name: 'Nourriture'})
+        os.add({name: 'Habillement'})
+        os.add({name: 'Maison'})
+        os.add({name: 'Santé'})
+        os.add({name: 'Loisirs'})
+      }
+
+      const transactions = db.createObjectStore('transactions', { autoIncrement: true })
+      transactions.transaction.oncomplete = event => {
+        const os = db.transaction('accounts', 'readwrite').objectStore('accounts')
+        dummyTransactions.forEach(t => {
+          os.add(t)
+        })
+      }
     }
   })
 }
@@ -179,3 +212,146 @@ export function get3(fooname, barname) {
     }
   })
 }
+
+const dummyTransactions = [
+  {
+    date: "2019-05-02",
+    amount: 50000,
+    category: 'Allocations',
+    description: 'AAH',
+    reconciled: false,
+  },
+  {
+    date: "2019-05-02",
+    amount: 20000,
+    category: 'Allocations',
+    description: '',
+    reconciled: false,
+  },
+  {
+    date: "2019-05-03",
+    amount: 56000,
+    category: 'Loyer',
+    description: '',
+    reconciled: false,
+  },
+  {
+    date: "2019-05-03",
+    amount: 15000,
+    category: 'Électricité',
+    description: '',
+    reconciled: false,
+  },
+  {
+    date: "2019-05-03",
+    amount: 3000,
+    category: 'Téléphone',
+    description: '',
+    reconciled: false,
+  },
+  {
+    date: "2019-05-06",
+    amount: 2300,
+    category: 'Santé',
+    description: 'pharmacie',
+    reconciled: false,
+  },
+  {
+    date: "2019-05-09",
+    amount: 700,
+    category: 'Transports',
+    description: '',
+    reconciled: false,
+  },
+  {
+    date: "2019-05-18",
+    amount: 6000,
+    category: 'Alimentation',
+    description: 'courses Super U',
+    reconciled: false,
+  },
+  {
+    date: "2019-05-18",
+    amount: 2000,
+    category: 'Divers',
+    description: 'distributeur',
+    reconciled: false,
+  },
+  {
+    date: "2019-05-20",
+    amount: 3200,
+    category: 'Habillement',
+    description: 'La Halle aux Vêtements',
+    reconciled: false,
+  },
+  {
+    date: "2019-05-21",
+    amount: 2000,
+    category: 'Divers',
+    description: 'distributeur',
+    reconciled: false,
+  },
+  {
+    date: "2019-05-23",
+    amount: 5500,
+    category: 'Transports',
+    description: 'essence',
+    reconciled: false,
+  },
+  {
+    date: "2019-05-24",
+    amount: 3500,
+    category: 'Loisirs',
+    description: 'Raspberry Pi',
+    reconciled: false,
+  },
+  {
+    date: "2019-05-01",
+    amount: 50000,
+    category: 'Allocations',
+    description: 'AAH',
+    reconciled: false,
+  },
+  {
+    date: "2019-05-02",
+    amount: 20000,
+    category: 'Allocations',
+    description: '',
+    reconciled: false,
+  },
+  {
+    date: "2019-05-02",
+    amount: 2000,
+    category: 'Divers',
+    description: '',
+    reconciled: false,
+  },
+  {
+    date: "2019-05-03",
+    amount: 56000,
+    category: 'Loyer',
+    description: 'Loyer',
+    reconciled: false,
+  },
+  {
+    date: "2019-05-03",
+    amount: 3000,
+    category: 'Téléphone',
+    description: 'Facture téléphone',
+    reconciled: false,
+  },
+  {
+    date: "2019-05-11",
+    amount: 800,
+    category: 'Transports',
+    description: '',
+    reconciled: false,
+  },
+  {
+    date: "2019-05-18",
+    amount: 6500,
+    category: 'Alimentation',
+    description: 'courses Super U',
+    reconciled: false,
+  },
+]
