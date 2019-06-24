@@ -710,37 +710,48 @@ form.dialog > section.dialog-buttons > button#expense-cancel {
 
 /* Transaction Dialog */
 
-dialog.transaction {
-    padding: 0;
-    border: none;
-    border-radius: 1.25rem;
-    contain: content;
+div.transaction {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    z-index: 5000;
+    background: #0007;
     --local-primary: #f0f;
-    box-shadow: 0px 4px 10px 0px black;
+    display: flex;
+    flex-direction: column;
 }
 
-dialog.transaction.income {
+div.transaction.income {
     --local-primary: var(--income-bg);
     color: var(--income-bg);
 }
 
-dialog.transaction.expense {
+div.transaction.expense {
     --local-primary: var(--expense-bg);
     color: var(--expense-bg);
 }
 
-dialog.transaction::backdrop {
+div.transaction::backdrop {
     background: #3338;
 }
 
-dialog.transaction form {
+div.transaction form {
+    padding: 0;
+    margin: auto;
+    border: none;
+    border-radius: 1.25rem;
+    contain: content;
+    box-shadow: 0px 4px 10px 0px black;
     display: flex;
     flex-flow: column nowrap;
     justify-content: stretch;
     padding: 0;
+    background: #fff;
 }
 
-dialog.transaction header {
+div.transaction header {
     background: var(--local-primary);
     color: #fff;
     flex: 0 0 3rem;
@@ -751,7 +762,7 @@ dialog.transaction header {
     margin-bottom: 1.5rem;
 }
 
-dialog.transaction section.amount-description {
+div.transaction section.amount-description {
     background: #fff;
     margin: 0;
     display: grid;
@@ -759,16 +770,16 @@ dialog.transaction section.amount-description {
     padding: 0.5rem 2rem;
 }
 
-dialog.transaction section > * {
+div.transaction section > * {
     align-self: baseline;
 }
 
-dialog.transaction section > label {
+div.transaction section > label {
     text-align: right;
     margin-right: 1rem;
 }
 
-dialog.transaction section > input {
+div.transaction section > input {
     outline: none;
     border-top: none;
     border-left: none;
@@ -779,21 +790,21 @@ dialog.transaction section > input {
     font-weight: inherit;
 }
 
-dialog.transaction section > input[name="amount"] {
+div.transaction section > input[name="amount"] {
     width: 8rem;
     text-align: right;
 }
 
-dialog.transaction section > .money-symbol {
+div.transaction section > .money-symbol {
     border: none;
     padding: 2px 1rem;
     border-bottom: 2px;
 }
 
-dialog.transaction section > input[name="description"] {
+div.transaction section > input[name="description"] {
 }
 
-dialog.transaction section.actions {
+div.transaction section.actions {
     flex: 1;
     display: flex;
     flex-flow: row wrap;
@@ -803,7 +814,7 @@ dialog.transaction section.actions {
     padding: 1.5rem 2rem 0.5rem;
 }
 
-dialog.transaction section.actions button {
+div.transaction section.actions button {
     border: solid 2px var(--local-primary);
     border-radius: 1.25rem;
     height: 2.5rem;
@@ -816,7 +827,7 @@ dialog.transaction section.actions button {
     align-self: flex-end;
 }
 
-dialog.transaction section.actions button:last-child {
+div.transaction section.actions button:last-child {
     color: #fff;
     background: var(--local-primary);
 }

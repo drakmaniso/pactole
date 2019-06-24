@@ -6,8 +6,7 @@ export class Month {
     this.month = month
   }
 
-  string() {
-  }
+  string() {}
 }
 
 export class Day {
@@ -17,8 +16,7 @@ export class Day {
     this.day = day
   }
 
-  string() {
-  }
+  string() {}
 }
 
 export function today() {

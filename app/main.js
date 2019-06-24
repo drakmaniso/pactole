@@ -7,6 +7,10 @@ function log(msg) {
   console.log(`${msg}`)
 }
 
+function id(id) {
+  return document.getElementById(id)
+}
+
 const accounts = new Map()
 const categories = new Map()
 const transactions = []
@@ -61,132 +65,20 @@ navigator.serviceWorker.ready.then(registration => {
   main()
 })
 
+///////////////////////////////////////////////////////////////////////////////
+
 function main() {
   log(`Starting application...`)
+
+  wireHTML()
 
   client.addUpdateListener(onUpdate)
 
   client.send({ msg: 'connect' })
 
-  wireHTML()
-
   //TODO: better way to achieve this?
   //document.location = '#calendar'
   //window.scrollTo(0, document.body.scrollHeight)
-}
-
-function onUpdate(message) {
-  log(`onUpdate ${message}`)
-  client
-    .send({ msg: 'get accounts' })
-    .then(data => {
-      log(`reply contains ${data.accounts.length} accounts`)
-      fillAccounts(data.accounts)
-    })
-    .catch(() => {
-      log(`reply error`)
-    })
-
-  client
-    .send({ msg: 'get transactions' })
-    .then(data => {
-      log(`reply contains ${data.transactions.length} transactions`)
-      fillTransactions(data.transactions)
-    })
-    .catch(e => {
-      log(`reply error ${e}`)
-    })
-}
-
-function fillTransactions(transactions) {
-  transactionsByDate.clear()
-  for (const t of transactions) {
-    const d = calendar.dateID(t.date)
-    if (!transactionsByDate.get(d)) {
-      transactionsByDate.set(d, [])
-    }
-    transactionsByDate.get(d).push(t)
-  }
-
-  renderCalendar(new Date())
-
-  const transList = id('transactions-list')
-  while (transList.hasChildNodes()) {
-    transList.removeChild(transList.firstChild)
-  }
-  const dateList = document.createElement('ul')
-  let currentDate = new Date(0, 0, 0)
-  let currentList = null
-  for (const t of transactions) {
-    if (!calendar.sameDate(t.date, currentDate)) {
-      const li = document.createElement('li')
-      li.setAttribute('class', 'date')
-      li.innerHTML =
-        '' +
-        calendar.dayName(t.date) +
-        ' ' +
-        calendar.dayNumber(t.date) +
-        ' ' +
-        calendar.monthName(t.date)
-      dateList.appendChild(li)
-      currentList = document.createElement('ul')
-      dateList.appendChild(currentList)
-      currentDate = t.date
-    }
-    //TODO: multiple credits and/or debits in the same transaction
-    const debit = t.debits[0]
-    const li = document.createElement('li')
-    const amountSpan = document.createElement('span')
-    amountSpan.setAttribute('class', 'amount')
-    let amount = '' + debit.amount / 100 + ' €'
-    const account = accounts.get(debit.account)
-    li.setAttribute('class', account.kind)
-    switch (account.kind) {
-      case 'income':
-        amount = '+' + amount
-        break
-      case 'expense':
-        amount = '-' + amount
-        break
-    }
-    amountSpan.appendChild(document.createTextNode(amount))
-    li.appendChild(amountSpan)
-    li.appendChild(document.createTextNode(' ' + account.name))
-    if (t.description !== '') {
-      li.appendChild(document.createTextNode(' (' + t.description + ')'))
-    }
-    currentList.appendChild(li)
-  }
-  transList.appendChild(dateList)
-}
-
-function fillAccounts(acc) {
-  accounts.clear()
-  for (const a of acc) {
-    accounts.set(a.name, a)
-  }
-  //TODO
-  return
-  const sidebar = document.getElementById('sidebar')
-  while (sidebar.hasChildNodes()) {
-    sidebar.removeChild(sidebar.firstChild)
-  }
-  //const shadow = sidebar.attachShadow({mode: 'open'})
-  const list = document.createElement('ul')
-  list.id = 'transactions-income-actions'
-  //shadow.appendChild(list)
-  for (const a of message.accounts) {
-    const b = document.createElement('button')
-    b.textContent = a.name
-    b.setAttribute('class', 'action')
-    b.setAttribute('value', a.name)
-    list.appendChild(b)
-  }
-  sidebar.appendChild(list)
-}
-
-function id(id) {
-  return document.getElementById(id)
 }
 
 function wireHTML() {
@@ -224,7 +116,7 @@ function wireHTML() {
         //id('navigation').hidden = true
         //id('expense-navigation').hidden = false
         id('expense-date').valueAsDate = calendar.today()
-        fillMinicalendar('expense-date', 'expense-calendar', calendar.today())
+        renderMinicalendar('expense-date', 'expense-calendar', calendar.today())
         id('expense').hidden = false
         break
     }
@@ -282,7 +174,122 @@ function wireHTML() {
   }
 }
 
-function fillMinicalendar(dateId, calId, date) {
+function onUpdate(message) {
+  log(`onUpdate ${message}`)
+  client
+    .send({ msg: 'get accounts' })
+    .then(data => {
+      log(`reply contains ${data.accounts.length} accounts`)
+      fillAccounts(data.accounts)
+    })
+    .catch(() => {
+      log(`reply error`)
+    })
+
+  client
+    .send({ msg: 'get transactions' })
+    .then(data => {
+      log(`reply contains ${data.transactions.length} transactions`)
+      fillTransactions(data.transactions)
+    })
+    .catch(e => {
+      log(`reply error ${e}`)
+    })
+}
+
+function fillAccounts(acc) {
+  accounts.clear()
+  for (const a of acc) {
+    accounts.set(a.name, a)
+  }
+  //TODO
+  return
+  const sidebar = document.getElementById('sidebar')
+  while (sidebar.hasChildNodes()) {
+    sidebar.removeChild(sidebar.firstChild)
+  }
+  //const shadow = sidebar.attachShadow({mode: 'open'})
+  const list = document.createElement('ul')
+  list.id = 'transactions-income-actions'
+  //shadow.appendChild(list)
+  for (const a of message.accounts) {
+    const b = document.createElement('button')
+    b.textContent = a.name
+    b.setAttribute('class', 'action')
+    b.setAttribute('value', a.name)
+    list.appendChild(b)
+  }
+  sidebar.appendChild(list)
+}
+
+function fillTransactions(transactions) {
+  transactionsByDate.clear()
+  for (const t of transactions) {
+    const d = calendar.dateID(t.date)
+    if (!transactionsByDate.get(d)) {
+      transactionsByDate.set(d, [])
+    }
+    transactionsByDate.get(d).push(t)
+  }
+
+  renderCalendar(new Date())
+  renderTransactionsList(transactions)
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+function renderTransactionsList(transactions) {
+  const transList = id('transactions-list')
+  while (transList.hasChildNodes()) {
+    transList.removeChild(transList.firstChild)
+  }
+  const dateList = document.createElement('ul')
+  let currentDate = new Date(0, 0, 0)
+  let currentList = null
+  for (const t of transactions) {
+    if (!calendar.sameDate(t.date, currentDate)) {
+      const li = document.createElement('li')
+      li.setAttribute('class', 'date')
+      li.innerHTML =
+        '' +
+        calendar.dayName(t.date) +
+        ' ' +
+        calendar.dayNumber(t.date) +
+        ' ' +
+        calendar.monthName(t.date)
+      dateList.appendChild(li)
+      currentList = document.createElement('ul')
+      dateList.appendChild(currentList)
+      currentDate = t.date
+    }
+    //TODO: multiple credits and/or debits in the same transaction
+    const debit = t.debits[0]
+    const li = document.createElement('li')
+    const amountSpan = document.createElement('span')
+    amountSpan.setAttribute('class', 'amount')
+    let amount = '' + debit.amount / 100 + ' €'
+    const account = accounts.get(debit.account)
+    li.setAttribute('class', account.kind)
+    switch (account.kind) {
+      case 'income':
+        amount = '+' + amount
+        break
+      case 'expense':
+        amount = '-' + amount
+        break
+    }
+    amountSpan.appendChild(document.createTextNode(amount))
+    li.appendChild(amountSpan)
+    li.appendChild(document.createTextNode(' ' + account.name))
+    if (t.description !== '') {
+      li.appendChild(document.createTextNode(' (' + t.description + ')'))
+    }
+    currentList.appendChild(li)
+  }
+  transList.appendChild(dateList)
+}
+
+function renderMinicalendar(dateId, calId, date) {
   const dateInput = id(dateId)
   const cal = id(calId)
   while (cal.hasChildNodes()) {
@@ -293,7 +300,7 @@ function fillMinicalendar(dateId, calId, date) {
   div.setAttribute('class', 'fa')
   div.appendChild(document.createTextNode('\uf060'))
   div.addEventListener('click', event => {
-    fillMinicalendar(dateId, calId, calendar.delta(date, 0, -1, 0))
+    renderMinicalendar(dateId, calId, calendar.delta(date, 0, -1, 0))
   })
   cal.appendChild(div)
 
@@ -310,7 +317,7 @@ function fillMinicalendar(dateId, calId, date) {
   div.setAttribute('class', 'fa')
   div.appendChild(document.createTextNode('\uf061'))
   div.addEventListener('click', event => {
-    fillMinicalendar(dateId, calId, calendar.delta(date, 0, +1, 0))
+    renderMinicalendar(dateId, calId, calendar.delta(date, 0, +1, 0))
   })
   cal.appendChild(div)
 
@@ -351,6 +358,8 @@ function fillMinicalendar(dateId, calId, date) {
     cal.appendChild(div)
   })
 }
+
+///////////////////////////////////////////////////////////////////////////////
 
 function renderCalendar(date) {
   id('calendar-day').hidden = true
@@ -554,10 +563,10 @@ function openCalendarDialog(date, kind) {
   s = s + `${date.getDate()}`
   form.elements['date'].value = s
 
-  dialog.showModal()
+  dialog.hidden = false
   form.elements['amount'].focus()
 }
 
 function closeCalendarDialog() {
-  id('calendar-dialog').close()
+  id('calendar-dialog').hidden = true
 }
