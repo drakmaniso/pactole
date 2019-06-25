@@ -10,18 +10,6 @@
 
   <body>
 
-    <nav id="navigation" hidden>
-      <a href="#calendar">Calendrier</a>
-      <a href="#transactions">Liste</a>
-      <a hidden href="#summary">Résumé</a>
-      <a href="#settings" class="at-end fa">&#xf013;</a>
-    </nav>
-
-    <nav hidden id="expense-navigation" class="dialog">
-      <a hidden class="fa">&#xf060;</a>
-      <a class="at-end fa" id="expense-close">&#xf00d;</a>
-    </nav>
-
     <main hidden id="home">
     </main>
 
@@ -42,6 +30,11 @@
       </section>
 
       <section class="balance">
+        <nav id="navigation">
+          <a href="#transactions">Liste</a>
+          <a href="#summary">Résumé</a>
+          <a href="#settings" class="at-end fa">&#xf013;</a>
+        </nav>
         <div>Solde actuel:</div>
         <div id="balance">1200 €</div>
       </section>
@@ -54,6 +47,11 @@
         </ul>
       </section>
       <section class="balance">
+        <nav id="navigation">
+          <a href="#calendar">Calendrier</a>
+          <a href="#summary">Résumé</a>
+          <a href="#settings" class="at-end fa">&#xf013;</a>
+        </nav>
         <div>Solde actuel:</div>
         <div id="balance">1200 €</div>
       </section>
@@ -100,44 +98,6 @@
         </section>
       </form>
     </div>
-
-    <main hidden id="expense">
-      <form class="dialog" name="expense">
-        <section class="amount">
-          <label for="expense-amount">Nouvelle dépense:</label>
-          <input id="expense-amount" type="text" class="amount" autofocus>
-          <p>€</p>
-        </section>
-        <section class="date">
-          <input hidden id="expense-date" type="string">
-          <div class="minicalendar" id="expense-calendar">
-          </div>
-        </section>
-        <section class="categories">
-          <label for="expense-category">Catégorie:</label>
-          <div id="expense-categories" class="listbox">
-            <div><input type="radio" name="expense-category" id="expense-category-0" value="Alimentation"><label for="expense-category-0"><span class="fa">&#xf2e7;</span>Alimentation</label></div>
-            <div><input type="radio" name="expense-category" id="expense-category-1" value="Électricité et téléphone"><label for="expense-category-1"><span class="fa">&#xf0e7;</span><span hidden class="fa">&#xf095;</span>Électricité et téléphone</label></div>
-            <div><input type="radio" name="expense-category" id="expense-category-2" value="Frais bancaires"><label for="expense-category-2"><span class="fa">&#xf19c;</span>Frais bancaires</label></div>
-            <div><input type="radio" name="expense-category" id="expense-category-3" value="Habillement"><label for="expense-category-3"><span class="fa">&#xf553;</span>Habillement</label></div>
-            <div><input type="radio" name="expense-category" id="expense-category-4" value="Loisirs"><label for="expense-category-4"><span class="fa">&#xf2e7;</span>Loisirs</label></div>
-            <div><input type="radio" name="expense-category" id="expense-category-5" value="Loyer"><label for="expense-category-5"><span class="fa">&#xf015;</span>Loyer</label></div>
-            <div><input type="radio" name="expense-category" id="expense-category-6" value="Santé"><label for="expense-category-6"><span class="fa">&#xf0f1;</span>Santé</label></div>
-            <div><input type="radio" name="expense-category" id="expense-category-7" value="Transports"><label for="expense-category-7"><span class="fa">&#xf55e;</span><span hidden class="fa">&#xf1b9;&#xf206;</span>Transports</label></div>
-            <div><input type="radio" name="expense-category" id="expense-category-8" value="Divers"><label for="expense-category-8"><span class="fa">&#xf4d3;</span>Économies</label></div>
-            <div><input type="radio" name="expense-category" id="expense-category-9" value="Divers"><label for="expense-category-9"><span class="fa">&#xf128;</span><span hidden class="fa">&#xf141;</span>Divers</label></div>
-          </div>
-        </section>
-        <section class="description">
-          <label for="expense-description">Description:&nbsp;</label>
-          <input type="text" id="expense-description"></input>
-        </section>
-        <section class="dialog-buttons">
-          <button id="expense-cancel" type="button">Annuler</button>
-          <button id="expense-submit" type="button">Confirmer la dépense</button>
-        </section>
-      </form>
-    </main>
 
     <main hidden id="summary">
       <h2>Résumé</h2>

@@ -88,49 +88,33 @@ function wireHTML() {
     id('transactions').hidden = true
     id('summary').hidden = true
     id('settings').hidden = true
-    id('expense').hidden = true
     switch (location.hash) {
       case '#calendar':
-        //id('expense-navigation').hidden = true
-        //id('navigation').hidden = false
         id('calendar').hidden = false
         break
       case '#transactions':
-        //id('expense-navigation').hidden = true
-        //id('navigation').hidden = false
         id('transactions').hidden = false
         break
       case '#summary':
-        //id('expense-navigation').hidden = true
-        //id('navigation').hidden = false
         id('summary').hidden = false
         break
       case '#settings':
-        //id('expense-navigation').hidden = true
-        //id('navigation').hidden = false
         id('settings').hidden = false
-        break
-      case '#expense':
-        //id('navigation').hidden = true
-        //id('expense-navigation').hidden = false
-        id('expense-date').value = calendar.today()
-        //renderMinicalendar('expense-date', 'expense-calendar', calendar.today())
-        id('expense').hidden = false
         break
     }
   }
 
   id('list-income').onclick = () => {
-    openCalendarDialog(calendar.today(), 'income', true)
+    openDialog(calendar.today(), 'income', true)
   }
 
   id('list-expense').onclick = () => {
-    openCalendarDialog(calendar.today(), 'expense', true)
+    openDialog(calendar.today(), 'expense', true)
   }
 
   id('dialog-cancel').onclick = event => {
     //event.preventDefault()
-    closeCalendarDialog()
+    closeDialog()
   }
 
   id('dialog-confirm').onclick = event => {
@@ -141,42 +125,14 @@ function wireHTML() {
       debits: [{ account: 'Divers', amount: 100 * f['amount'].value }],
       credits: [{ account: 'Mon Compte', amount: 100 * f['amount'].value }],
       description: f['description'].value,
+      category: f['category'].value,
       reconciled: false,
     }
     client.send({
       msg: 'new transaction',
       transaction: transac,
     })
-    closeCalendarDialog()
-  }
-
-  id('expense-cancel').onclick = () => {
-    window.history.back()
-  }
-  id('expense-close').onclick = () => {
-    window.history.back()
-  }
-  id('expense-submit').onclick = () => {
-    const f = document.forms['expense']
-    const transac = {
-      date: f['expense-date'].value,
-      debits: [
-        {
-          account: f['expense-category'].value,
-          amount: 100 * f['expense-amount'].value,
-        },
-      ],
-      credits: [
-        { account: 'Mon Compte', amount: 100 * f['expense-amount'].value },
-      ],
-      description: f['expense-description'].value,
-      reconciled: false,
-    }
-    client.send({
-      msg: 'new transaction',
-      transaction: transac,
-    })
-    window.location = '#transactions'
+    closeDialog()
   }
 }
 
@@ -239,7 +195,7 @@ function renderCalendar(date) {
     prev.setAttribute('class', 'fa button')
     prev.appendChild(document.createTextNode('\uf060'))
     prev.addEventListener('click', event => {
-      closeCalendarDialog()
+      closeDialog()
       renderCalendar(calendar.delta(date, 0, -1, 0))
     })
     header.appendChild(prev)
@@ -260,7 +216,7 @@ function renderCalendar(date) {
     next.setAttribute('class', 'fa button')
     next.appendChild(document.createTextNode('\uf061'))
     next.addEventListener('click', event => {
-      closeCalendarDialog()
+      closeDialog()
       renderCalendar(calendar.delta(date, 0, +1, 0))
     })
     header.appendChild(next)
@@ -328,7 +284,7 @@ function renderCalendar(date) {
 }
 
 function renderCalendarDay(date) {
-  closeCalendarDialog()
+  closeDialog()
   const header = id('calendar-day-header')
   while (header.hasChildNodes()) {
     header.removeChild(header.lastChild)
@@ -384,17 +340,17 @@ function renderCalendarDay(date) {
   }
 
   id('calendar-income').onclick = () => {
-    openCalendarDialog(date, 'income', false)
+    openDialog(date, 'income', false)
   }
 
   id('calendar-expense').onclick = () => {
-    openCalendarDialog(date, 'expense', false)
+    openDialog(date, 'expense', false)
   }
 
   id('calendar-day').hidden = false
 }
 
-function openCalendarDialog(date, kind, withMinicalendar) {
+function openDialog(date, kind, withMinicalendar) {
   const dialog = id('dialog')
   dialog.classList.remove('income', 'expense')
   dialog.classList.add(kind)
@@ -424,7 +380,7 @@ function openCalendarDialog(date, kind, withMinicalendar) {
   form.elements['amount'].focus()
 }
 
-function closeCalendarDialog() {
+function closeDialog() {
   id('dialog').hidden = true
 }
 
