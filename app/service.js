@@ -12,10 +12,12 @@ oninstall = event => {
 onactivate = event => {
   log('Activating service...')
   if (!database) {
-    event.waitUntil(openDatabase().then(msg => {
-      log('Datastore opened.')
-      return clients.claim()
-    }))
+    event.waitUntil(
+      openDatabase().then(msg => {
+        log('Datastore opened.')
+        return clients.claim()
+      }),
+    )
   } else {
     event.waitUntil(clients.claim())
   }
@@ -104,7 +106,7 @@ async function getAll(osName) {
     }
   })
 }
-    
+
 async function sendUpdateAccounts() {
   getAll('accounts').then(result => {
     send({
@@ -135,140 +137,140 @@ const dummyAccounts = [
 
 const dummyTransactions = [
   {
-    date: new Date(2019, 4, 2),
+    date: '2019-05-02',
     debits: [{ account: 'Allocations', amount: 50000 }],
     credits: [{ account: 'Mon Compte', amount: 50000 }],
     description: 'AAH',
     reconciled: false,
   },
   {
-    date: new Date(2019, 4, 2),
+    date: '2019-05-02',
     debits: [{ account: 'Allocations', amount: 20000 }],
     credits: [{ account: 'Mon Compte', amount: 20000 }],
     description: '',
     reconciled: false,
   },
   {
-    date: new Date(2019, 4, 3),
+    date: '2019-05-03',
     debits: [{ account: 'Loyer', amount: 56000 }],
     credits: [{ account: 'Mon Compte', amount: 56000 }],
     description: '',
     reconciled: false,
   },
   {
-    date: new Date(2019, 4, 3),
+    date: '2019-05-03',
     debits: [{ account: 'Électricité', amount: 15000 }],
     credits: [{ account: 'Mon Compte', amount: 15000 }],
     description: '',
     reconciled: false,
   },
   {
-    date: new Date(2019, 4, 3),
+    date: '2019-05-03',
     debits: [{ account: 'Téléphone', amount: 3000 }],
     credits: [{ account: 'Mon Compte', amount: 3000 }],
     description: '',
     reconciled: false,
   },
   {
-    date: new Date(2019, 4, 6),
+    date: '2019-05-06',
     debits: [{ account: 'Santé', amount: 2300 }],
     credits: [{ account: 'Mon Compte', amount: 2300 }],
     description: 'pharmacie',
     reconciled: false,
   },
   {
-    date: new Date(2019, 4, 9),
+    date: '2019-05-09',
     debits: [{ account: 'Transports', amount: 700 }],
     credits: [{ account: 'Mon Compte', amount: 700 }],
     description: '',
     reconciled: false,
   },
   {
-    date: new Date(2019, 4, 18),
+    date: '2019-05-18',
     debits: [{ account: 'Alimentation', amount: 6000 }],
     credits: [{ account: 'Mon Compte', amount: 6000 }],
     description: 'courses Super U',
     reconciled: false,
   },
   {
-    date: new Date(2019, 4, 18),
+    date: '2019-05-18',
     debits: [{ account: 'Divers', amount: 2000 }],
     credits: [{ account: 'Mon Compte', amount: 2000 }],
     description: 'distributeur',
     reconciled: false,
   },
   {
-    date: new Date(2019, 4, 20),
+    date: '2019-05-20',
     debits: [{ account: 'Habillement', amount: 3200 }],
     credits: [{ account: 'Mon Compte', amount: 3200 }],
     description: 'La Halle aux Vêtements',
     reconciled: false,
   },
   {
-    date: new Date(2019, 4, 21),
+    date: '2019-05-21',
     debits: [{ account: 'Divers', amount: 2000 }],
     credits: [{ account: 'Mon Compte', amount: 2000 }],
     description: 'distributeur',
     reconciled: false,
   },
   {
-    date: new Date(2019, 4, 23),
+    date: '2019-05-23',
     debits: [{ account: 'Transports', amount: 5500 }],
     credits: [{ account: 'Mon Compte', amount: 5500 }],
     description: 'essence',
     reconciled: false,
   },
   {
-    date: new Date(2019, 4, 24),
+    date: '2019-05-24',
     debits: [{ account: 'Loisirs', amount: 3500 }],
     credits: [{ account: 'Mon Compte', amount: 3500 }],
     description: 'Raspberry Pi',
     reconciled: false,
   },
   {
-    date: new Date(2019, 5, 1),
+    date: '2019-06-01',
     debits: [{ account: 'Allocations', amount: 50000 }],
     credits: [{ account: 'Mon Compte', amount: 50000 }],
     description: 'AAH',
     reconciled: false,
   },
   {
-    date: new Date(2019, 5, 2),
+    date: '2019-06-02',
     debits: [{ account: 'Allocations', amount: 20000 }],
     credits: [{ account: 'Mon Compte', amount: 20000 }],
     description: '',
     reconciled: false,
   },
   {
-    date: new Date(2019, 5, 2),
+    date: '2019-06-02',
     debits: [{ account: 'Divers', amount: 2000 }],
     credits: [{ account: 'Mon Compte', amount: 2000 }],
     description: '',
     reconciled: false,
   },
   {
-    date: new Date(2019, 5, 3),
+    date: '2019-06-03',
     debits: [{ account: 'Loyer', amount: 56000 }],
     credits: [{ account: 'Mon Compte', amount: 56000 }],
     description: 'Loyer',
     reconciled: false,
   },
   {
-    date: new Date(2019, 5, 3),
+    date: '2019-06-03',
     debits: [{ account: 'Téléphone', amount: 3000 }],
     credits: [{ account: 'Mon Compte', amount: 3000 }],
     description: 'Facture téléphone',
     reconciled: false,
   },
   {
-    date: new Date(2019, 5, 11),
+    date: '2019-06-11',
     debits: [{ account: 'Transports', amount: 800 }],
     credits: [{ account: 'Mon Compte', amount: 800 }],
     description: '',
     reconciled: false,
   },
   {
-    date: new Date(2019, 5, 18),
+    date: '2019-06-18',
     debits: [{ account: 'Alimentation', amount: 6500 }],
     credits: [{ account: 'Mon Compte', amount: 6500 }],
     description: 'courses Super U',
@@ -313,21 +315,27 @@ async function openDatabase() {
 
       os.transaction.oncomplete = () => {
         {
-          const os = db.transaction('accounts', 'readwrite').objectStore('accounts')
-          os.add({name: 'Compte'})
+          const os = db
+            .transaction('accounts', 'readwrite')
+            .objectStore('accounts')
+          os.add({ name: 'Compte' })
         }
 
         {
-          const os = db.transaction('categories', 'readwrite').objectStore('categories')
-          os.add({name: 'Nourriture'})
-          os.add({name: 'Habillement'})
-          os.add({name: 'Maison'})
-          os.add({name: 'Santé'})
-          os.add({name: 'Loisirs'})
+          const os = db
+            .transaction('categories', 'readwrite')
+            .objectStore('categories')
+          os.add({ name: 'Nourriture' })
+          os.add({ name: 'Habillement' })
+          os.add({ name: 'Maison' })
+          os.add({ name: 'Santé' })
+          os.add({ name: 'Loisirs' })
         }
 
         {
-          const os = db.transaction('transactions', 'readwrite').objectStore('transactions')
+          const os = db
+            .transaction('transactions', 'readwrite')
+            .objectStore('transactions')
           newdummyTransactions.forEach(t => {
             os.add(t)
           })
@@ -342,140 +350,140 @@ async function openDatabase() {
 
 const newdummyTransactions = [
   {
-    date: "2019-05-02",
+    date: '2019-05-02',
     amount: 50000,
     category: 'Allocations',
     description: 'AAH',
     reconciled: false,
   },
   {
-    date: "2019-05-02",
+    date: '2019-05-02',
     amount: 20000,
     category: 'Allocations',
     description: '',
     reconciled: false,
   },
   {
-    date: "2019-05-03",
+    date: '2019-05-03',
     amount: 56000,
     category: 'Loyer',
     description: '',
     reconciled: false,
   },
   {
-    date: "2019-05-03",
+    date: '2019-05-03',
     amount: 15000,
     category: 'Électricité',
     description: '',
     reconciled: false,
   },
   {
-    date: "2019-05-03",
+    date: '2019-05-03',
     amount: 3000,
     category: 'Téléphone',
     description: '',
     reconciled: false,
   },
   {
-    date: "2019-05-06",
+    date: '2019-05-05',
     amount: 2300,
     category: 'Santé',
     description: 'pharmacie',
     reconciled: false,
   },
   {
-    date: "2019-05-09",
+    date: '2019-05-09',
     amount: 700,
     category: 'Transports',
     description: '',
     reconciled: false,
   },
   {
-    date: "2019-05-18",
+    date: '2019-05-18',
     amount: 6000,
     category: 'Alimentation',
     description: 'courses Super U',
     reconciled: false,
   },
   {
-    date: "2019-05-18",
+    date: '2019-05-18',
     amount: 2000,
     category: 'Divers',
     description: 'distributeur',
     reconciled: false,
   },
   {
-    date: "2019-05-20",
+    date: '2019-05-20',
     amount: 3200,
     category: 'Habillement',
     description: 'La Halle aux Vêtements',
     reconciled: false,
   },
   {
-    date: "2019-05-21",
+    date: '2019-05-21',
     amount: 2000,
     category: 'Divers',
     description: 'distributeur',
     reconciled: false,
   },
   {
-    date: "2019-05-23",
+    date: '2019-05-23',
     amount: 5500,
     category: 'Transports',
     description: 'essence',
     reconciled: false,
   },
   {
-    date: "2019-05-24",
+    date: '2019-05-24',
     amount: 3500,
     category: 'Loisirs',
     description: 'Raspberry Pi',
     reconciled: false,
   },
   {
-    date: "2019-05-01",
+    date: '2019-06-01',
     amount: 50000,
     category: 'Allocations',
     description: 'AAH',
     reconciled: false,
   },
   {
-    date: "2019-05-02",
+    date: '2019-06-02',
     amount: 20000,
     category: 'Allocations',
     description: '',
     reconciled: false,
   },
   {
-    date: "2019-05-02",
+    date: '2019-06-02',
     amount: 2000,
     category: 'Divers',
     description: '',
     reconciled: false,
   },
   {
-    date: "2019-05-03",
+    date: '2019-06-03',
     amount: 56000,
     category: 'Loyer',
     description: 'Loyer',
     reconciled: false,
   },
   {
-    date: "2019-05-03",
+    date: '2019-06-03',
     amount: 3000,
     category: 'Téléphone',
     description: 'Facture téléphone',
     reconciled: false,
   },
   {
-    date: "2019-05-11",
+    date: '2019-06-11',
     amount: 800,
     category: 'Transports',
     description: '',
     reconciled: false,
   },
   {
-    date: "2019-05-18",
+    date: '2019-06-18',
     amount: 6500,
     category: 'Alimentation',
     description: 'courses Super U',

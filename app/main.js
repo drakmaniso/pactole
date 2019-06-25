@@ -3,10 +3,6 @@
 import * as client from './client.js'
 import * as calendar from './calendar.js'
 
-function log(msg) {
-  console.log(`${msg}`)
-}
-
 function id(id) {
   return document.getElementById(id)
 }
@@ -17,22 +13,22 @@ const transactions = []
 const transactionsByDate = new Map()
 
 if (!('serviceWorker' in navigator)) {
-  log('FATAL: Service workers are not supported by the navigator.')
+  console.error('FATAL: Service workers are not supported by the navigator.')
   throw new Error('FATAL: Service workers are not supported by the navigator.')
 }
 
 navigator.storage.persist().then(persisted => {
   if (persisted) {
-    log('Persistent storage allowed.')
+    console.log('Persistent storage allowed.')
     navigator.storage.estimate().then(info => {
-      log(
+      console.log(
         `Persistent usage: ${Math.round(
           info.usage / 1024,
         )}kb (quota: ${Math.round(info.quota / 1024)}kb).`,
       )
     })
   } else {
-    log('*** NOT Persisted! ***')
+    console.error('*** NOT Persisted! ***')
   }
 })
 
@@ -40,13 +36,15 @@ onload = () => {
   navigator.serviceWorker
     .register('/service.js')
     .then(registration => {
-      log(`Service registration successful (scope: ${registration.scope})`)
+      console.log(
+        `Service registration successful (scope: ${registration.scope})`,
+      )
       registration.onupdatefound = () => {
         let w = registration.installing
-        log(`A new service is being installed...`)
+        console.log(`A new service is being installed...`)
         w.onstatechange = event => {
           if (event.target.state === 'installed') {
-            log(`The new service has been installed.`)
+            console.log(`The new service has been installed.`)
             //TODO: restart service?
             //location.reload(true)
           }
@@ -54,7 +52,7 @@ onload = () => {
       }
     })
     .catch(err => {
-      log(`Service registration failed: ${err}`)
+      console.error(`Service registration failed: ${err}`)
     })
 }
 
@@ -68,7 +66,7 @@ navigator.serviceWorker.ready.then(registration => {
 ///////////////////////////////////////////////////////////////////////////////
 
 function main() {
-  log(`Starting application...`)
+  console.log(`Starting application...`)
 
   wireHTML()
 
@@ -83,7 +81,7 @@ function main() {
 
 function wireHTML() {
   window.onpopstate = () => {
-    log(`*** POPSTATE: ${window.location.pathname} ***`)
+    console.log(`*** POPSTATE: ${window.location.pathname} ***`)
   }
   window.onhashchange = () => {
     id('calendar').hidden = true
@@ -115,8 +113,8 @@ function wireHTML() {
       case '#expense':
         //id('navigation').hidden = true
         //id('expense-navigation').hidden = false
-        id('expense-date').valueAsDate = calendar.today()
-        renderMinicalendar('expense-date', 'expense-calendar', calendar.today())
+        id('expense-date').value = calendar.today()
+        //renderMinicalendar('expense-date', 'expense-calendar', calendar.today())
         id('expense').hidden = false
         break
     }
@@ -131,7 +129,7 @@ function wireHTML() {
     //event.preventDefault()
     const f = document.forms['calendar-dialog-form']
     const transac = {
-      date: f['date'].valueAsDate,
+      date: f['date'].value,
       debits: [{ account: 'Divers', amount: 100 * f['amount'].value }],
       credits: [{ account: 'Mon Compte', amount: 100 * f['amount'].value }],
       description: f['description'].value,
@@ -153,7 +151,7 @@ function wireHTML() {
   id('expense-submit').onclick = () => {
     const f = document.forms['expense']
     const transac = {
-      date: f['expense-date'].valueAsDate,
+      date: f['expense-date'].value,
       debits: [
         {
           account: f['expense-category'].value,
@@ -175,25 +173,25 @@ function wireHTML() {
 }
 
 function onUpdate(message) {
-  log(`onUpdate ${message}`)
+  console.log(`onUpdate ${message}`)
   client
     .send({ msg: 'get accounts' })
     .then(data => {
-      log(`reply contains ${data.accounts.length} accounts`)
+      console.log(`reply contains ${data.accounts.length} accounts`)
       fillAccounts(data.accounts)
     })
-    .catch(() => {
-      log(`reply error`)
+    .catch(err => {
+      console.error(`reply error ${err}`)
     })
 
   client
     .send({ msg: 'get transactions' })
     .then(data => {
-      log(`reply contains ${data.transactions.length} transactions`)
+      console.log(`reply contains ${data.transactions.length} transactions`)
       fillTransactions(data.transactions)
     })
-    .catch(e => {
-      log(`reply error ${e}`)
+    .catch(err => {
+      console.error(`reply error ${err}`)
     })
 }
 
@@ -203,48 +201,31 @@ function fillAccounts(acc) {
     accounts.set(a.name, a)
   }
   //TODO
-  return
-  const sidebar = document.getElementById('sidebar')
-  while (sidebar.hasChildNodes()) {
-    sidebar.removeChild(sidebar.firstChild)
-  }
-  //const shadow = sidebar.attachShadow({mode: 'open'})
-  const list = document.createElement('ul')
-  list.id = 'transactions-income-actions'
-  //shadow.appendChild(list)
-  for (const a of message.accounts) {
-    const b = document.createElement('button')
-    b.textContent = a.name
-    b.setAttribute('class', 'action')
-    b.setAttribute('value', a.name)
-    list.appendChild(b)
-  }
-  sidebar.appendChild(list)
 }
 
 function fillTransactions(transactions) {
   transactionsByDate.clear()
   for (const t of transactions) {
-    const d = calendar.dateID(t.date)
-    if (!transactionsByDate.get(d)) {
-      transactionsByDate.set(d, [])
+    if (!transactionsByDate.get(t.date)) {
+      transactionsByDate.set(t.date, [])
     }
-    transactionsByDate.get(d).push(t)
+    transactionsByDate.get(t.date).push(t)
   }
 
-  renderCalendar(new Date())
-  renderTransactionsList(transactions)
+  renderCalendar(calendar.today())
+  //renderTransactionsList(transactions)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
+/*
 function renderTransactionsList(transactions) {
   const transList = id('transactions-list')
   while (transList.hasChildNodes()) {
     transList.removeChild(transList.firstChild)
   }
   const dateList = document.createElement('ul')
-  let currentDate = new Date(0, 0, 0)
+  let currentDate = calendar.today()
   let currentList = null
   for (const t of transactions) {
     if (!calendar.sameDate(t.date, currentDate)) {
@@ -252,7 +233,7 @@ function renderTransactionsList(transactions) {
       li.setAttribute('class', 'date')
       li.innerHTML =
         '' +
-        calendar.dayName(t.date) +
+        calendar.weekdayName(t.date) +
         ' ' +
         calendar.dayNumber(t.date) +
         ' ' +
@@ -358,6 +339,7 @@ function renderMinicalendar(dateId, calId, date) {
     cal.appendChild(div)
   })
 }
+*/
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -380,12 +362,12 @@ function renderCalendar(date) {
     header.appendChild(prev)
 
     const par = document.createElement('p')
-    if (date.getFullYear() === new Date().getFullYear()) {
+    if (calendar.year(date) === calendar.year(calendar.today())) {
       par.appendChild(document.createTextNode(`${calendar.monthName(date)}`))
     } else {
       par.appendChild(
         document.createTextNode(
-          `${calendar.monthName(date)} ${date.getFullYear()}`,
+          `${calendar.monthName(date)} ${calendar.year(date)}`,
         ),
       )
     }
@@ -400,15 +382,7 @@ function renderCalendar(date) {
     })
     header.appendChild(next)
 
-    for (const w of [
-      'Lundi',
-      'Mardi',
-      'Mercredi',
-      'Jeudi',
-      'Vendredi',
-      'Samedi',
-      'Dimanche',
-    ]) {
+    for (const w of calendar.dayNames) {
       const div = document.createElement('div')
       div.setAttribute('class', 'weekday')
       div.appendChild(document.createTextNode(w))
@@ -418,27 +392,21 @@ function renderCalendar(date) {
     cal.appendChild(header)
   }
 
-  const today = new Date()
+  const today = calendar.today()
 
   calendar.grid(date, (d, row, col) => {
     const section = document.createElement('section')
-    if (d.getMonth() == date.getMonth()) {
+    if (calendar.month(d) == calendar.month(date)) {
       const header = document.createElement('header')
-      if (calendar.sameDate(d, today)) {
+      if (d === today) {
         header.setAttribute('class', 'today')
         header.appendChild(document.createTextNode("Aujourd'hui"))
       } else {
-        header.appendChild(document.createTextNode(d.getDate()))
+        header.appendChild(document.createTextNode(calendar.day(d)))
       }
-      /* TODO
-      if (calendar.sameDate(d, date)) {
-        header.setAttribute('checked', 'true')
-      }
-      */
       section.appendChild(header)
 
-      const dd = calendar.dateID(d)
-      const transacs = transactionsByDate.get(dd)
+      const transacs = transactionsByDate.get(d)
       if (transacs) {
         const ul = document.createElement('ul')
         for (const t of transacs) {
@@ -482,12 +450,12 @@ function renderCalendarDay(date) {
   while (header.hasChildNodes()) {
     header.removeChild(header.lastChild)
   }
-  if (calendar.sameDate(date, new Date())) {
+  if (date === calendar.today()) {
     header.appendChild(document.createTextNode("Aujourd'hui"))
   } else {
     header.appendChild(
       document.createTextNode(
-        `${calendar.dayName(date)} ${calendar.dayNumber(date)}`,
+        `${calendar.weekdayName(date)} ${calendar.day(date)}`,
       ),
     )
   }
@@ -496,8 +464,7 @@ function renderCalendarDay(date) {
   while (ul.hasChildNodes()) {
     ul.removeChild(ul.lastChild)
   }
-  const dd = calendar.dateID(date)
-  const transacs = transactionsByDate.get(dd)
+  const transacs = transactionsByDate.get(date)
   if (transacs) {
     for (const t of transacs) {
       const li = document.createElement('li')
@@ -552,16 +519,7 @@ function openCalendarDialog(date, kind) {
   const form = document.forms['calendar-dialog-form']
   form.reset()
 
-  let s = `${date.getFullYear()}-`
-  if (date.getMonth() + 1 < 10) {
-    s = s + '0'
-  }
-  s = s + `${date.getMonth() + 1}-`
-  if (date.getDate() < 10) {
-    s = s + '0'
-  }
-  s = s + `${date.getDate()}`
-  form.elements['date'].value = s
+  form.elements['date'].value = date
 
   dialog.hidden = false
   form.elements['amount'].focus()

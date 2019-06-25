@@ -1,30 +1,21 @@
 'use strict'
 
-export class Month {
-  constructor(year, month) {
-    this.year = year
-    this.month = month
-  }
-
-  string() {}
-}
-
-export class Day {
-  constructor(year, month, day) {
-    this.year = year
-    this.month = month
-    this.day = day
-  }
-
-  string() {}
+export function date(year, month, day) {
+  return (
+    String(year).padStart(4, '0') +
+    '-' +
+    String(month).padStart(2, 0) +
+    '-' +
+    String(day).padStart(2, 0)
+  )
 }
 
 export function today() {
   const d = new Date()
-  return new Date(d.getFullYear(), d.getMonth(), d.getDate(), 10)
+  return date(d.getFullYear(), d.getMonth() + 1, d.getDate())
 }
 
-const dayNames = [
+export const dayNames = [
   'Lundi',
   'Mardi',
   'Mercredi',
@@ -34,7 +25,7 @@ const dayNames = [
   'Dimanche',
 ]
 
-const monthNames = [
+export const monthNames = [
   'Janvier',
   'Février',
   'Mars',
@@ -49,46 +40,53 @@ const monthNames = [
   'Décembre',
 ]
 
-export function sameDate(a, b) {
-  return (
-    a.getDate() === b.getDate() &&
-    a.getMonth() === b.getMonth() &&
-    a.getFullYear() === b.getFullYear()
-  )
+export function day(date) {
+  return Number(date.slice(8, 10))
 }
 
-export function dayNumber(date) {
-  return date.getDate()
+export function weekday(date) {
+  const d = new Date(year(date), month(date) - 1, day(date))
+  return d.getDay()
 }
 
-export function dayName(date) {
-  let day = (date.getDay() + 6) % 7
-  return dayNames[day]
+export function weekdayName(date) {
+  let w = weekday(date) - 1
+  if (w < 0) {
+    w += 7
+  }
+  return dayNames[w]
+}
+
+export function month(date) {
+  return Number(date.slice(5, 7))
 }
 
 export function monthName(date) {
-  return monthNames[date.getMonth()]
+  return monthNames[month(date) - 1]
 }
 
-export function delta(date, deltaYear, deltaMonth, deltaDay) {
-  const day = date.getDate()
-  const month = date.getMonth()
-  const year = date.getFullYear()
-  return new Date(year + deltaYear, month + deltaMonth, day + deltaDay)
+export function year(date) {
+  return Number(date.slice(0, 4))
 }
 
-export function grid(date, dayFunc) {
-  let start = new Date(date.getFullYear(), date.getMonth())
-  let weekday = start.getDay() - 1
-  if (weekday < 0) {
-    weekday += 7
+export function delta(startDate, deltaYear, deltaMonth, deltaDay) {
+  const d = new Date(
+    year(startDate) + deltaYear,
+    month(startDate) - 1 + deltaMonth,
+    day(startDate) + deltaDay,
+  )
+  return date(d.getFullYear(), d.getMonth() + 1, d.getDate())
+}
+
+export function grid(monthDate, dayFunc) {
+  let start = date(year(monthDate), month(monthDate), 1)
+  let wd = weekday(start) - 1
+  if (wd < 0) {
+    wd += 7
   }
-  let d = delta(start, 0, 0, -weekday)
+  let d = delta(start, 0, 0, -wd)
   for (let row = 0; row < 6; row++) {
-    if (
-      d.getMonth() > date.getMonth() &&
-      d.getFullYear() >= date.getFullYear()
-    ) {
+    if (month(d) > month(start) && year(d) >= year(start)) {
       return
     }
     for (let col = 0; col < 7; col++) {
@@ -96,22 +94,4 @@ export function grid(date, dayFunc) {
       d = delta(d, 0, 0, 1)
     }
   }
-}
-
-export function dateID(date) {
-  let result = `${date.getFullYear()}-`
-
-  const m = date.getMonth() + 1
-  if (m < 10) {
-    result += ' '
-  }
-  result += `${m}-`
-
-  const d = date.getDate()
-  if (d < 10) {
-    result += ' '
-  }
-  result += `${d}`
-
-  return result
 }

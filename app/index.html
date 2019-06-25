@@ -51,7 +51,7 @@
     <div id="calendar-dialog" class="transaction" hidden>
       <form id="calendar-dialog-form" name="calendar-dialog-form" method="dialog">
         <header>Nouvelle opération</header>
-        <input hidden="true" type="date" name="date">
+        <input hidden="true" type="string" name="date">
         <section class="amount-description">
           <label for="amount">Montant:</label>
           <input name="amount" type="text">
@@ -107,7 +107,7 @@
           <p>€</p>
         </section>
         <section class="date">
-          <input hidden id="expense-date" type="date">
+          <input hidden id="expense-date" type="string">
           <div class="minicalendar" id="expense-calendar">
           </div>
         </section>
