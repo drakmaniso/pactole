@@ -11,14 +11,12 @@ body {
     font-size: 1.25rem;
     width: 100%;
     height: 100%;
-    /*
-    display: grid;
-    grid-template-rows: 2.5rem 1fr;
-    grid-template-columns: 1fr;
-    grid-template-areas:
-        "navigation"
-        "main";
-    */
+}
+
+main {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
 }
 
 /* Navigation Menu */
@@ -66,12 +64,7 @@ nav.dialog a:hover {
     background: var(--expense-hl);
 }
 
-main {
-    /* grid-area: main; */
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-}
+/* Transactions List */
 
 #transactions {
     display: grid;
@@ -294,60 +287,6 @@ form.dialog > section.categories {
     margin: 1rem;
 }
 
-.listbox {
-    /*
-    display: grid;
-    grid-template-columns: repeat(2, minmax(min-content, max-content));
-    */
-    display: flex;
-    flex-flow: column wrap;
-    column-gap: 1rem;
-    row-gap: 0.25rem;
-    align-content: flex-start;
-}
-.listbox div {
-    display: flex;
-    margin: 0;
-    padding: 0;
-}
-.listbox label {
-    display: flex;
-    align-items: baseline;
-    outline: none;
-    margin: 0;
-    padding: 0.5rem 1rem;
-    border: 3px solid #fff;
-    border-radius: 0.25rem;
-    color: #000;
-    background: #fff;
-    text-align: left;
-    user-select: none;
-    cursor: pointer;
-}
-.listbox label:hover {
-    color: #000;
-    border: solid 3px #fff;
-    background: #feb;
-}
-.listbox input:checked ~ label {
-    /*
-    color: #fff;
-    border: solid 3px #600;
-    background: #820;
-    */
-    color: #000;
-    border: solid 3px #e86;
-    background: #fc9;
-}
-.listbox .fa {
-    width: 1.25rem;
-    margin-right: 0.75rem;
-}
-.listbox input {
-    -webkit-appearance: none;
-    /* margin-right: 0.75rem; */
-}
-
 form.dialog > section.dialog-buttons {
     grid-area: buttons;
     display: flex;
@@ -375,57 +314,6 @@ form.dialog > section.dialog-buttons > button#expense-cancel {
     border: 2px solid var(--expense-bg);
     background: var(--expense-fg);
     color: var(--expense-bg);
-}
-
-.minicalendar {
-    height: fit-content;
-    border: 2px solid var(--expense-bg);
-    border-radius: 1.25rem;
-    display: grid;
-    grid-template-columns: repeat(7, minmax(min-content, 1fr));
-    padding: 0;
-    margin: 1rem;
-    user-select: none;
-    contain: content;
-}
-
-.minicalendar div {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 0.5rem 0.25rem;
-}
-
-.minicalendar div.day {
-    border: solid 3px #fff;
-    border-radius: 50%;
-    cursor: pointer;
-}
-
-.minicalendar div:hover {
-    background: #feb;
-}
-
-.minicalendar div[checked=true] {
-    color: #000;
-    border: solid 3px #e86;
-    background: #fc9;
-}
-
-.minicalendar div.month {
-    grid-area: span 1 / span 5;
-}
-
-.minicalendar div.month:hover {
-    background: inherit;
-}
-
-.minicalendar div.weekday {
-    font-variant: all-small-caps;
-}
-
-.minicalendar div.weekday:hover {
-    background: inherit;
 }
 
 #calendar {
@@ -710,76 +598,78 @@ form.dialog > section.dialog-buttons > button#expense-cancel {
 
 /* Transaction Dialog */
 
-div.transaction {
+#dialog {
     position: absolute;
     top: 0;
     left: 0;
     bottom: 0;
     right: 0;
     z-index: 5000;
+    display: flex;
     background: #0007;
     --local-primary: #f0f;
-    display: flex;
-    flex-direction: column;
+    --local-on-primary: #fff;
+    contain: strict;
 }
 
-div.transaction.income {
+#dialog.income {
     --local-primary: var(--income-bg);
-    color: var(--income-bg);
 }
 
-div.transaction.expense {
+#dialog.expense {
     --local-primary: var(--expense-bg);
-    color: var(--expense-bg);
 }
 
-div.transaction::backdrop {
+#dialog::backdrop {
     background: #3338;
 }
 
-div.transaction form {
-    padding: 0;
+#dialog form {
+    max-height: 98%;
+    max-width: 98%;
     margin: auto;
     border: none;
     border-radius: 1.25rem;
     contain: content;
     box-shadow: 0px 4px 10px 0px black;
     display: flex;
-    flex-flow: column nowrap;
-    justify-content: stretch;
-    padding: 0;
+    flex-direction: column;
+    align-items: stretch;
+    padding: 1rem 2rem;
+    color: #000;
     background: #fff;
 }
 
-div.transaction header {
-    background: var(--local-primary);
-    color: #fff;
-    flex: 0 0 3rem;
+#dialog section {
+    padding: 1rem;
+}
+
+#dialog section.amount {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+#dialog section.description {
     display: flex;
     justify-content: center;
     align-items: center;
     font-weight: bold;
-    margin-bottom: 1.5rem;
 }
 
-div.transaction section.amount-description {
-    background: #fff;
-    margin: 0;
-    display: grid;
-    grid-template-columns: max-content 1fr;
-    padding: 0.5rem 2rem;
-}
-
-div.transaction section > * {
+#dialog section > * {
     align-self: baseline;
 }
 
-div.transaction section > label {
+#dialog section > label {
     text-align: right;
     margin-right: 1rem;
+    color: var(--local-primary);
 }
 
-div.transaction section > input {
+#dialog section > input {
     outline: none;
     border-top: none;
     border-left: none;
@@ -790,31 +680,162 @@ div.transaction section > input {
     font-weight: inherit;
 }
 
-div.transaction section > input[name="amount"] {
+#dialog section > input[name="amount"] {
     width: 8rem;
     text-align: right;
 }
 
-div.transaction section > .money-symbol {
+#dialog section > .money-symbol {
     border: none;
     padding: 2px 1rem;
     border-bottom: 2px;
 }
 
-div.transaction section > input[name="description"] {
+#dialog section > input[name="description"] {
 }
 
-div.transaction section.actions {
+#dialog .date-and-categories {
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: stretch;
+    align-items: flex-start;
+}
+
+#dialog section.date {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+#dialog section.date > label {
+    align-self: start;
+    font-weight: bold;
+}
+
+#minicalendar {
+    display: grid;
+    grid-template-columns: repeat(7, min-content);
+    grid-auto-rows: min-content;
+    grid-gap: 2px;
+    user-select: none;
+    contain: content;
+    margin: auto;
+    border-radius: 1.25rem;
+    border: solid 2px var(--local-primary);
+    background: var(--bg);
+    color: var(--fg);
+}
+
+#minicalendar div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0.5rem 1rem;
+}
+
+#minicalendar header {
+    grid-area: span 1 / span 7;
+    display: flex;
+    justify-content: stretch;
+}
+
+#minicalendar header div:nth-child(2) {
+    flex: 1;
+}
+
+#minicalendar div.day {
+    cursor: pointer;
+}
+
+#minicalendar div[checked=true] {
+    color: var(--local-on-primary);
+    background: var(--local-primary);
+}
+
+#minicalendar div.weekday {
+    font-variant: all-small-caps;
+}
+
+#minicalendar div.weekday:hover {
+    background: inherit;
+}
+
+#dialog section.categories {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: stretch;
+    align-items: center;
+}
+
+#dialog.income section.categories {
+    display: none;
+}
+
+#dialog section.categories > label {
+    /* align-self: start; */
+    font-weight: bold;
+}
+
+.listbox {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(min-content, max-content));
+    /* grid-auto-rows: min-content; */
+    column-gap: 1rem;
+    row-gap: 0.25rem;
+    padding: 0.5rem;
+}
+
+.listbox label {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: baseline;
+    outline: none;
+    margin: 0;
+    padding: 0.5rem 1rem;
+    border: 3px solid #fff;
+    border-radius: 0.25rem;
+    color: #000;
+    background: #fff;
+    text-align: left;
+    user-select: none;
+    cursor: pointer;
+}
+.listbox label:hover {
+    border: solid 3px transparent;
+}
+.listbox input:checked ~ label {
+    color: var(--local-on-primary);
+    background: var(--local-primary);
+    border: solid 3px var(--local-primary);
+    margin: 0;
+}
+.listbox .fa {
+    width: 1.25rem;
+    margin-right: 0.75rem;
+}
+.listbox input {
+    -webkit-appearance: none;
+    /* margin-right: 0.75rem; */
+}
+
+#dialog section.actions {
     flex: 1;
     display: flex;
     flex-flow: row wrap;
     justify-content: flex-end;
     align-items: flex-end;
     background: #fff;
-    padding: 1.5rem 2rem 0.5rem;
+    padding: 0.5rem 0 0;
 }
 
-div.transaction section.actions button {
+#dialog section.actions button {
     border: solid 2px var(--local-primary);
     border-radius: 1.25rem;
     height: 2.5rem;
@@ -822,12 +843,12 @@ div.transaction section.actions button {
     background: #fff;
     padding-left: 1.25rem;
     padding-right: 1.25rem;
-    margin: 0.5rem 0.5rem;
+    margin-left: 2rem;
     font-weight: bold;
     align-self: flex-end;
 }
 
-div.transaction section.actions button:last-child {
+#dialog section.actions button:last-child {
     color: #fff;
     background: var(--local-primary);
 }

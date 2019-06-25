@@ -120,14 +120,22 @@ function wireHTML() {
     }
   }
 
-  id('calendar-dialog-cancel').onclick = event => {
+  id('list-income').onclick = () => {
+    openCalendarDialog(calendar.today(), 'income', true)
+  }
+
+  id('list-expense').onclick = () => {
+    openCalendarDialog(calendar.today(), 'expense', true)
+  }
+
+  id('dialog-cancel').onclick = event => {
     //event.preventDefault()
     closeCalendarDialog()
   }
 
-  id('calendar-dialog-confirm').onclick = event => {
+  id('dialog-confirm').onclick = event => {
     //event.preventDefault()
-    const f = document.forms['calendar-dialog-form']
+    const f = document.forms['dialog-form']
     const transac = {
       date: f['date'].value,
       debits: [{ account: 'Divers', amount: 100 * f['amount'].value }],
@@ -213,133 +221,8 @@ function fillTransactions(transactions) {
   }
 
   renderCalendar(calendar.today())
-  //renderTransactionsList(transactions)
+  renderTransactionsList(transactions)
 }
-
-///////////////////////////////////////////////////////////////////////////////
-
-/*
-function renderTransactionsList(transactions) {
-  const transList = id('transactions-list')
-  while (transList.hasChildNodes()) {
-    transList.removeChild(transList.firstChild)
-  }
-  const dateList = document.createElement('ul')
-  let currentDate = calendar.today()
-  let currentList = null
-  for (const t of transactions) {
-    if (!calendar.sameDate(t.date, currentDate)) {
-      const li = document.createElement('li')
-      li.setAttribute('class', 'date')
-      li.innerHTML =
-        '' +
-        calendar.weekdayName(t.date) +
-        ' ' +
-        calendar.dayNumber(t.date) +
-        ' ' +
-        calendar.monthName(t.date)
-      dateList.appendChild(li)
-      currentList = document.createElement('ul')
-      dateList.appendChild(currentList)
-      currentDate = t.date
-    }
-    //TODO: multiple credits and/or debits in the same transaction
-    const debit = t.debits[0]
-    const li = document.createElement('li')
-    const amountSpan = document.createElement('span')
-    amountSpan.setAttribute('class', 'amount')
-    let amount = '' + debit.amount / 100 + ' €'
-    const account = accounts.get(debit.account)
-    li.setAttribute('class', account.kind)
-    switch (account.kind) {
-      case 'income':
-        amount = '+' + amount
-        break
-      case 'expense':
-        amount = '-' + amount
-        break
-    }
-    amountSpan.appendChild(document.createTextNode(amount))
-    li.appendChild(amountSpan)
-    li.appendChild(document.createTextNode(' ' + account.name))
-    if (t.description !== '') {
-      li.appendChild(document.createTextNode(' (' + t.description + ')'))
-    }
-    currentList.appendChild(li)
-  }
-  transList.appendChild(dateList)
-}
-
-function renderMinicalendar(dateId, calId, date) {
-  const dateInput = id(dateId)
-  const cal = id(calId)
-  while (cal.hasChildNodes()) {
-    cal.removeChild(cal.firstChild)
-  }
-
-  let div = document.createElement('div')
-  div.setAttribute('class', 'fa')
-  div.appendChild(document.createTextNode('\uf060'))
-  div.addEventListener('click', event => {
-    renderMinicalendar(dateId, calId, calendar.delta(date, 0, -1, 0))
-  })
-  cal.appendChild(div)
-
-  div = document.createElement('div')
-  div.setAttribute('class', 'month')
-  div.appendChild(
-    document.createTextNode(
-      `${calendar.monthName(date)} ${date.getFullYear()}`,
-    ),
-  )
-  cal.appendChild(div)
-
-  div = document.createElement('div')
-  div.setAttribute('class', 'fa')
-  div.appendChild(document.createTextNode('\uf061'))
-  div.addEventListener('click', event => {
-    renderMinicalendar(dateId, calId, calendar.delta(date, 0, +1, 0))
-  })
-  cal.appendChild(div)
-
-  for (const w of ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim']) {
-    div = document.createElement('div')
-    div.setAttribute('class', 'weekday')
-    div.appendChild(document.createTextNode(w))
-    cal.appendChild(div)
-  }
-
-  calendar.grid(date, (d, row, col) => {
-    div = document.createElement('div')
-    div.setAttribute('class', 'day')
-    if (d.getMonth() == date.getMonth()) {
-      div.appendChild(document.createTextNode(d.getDate()))
-      if (calendar.sameDate(d, dateInput.valueAsDate)) {
-        div.setAttribute('checked', 'true')
-      }
-      const thisdiv = div
-      div.addEventListener('click', event => {
-        let s = `${d.getFullYear()}-`
-        if (d.getMonth() + 1 < 10) {
-          s = s + '0'
-        }
-        s = s + `${d.getMonth() + 1}-`
-        if (d.getDate() < 10) {
-          s = s + '0'
-        }
-        s = s + `${d.getDate()}`
-        dateInput.value = s
-        const alldays = document.querySelectorAll('#' + calId + ' .day')
-        for (const a of alldays) {
-          a.removeAttribute('checked')
-        }
-        thisdiv.setAttribute('checked', 'true')
-      })
-    }
-    cal.appendChild(div)
-  })
-}
-*/
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -501,22 +384,38 @@ function renderCalendarDay(date) {
   }
 
   id('calendar-income').onclick = () => {
-    openCalendarDialog(date, 'income')
+    openCalendarDialog(date, 'income', false)
   }
 
   id('calendar-expense').onclick = () => {
-    openCalendarDialog(date, 'expense')
+    openCalendarDialog(date, 'expense', false)
   }
 
   id('calendar-day').hidden = false
 }
 
-function openCalendarDialog(date, kind) {
-  const dialog = id('calendar-dialog')
+function openCalendarDialog(date, kind, withMinicalendar) {
+  const dialog = id('dialog')
   dialog.classList.remove('income', 'expense')
   dialog.classList.add(kind)
 
-  const form = document.forms['calendar-dialog-form']
+  const label = id('amount-label')
+  switch (kind) {
+    case 'income':
+      label.innerHTML = "Entrée d'argent:"
+      break
+    case 'expense':
+      label.innerHTML = 'Dépense:'
+      break
+  }
+
+  if (withMinicalendar === true) {
+    renderMinicalendar(date)
+  } else {
+    id('date-section').hidden = true
+  }
+
+  const form = document.forms['dialog-form']
   form.reset()
 
   form.elements['date'].value = date
@@ -526,5 +425,129 @@ function openCalendarDialog(date, kind) {
 }
 
 function closeCalendarDialog() {
-  id('calendar-dialog').hidden = true
+  id('dialog').hidden = true
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+function renderTransactionsList(transactions) {
+  const transList = id('transactions-list')
+  while (transList.hasChildNodes()) {
+    transList.removeChild(transList.firstChild)
+  }
+  const dateList = document.createElement('ul')
+  let currentDate = calendar.today()
+  let currentList = null
+  for (const t of transactions) {
+    if (t.date !== currentDate) {
+      const li = document.createElement('li')
+      li.setAttribute('class', 'date')
+      li.innerHTML =
+        '' +
+        calendar.weekdayName(t.date) +
+        ' ' +
+        calendar.day(t.date) +
+        ' ' +
+        calendar.monthName(t.date)
+      dateList.appendChild(li)
+      currentList = document.createElement('ul')
+      dateList.appendChild(currentList)
+      currentDate = t.date
+    }
+    //TODO: multiple credits and/or debits in the same transaction
+    const debit = t.debits[0]
+    const li = document.createElement('li')
+    const amountSpan = document.createElement('span')
+    amountSpan.setAttribute('class', 'amount')
+    let amount = '' + debit.amount / 100 + ' €'
+    const account = accounts.get(debit.account)
+    li.setAttribute('class', account.kind)
+    switch (account.kind) {
+      case 'income':
+        amount = '+' + amount
+        break
+      case 'expense':
+        amount = '-' + amount
+        break
+    }
+    amountSpan.appendChild(document.createTextNode(amount))
+    li.appendChild(amountSpan)
+    li.appendChild(document.createTextNode(' ' + account.name))
+    if (t.description !== '') {
+      li.appendChild(document.createTextNode(' (' + t.description + ')'))
+    }
+    currentList.appendChild(li)
+  }
+  transList.appendChild(dateList)
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+function renderMinicalendar(date) {
+  const cal = id('minicalendar')
+  const form = document.forms['dialog-form']
+  while (cal.hasChildNodes()) {
+    cal.removeChild(cal.firstChild)
+  }
+
+  const header = document.createElement('header')
+
+  let div = document.createElement('div')
+  div.setAttribute('class', 'fa')
+  div.appendChild(document.createTextNode('\uf060'))
+  div.addEventListener('click', event => {
+    renderMinicalendar(calendar.delta(date, 0, -1, 0))
+  })
+  header.appendChild(div)
+
+  div = document.createElement('div')
+  div.setAttribute('class', 'month')
+  div.appendChild(
+    document.createTextNode(
+      `${calendar.monthName(date)} ${calendar.year(date)}`,
+    ),
+  )
+  header.appendChild(div)
+
+  div = document.createElement('div')
+  div.setAttribute('class', 'fa')
+  div.appendChild(document.createTextNode('\uf061'))
+  div.addEventListener('click', event => {
+    renderMinicalendar(calendar.delta(date, 0, +1, 0))
+  })
+  header.appendChild(div)
+  cal.appendChild(header)
+
+  /*
+  for (const w of ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim']) {
+    div = document.createElement('div')
+    div.setAttribute('class', 'weekday')
+    div.appendChild(document.createTextNode(w))
+    cal.appendChild(div)
+  }
+  */
+
+  calendar.grid(date, (d, row, col) => {
+    div = document.createElement('div')
+    div.setAttribute('class', 'day')
+    if (calendar.month(d) == calendar.month(date)) {
+      div.appendChild(document.createTextNode(calendar.day(d)))
+      if (d === form['date'].value) {
+        div.setAttribute('checked', 'true')
+      }
+      const thisdiv = div
+      div.addEventListener('click', event => {
+        form['date'].value = d
+        const alldays = document.querySelectorAll('#minicalendar .day')
+        for (const a of alldays) {
+          //TODO: use class instead of attribute
+          a.removeAttribute('checked')
+        }
+        thisdiv.setAttribute('checked', 'true')
+      })
+    }
+    cal.appendChild(div)
+  })
+
+  id('date-section').hidden = false
 }

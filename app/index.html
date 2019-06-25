@@ -48,44 +48,9 @@
 
     </main>
 
-    <div id="calendar-dialog" class="transaction" hidden>
-      <form id="calendar-dialog-form" name="calendar-dialog-form" method="dialog">
-        <header>Nouvelle opération</header>
-        <input hidden="true" type="string" name="date">
-        <section class="amount-description">
-          <label for="amount">Montant:</label>
-          <input name="amount" type="text">
-          <!-- span class="money-symbol">€</span -->
-          <label for="description">Description:</label>
-          <input name="description" type="text">
-        </section>
-        <!-- section class="amount">
-          <label for="amount">Montant:</label>
-          <input name="amount" type="text">
-          <p>€</p>
-        </section>
-        <section class="description">
-          <label for="description">Description:</label>
-          <input name="description" type="text" placeholder="Description">
-        </section -->
-        <section class="actions">
-          <button type="reset" id="calendar-dialog-cancel">Annuler</button>
-          <button type="submit" id="calendar-dialog-confirm">Confirmer</button>
-        </section>
-      </form>
-    </div>
-
     <main hidden id="transactions">
       <section id="transactions-list">
         <ul>
-          <li class="date">Jeudi 2 Mai</li>
-          <ul>
-            <li class="income"><span class="amount">+500 €</span> Allocations (AAH)</li>
-          </ul>
-          <li class="date">Vendredi 3 Mai</li>
-          <ul>
-            <li class="expense"><span class="amount">-560 €</span> Loyer</li>
-          </ul>
         </ul>
       </section>
       <section class="balance">
@@ -94,10 +59,47 @@
       </section>
       <section class="actions">
         <a href="#summary"><span hidden class="fa">&#xf080;</span><span class="fa">&#xf201;</span><span hidden class="fa">&#xf200;</span>&nbsp;Graphique</a>
-        <a href="#income">Arrivée d'argent</a>
-        <a href="#expense">Nouvelle dépense</a>
+        <a id="list-income" class="income">Arrivée d'argent</a>
+        <a id="list-expense" class="income">Nouvelle dépense</a>
       </section>
     </main>
+
+    <div hidden="true" id="dialog">
+      <form id="dialog-form" name="dialog-form" method="dialog">
+        <section class="amount">
+          <label for="amount" id="amount-label">Montant:</label>
+          <input name="amount" type="text">
+          <span class="money-symbol">€</span>
+        </section>
+        <section class="description">
+          <label for="description">Description:</label>
+          <input name="description" type="text">
+        </section>
+        <div class="date-and-categories">
+          <section class="date" id="date-section">
+            <label hidden="true" for="date">Date:</label>
+            <input hidden="true" type="string" name="date">
+            <div id="minicalendar"></div>
+          </section>
+          <section class="categories" id="categories-section">
+            <label for="category">Catégorie:</label>
+            <div id="categories" class="listbox">
+              <div><input hidden="true" type="radio" name="category" id="category-0" value="Maison"><label for="category-0"><span class="fa">&#xf015;</span>Loyer</label></div>
+              <div><input hidden="true" type="radio" name="category" id="category-1" value="Alimentation"><label for="category-1"><span class="fa">&#xf2e7;</span>Alimentation</label></div>
+              <div><input hidden="true" type="radio" name="category" id="category-2" value="Habillement"><label for="category-2"><span class="fa">&#xf553;</span>Habillement</label></div>
+              <div><input hidden="true" type="radio" name="category" id="category-3" value="Loisirs"><label for="category-3"><span class="fa">&#xf2e7;</span>Loisirs</label></div>
+              <div><input hidden="true" type="radio" name="category" id="category-4" value="Santé"><label for="category-4"><span class="fa">&#xf0f1;</span>Santé</label></div>
+              <div><input hidden="true" type="radio" name="category" id="category-5" value="Transports"><label for="category-5"><span class="fa">&#xf55e;</span><span hidden class="fa">&#xf1b9;&#xf206;</span>Transports</label></div>
+              <div><input hidden="true" type="radio" name="category" id="category-6" value="Divers"><label for="category-6"><span class="fa">&#xf128;</span><span hidden class="fa">&#xf141;</span>Divers</label></div>
+            </div>
+          </section>
+        </div>
+        <section class="actions">
+          <button type="reset" id="dialog-cancel">Annuler</button>
+          <button type="submit" id="dialog-confirm">Confirmer</button>
+        </section>
+      </form>
+    </div>
 
     <main hidden id="expense">
       <form class="dialog" name="expense">
