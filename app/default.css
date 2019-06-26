@@ -494,9 +494,25 @@ section.actions a[href="#expense"] {
     contain: content;
     box-shadow: 0px 4px 10px 0px black;
     display: flex;
-    flex-direction: column;
+    flex-flow: column wrap;
     align-items: stretch;
-    padding: 1rem 2rem;
+    display: grid;
+    grid-template-areas:
+        "date    date"
+        "amount  categories"
+        "description categories"
+        "actions actions";
+    grid-template-areas:
+        "amount      date"
+        "description date"
+        "categories  date"
+        "actions actions";
+    grid-template-areas:
+        "date    amount"
+        "date    description"
+        "date    categories"
+        "actions actions";
+    padding: 1rem;
     color: #000;
     background: #fff;
 }
@@ -506,69 +522,69 @@ section.actions a[href="#expense"] {
 }
 
 #dialog section.amount {
+    grid-area: amount;
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: last-baseline;
     font-size: 2rem;
     font-weight: bold;
+    height: 5rem;
 }
 
 #dialog section.description {
+    grid-area: description;
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: last-baseline;
     font-weight: bold;
+    height: 4rem;
 }
 
-#dialog section > * {
-    align-self: baseline;
-}
-
-#dialog section > label {
-    text-align: right;
-    margin-right: 1rem;
-    color: var(--local-primary);
-}
-
-#dialog section > input {
+#dialog input[type="text"] {
     outline: none;
     border-top: none;
     border-left: none;
     border-right: none;
-    border-bottom: 2px dotted;
+    border-bottom: 2px dotted gray;
+    padding-bottom: 0;
+    margin-bottom: 0;
     color: inherit;
     font-size: inherit;
     font-weight: inherit;
 }
 
-#dialog section > input[name="amount"] {
-    width: 8rem;
-    text-align: right;
+#dialog section.amount label {
+    color: var(--local-primary);
+    margin-right: 1rem;
 }
 
-#dialog section > .money-symbol {
-    border: none;
-    padding: 2px 1rem;
-    border-bottom: 2px;
+#dialog section.amount input {
+    width: 10rem;
+    /* text-align: right; */
+    font-weight: normal;
 }
 
-#dialog section > input[name="description"] {
+#dialog section.amount  .money-symbol {
+    margin-left: 1rem;
+    font-weight: normal;
 }
 
-#dialog .date-and-categories {
-    margin-top: 1.5rem;
-    margin-bottom: 1.5rem;
-    display: flex;
-    flex-flow: row wrap;
-    justify-content: stretch;
-    align-items: flex-start;
+#dialog section.description label {
+    color: var(--local-primary);
+    margin-right: 1rem;
+}
+
+#dialog section.description input {
+    width: 24rem;
+    font-weight: normal;
 }
 
 #dialog section.date {
+    grid-area: date;
     flex: 1;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
 }
 
@@ -580,22 +596,17 @@ section.actions a[href="#expense"] {
 #minicalendar {
     display: grid;
     grid-template-columns: repeat(7, min-content);
-    grid-auto-rows: min-content;
-    grid-gap: 2px;
+    /*grid-auto-rows: min-content;*/
+    grid-template-rows: 4rem repeat(6, 3rem);
+    grid-gap: 1rem;
     user-select: none;
     contain: content;
-    margin: auto;
-    border-radius: 1.25rem;
-    border: solid 2px var(--local-primary);
+    padding: 1rem;
+    /* border-radius: 1.25rem; 
+    border: solid 2px var(--local-primary); */
+    border-right: solid 2px var(--local-primary);
     background: var(--bg);
     color: var(--fg);
-}
-
-#minicalendar div {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 0.5rem 1rem;
 }
 
 #minicalendar header {
@@ -604,11 +615,33 @@ section.actions a[href="#expense"] {
     justify-content: stretch;
 }
 
+#minicalendar header div:nth-child(1),
+#minicalendar header div:nth-child(3) {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-left: 2rem;
+    padding-right: 2rem;
+    font-size: 1.75rem;
+    color: var(--local-primary);
+}
+
 #minicalendar header div:nth-child(2) {
     flex: 1;
+    font-size: 1.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
 }
 
 #minicalendar div.day {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
     cursor: pointer;
 }
 
@@ -626,6 +659,7 @@ section.actions a[href="#expense"] {
 }
 
 #dialog section.categories {
+    grid-area: categories;
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -638,8 +672,9 @@ section.actions a[href="#expense"] {
 }
 
 #dialog section.categories > label {
-    /* align-self: start; */
+    align-self: start;
     font-weight: bold;
+    color: var(--local-primary);
 }
 
 .listbox {
@@ -687,10 +722,12 @@ section.actions a[href="#expense"] {
 }
 
 #dialog section.actions {
+    grid-area: actions;
     flex: 1;
+    margin-top: 1.5rem;
     display: flex;
     flex-flow: row wrap;
-    justify-content: flex-end;
+    justify-content: center;
     align-items: flex-end;
     background: #fff;
     padding: 0.5rem 0 0;
