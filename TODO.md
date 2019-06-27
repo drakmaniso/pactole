@@ -1,7 +1,7 @@
-- Store dates using a custom date string rather than javascript's date type.
-- Create a small 'dom' module.
-- Clean-up default.css.
+- Rework messages between client and service.
+- Implement correct client-side routing.
 - Disallow future transactions
 - Reconcile page.
 - Summary page.
 - Settings page.
+- Clean-up css.
