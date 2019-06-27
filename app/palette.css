@@ -1,6 +1,7 @@
 :root {
     --fg: #000;
     --bg: #fff;
+    --bg-darker: #eee;
 
     --primary: #077;
     --on-primary: #fff;

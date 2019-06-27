@@ -22,13 +22,19 @@ main {
 /* Navigation Menu */
 
 nav {
-    grid-area: navigation;
+    position: absolute;
+    top: 0;
+    right: 30px;
     z-index: 1000;
     user-select: none;
     display: flex;
     flex-direction: row;
     color: var(--on-primary);
     background: var(--primary);
+    padding: 0 1rem 0.5rem;
+    border-bottom-left-radius: 1.25rem;
+    border-bottom-right-radius: 1.25rem;
+    box-shadow: 0px 4px 10px 0px grey;
 }
 
 nav a {
@@ -37,8 +43,8 @@ nav a {
     text-align: center;
     justify-content: center;
     align-items: center;
-    padding-left: 1.25rem;
-    padding-right: 1.25rem;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
     text-decoration: none;
     font-weight: bold;
     color: inherit;
@@ -70,8 +76,9 @@ section.balance {
     display: flex;
     flex-flow: column;
     align-items: center;
-    padding-top: 1rem;
+    padding-top: 3rem;
     color: var(--primary);
+    background: var(--bg-darker);
 }
 
 #balance {
@@ -142,6 +149,7 @@ section.actions {
     align-items: center;
     user-select: none;
     padding-bottom: 2rem;
+    background: var(--bg-darker);
 }
 
 section.actions a {
@@ -155,24 +163,35 @@ section.actions a {
     font-weight: bold;
     padding-left: 1.25rem;
     padding-right: 1.25rem;
-    color: var(--header-bg);
+    color: var(--primary);
     background: var(--on-primary);
     margin: 2rem 2rem;
     margin-top: 1rem;
     text-decoration: none;
+    cursor: pointer; 
+    user-select: none;
 }
-section.actions a[href="#income"] {
+section.actions a:hover {
+    color: var(--primary);
+}
+section.actions a.income {
     margin-top: auto;
     border: none;
     color: var(--income-fg);
     background: var(--income-bg);
     box-shadow: 0px 4px 10px 0px grey;
 }
-section.actions a[href="#expense"] {
+section.actions a.income:hover {
+    color: var(--income-fg);
+}
+section.actions a.expense {
     border: none;
     color: var(--expense-fg);
     background: var(--expense-bg);
     box-shadow: 0px 4px 10px 0px grey;
+}
+section.actions a.expense:hover {
+    color: var(--expense-fg);
 }
 
 /* Calendar Page */
@@ -185,7 +204,7 @@ section.actions a[href="#expense"] {
         "month balance"
         "month day";
     grid-gap: 0.5rem;
-    background: #eee;
+    background: var(--bg-darker);
     padding: 0.5rem;
 }
 
