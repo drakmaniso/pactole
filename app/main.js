@@ -2,15 +2,11 @@
 
 import * as client from './client.js'
 import * as calendar from './calendar.js'
+import * as ledger from './ledger.js'
 
 function id(id) {
   return document.getElementById(id)
 }
-
-const accounts = new Map()
-const categories = new Map()
-const transactions = []
-const transactionsByDate = new Map()
 
 if (!('serviceWorker' in navigator)) {
   console.error('FATAL: Service workers are not supported by the navigator.')
@@ -122,11 +118,13 @@ function wireHTML() {
     const f = document.forms['dialog-form']
     const transac = {
       date: f['date'].value,
-      debits: [{ account: 'Divers', amount: 100 * f['amount'].value }],
-      credits: [{ account: 'Mon Compte', amount: 100 * f['amount'].value }],
+      amount: 100 * f['amount'].value,
       description: f['description'].value,
       category: f['category'].value,
       reconciled: false,
+    }
+    if (id('dialog').classList.contains('expense')) {
+      transac.amount = -transac.amount
     }
     client.send({
       msg: 'new transaction',
@@ -142,7 +140,17 @@ function onUpdate(message) {
     .send({ msg: 'get accounts' })
     .then(data => {
       console.log(`reply contains ${data.accounts.length} accounts`)
-      fillAccounts(data.accounts)
+      ledger.updateAccounts(data.accounts)
+    })
+    .catch(err => {
+      console.error(`reply error ${err}`)
+    })
+
+  client
+    .send({ msg: 'get categories' })
+    .then(data => {
+      console.log(`reply contains ${data.categories.length} categories`)
+      ledger.updateCategories(data.categories)
     })
     .catch(err => {
       console.error(`reply error ${err}`)
@@ -152,32 +160,13 @@ function onUpdate(message) {
     .send({ msg: 'get transactions' })
     .then(data => {
       console.log(`reply contains ${data.transactions.length} transactions`)
-      fillTransactions(data.transactions)
+      ledger.updateTransactions(data.transactions)
+      renderCalendar(calendar.today())
+      renderTransactionsList(ledger.getTransactions())
     })
     .catch(err => {
       console.error(`reply error ${err}`)
     })
-}
-
-function fillAccounts(acc) {
-  accounts.clear()
-  for (const a of acc) {
-    accounts.set(a.name, a)
-  }
-  //TODO
-}
-
-function fillTransactions(transactions) {
-  transactionsByDate.clear()
-  for (const t of transactions) {
-    if (!transactionsByDate.get(t.date)) {
-      transactionsByDate.set(t.date, [])
-    }
-    transactionsByDate.get(t.date).push(t)
-  }
-
-  renderCalendar(calendar.today())
-  renderTransactionsList(transactions)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -245,25 +234,17 @@ function renderCalendar(date) {
       }
       section.appendChild(header)
 
-      const transacs = transactionsByDate.get(d)
+      const transacs = ledger.getTransactionsOn(d)
       if (transacs) {
         const ul = document.createElement('ul')
         for (const t of transacs) {
-          const account = accounts.get(t.debits[0].account)
           const li = document.createElement('li')
-          li.setAttribute('class', account.kind)
-          switch (account.kind) {
-            case 'income':
-              li.appendChild(
-                document.createTextNode(`+${t.debits[0].amount / 100}€`),
-              )
-              break
-            case 'expense':
-              li.appendChild(
-                document.createTextNode(`-${t.debits[0].amount / 100}€`),
-              )
-              break
+          if (t.amount > 0) {
+            li.classList.add('income')
+          } else {
+            li.classList.add('expense')
           }
+          li.appendChild(document.createTextNode(`${t.amount / 100}€`))
           ul.appendChild(li)
         }
         section.appendChild(ul)
@@ -273,9 +254,9 @@ function renderCalendar(date) {
         for (const s of document.querySelectorAll(
           '#calendar-month > section',
         )) {
-          s.setAttribute('class', '')
+          s.classList.toggle('checked', false)
         }
-        event.currentTarget.setAttribute('class', 'checked')
+        event.currentTarget.classList.toggle('checked', true)
         renderCalendarDay(d)
       })
     }
@@ -303,38 +284,29 @@ function renderCalendarDay(date) {
   while (ul.hasChildNodes()) {
     ul.removeChild(ul.lastChild)
   }
-  const transacs = transactionsByDate.get(date)
+  const transacs = ledger.getTransactionsOn(date)
   if (transacs) {
     for (const t of transacs) {
       const li = document.createElement('li')
-      const account = accounts.get(t.debits[0].account)
-      li.setAttribute('class', account.kind)
-      const desc = document.createElement('div')
-      const amount = document.createElement('div')
-      switch (account.kind) {
-        case 'income':
-          amount.appendChild(
-            document.createTextNode(`+${t.debits[0].amount / 100}€`),
-          )
-          if (t.description !== '') {
-            desc.appendChild(document.createTextNode(t.description))
-          } else {
-            desc.appendChild(document.createTextNode("Entrée d'argent"))
-          }
-          break
-        case 'expense':
-          amount.appendChild(
-            document.createTextNode(`-${t.debits[0].amount / 100}€`),
-          )
-          if (t.description !== '') {
-            desc.appendChild(document.createTextNode(t.description))
-          } else {
-            desc.appendChild(document.createTextNode('Dépense'))
-          }
-          break
+      if (t.amount > 0) {
+        li.classList.add('income')
+      } else {
+        li.classList.add('expense')
       }
-      li.appendChild(amount)
-      li.appendChild(desc)
+      const div1 = document.createElement('div')
+      div1.appendChild(document.createTextNode(`${t.amount / 100}€`))
+      li.appendChild(div1)
+      const div2 = document.createElement('div')
+      if (t.description !== '') {
+        div2.appendChild(document.createTextNode(t.description))
+      } else {
+        if (t.amount > 0) {
+          div2.appendChild(document.createTextNode("Entrée d'argent"))
+        } else {
+          div2.appendChild(document.createTextNode('Dépense'))
+        }
+      }
+      li.appendChild(div2)
       ul.appendChild(li)
     }
   }
@@ -350,40 +322,6 @@ function renderCalendarDay(date) {
   id('calendar-day').hidden = false
 }
 
-function openDialog(date, kind, withMinicalendar) {
-  const dialog = id('dialog')
-  dialog.classList.remove('income', 'expense')
-  dialog.classList.add(kind)
-
-  const label = id('amount-label')
-  switch (kind) {
-    case 'income':
-      label.innerHTML = "Entrée d'argent:"
-      break
-    case 'expense':
-      label.innerHTML = 'Dépense:'
-      break
-  }
-
-  if (withMinicalendar === true) {
-    renderMinicalendar(date)
-  } else {
-    id('date-section').hidden = true
-  }
-
-  const form = document.forms['dialog-form']
-  form.reset()
-
-  form.elements['date'].value = date
-
-  dialog.hidden = false
-  form.elements['amount'].focus()
-}
-
-function closeDialog() {
-  id('dialog').hidden = true
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 function renderTransactionsList(transactions) {
@@ -394,7 +332,7 @@ function renderTransactionsList(transactions) {
   const dateList = document.createElement('ul')
   let currentDate = calendar.today()
   let currentList = null
-  for (const t of transactions) {
+  for (const t of ledger.getTransactions()) {
     if (t.date !== currentDate) {
       const li = document.createElement('li')
       li.setAttribute('class', 'date')
@@ -410,25 +348,17 @@ function renderTransactionsList(transactions) {
       dateList.appendChild(currentList)
       currentDate = t.date
     }
-    //TODO: multiple credits and/or debits in the same transaction
-    const debit = t.debits[0]
     const li = document.createElement('li')
-    const amountSpan = document.createElement('span')
-    amountSpan.setAttribute('class', 'amount')
-    let amount = '' + debit.amount / 100 + ' €'
-    const account = accounts.get(debit.account)
-    li.setAttribute('class', account.kind)
-    switch (account.kind) {
-      case 'income':
-        amount = '+' + amount
-        break
-      case 'expense':
-        amount = '-' + amount
-        break
+    if (t.amount > 0) {
+      li.classList.add('income')
+    } else {
+      li.classList.add('expense')
     }
-    amountSpan.appendChild(document.createTextNode(amount))
-    li.appendChild(amountSpan)
-    li.appendChild(document.createTextNode(' ' + account.name))
+    const span = document.createElement('span')
+    span.setAttribute('class', 'amount')
+    span.appendChild(document.createTextNode(`${t.amount / 100}€`))
+    li.appendChild(span)
+    li.appendChild(document.createTextNode(' ' + t.category))
     if (t.description !== '') {
       li.appendChild(document.createTextNode(' (' + t.description + ')'))
     }
@@ -506,4 +436,40 @@ function renderMinicalendar(date) {
   })
 
   id('date-section').hidden = false
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+function openDialog(date, kind, withMinicalendar) {
+  const dialog = id('dialog')
+  dialog.classList.remove('income', 'expense')
+  dialog.classList.add(kind)
+
+  const label = id('amount-label')
+  switch (kind) {
+    case 'income':
+      label.innerHTML = "Entrée d'argent:"
+      break
+    case 'expense':
+      label.innerHTML = 'Dépense:'
+      break
+  }
+
+  if (withMinicalendar === true) {
+    renderMinicalendar(date)
+  } else {
+    id('date-section').hidden = true
+  }
+
+  const form = document.forms['dialog-form']
+  form.reset()
+
+  form.elements['date'].value = date
+
+  dialog.hidden = false
+  form.elements['amount'].focus()
+}
+
+function closeDialog() {
+  id('dialog').hidden = true
 }

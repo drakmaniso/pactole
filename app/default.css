@@ -387,17 +387,17 @@ section.actions a[href="#expense"] {
     color: var(--expense-bg);
 }
 
+#calendar-day > ul > li > div:first-child {
+    width: 6rem;
+    text-align: right;
+    margin-right: 1rem;
+}
+
 #calendar-day > ul > li > div:last-child {
     flex: 1;
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
-}
-
-#calendar-day > ul > li > div:first-child {
-    width: 6rem;
-    text-align: right;
-    margin-right: 1rem;
 }
 
 #calendar-day > .actions {
