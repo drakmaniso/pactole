@@ -769,3 +769,18 @@ section.actions a.expense:hover {
     color: #fff;
     background: var(--local-primary);
 }
+
+/* Settings */
+
+#settings {
+    padding: 1rem 4rem;
+    overflow: auto;
+}
+
+#settings h3 {
+    margin-top: 3rem;
+}
+
+#settings td {
+    padding: 0.5rem 0.25rem;
+}
