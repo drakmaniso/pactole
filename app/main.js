@@ -1,6 +1,5 @@
 'use strict'
 
-import * as client from './client.js'
 import * as calendar from './calendar.js'
 import * as ledger from './ledger.js'
 
@@ -55,7 +54,7 @@ onload = () => {
 //navigator.serviceWorker.startMessages()
 
 navigator.serviceWorker.ready.then(registration => {
-  client.setup(registration.active)
+  setupService(registration.active)
   main()
 })
 
@@ -66,13 +65,7 @@ function main() {
 
   wireHTML()
 
-  client.addUpdateListener(onUpdate)
-
-  client.send({ msg: 'connect' })
-
-  //TODO: better way to achieve this?
-  //document.location = '#calendar'
-  //window.scrollTo(0, document.body.scrollHeight)
+  send('connect', null)
 }
 
 function wireHTML() {
@@ -126,10 +119,7 @@ function wireHTML() {
     if (id('dialog').classList.contains('expense')) {
       transac.amount = -transac.amount
     }
-    client.send({
-      msg: 'new transaction',
-      transaction: transac,
-    })
+    send('new transaction', transac)
     closeDialog()
   }
 }
@@ -472,4 +462,38 @@ function openDialog(date, kind, withMinicalendar) {
 
 function closeDialog() {
   id('dialog').hidden = true
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+let service = null
+
+function setupService(serv) {
+  service = serv
+
+  navigator.serviceWorker.onmessage = event => {
+    console.log(`Received ${event.data.title}.`)
+    switch (event.data.title) {
+      case 'accounts':
+        ledger.updateAccounts(event.data.content)
+        break
+
+      case 'categories':
+        ledger.updateCategories(event.data.content)
+        break
+
+      case 'transactions':
+        ledger.updateTransactions(event.data.content)
+        renderCalendar(calendar.today())
+        renderTransactionsList(ledger.getTransactions())
+        break
+    }
+  }
+}
+
+function send(title, content) {
+  console.log(`Sending ${title} to service...`)
+  return new Promise((resolve, reject) => {
+    service.postMessage({ title: title, content: content })
+  })
 }

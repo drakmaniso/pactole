@@ -44,92 +44,59 @@ onfetch = event => {
 }
 
 onmessage = event => {
-  log(`Received ${event.data.msg}.`)
-  switch (event.data.msg) {
+  log(`Received ${event.data.title}.`)
+  switch (event.data.title) {
     case 'connect':
-      sendUpdateAccounts()
-      send({ msg: 'update' })
-      break
-    case 'get accounts':
-      log('sending accounts reply')
-      event.ports[0].postMessage({
-        msg: 'accounts',
-        accounts: dummyAccounts,
-      })
-      break
-    case 'get categories':
-      log('sending categories reply')
-      event.ports[0].postMessage({
-        msg: 'categories',
-        categories: dummyCategories,
-      })
-      break
-    case 'get transactions':
-      log('sending transactions reply')
-      event.ports[0].postMessage({
-        msg: 'transactions',
-        transactions: dummyTransactions,
-      })
+      sendAccounts()
+        .then(() => {
+          sendCategories()
+        })
+        .then(() => {
+          sendTransactions()
+        })
+        .catch(err => {
+          console.error(`* ${err}`)
+        })
+
       break
     case 'new transaction':
-      dummyTransactions.push(event.data.transaction)
-      event.ports[0].postMessage({ msg: 'done' })
-      send({ msg: 'update' })
+      addTransaction(event.data.content)
+        .then(() => {
+          sendTransactions()
+        })
+        .catch(err => {
+          console.error(`* ${err}`)
+        })
       break
   }
 }
 
-async function send(message) {
-  const all = await clients.matchAll({
+async function sendAccounts() {
+  getAll('accounts').then(result => {
+    send('accounts', result)
+  })
+}
+
+async function sendCategories() {
+  getAll('categories').then(result => {
+    send('categories', result)
+  })
+}
+
+async function sendTransactions() {
+  getAll('transactions').then(result => {
+    send('transactions', result)
+  })
+}
+
+async function send(title, content) {
+  const allclients = await clients.matchAll({
     includeUnctonrolled: true,
   })
-  log(`Sending ${message.msg} to ${all.length} client(s)...`)
-  for (const c of all) {
-    c.postMessage(message)
+  log(`Sending ${title} to ${allclients.length} client(s)...`)
+  for (const c of allclients) {
+    c.postMessage({ title: title, content: content })
   }
-}
-
-async function getAll(osName) {
-  return new Promise(function(resolve, reject) {
-    if (database === null) {
-      reject(new Error('datastore not opened'))
-    }
-
-    let tr = database.transaction(osName, 'readonly')
-    tr.onerror = event => {
-      reject(new Error(`getAll('${osName}'): ${event.target.error}`))
-    }
-    tr.oncomplete = event => {
-      log(`getAll('${osName}'): transaction completed`)
-    }
-
-    let os = tr.objectStore(osName)
-    let req = os.getAll()
-    req.onerror = event => {
-      reject(new Error(`datastore get request: ${event.target.error}`))
-    }
-    req.onsuccess = event => {
-      resolve(req.result)
-    }
-  })
-}
-
-async function sendUpdateAccounts() {
-  getAll('accounts').then(result => {
-    send({
-      msg: 'update accounts',
-      accounts: result,
-    })
-  })
-}
-
-async function sendUpdateCategories() {
-  getAll('categories').then(result => {
-    send({
-      msg: 'update categories',
-      categories: result,
-    })
-  })
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -172,18 +139,18 @@ async function openDatabase() {
           const os = db
             .transaction('accounts', 'readwrite')
             .objectStore('accounts')
-          os.add({ name: 'Compte' })
+          dummyAccounts.forEach(a => {
+            os.add(a)
+          })
         }
 
         {
           const os = db
             .transaction('categories', 'readwrite')
             .objectStore('categories')
-          os.add({ name: 'Nourriture' })
-          os.add({ name: 'Habillement' })
-          os.add({ name: 'Maison' })
-          os.add({ name: 'Santé' })
-          os.add({ name: 'Loisirs' })
+          dummyCategories.forEach(c => {
+            os.add(c)
+          })
         }
 
         {
@@ -200,40 +167,68 @@ async function openDatabase() {
   })
 }
 
+async function getAll(osName) {
+  return new Promise(function(resolve, reject) {
+    if (database === null) {
+      reject(new Error('datastore not opened'))
+    }
+
+    let tr = database.transaction(osName, 'readonly')
+    tr.onerror = event => {
+      reject(new Error(`getAll('${osName}'): ${event.target.error}`))
+    }
+    tr.oncomplete = event => {
+      log(`getAll('${osName}'): transaction completed`)
+    }
+
+    let os = tr.objectStore(osName)
+    let req = os.getAll()
+    req.onerror = event => {
+      reject(new Error(`datastore get request: ${event.target.error}`))
+    }
+    req.onsuccess = event => {
+      resolve(req.result)
+    }
+  })
+}
+
+async function addTransaction(t) {
+  return new Promise(function(resolve, reject) {
+    if (database === null) {
+      reject(new Error('datastore not opened'))
+    }
+
+    let tr = database.transaction('transactions', 'readwrite')
+    tr.onerror = event => {
+      reject(new Error(`addTransaction('${t}'): ${event.target.error}`))
+    }
+    tr.oncomplete = event => {
+      log(`addTransaction('${t}'): transaction completed`)
+    }
+
+    let os = tr.objectStore('transactions')
+    let req = os.add(t)
+    req.onerror = event => {
+      reject(new Error(`addTransaction(${t}): ${event.target.error}`))
+    }
+    req.onsuccess = event => {
+      resolve(req.result)
+    }
+  })
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
-const dummyAccounts = [
-  {
-    name: 'Mon Compte',
-    kind: 'assets',
-  },
-]
+const dummyAccounts = [{ name: 'Christelle' }, { name: 'Laurent' }]
 
 const dummyCategories = [
-  {
-    name: "Entrée d'argent",
-  },
-  {
-    name: 'Maison',
-  },
-  {
-    name: 'Nourriture',
-  },
-  {
-    name: 'Habillement',
-  },
-  {
-    name: 'Transport',
-  },
-  {
-    name: 'Santé',
-  },
-  {
-    name: 'Loisirs',
-  },
-  {
-    name: 'Autre',
-  },
+  { name: 'Maison', icon: '\uf015' },
+  { name: 'Santé', icon: '\uf0f1' },
+  { name: 'Nourriture', icon: '\uf2e7' },
+  { name: 'Habillement', icon: '\uf553' },
+  { name: 'Transport', icon: '\uf1b9' },
+  { name: 'Loisirs', icon: '\uf11b' },
+  { name: 'Autre', icon: '\uf128' },
 ]
 
 const dummyTransactions = [
