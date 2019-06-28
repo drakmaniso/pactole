@@ -96,8 +96,32 @@ function wireHTML() {
         break
       case '#settings':
         id('settings').hidden = false
+        id('nav-settings').hidden = true
+        id('nav-close').hidden = false
         break
     }
+  }
+
+  window.addEventListener('keydown', e => {
+    switch (e.keyCode) {
+      case 9: // Tab
+        document.body.classList.toggle('keyboard-navigation', true)
+        break
+    }
+  })
+
+  window.addEventListener('mousedown', e => {
+    document.body.classList.toggle('keyboard-navigation', false)
+  })
+
+  id('select-account').onclick = () => {
+    //id('account-list').hidden = false
+  }
+
+  id('nav-close').onclick = () => {
+    id('nav-settings').hidden = false
+    id('nav-close').hidden = true
+    history.back()
   }
 
   id('list-income').onclick = () => {

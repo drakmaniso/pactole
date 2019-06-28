@@ -11,19 +11,25 @@
   <body>
 
     <nav id="navigation">
-      <a>Christelle</a>
-      <a class="selected">Laurent</a>
-      <div class="spacer"></div>
-      <a href="#calendar" class="fa">&#xf133;</a>
-      <a href="#transactions" class="fa">&#xf03a;</a>
-      <div class="spacer"></div>
-      <a href="#settings" class="at-end fa">&#xf013;</a>
+      <a id="nav-settings" href="#settings" class="fa">&#xf013;</a>
+      <a id="nav-close" hidden="true" href="#close" class="fa">&#xf00d;</a>
     </nav>
 
     <main hidden id="home">
     </main>
 
     <main id="calendar">
+
+      <header class="overview">
+        <button id="select-account">
+          <div id="account">Solde actuel:</div>
+          <div id="balance">1200 €</div>
+        </button>
+        <div>
+          <button id="open-summary">Résumé</button>
+          <button id="open-reconcile">Pointage</button>
+        </div>
+      </header>
 
       <section id="calendar-month">
       </section>
@@ -39,22 +45,26 @@
         </div>
       </section>
 
-      <section class="balance">
-        <div>Solde actuel:</div>
-        <div id="balance">1200 €</div>
-      </section>
-
     </main>
 
     <main hidden id="transactions">
+
+      <header class="overview">
+        <button id="select-account">
+          <div id="account">Solde actuel:</div>
+          <div id="balance">1200 €</div>
+        </button>
+        <div>
+          <button id="open-summary">Résumé</button>
+          <button id="open-reconcile">Pointage</button>
+        </div>
+      </header>
+
       <section id="transactions-list">
         <ul>
         </ul>
       </section>
-      <section class="balance">
-        <div>Solde actuel:</div>
-        <div id="balance">1200 €</div>
-      </section>
+
       <section class="actions">
         <a href="#summary"><span hidden class="fa">&#xf080;</span><span class="fa">&#xf201;</span><span hidden class="fa">&#xf200;</span>&nbsp;Résumé</a>
         <a id="list-income" class="income">Arrivée d'argent</a>
