@@ -31,9 +31,19 @@ onload = () => {
   navigator.serviceWorker
     .register('/service.js')
     .then(registration => {
-      console.log(
-        `Service registration successful (scope: ${registration.scope})`,
-      )
+      if (registration.installing) {
+        console.log(
+          `Service registration: installing (scope: ${registration.scope})`,
+        )
+      } else if (registration.waiting) {
+        console.log(
+          `Service registration: waiting (scope: ${registration.scope})`,
+        )
+      } else if (registration.active) {
+        console.log(
+          `Service registration: active (scope: ${registration.scope})`,
+        )
+      }
       registration.onupdatefound = () => {
         let w = registration.installing
         console.log(`A new service is being installed...`)
@@ -41,7 +51,6 @@ onload = () => {
           if (event.target.state === 'installed') {
             console.log(`The new service has been installed.`)
             //TODO: restart service?
-            //location.reload(true)
           }
         }
       }
@@ -64,8 +73,6 @@ function main() {
   console.log(`Starting application...`)
 
   wireHTML()
-
-  send('connect', null)
 }
 
 function wireHTML() {
@@ -152,7 +159,7 @@ function onUpdate(message) {
       console.log(`reply contains ${data.transactions.length} transactions`)
       ledger.updateTransactions(data.transactions)
       renderCalendar(calendar.today())
-      renderTransactionsList(ledger.getTransactions())
+      renderList(ledger.getTransactions())
     })
     .catch(err => {
       console.error(`reply error ${err}`)
@@ -214,6 +221,7 @@ function renderCalendar(date) {
 
   calendar.grid(date, (d, row, col) => {
     const section = document.createElement('section')
+    section.classList.add('month-cell')
     if (calendar.month(d) == calendar.month(date)) {
       const header = document.createElement('header')
       if (d === today) {
@@ -226,6 +234,7 @@ function renderCalendar(date) {
 
       const transacs = ledger.getTransactionsOn(d)
       if (transacs) {
+        /*
         const ul = document.createElement('ul')
         for (const t of transacs) {
           const li = document.createElement('li')
@@ -238,6 +247,19 @@ function renderCalendar(date) {
           ul.appendChild(li)
         }
         section.appendChild(ul)
+        */
+        const p = document.createElement('p')
+        for (const t of transacs) {
+          const span = document.createElement('span')
+          if (t.amount > 0) {
+            span.classList.add('income')
+          } else {
+            span.classList.add('expense')
+          }
+          span.appendChild(document.createTextNode(`${t.amount / 100}€ `))
+          p.appendChild(span)
+        }
+        section.appendChild(p)
       }
 
       section.addEventListener('click', event => {
@@ -314,7 +336,7 @@ function renderCalendarDay(date) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-function renderTransactionsList(transactions) {
+function renderList(transactions) {
   const transList = id('transactions-list')
   while (transList.hasChildNodes()) {
     transList.removeChild(transList.firstChild)
@@ -428,6 +450,34 @@ function renderMinicalendar(date) {
   id('date-section').hidden = false
 }
 
+function renderCategories(categories) {
+  const listbox = id('categories')
+  while (listbox.hasChildNodes()) {
+    listbox.lastChild.remove()
+  }
+  let i = 0
+  for (const c of categories) {
+    const div = document.createElement('div')
+    const input = document.createElement('input')
+    input.hidden = true
+    input.type = 'radio'
+    input.name = 'category'
+    input.id = `category-${i}`
+    input.value = c.name
+    div.appendChild(input)
+    const label = document.createElement('label')
+    label.setAttribute('for', input.id)
+    const span = document.createElement('span')
+    span.classList.add('fa')
+    span.appendChild(document.createTextNode(c.icon))
+    label.appendChild(span)
+    label.appendChild(document.createTextNode(c.name))
+    div.appendChild(label)
+    listbox.appendChild(div)
+    i++
+  }
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 function openDialog(date, kind, withMinicalendar) {
@@ -468,9 +518,8 @@ function closeDialog() {
 
 let service = null
 
-function setupService(serv) {
-  service = serv
-
+function setupService(s) {
+  service = s
   navigator.serviceWorker.onmessage = event => {
     console.log(`Received ${event.data.title}.`)
     switch (event.data.title) {
@@ -480,15 +529,17 @@ function setupService(serv) {
 
       case 'categories':
         ledger.updateCategories(event.data.content)
+        renderCategories(event.data.content)
         break
 
       case 'transactions':
         ledger.updateTransactions(event.data.content)
         renderCalendar(calendar.today())
-        renderTransactionsList(ledger.getTransactions())
+        renderList(ledger.getTransactions())
         break
     }
   }
+  send('connect', null)
 }
 
 function send(title, content) {

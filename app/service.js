@@ -11,16 +11,7 @@ oninstall = event => {
 
 onactivate = event => {
   log('Activating service...')
-  if (!database) {
-    event.waitUntil(
-      openDatabase().then(msg => {
-        log('Datastore opened.')
-        return clients.claim()
-      }),
-    )
-  } else {
-    event.waitUntil(clients.claim())
-  }
+  clients.claim()
   log('...service activated.')
 }
 
@@ -45,7 +36,17 @@ onfetch = event => {
 
 onmessage = event => {
   log(`Received ${event.data.title}.`)
-  switch (event.data.title) {
+  if (!database) {
+    openDatabase().then(() => {
+      dispatch(event.data)
+    })
+  } else {
+    dispatch(event.data)
+  }
+}
+
+function dispatch(message) {
+  switch (message.title) {
     case 'connect':
       sendAccounts()
         .then(() => {
@@ -60,7 +61,7 @@ onmessage = event => {
 
       break
     case 'new transaction':
-      addTransaction(event.data.content)
+      addTransaction(message.content)
         .then(() => {
           sendTransactions()
         })
@@ -72,19 +73,19 @@ onmessage = event => {
 }
 
 async function sendAccounts() {
-  getAll('accounts').then(result => {
+  return getAll('accounts').then(result => {
     send('accounts', result)
   })
 }
 
 async function sendCategories() {
-  getAll('categories').then(result => {
+  return getAll('categories').then(result => {
     send('categories', result)
   })
 }
 
 async function sendTransactions() {
-  getAll('transactions').then(result => {
+  return getAll('transactions').then(result => {
     send('transactions', result)
   })
 }

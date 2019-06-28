@@ -1,5 +1,6 @@
-- Rework messages between client and service.
 - Implement correct client-side routing.
+- Display amount correctly (cents).
+- Implement transaction editing/deleting.
 - Disallow future transactions
 - Reconcile page.
 - Summary page.
