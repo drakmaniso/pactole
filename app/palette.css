@@ -4,12 +4,13 @@
   --fg2: #999; 
 
   --bg: #fff;
-  --bg1: #ccc;
-  --bg-darker: #e0e0e0;
+  --bg1: #efebe0;
+  --bg-darker: #cdc9c0;
+  --bg3: #898480;
 
-  --primary: #077;
+  --primary: #008899;
   --on-primary: #fff;
-  --primary-light: #cee;
+  --primary-light: #ddf7ff;
 
   --header-fg: #fff;
   --header-bg: #145;
