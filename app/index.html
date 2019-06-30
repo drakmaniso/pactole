@@ -124,14 +124,17 @@
         </section>
         <section>
           <h3><label for="mode">Mode d'affichage des opérations:</label></h3>
-          <div><input type="radio" name="mode" id="mode-0" value="calendar"><label for="mode-0">Calendrier</label><div>
-          <div><input type="radio" name="mode" id="mode-1" value="list"><label for="mode-1">Liste</label><div>
-          <div><input type="radio" name="mode" id="mode-2" value="both"><label for="mode-2">Calendrier et Liste</label><div>
+          <div class="listbox">
+            <div><input checked="true" type="radio" name="mode" id="mode-0" value="calendar"><label for="mode-0">Calendrier</label></div>
+            <div><input type="radio" name="mode" id="mode-1" value="list"><label for="mode-1">Liste</label></div>
+          </div>
         </section>
         <section>
           <h3>Catégories de dépense:</h3>
-          <div><input type="radio" name="setting-categories-toggle" id="setting-categories-toggle-0" value="on"><label for="setting-categories-toggle-0">Activer</label><div>
-          <div><input type="radio" name="setting-categories-toggle" id="setting-categories-toggle-1" value="off"><label for="setting-categories-toggle-1">Désactiver</label><div>
+          <div class="listbox">
+            <div><input checked="true" type="radio" name="settings-categories-toggle" id="settings-categories-toggle-0" value="on"><label for="settings-categories-toggle-0">Activer</label></div>
+            <div><input type="radio" name="settings-categories-toggle" id="settings-categories-toggle-1" value="off"><label for="settings-categories-toggle-1">Désactiver</label></div>
+          </div>
           <table>
             <tr>
               <td><button class="fa">&#xf015;</button></td>

@@ -114,21 +114,6 @@ function wireHTML() {
     document.body.classList.toggle('keyboard-navigation', false)
   })
 
-  id('select-account').onclick = () => {
-    //id('account-list').hidden = false
-  }
-
-  id('nav-settings').onclick = () => {
-    id('settings').hidden = false
-  }
-
-  id('settings').onclick = e => {
-    if (e.target == id('settings')) {
-      id('settings').hidden = true
-      //history.back()
-    }
-  }
-
   id('list-income').onclick = () => {
     openDialog(calendar.today(), 'income', true)
   }
@@ -163,6 +148,34 @@ function wireHTML() {
     }
     send('new transaction', transac)
     closeDialog()
+  }
+
+  id('nav-settings').onclick = () => {
+    id('settings').hidden = false
+  }
+
+  id('settings').onclick = e => {
+    if (e.target == id('settings')) {
+      id('settings').hidden = true
+    }
+  }
+
+  id('mode-0').oninput = e => {
+    id('calendar').hidden = false
+    id('transactions').hidden = true
+  }
+
+  id('mode-1').oninput = e => {
+    id('calendar').hidden = true
+    id('transactions').hidden = false
+  }
+
+  id('settings-categories-toggle-0').oninput = e => {
+    id('categories-section').hidden = false
+  }
+
+  id('settings-categories-toggle-1').oninput = e => {
+    id('categories-section').hidden = true
   }
 }
 
