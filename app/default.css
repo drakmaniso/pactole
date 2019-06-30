@@ -1,6 +1,6 @@
-@import "normalize.css";
-@import "fonts/fa-solid.css";
-@import "palette.css";
+@import 'normalize.css';
+@import 'fonts/fa-solid.css';
+@import 'palette.css';
 
 *,
 *::before,
@@ -15,433 +15,465 @@
 /* General */
 
 html {
-    width: 100%;
-    height: 100%;
+  width: 100%;
+  height: 100%;
 }
 
 body {
-    font-size: 1.25rem;
-    width: 100%;
-    height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji',
+    'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  font-size: 1.25rem;
+  width: 100%;
+  height: 100%;
 }
 
 main {
-    width: 100%;
-    height: 100%;
+  width: 100%;
+  height: 100%;
 }
 
 button {
-    color: var(--primary);
-    background: var(--on-primary);
-    border: solid 2px var(--primary);
-    border-radius: 1.25rem;
-    cursor: pointer;
+  color: var(--primary);
+  background: var(--on-primary);
+  color: #000;
+  background: transparent;
+  border: solid 2px var(--primary);
+  border-radius: 1.25rem;
+  border: solid 2px transparent;
+  cursor: pointer;
 }
 
 button {
-    outline: none;
+  outline: none;
 }
 
 body.keyboard-navigation button:focus {
-    outline: solid 3px var(--primary);
+  outline: solid 3px var(--primary);
+}
+
+::-webkit-scrollbar {
+  width: 16px;
+}
+::-webkit-scrollbar-track {
+  background: transparent; 
+}
+::-webkit-scrollbar-thumb {
+  background: #888; 
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #555; 
 }
 
 /* Navigation Menu */
 
 nav {
-    position: absolute;
-    top: 0;
-    right: 16px;
-    user-select: none;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: var(--primary);
-    background: transparent;
-    z-index: 10000;
+  position: absolute;
+  top: 0;
+  right: 16px;
+  user-select: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--fg1);
+  background: transparent;
+  z-index: 10000;
 }
 
 nav a {
-    display: flex;
-    text-align: center;
-    justify-content: center;
-    align-items: center;
-    width: 3rem;
-    height: 3rem;
-    text-decoration: none;
-    font-size: 1.5rem;
-    color: inherit;
+  display: flex;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  width: 3rem;
+  height: 3rem;
+  text-decoration: none;
+  font-size: 1.5rem;
+  color: inherit;
 }
 
 nav a:hover {
-    color: inherit;
-    text-decoration: none;
+  color: inherit;
+  text-decoration: none;
 }
 
 /* Main Page Header */
 
 #calendar > header,
 #transactions > header {
-    grid-area: balance;
-    display: flex;
-    flex-flow: column;
-    align-items: center;
-    padding: 3rem;
-    color: var(--primary);
-    background: var(--bg-darker);
+  grid-area: balance;
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+  padding: 3rem;
+  color: var(--primary);
+  background: var(--bg-darker);
 }
 
 #balance {
-    font-size: 3rem;
+  font-size: 3rem;
 }
 
 /* Transactions List */
 
 #transactions {
-    display: grid;
-    grid-template-rows: minmax(min-content, max-content) minmax(0, 1fr);
-    grid-template-columns: minmax(min-content, max-content) minmax(0, 1fr);
-    grid-template-areas:
-        "balance content"
-        "actions content";
-    user-select: none;
+  display: grid;
+  grid-template-rows: minmax(min-content, max-content) minmax(0, 1fr);
+  grid-template-columns: minmax(min-content, max-content) minmax(0, 1fr);
+  grid-template-areas:
+    'balance content'
+    'actions content';
+  user-select: none;
 }
 
 #transactions-list {
-    grid-area: content;
-    overflow-y: auto;
-    padding-top: 1rem;
-    padding-bottom: 4rem;
+  grid-area: content;
+  overflow-y: auto;
+  padding-top: 1rem;
+  padding-bottom: 4rem;
 }
 
 li.date {
-    list-style: none;
-    color: var(--primary);
-    font-weight: bold;
-    padding-top: 0.75rem;
-    padding-left: 1rem;
+  list-style: none;
+  color: var(--primary);
+  font-weight: bold;
+  padding-top: 0.75rem;
+  padding-left: 1rem;
 }
 
-#transactions-list > ul > *:nth-child(4n+1),
-#transactions-list > ul > *:nth-child(4n+2) {
-    background: #feffaa;
+#transactions-list > ul > *:nth-child(4n + 1),
+#transactions-list > ul > *:nth-child(4n + 2) {
+  background: #feffaa;
 }
-#transactions-list > ul > *:nth-child(4n+3),
-#transactions-list > ul > *:nth-child(4n+4) {
-    background: #ffffff;
+#transactions-list > ul > *:nth-child(4n + 3),
+#transactions-list > ul > *:nth-child(4n + 4) {
+  background: #ffffff;
 }
 
 #transactions-list > ul {
-    padding-left: 0;
+  padding-left: 0;
 }
 #transactions-list > ul > ul {
-    padding-bottom: 0.75rem;
+  padding-bottom: 0.75rem;
 }
 
 #transactions-list li.income,
 #transactions-list li.expense {
-    list-style: none;
-    display: flex;
-    flex-flow: row wrap;
-    flex: 1 0 auto;
-    padding-left: 1rem;
-    padding-top: 0.25rem;
-    padding-bottom: 0.25rem;
+  list-style: none;
+  display: flex;
+  flex-flow: row wrap;
+  flex: 1 0 auto;
+  padding-left: 1rem;
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
 }
 
 #transactions-list span.amount {
-    width: 6rem;
-    margin-right: 1rem;
-    text-align: right;
+  width: 6rem;
+  margin-right: 1rem;
+  text-align: right;
 }
 
 #transactions-list li.income span.amount {
-    color: var(--income-bg);
+  color: var(--income-bg);
 }
 
 #transactions-list li.expense span.amount {
-    color: var(--expense-bg);
+  color: var(--expense-bg);
 }
 
 section.actions {
-    grid-area: actions;
-    display: flex;
-    flex-flow: column;
-    justify-content: flex-start;
-    align-items: center;
-    user-select: none;
-    padding-bottom: 2rem;
-    background: var(--bg-darker);
+  grid-area: actions;
+  display: flex;
+  flex-flow: column;
+  justify-content: flex-start;
+  align-items: center;
+  user-select: none;
+  padding-bottom: 2rem;
+  background: var(--bg-darker);
 }
 
 section.actions a {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    height: 2.5rem;
-    border: solid 3px var(--primary);
-    border-radius: 1.25rem;
-    font-weight: bold;
-    padding-left: 1.25rem;
-    padding-right: 1.25rem;
-    color: var(--primary);
-    background: var(--on-primary);
-    margin: 2rem 2rem;
-    margin-top: 1rem;
-    text-decoration: none;
-    cursor: pointer; 
-    user-select: none;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  height: 2.5rem;
+  border: solid 3px var(--primary);
+  border-radius: 1.25rem;
+  font-weight: bold;
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+  color: var(--primary);
+  background: var(--on-primary);
+  margin: 2rem 2rem;
+  margin-top: 1rem;
+  text-decoration: none;
+  cursor: pointer;
+  user-select: none;
 }
 section.actions a:hover {
-    color: var(--primary);
+  color: var(--primary);
 }
 section.actions a.income {
-    margin-top: auto;
-    border: none;
-    color: var(--income-fg);
-    background: var(--income-bg);
-    box-shadow: 0px 4px 10px 0px grey;
+  margin-top: auto;
+  border: none;
+  color: var(--income-fg);
+  background: var(--income-bg);
+  box-shadow: 0px 4px 10px 0px grey;
 }
 section.actions a.income:hover {
-    color: var(--income-fg);
+  color: var(--income-fg);
 }
 section.actions a.expense {
-    border: none;
-    color: var(--expense-fg);
-    background: var(--expense-bg);
-    box-shadow: 0px 4px 10px 0px grey;
+  border: none;
+  color: var(--expense-fg);
+  background: var(--expense-bg);
+  box-shadow: 0px 4px 10px 0px grey;
 }
 section.actions a.expense:hover {
-    color: var(--expense-fg);
+  color: var(--expense-fg);
 }
 
 /* Calendar Page */
 
 #calendar {
-    display: grid;
-    grid-template-columns: calc(70% - .25rem) calc(30% - .25rem);
-    grid-template-rows: 14rem calc(100% - 14.5rem);
-    grid-template-areas: 
-        "month balance"
-        "month day";
-    grid-gap: 0.5rem;
-    background: var(--bg-darker);
-    padding: 0.5rem;
+  display: grid;
+  grid-template-columns: calc(70% - 0.25rem) calc(30% - 0.25rem);
+  grid-template-rows: 14rem calc(100% - 14.5rem);
+  grid-template-areas:
+    'month balance'
+    'month day';
+  grid-gap: 0.5rem;
+  background: var(--bg-darker);
+  padding: 0.5rem;
 }
 
 #calendar-month {
-    grid-area: month;
-    border: solid 3px var(--primary);
-    border-radius: 1.25rem;
-    display: grid;
-    grid-template-columns: repeat(7, minmax(4rem, 1fr));
-    grid-template-rows: 4rem repeat(auto-fit, minmax(10px, 1fr));
-    grid-gap: 3px;
-    padding: 0;
-    user-select: none;
-    contain: content;
-    background: var(--primary);
-    z-index: 100;
-    /* box-shadow: 0px 4px 10px 0px grey; */ 
+  grid-area: month;
+  border: solid 4px var(--fg2);
+  border-radius: 0.25rem;
+  display: grid;
+  grid-template-columns: repeat(7, minmax(4rem, 1fr));
+  grid-template-rows: 4rem repeat(auto-fit, minmax(10px, 1fr));
+  grid-gap: 4px;
+  padding: 0;
+  user-select: none;
+  contain: size layout style;
+  background: var(--bg1);
+  z-index: 100;
 }
 
 #calendar-month > header {
-    grid-area: span 1 / span 7;
-    display: grid;
-    grid-template-columns: repeat(7, minmax(4rem, 1fr));
-    grid-template-rows: 3rem 1rem;
-    grid-gap: 0;
-    color: var(--primary);
-    background: #fff;
+  grid-area: span 1 / span 7;
+  display: grid;
+  grid-template-columns: repeat(7, minmax(4rem, 1fr));
+  grid-template-rows: 3rem 1rem;
+  grid-gap: 0;
+  color: var(--fg1);
 }
 
 #calendar-month > header > p {
-    grid-area: span 1 / span 3;
-    display: flex;
-    flex-flow: column nowrap;
-    justify-content: center;
-    align-items: center;
-    margin: 0;
-    font-weight: bold;
-    font-size: 2rem;
+  grid-area: span 1 / span 3;
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: center;
+  align-items: center;
+  margin: 0;
+  font-weight: bold;
+  font-size: 2rem;
+  color: var(--fg1);
 }
 
 #calendar-month > header > div.button {
-    grid-area: span 1 / span 2;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 2rem;
-    padding: 0 2rem;
-    margin: 0.25rem 5rem;
-    border-radius: 1rem;
-    cursor: pointer;
+  grid-area: span 1 / span 2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 2rem;
+  padding: 0 2rem;
+  margin: 0.25rem 5rem;
+  border-radius: 1rem;
+  cursor: pointer;
 }
 
 #calendar-month > header > div.weekday {
-    font-size: 0.75rem;
-    text-align: center;
-    color: var(--primary);
+  font-size: 0.75rem;
+  text-align: center;
+  color: var(--fg1);
 }
 
 #calendar-month > .month-cell {
-    display: flex;
-    flex-flow: column nowrap;
-    justify-content: stretch;
-    border: none;
-    background: #fff;
-    contain: strict;
-    cursor: pointer;
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: stretch;
+  border: none;
+  background: #fff;
+  contain: strict;
+  cursor: pointer;
 }
 
 #calendar-month > .month-cell:empty {
-    cursor: default;
+  cursor: default;
+  background: transparent;
 }
 
 #calendar-month > .month-cell > header {
-    text-align: center;
-    color: var(--primary);
+  text-align: center;
+  color: var(--fg1);
+  font-weight: bold;
 }
 
 #calendar-month > .month-cell > header.today {
-    font-variant-caps: all-small-caps;
-    font-weight: bold;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
+  font-variant-caps: all-small-caps;
+  font-weight: bold;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 #calendar-month > .month-cell.checked {
-    background: var(--primary-light);
+  position: relative;
+  top: -4px;
+  left: -4px;
+  width: calc(100% + 8px);
+  height: calc(100% + 8px);
+  background: var(--primary-light);
+  border: solid 4px var(--primary);
+  border-radius: 0.25rem;
+  z-index: 1000;
 }
 
 #calendar-month > .month-cell.checked > header {
-    color: #fff;
-    background: var(--primary);
+  color: #fff;
+  background: var(--primary);
 }
 
 #calendar-month > .month-cell:hover {
-    /* background: #ffa; */
+  /* background: #ffa; */
 }
 
 #calendar-month > .month-cell > ul {
-    flex: 1;
-    display: flex;
-    flex-flow: row wrap;
-    justify-content: flex-start;
-    /* align-items: flex-start; */
-    padding: 0;
-    margin: 0;
+  flex: 1;
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: flex-start;
+  /* align-items: flex-start; */
+  padding: 0;
+  margin: 0;
 }
 
 #calendar-month > .month-cell > ul > li {
-    padding: 0 0.25rem;
-    margin-left: 0.25rem;
-    margin-top: 0.125rem;
-    margin-bottom: 0;
-    height: 1.75rem;
-    /* flex: none; */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    /* font-family: monospace; */
-    /* font-weight: bold; */
-    font-size: 0.75rem;
+  padding: 0 0.25rem;
+  margin-left: 0.25rem;
+  margin-top: 0.125rem;
+  margin-bottom: 0;
+  height: 1.75rem;
+  /* flex: none; */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* font-family: monospace; */
+  /* font-weight: bold; */
+  font-size: 0.75rem;
 }
 
 #calendar-month > .month-cell > ul > li.income {
-    color: #fff;
-    background: var(--income-bg);
-    border-radius: 3px;
+  color: #fff;
+  background: var(--income-bg);
+  color: var(--income-bg);
+  background: #ccc;
+  border-radius: 3px;
 }
 
 #calendar-month > .month-cell > ul > li.expense {
-    color: #fff;
-    background: var(--expense-bg);
-    border-radius: 1rem;
+  color: #fff;
+  background: var(--expense-bg);
+  color: var(--expense-bg);
+  background: #ccc;
+  border-radius: 1rem;
 }
 
 #calendar-month > .month-cell > p {
-    flex: 1;
-    margin: 0;
+  flex: 1;
+  margin: 0;
 }
 
 #calendar-month > .month-cell > p > span {
-    padding: 0 0.25rem;
-    margin-left: 0.25rem;
-    margin-top: 0.125rem;
-    margin-bottom: 0;
-    height: 1.5rem;
-    /* flex: none; */
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
-    /* font-family: monospace; */
-    /* font-weight: bold; */
-    font-size: 0.75rem;
+  padding: 0 0.25rem;
+  margin-left: 0.25rem;
+  margin-top: 0.125rem;
+  margin-bottom: 0;
+  height: 1.5rem;
+  /* flex: none; */
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  /* font-family: monospace; */
+  /* font-weight: bold; */
+  font-size: 1rem;
 }
 
 #calendar-month > .month-cell > p > span.income {
-    color: #fff;
-    background: var(--income-bg);
-    border-radius: 3px;
+  color: #fff;
+  background: var(--income-bg);
+  border-radius: 2px;
 }
 
 #calendar-month > .month-cell > p > span.expense {
-    color: #fff;
-    background: var(--expense-bg);
-    border-radius: 1rem;
+  color: #fff;
+  background: var(--expense-bg);
+  border-radius: 1rem;
 }
 
 #calendar-day {
-    grid-area: day;
-    border: solid 3px var(--primary);
-    border-radius: 1.25rem;
-    background: var(--primary);
-    display: flex;
-    flex-flow: column nowrap;
-    justify-content: flex-start;
-    contain: content;
-    user-select: none;
-    z-index: 100;
-    /* box-shadow: 0px 4px 10px 0px grey; */
+  grid-area: day;
+  border: solid 4px var(--primary);
+  border-radius: 0.25rem;
+  background: var(--primary);
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: flex-start;
+  contain: content;
+  user-select: none;
+  z-index: 100;
+  /* box-shadow: 0px 4px 10px 0px grey; */
 }
 
 #calendar-day:empty {
-    flex: 1;
-    margin: 1rem;
-    border: solid 3px transparent;
-    border-radius: 1.25rem;
-    background: transparent;
-    contain: content;
-    box-shadow: none;
+  flex: 1;
+  margin: 1rem;
+  border: solid 3px transparent;
+  border-radius: 1.25rem;
+  background: transparent;
+  contain: content;
+  box-shadow: none;
 }
 
 #calendar-day > header {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: calc(4rem + 3px);
-    color: #fff;
-    font-size: 2rem;
-    font-weight: bold;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: calc(4rem + 3px);
+  color: #fff;
+  font-size: 2rem;
+  font-weight: bold;
 }
 
 #calendar-day > ul {
-    flex: 1;
-    /* background: #cee; */
-    background: #fff;
-    margin: 0;
-    padding: 0;
-    padding-top: 2rem;
-    overflow-y: scroll;
+  flex: 1;
+  /* background: #cee; */
+  background: #fff;
+  margin: 0;
+  padding: 0;
+  padding-top: 2rem;
+  overflow-y: scroll;
 }
 
 #calendar-day > ul > li {
-    display: flex;
-    justify-content: stretch;
-    padding: 0.25rem 2rem;
+  display: flex;
+  justify-content: stretch;
+  padding: 0.25rem 2rem;
 }
 
 /*
@@ -451,388 +483,387 @@ section.actions a.expense:hover {
 */
 
 #calendar-day > ul > li.income {
-    color: var(--income-bg);
+  color: var(--income-bg);
 }
 
 #calendar-day > ul > li.expense {
-    color: var(--expense-bg);
+  color: var(--expense-bg);
 }
 
 #calendar-day > ul > li > div:first-child {
-    width: 6rem;
-    text-align: right;
-    margin-right: 1rem;
+  width: 6rem;
+  text-align: right;
+  margin-right: 1rem;
 }
 
 #calendar-day > ul > li > div:last-child {
-    flex: 1;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
+  flex: 1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 #calendar-day > .actions {
-    height: 4rem;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-evenly;
-    align-items: flex-end;
-    background: #fff;
-    padding-bottom: 0.5rem;
+  height: 4rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
+  align-items: flex-end;
+  background: #fff;
+  padding-bottom: 0.5rem;
 }
 
 #calendar-day > .actions > a {
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
-    color: #fff;
-    height: 2.5rem;
-    width: 8rem;
-    padding: 0 1.5rem;
-    margin-right: 0.5rem;
-    margin-bottom: 0.5rem;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-weight: bold;
-    border-radius: 1.25rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  color: #fff;
+  height: 2.5rem;
+  width: 8rem;
+  padding: 0 1.5rem;
+  margin-right: 0.5rem;
+  margin-bottom: 0.5rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  border-radius: 1.25rem;
 }
 
 #calendar-day > .actions > a.income {
-    background: var(--income-bg);
-    border-radius: 3px; 
-    border: solid 3px var(--income-bg);
+  background: var(--income-bg);
+  border-radius: 3px;
+  border: solid 3px var(--income-bg);
 }
 
 #calendar-day > .actions > a.income:hover {
-    background: var(--income-hl);
-    border: solid 3px var(--income-hl);
+  background: var(--income-hl);
+  border: solid 3px var(--income-hl);
 }
 
 #calendar-day > .actions > a.expense {
-    background: var(--expense-bg);
-    border: solid 3px var(--expense-bg);
+  background: var(--expense-bg);
+  border: solid 3px var(--expense-bg);
 }
 
 #calendar-day > .actions > a.expense:hover {
-    background: var(--expense-hl);
-    border-radius: 1.25rem;
-    border: solid 3px var(--expense-hl);
+  background: var(--expense-hl);
+  border-radius: 1.25rem;
+  border: solid 3px var(--expense-hl);
 }
 
 #calendar .balance {
-    grid-area: balance;
-    bottom: 0.5rem;
-    right: 0.5rem;
-    z-index: 0;
+  grid-area: balance;
+  bottom: 0.5rem;
+  right: 0.5rem;
+  z-index: 0;
 }
-
 
 /* Transaction Dialog */
 
 #dialog {
-    position: absolute;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    right: 0;
-    z-index: 5000;
-    display: flex;
-    background: #0007;
-    --local-primary: #f0f;
-    --local-on-primary: #fff;
-    contain: strict;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  z-index: 5000;
+  display: flex;
+  background: #0007;
+  --local-primary: #f0f;
+  --local-on-primary: #fff;
+  contain: strict;
 }
 
 #dialog.income {
-    --local-primary: var(--income-bg);
+  --local-primary: var(--income-bg);
 }
 
 #dialog.expense {
-    --local-primary: var(--expense-bg);
+  --local-primary: var(--expense-bg);
 }
 
 #dialog::backdrop {
-    background: #3338;
+  background: #3338;
 }
 
 #dialog form {
-    max-height: 98%;
-    max-width: 98%;
-    margin: auto;
-    border: none;
-    border-radius: 1.25rem;
-    contain: content;
-    box-shadow: 0px 4px 10px 0px black;
-    display: flex;
-    flex-flow: column wrap;
-    align-items: stretch;
-    display: grid;
-    grid-template-areas:
-        "date    date"
-        "amount  categories"
-        "description categories"
-        "actions actions";
-    grid-template-areas:
-        "amount      date"
-        "description date"
-        "categories  date"
-        "actions actions";
-    grid-template-areas:
-        "date    amount"
-        "date    description"
-        "date    categories"
-        "actions actions";
-    padding: 1rem;
-    color: #000;
-    background: #fff;
+  max-height: 98%;
+  max-width: 98%;
+  margin: auto;
+  border: none;
+  border-radius: 0.25rem;
+  contain: content;
+  box-shadow: 0px 4px 10px 0px black;
+  display: flex;
+  flex-flow: column wrap;
+  align-items: stretch;
+  display: grid;
+  grid-template-areas:
+    'date    date'
+    'amount  categories'
+    'description categories'
+    'actions actions';
+  grid-template-areas:
+    'amount      date'
+    'description date'
+    'categories  date'
+    'actions actions';
+  grid-template-areas:
+    'date    amount'
+    'date    description'
+    'date    categories'
+    'actions actions';
+  padding: 1rem;
+  color: #000;
+  background: #fff;
 }
 
 #dialog section {
-    padding: 1rem;
+  padding: 1rem;
 }
 
 #dialog section.amount {
-    grid-area: amount;
-    display: flex;
-    justify-content: flex-start;
-    align-items: flex-start;
-    font-size: 2rem;
+  grid-area: amount;
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  font-size: 2rem;
 }
 
 #dialog section.description {
-    grid-area: description;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
+  grid-area: description;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
 }
 
-#dialog input[type="text"] {
-    outline: none;
-    border-top: none;
-    border-left: none;
-    border-right: none;
-    border-bottom: 2px dotted gray;
-    padding-bottom: 0;
-    margin-bottom: 0;
-    color: inherit;
-    font-size: inherit;
-    font-weight: inherit;
+#dialog input[type='text'] {
+  outline: none;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  border-bottom: 2px dotted gray;
+  padding-bottom: 0;
+  margin-bottom: 0;
+  color: inherit;
+  font-size: inherit;
+  font-weight: inherit;
 }
 
 #dialog section.amount label {
-    color: var(--local-primary);
-    font-weight: bold;
-    margin: 0;
-    margin-right: 1rem;
+  color: var(--local-primary);
+  font-weight: bold;
+  margin: 0;
+  margin-right: 1rem;
 }
 
 #dialog section.amount input {
-    align-self: unsafe first baseline;
-    width: 10rem;
-    /* text-align: right; */
+  align-self: unsafe first baseline;
+  width: 10rem;
+  /* text-align: right; */
 }
 
-#dialog section.amount  .money-symbol {
-    align-self: unsafe first baseline;
-    margin-left: 1rem;
+#dialog section.amount .money-symbol {
+  align-self: unsafe first baseline;
+  margin-left: 1rem;
 }
 
 #dialog section.description label {
-    color: var(--local-primary);
-    font-weight: bold;
-    margin: 0;
-    margin-right: 1rem;
+  color: var(--local-primary);
+  font-weight: bold;
+  margin: 0;
+  margin-right: 1rem;
 }
 
 #dialog section.description input {
-    align-self: unsafe first baseline;
-    width: 24rem;
+  align-self: unsafe first baseline;
+  width: 24rem;
 }
 
 #dialog section.date {
-    grid-area: date;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: center;
+  grid-area: date;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
 }
 
 #dialog section.date > label {
-    align-self: start;
-    font-weight: bold;
+  align-self: start;
+  font-weight: bold;
 }
 
 #minicalendar {
-    display: grid;
-    grid-template-columns: repeat(7, min-content);
-    /*grid-auto-rows: min-content;*/
-    grid-template-rows: 4rem repeat(6, 3rem);
-    grid-gap: 1rem;
-    user-select: none;
-    contain: content;
-    padding: 1rem;
-    /* border-radius: 1.25rem; 
+  display: grid;
+  grid-template-columns: repeat(7, min-content);
+  /*grid-auto-rows: min-content;*/
+  grid-template-rows: 4rem repeat(6, 3rem);
+  grid-gap: 1rem;
+  user-select: none;
+  contain: content;
+  padding: 1rem;
+  /* border-radius: 1.25rem; 
     border: solid 2px var(--local-primary); */
-    border-right: solid 2px var(--local-primary);
-    background: var(--bg);
-    color: var(--fg);
+  border-right: solid 2px var(--local-primary);
+  background: var(--bg);
+  color: var(--fg);
 }
 
 #minicalendar header {
-    grid-area: span 1 / span 7;
-    display: flex;
-    justify-content: stretch;
+  grid-area: span 1 / span 7;
+  display: flex;
+  justify-content: stretch;
 }
 
 #minicalendar header div:nth-child(1),
 #minicalendar header div:nth-child(3) {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding-left: 2rem;
-    padding-right: 2rem;
-    font-size: 1.75rem;
-    color: var(--local-primary);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-left: 2rem;
+  padding-right: 2rem;
+  font-size: 1.75rem;
+  color: var(--local-primary);
 }
 
 #minicalendar header div:nth-child(2) {
-    flex: 1;
-    font-size: 1.5rem;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-weight: bold;
+  flex: 1;
+  font-size: 1.5rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
 }
 
 #minicalendar div.day {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 3rem;
-    height: 3rem;
-    border-radius: 50%;
-    cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  cursor: pointer;
 }
 
-#minicalendar div[checked=true] {
-    color: var(--local-on-primary);
-    background: var(--local-primary);
+#minicalendar div[checked='true'] {
+  color: var(--local-on-primary);
+  background: var(--local-primary);
 }
 
 #minicalendar div.weekday {
-    font-variant: all-small-caps;
+  font-variant: all-small-caps;
 }
 
 #minicalendar div.weekday:hover {
-    background: inherit;
+  background: inherit;
 }
 
 #dialog section.categories {
-    grid-area: categories;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: stretch;
-    align-items: center;
+  grid-area: categories;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: stretch;
+  align-items: center;
 }
 
 #dialog.income section.categories {
-    display: none;
+  display: none;
 }
 
 #dialog section.categories > label {
-    align-self: start;
-    font-weight: bold;
-    color: var(--local-primary);
+  align-self: start;
+  font-weight: bold;
+  color: var(--local-primary);
 }
 
 .listbox {
-    flex: 1;
-    display: grid;
-    grid-template-columns: repeat(2, minmax(min-content, max-content));
-    /* grid-auto-rows: min-content; */
-    column-gap: 1rem;
-    row-gap: 0.25rem;
-    padding: 0.5rem;
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(min-content, max-content));
+  /* grid-auto-rows: min-content; */
+  column-gap: 1rem;
+  row-gap: 0.25rem;
+  padding: 0.5rem;
 }
 
 .listbox label {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: baseline;
-    outline: none;
-    margin: 0;
-    padding: 0.5rem 1rem;
-    border: 3px solid #fff;
-    border-radius: 0.25rem;
-    color: #000;
-    background: #fff;
-    text-align: left;
-    user-select: none;
-    cursor: pointer;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: baseline;
+  outline: none;
+  margin: 0;
+  padding: 0.5rem 1rem;
+  border: 3px solid #fff;
+  border-radius: 0.25rem;
+  color: #000;
+  background: #fff;
+  text-align: left;
+  user-select: none;
+  cursor: pointer;
 }
 .listbox label:hover {
-    border: solid 3px transparent;
+  border: solid 3px transparent;
 }
 .listbox input:checked ~ label {
-    color: var(--local-on-primary);
-    background: var(--local-primary);
-    border: solid 3px var(--local-primary);
-    margin: 0;
+  color: var(--local-on-primary);
+  background: var(--local-primary);
+  border: solid 3px var(--local-primary);
+  margin: 0;
 }
 .listbox .fa {
-    width: 1.25rem;
-    margin-right: 0.75rem;
+  width: 1.25rem;
+  margin-right: 0.75rem;
 }
 .listbox input {
-    -webkit-appearance: none;
-    /* margin-right: 0.75rem; */
+  -webkit-appearance: none;
+  /* margin-right: 0.75rem; */
 }
 
 #dialog section.actions {
-    grid-area: actions;
-    flex: 1;
-    margin-top: 1.5rem;
-    display: flex;
-    flex-flow: row wrap;
-    justify-content: flex-end;
-    align-items: flex-end;
-    background: #fff;
-    padding: 0.5rem 0 0;
+  grid-area: actions;
+  flex: 1;
+  margin-top: 1.5rem;
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: flex-end;
+  align-items: flex-end;
+  background: #fff;
+  padding: 0.5rem 0 0;
 }
 
 #dialog section.actions button {
-    border: solid 2px var(--local-primary);
-    border-radius: 1.25rem;
-    height: 2.5rem;
-    color: var(--local-primary);
-    background: #fff;
-    padding-left: 1.25rem;
-    padding-right: 1.25rem;
-    margin-left: 2rem;
-    font-weight: bold;
-    align-self: flex-end;
+  border: solid 2px var(--local-primary);
+  border-radius: 1.25rem;
+  height: 2.5rem;
+  color: var(--local-primary);
+  background: #fff;
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+  margin-left: 2rem;
+  font-weight: bold;
+  align-self: flex-end;
 }
 
 #dialog section.actions button:last-child {
-    color: #fff;
-    background: var(--local-primary);
+  color: #fff;
+  background: var(--local-primary);
 }
 
 /* Settings */
 
 #settings {
-    padding: 1rem 4rem;
-    overflow: auto;
+  padding: 1rem 4rem;
+  overflow: auto;
 }
 
 #settings h3 {
-    margin-top: 3rem;
+  margin-top: 3rem;
 }
 
 #settings td {
-    padding: 0.5rem 0.25rem;
+  padding: 0.5rem 0.25rem;
 }

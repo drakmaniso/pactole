@@ -1,24 +1,27 @@
 :root {
-    --fg: #000;
-    --bg: #fff;
-    --bg-darker: #eee;
+  --fg: #000;
+  --fg1: #777; 
+  --fg2: #999; 
 
-    --primary: #077;
-    --on-primary: #fff;
+  --bg: #fff;
+  --bg1: #ccc;
+  --bg-darker: #e0e0e0;
 
-    --primary-light: #cee;
+  --primary: #077;
+  --on-primary: #fff;
+  --primary-light: #cee;
 
-    --header-fg: #fff;
-    --header-bg: #145;
-    --header-hl: #356;
+  --header-fg: #fff;
+  --header-bg: #145;
+  --header-hl: #356;
 
-    --income-fg: var(--header-fg);
-    --income-bg: #181;
-    --income-hl: #292;
+  --income-fg: var(--header-fg);
+  --income-bg: #181;
+  --income-hl: #292;
 
-    --expense-fg: var(--header-fg);
-    --expense-bg: #c20;
-    --expense-hl: #d41;
+  --expense-fg: var(--header-fg);
+  --expense-bg: #c20;
+  --expense-hl: #d41;
 
-    --minicalendar-highlight-bg: #ffcc68;
+  --minicalendar-highlight-bg: #ffcc68;
 }

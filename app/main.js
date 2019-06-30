@@ -155,41 +155,6 @@ function wireHTML() {
   }
 }
 
-function onUpdate(message) {
-  console.log(`onUpdate ${message}`)
-  client
-    .send({ msg: 'get accounts' })
-    .then(data => {
-      console.log(`reply contains ${data.accounts.length} accounts`)
-      ledger.updateAccounts(data.accounts)
-    })
-    .catch(err => {
-      console.error(`reply error ${err}`)
-    })
-
-  client
-    .send({ msg: 'get categories' })
-    .then(data => {
-      console.log(`reply contains ${data.categories.length} categories`)
-      ledger.updateCategories(data.categories)
-    })
-    .catch(err => {
-      console.error(`reply error ${err}`)
-    })
-
-  client
-    .send({ msg: 'get transactions' })
-    .then(data => {
-      console.log(`reply contains ${data.transactions.length} transactions`)
-      ledger.updateTransactions(data.transactions)
-      renderCalendar(calendar.today())
-      renderList(ledger.getTransactions())
-    })
-    .catch(err => {
-      console.error(`reply error ${err}`)
-    })
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 function renderCalendar(date) {
