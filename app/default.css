@@ -38,9 +38,9 @@ button {
   background: var(--on-primary);
   color: #000;
   background: transparent;
-  border: solid 2px var(--primary);
+  height: 2.5rem;
   border-radius: 1.25rem;
-  border: solid 2px transparent;
+  border: solid 3px transparent;
   cursor: pointer;
 }
 
@@ -75,7 +75,7 @@ nav {
   display: flex;
   justify-content: center;
   align-items: center;
-  color: var(--fg1);
+  color: var(--fg-lighter);
   background: transparent;
   z-index: 10000;
 }
@@ -99,8 +99,7 @@ nav a:hover {
 
 /* Main Page Header */
 
-#calendar > header,
-#transactions > header {
+.overview {
   grid-area: balance;
   display: flex;
   flex-flow: column;
@@ -114,20 +113,37 @@ nav a:hover {
   font-size: 3rem;
 }
 
+.overview button {
+  height: auto;
+  padding: 0.5rem 2rem;
+  color: var(--fg-lighter);
+  border: solid 3px var(--fg-lightest);
+  background: transparent;
+  font-weight: bold;
+  margin: 0.5rem;
+}
+
+.overview button#select-account {
+  margin: 0.25rem;
+  padding: 0.5rem 2rem;
+  border: solid 3px transparent;
+  color: var(--fg);
+  background: transparent;
+}
+
 /* Transactions List */
 
 #transactions {
-  display: grid;
-  grid-template-rows: minmax(min-content, max-content) minmax(0, 1fr);
-  grid-template-columns: minmax(min-content, max-content) minmax(0, 1fr);
-  grid-template-areas:
-    'balance content'
-    'actions content';
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: stretch;
+  align-items: stretch;
   user-select: none;
+  background: var(--bg);
 }
 
 #transactions-list {
-  grid-area: content;
+  flex: 1;
   overflow-y: auto;
   padding-top: 1rem;
   padding-bottom: 4rem;
@@ -143,11 +159,11 @@ li.date {
 
 #transactions-list > ul > *:nth-child(4n + 1),
 #transactions-list > ul > *:nth-child(4n + 2) {
-  background: #feffaa;
+  background: var(--bg);
 }
 #transactions-list > ul > *:nth-child(4n + 3),
 #transactions-list > ul > *:nth-child(4n + 4) {
-  background: #ffffff;
+  background: var(--bg);
 }
 
 #transactions-list > ul {
@@ -182,8 +198,10 @@ li.date {
   color: var(--expense-bg);
 }
 
-section.actions {
-  grid-area: actions;
+#transactions section.actions {
+  position: fixed;
+  bottom: 0;
+  right: 32px;
   display: flex;
   flex-flow: column;
   justify-content: flex-start;
@@ -191,9 +209,10 @@ section.actions {
   user-select: none;
   padding-bottom: 2rem;
   background: var(--bg-darker);
+  background: transparent;
 }
 
-section.actions a {
+#transactions section.actions button {
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -212,37 +231,28 @@ section.actions a {
   cursor: pointer;
   user-select: none;
 }
-section.actions a:hover {
-  color: var(--primary);
-}
-section.actions a.income {
+
+#transactions section.actions button.income {
   margin-top: auto;
   border: none;
   color: var(--income-fg);
   background: var(--income-bg);
-  box-shadow: 0px 4px 20px 0px grey;
+  box-shadow: 0px 2px 10px 0px var(--shadow);
 }
-section.actions a.income:hover {
-  color: var(--income-fg);
-}
-section.actions a.expense {
+
+#transactions section.actions button.expense {
   border: none;
   color: var(--expense-fg);
   background: var(--expense-bg);
-  box-shadow: 0px 4px 20px 0px grey;
-}
-section.actions a.expense:hover {
-  color: var(--expense-fg);
+  box-shadow: 0px 2px 10px 0px var(--shadow);
 }
 
 /* Calendar Page */
 
 #calendar {
   display: grid;
-  grid-template-columns: calc(70% - 0.25rem) calc(30% - 0.25rem);
-  grid-template-rows: 14rem calc(100% - 14.5rem);
   grid-template-columns: 70% 30%;
-  grid-template-rows: 14rem calc(100% - 14rem);
+  grid-template-rows: min-content minmax(min-content, 1fr);
   grid-template-areas:
     'month balance'
     'month day';
@@ -253,16 +263,15 @@ section.actions a.expense:hover {
 
 #calendar-month {
   grid-area: month;
-  /*border-right: solid 4px var(--fg2);*/
-  /*border-radius: 0.25rem;*/
   display: grid;
   grid-template-columns: repeat(7, minmax(4rem, 1fr));
-  grid-template-rows: 4rem repeat(auto-fit, minmax(10px, 1fr));
+  grid-template-rows: 3rem repeat(auto-fit, minmax(10px, 1fr)) [footer] 1.5rem;
   grid-gap: 4px;
   padding: 0;
+  margin-left: 1rem;
   user-select: none;
   contain: size layout style;
-  /*background: var(--bg1);*/
+  /*background: var(--bg);*/
   z-index: 100;
 }
 
@@ -272,7 +281,7 @@ section.actions a.expense:hover {
   grid-template-columns: repeat(7, minmax(4rem, 1fr));
   grid-template-rows: 3rem 1rem;
   grid-gap: 0;
-  color: var(--fg1);
+  color: var(--fg-lighter);
 }
 
 #calendar-month > header > p {
@@ -287,7 +296,7 @@ section.actions a.expense:hover {
   color: var(--fg);
 }
 
-#calendar-month > header > div.button {
+#calendar-month > header > button {
   grid-area: span 1 / span 2;
   display: flex;
   justify-content: center;
@@ -297,11 +306,19 @@ section.actions a.expense:hover {
   margin: 0.25rem 5rem;
   border-radius: 1rem;
   cursor: pointer;
+  color: var(--fg-lighter);
 }
 
-#calendar-month > header > div.weekday {
-  font-size: 0.75rem;
+#calendar-month > div.weekday {
+  grid-row: -2;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: center;
+  align-items: center;
+  font-size: 1rem;
   text-align: center;
+  text-overflow: ellipsis;
+  color: var(--fg-lighter);
 }
 
 #calendar-month > .month-cell {
@@ -309,7 +326,7 @@ section.actions a.expense:hover {
   flex-flow: column nowrap;
   justify-content: stretch;
   border: none;
-  background: var(--bg1);
+  background: var(--bg);
   contain: strict;
   cursor: pointer;
 }
@@ -321,7 +338,7 @@ section.actions a.expense:hover {
 
 #calendar-month > .month-cell > header {
   text-align: center;
-  color: var(--fg1);
+  color: var(--fg-lighter);
   font-weight: bold;
   padding: 2px;
 }
@@ -333,6 +350,7 @@ section.actions a.expense:hover {
   white-space: nowrap;
   overflow: hidden;
   color: var(--primary);
+  text-overflow: ellipsis;
 }
 
 #calendar-month > .month-cell.checked {
@@ -341,11 +359,10 @@ section.actions a.expense:hover {
   left: -4px;
   width: calc(100% + 8px);
   height: calc(100% + 8px);*/
-  background: var(--primary-light);
-  background: #fff;
+  background: var(--bg-lighter);
   /*border: solid 4px var(--primary);*/
   border-radius: 0.25rem;
-  box-shadow: 0 2px 10px 0 var(--bg3);
+  box-shadow: 0 2px 10px 0 var(--shadow);
   z-index: 1000;
 }
 
@@ -434,7 +451,7 @@ section.actions a.expense:hover {
 
 #calendar-day {
   grid-area: day;
-  border-radius: 0.25rem;
+  border-radius: 0.5rem;
   margin: 32px;
   display: flex;
   flex-flow: column nowrap;
@@ -442,8 +459,8 @@ section.actions a.expense:hover {
   contain: style layout size;
   user-select: none;
   z-index: 100;
-  background: var(--bg);
-  box-shadow: 0 4px 20px 0 var(--bg3);
+  background: var(--bg-lighter);
+  box-shadow: 0 4px 20px 0 var(--shadow);
 }
 
 #calendar-day:empty {
@@ -465,8 +482,8 @@ section.actions a.expense:hover {
   background: var(--primary);
   font-size: 2rem;
   font-weight: bold;
-  border-top-left-radius: 0.25rem;
-  border-top-right-radius: 0.25rem;
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
 }
 
 #calendar-day > ul {
@@ -508,6 +525,7 @@ section.actions a.expense:hover {
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
+  color: var(--fg);
 }
 
 #calendar-day > .actions {
@@ -517,36 +535,33 @@ section.actions a.expense:hover {
   align-items: center;
   padding: 1rem;
   margin: 0;
-  border-top: solid 4px var(--bg);
+  border-top: solid 4px var(--bg-lighter);
 }
 
-#calendar-day > .actions > a {
+#calendar-day > .actions > button {
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
   color: #fff;
-  height: 3rem;
   width: 8rem;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 1.75rem;
+  font-size: 1.5rem;
   font-weight: bold;
   box-shadow: 0 2px 10px 0 var(--bg-darker);
 }
 
-#calendar-day > .actions > a.income {
+#calendar-day > .actions > button.income {
   color: var(--income-fg);
   background: var(--income-bg);
   border: solid 3px var(--income-bg);
-  border-radius: 1.5rem;
 }
 
-#calendar-day > .actions > a.expense {
+#calendar-day > .actions > button.expense {
   color: var(--expense-fg);
   background: var(--expense-bg);
   border: solid 3px var(--expense-bg);
-  border-radius: 1.5rem;
 }
 
 #calendar .balance {
@@ -558,7 +573,7 @@ section.actions a.expense:hover {
 
 /* Transaction Dialog */
 
-#dialog {
+.dialog {
   position: absolute;
   top: 0;
   left: 0;
@@ -567,9 +582,13 @@ section.actions a.expense:hover {
   z-index: 5000;
   display: flex;
   background: #0007;
-  --local-primary: #f0f;
-  --local-on-primary: #fff;
+  --local-primary: var(--primary);
+  --local-on-primary: var(--on-primary);
   contain: strict;
+}
+
+.dialog::backdrop {
+  background: #3338;
 }
 
 #dialog.income {
@@ -580,18 +599,22 @@ section.actions a.expense:hover {
   --local-primary: var(--expense-bg);
 }
 
-#dialog::backdrop {
-  background: #3338;
-}
-
-#dialog form {
+.dialog > * {
   max-height: 98%;
   max-width: 98%;
+  min-width: 50%;
   margin: auto;
-  border: none;
+  border: solid 0.25rem var(--bg-lighter);
   border-radius: 0.25rem;
   contain: content;
   box-shadow: 0px 4px 20px 0px black;
+  padding: 1rem 2rem;
+  color: var(--fg);
+  background: var(--bg-lighter);
+  overflow-y: scroll;
+}
+
+#dialog form {
   display: flex;
   flex-flow: column wrap;
   align-items: stretch;
@@ -604,16 +627,13 @@ section.actions a.expense:hover {
   grid-template-areas:
     'amount      date'
     'description date'
-    'categories  date'
+    'categories  date'        
     'actions actions';
   grid-template-areas:
     'date    amount'
     'date    description'
     'date    categories'
     'actions actions';
-  padding: 1rem;
-  color: #000;
-  background: #fff;
 }
 
 #dialog section {
@@ -640,12 +660,13 @@ section.actions a.expense:hover {
   border-top: none;
   border-left: none;
   border-right: none;
-  border-bottom: 2px dotted gray;
+  border-bottom: 2px dotted var(--fg-lighter);
   padding-bottom: 0;
   margin-bottom: 0;
   color: inherit;
   font-size: inherit;
   font-weight: inherit;
+  background: transparent;
 }
 
 #dialog section.amount label {
@@ -704,7 +725,7 @@ section.actions a.expense:hover {
   /* border-radius: 1.25rem; 
     border: solid 2px var(--local-primary); */
   border-right: solid 2px var(--local-primary);
-  background: var(--bg);
+  background: var(--bg-lighter);
   color: var(--fg);
 }
 
@@ -794,10 +815,10 @@ section.actions a.expense:hover {
   outline: none;
   margin: 0;
   padding: 0.5rem 1rem;
-  border: 3px solid #fff;
+  border: 3px solid transparent;
   border-radius: 0.125rem;
   color: #000;
-  background: #fff;
+  background: var(--bg-lighter);
   text-align: left;
   user-select: none;
   cursor: pointer;
@@ -828,16 +849,13 @@ section.actions a.expense:hover {
   flex-flow: row wrap;
   justify-content: flex-end;
   align-items: flex-end;
-  background: #fff;
+  background: var(--bg-lighter);
   padding: 0.5rem 0 0;
 }
 
 #dialog section.actions button {
-  border: solid 2px var(--local-primary);
-  border-radius: 1.25rem;
-  height: 2.5rem;
-  color: var(--local-primary);
-  background: #fff;
+  border-color: var(--fg-lighter);
+  color: var(--fg-lighter);
   padding-left: 1.25rem;
   padding-right: 1.25rem;
   margin-left: 2rem;
@@ -847,6 +865,7 @@ section.actions a.expense:hover {
 
 #dialog section.actions button:last-child {
   color: #fff;
+  border-color: var(--local-primary);
   background: var(--local-primary);
 }
 

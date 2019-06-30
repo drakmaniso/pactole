@@ -1,12 +1,16 @@
 :root {
   --fg: #000;
-  --fg1: #777; 
-  --fg2: #999; 
+  --fg-lighter: #787370; 
+  --fg-lighter: #676260; 
+  --fg-lightest: #9a9591; 
 
-  --bg: #fff;
-  --bg1: #efebe0;
+  --bg-lighter: #ffffff;
+  --bg: #efebe0;
   --bg-darker: #cdc9c0;
-  --bg3: #898480;
+  --bg-darker: #bcb8b0;
+  --bg-darkest: #aba7a0;
+
+  --shadow: #898480;
 
   --primary: #008899;
   --on-primary: #fff;

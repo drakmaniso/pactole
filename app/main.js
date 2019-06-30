@@ -118,10 +118,15 @@ function wireHTML() {
     //id('account-list').hidden = false
   }
 
-  id('nav-close').onclick = () => {
-    id('nav-settings').hidden = false
-    id('nav-close').hidden = true
-    history.back()
+  id('nav-settings').onclick = () => {
+    id('settings').hidden = false
+  }
+
+  id('settings').onclick = e => {
+    if (e.target == id('settings')) {
+      id('settings').hidden = true
+      //history.back()
+    }
   }
 
   id('list-income').onclick = () => {
@@ -135,6 +140,12 @@ function wireHTML() {
   id('dialog-cancel').onclick = event => {
     //event.preventDefault()
     closeDialog()
+  }
+
+  id('dialog').onclick = e => {
+    if (e.target == id('dialog')) {
+      closeDialog()
+    }
   }
 
   id('dialog-confirm').onclick = event => {
@@ -166,8 +177,8 @@ function renderCalendar(date) {
 
   {
     const header = document.createElement('header')
-    const prev = document.createElement('div')
-    prev.setAttribute('class', 'fa button')
+    const prev = document.createElement('button')
+    prev.setAttribute('class', 'fa')
     prev.appendChild(document.createTextNode('\uf060'))
     prev.addEventListener('click', event => {
       closeDialog()
@@ -187,21 +198,14 @@ function renderCalendar(date) {
     }
     header.appendChild(par)
 
-    const next = document.createElement('div')
-    next.setAttribute('class', 'fa button')
+    const next = document.createElement('button')
+    next.setAttribute('class', 'fa')
     next.appendChild(document.createTextNode('\uf061'))
     next.addEventListener('click', event => {
       closeDialog()
       renderCalendar(calendar.delta(date, 0, +1, 0))
     })
     header.appendChild(next)
-
-    for (const w of calendar.dayNames) {
-      const div = document.createElement('div')
-      div.setAttribute('class', 'weekday')
-      div.appendChild(document.createTextNode(w))
-      header.appendChild(div)
-    }
 
     cal.appendChild(header)
   }
@@ -263,6 +267,13 @@ function renderCalendar(date) {
     }
     cal.appendChild(section)
   })
+
+  for (const w of calendar.dayNames) {
+    const div = document.createElement('div')
+    div.setAttribute('class', 'weekday')
+    div.appendChild(document.createTextNode(w))
+    cal.appendChild(div)
+  }
 }
 
 function renderCalendarDay(date) {

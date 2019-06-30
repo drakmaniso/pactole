@@ -11,8 +11,8 @@
   <body>
 
     <nav id="navigation">
-      <a id="nav-settings" href="#settings" class="fa">&#xf013;</a>
-      <a id="nav-close" hidden="true" href="#close" class="fa">&#xf00d;</a>
+      <a id="nav-settings" class="fa">&#xf013;</a>
+      <a id="nav-close" hidden="true" class="fa">&#xf00d;</a>
     </nav>
 
     <main hidden id="home">
@@ -40,8 +40,8 @@
         <ul id="calendar-day-ul">
         </ul>
         <div id="calendar-day-actions" class="actions">
-          <a id="calendar-income" class="income fa">&#xf067;</a>
-          <a id="calendar-expense" class="expense fa">&#xf068;</a>
+          <button id="calendar-income" class="income fa">&#xf067;</button>
+          <button id="calendar-expense" class="expense fa">&#xf068;</button>
         </div>
       </section>
 
@@ -66,13 +66,12 @@
       </section>
 
       <section class="actions">
-        <a href="#summary"><span hidden class="fa">&#xf080;</span><span class="fa">&#xf201;</span><span hidden class="fa">&#xf200;</span>&nbsp;Résumé</a>
-        <a id="list-income" class="income">Arrivée d'argent</a>
-        <a id="list-expense" class="expense">Nouvelle dépense</a>
+        <button id="list-income" class="income">Arrivée d'argent</button>
+        <button id="list-expense" class="expense">Nouvelle dépense</button>
       </section>
     </main>
 
-    <div hidden="true" id="dialog">
+    <div hidden="true" id="dialog" class="dialog">
       <form id="dialog-form" name="dialog-form" method="dialog">
         <section class="date" id="date-section">
           <label hidden="true" for="date">Date:</label>
@@ -104,76 +103,78 @@
       <h1>Résumé</h1>
     </main>
 
-    <main hidden id="settings">
-      <h1>Configuration</h1>
-      <section>
-        <h3>Comptes gérés sur cet ordinateur:</h3>
-        <table>
-          <tr>
-            <td><input type="text" value="Christelle"></td>
-            <td><button class="fa">&#xf1f8;</button></td>
-          </tr>
-          <tr>
-            <td><input type="text" value="Laurent"></td>
-            <td><button class="fa">&#xf1f8;</button></td>
-          </tr>
-          <tr>
-            <td><button class="fa">&#xf067;</button></td>
-          </tr>
-        </table>
-      </section>
-      <section>
-        <h3><label for="mode">Mode d'affichage des opérations:</label></h3>
-        <div><input type="radio" name="mode" id="mode-0" value="calendar"><label for="mode-0">Calendrier</label><div>
-        <div><input type="radio" name="mode" id="mode-1" value="list"><label for="mode-1">Liste</label><div>
-        <div><input type="radio" name="mode" id="mode-2" value="both"><label for="mode-2">Calendrier et Liste</label><div>
-      </section>
-      <section>
-        <h3>Catégories de dépense:</h3>
-        <div><input type="radio" name="setting-categories-toggle" id="setting-categories-toggle-0" value="on"><label for="setting-categories-toggle-0">Activer</label><div>
-        <div><input type="radio" name="setting-categories-toggle" id="setting-categories-toggle-1" value="off"><label for="setting-categories-toggle-1">Désactiver</label><div>
-        <table>
-          <tr>
-            <td><button class="fa">&#xf015;</button></td>
-            <td><input type="text" value="Maison"></td>
-            <td><button class="fa">&#xf1f8;</button></td>
-          </tr>
-          <tr>
-            <td><button class="fa">&#xf0f1;</button></td>
-            <td><input type="text" value="Santé"></td>
-            <td><button class="fa">&#xf1f8;</button></td>
-          </tr>
-          <tr>
-            <td><button class="fa">&#xf2e7;</button></td>
-            <td><input type="text" value="Nourriture"></td>
-            <td><button class="fa">&#xf1f8;</button></td>
-          </tr>
-          <tr>
-            <td><button class="fa">&#xf553;</button></td>
-            <td><input type="text" value="Habillement"></td>
-            <td><button class="fa">&#xf1f8;</button></td>
-          </tr>
-          <tr>
-            <td><button class="fa">&#xf1b9;</button></td>
-            <td><input type="text" value="Transports"></td>
-            <td><button class="fa">&#xf1f8;</button></td>
-          </tr>
-          <tr>
-            <td><button class="fa">&#xf11b;</button></td>
-            <td><input type="text" value="Loisirs"></td>
-            <td><button class="fa">&#xf1f8;</button></td>
-          </tr>
-          <tr>
-            <td><button class="fa">&#xf128;</button></td>
-            <td><input type="text" value="Autre"></td>
-            <td><button class="fa">&#xf1f8;</button></td>
-          </tr>
-          <tr>
-            <td><button class="fa">&#xf067;</button></td>
-          </tr>
-        </table>
-      </section>
-    </main>
+    <div hidden id="settings" class="dialog">
+      <div>
+        <h1>Configuration</h1>
+        <section>
+          <h3>Comptes gérés sur cet ordinateur:</h3>
+          <table>
+            <tr>
+              <td><input type="text" value="Christelle"></td>
+              <td><button class="fa">&#xf1f8;</button></td>
+            </tr>
+            <tr>
+              <td><input type="text" value="Laurent"></td>
+              <td><button class="fa">&#xf1f8;</button></td>
+            </tr>
+            <tr>
+              <td><button class="fa">&#xf067;</button></td>
+            </tr>
+          </table>
+        </section>
+        <section>
+          <h3><label for="mode">Mode d'affichage des opérations:</label></h3>
+          <div><input type="radio" name="mode" id="mode-0" value="calendar"><label for="mode-0">Calendrier</label><div>
+          <div><input type="radio" name="mode" id="mode-1" value="list"><label for="mode-1">Liste</label><div>
+          <div><input type="radio" name="mode" id="mode-2" value="both"><label for="mode-2">Calendrier et Liste</label><div>
+        </section>
+        <section>
+          <h3>Catégories de dépense:</h3>
+          <div><input type="radio" name="setting-categories-toggle" id="setting-categories-toggle-0" value="on"><label for="setting-categories-toggle-0">Activer</label><div>
+          <div><input type="radio" name="setting-categories-toggle" id="setting-categories-toggle-1" value="off"><label for="setting-categories-toggle-1">Désactiver</label><div>
+          <table>
+            <tr>
+              <td><button class="fa">&#xf015;</button></td>
+              <td><input type="text" value="Maison"></td>
+              <td><button class="fa">&#xf1f8;</button></td>
+            </tr>
+            <tr>
+              <td><button class="fa">&#xf0f1;</button></td>
+              <td><input type="text" value="Santé"></td>
+              <td><button class="fa">&#xf1f8;</button></td>
+            </tr>
+            <tr>
+              <td><button class="fa">&#xf2e7;</button></td>
+              <td><input type="text" value="Nourriture"></td>
+              <td><button class="fa">&#xf1f8;</button></td>
+            </tr>
+            <tr>
+              <td><button class="fa">&#xf553;</button></td>
+              <td><input type="text" value="Habillement"></td>
+              <td><button class="fa">&#xf1f8;</button></td>
+            </tr>
+            <tr>
+              <td><button class="fa">&#xf1b9;</button></td>
+              <td><input type="text" value="Transports"></td>
+              <td><button class="fa">&#xf1f8;</button></td>
+            </tr>
+            <tr>
+              <td><button class="fa">&#xf11b;</button></td>
+              <td><input type="text" value="Loisirs"></td>
+              <td><button class="fa">&#xf1f8;</button></td>
+            </tr>
+            <tr>
+              <td><button class="fa">&#xf128;</button></td>
+              <td><input type="text" value="Autre"></td>
+              <td><button class="fa">&#xf1f8;</button></td>
+            </tr>
+            <tr>
+              <td><button class="fa">&#xf067;</button></td>
+            </tr>
+          </table>
+        </section>
+            </div>
+    </div>
 
     <script src="main.js" type="module"></script>
   </body>
