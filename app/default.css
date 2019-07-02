@@ -65,6 +65,40 @@ body.keyboard-navigation button:focus {
   background: #555; 
 }
 
+.options {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 0.25rem;
+}
+.options input {
+  -webkit-appearance: none;
+  /* margin-right: 0.75rem; */
+}
+.options label {
+  flex: 1;
+  display: flex;
+  align-items: baseline;
+  outline: none;
+  margin: 0;
+  padding: 0.5rem 1rem;
+  border: 3px solid transparent;
+  border-radius: 0.125rem;
+  color: var(--fg);
+  background: transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  user-select: none;
+  cursor: pointer;
+}
+.options input:checked + label {
+  color: var(--on-primary);
+  background: var(--primary);
+  border: solid 3px var(--primary);
+}
+
 /* Navigation Menu */
 
 nav {
@@ -878,6 +912,12 @@ li.date {
 /* Settings */
 
 #settings {
+}
+
+#settings > div > section {
+  display: flex;
+  flex-flow: column wrap;
+  align-items: flex-start;
 }
 
 #settings h1 {

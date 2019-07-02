@@ -66,12 +66,11 @@ onload = () => {
 navigator.serviceWorker.ready
   .then(registration => {
     setupService(registration.active)
-    //send('open', 'Pactole')
-    ledger.open().then(() => {
-      ledger.updateAccounts()
-      ledger.updateCategories().then(() => {
-        renderCategories(ledger.getCategories())
-      })
+    const accounts = ledger.getAccounts()
+    //TODO: when accounts is empty
+    ledger.open(accounts[0].name).then(() => {
+      renderAccounts(ledger.getAccounts())
+      renderCategories(ledger.getCategories())
       ledger.updateTransactions().then(() => {
         renderCalendar(calendar.today())
         renderList(ledger.getTransactions())
@@ -129,6 +128,18 @@ function wireHTML() {
   window.addEventListener('mousedown', e => {
     document.body.classList.toggle('keyboard-navigation', false)
   })
+
+  id('accounts').oninput = event => {
+    const a = document.forms['accounts'].elements['account'].value
+    console.log(`Switch to account ${a}`)
+    ledger.open(a).then(() => {
+      renderCategories(ledger.getCategories())
+      ledger.updateTransactions().then(() => {
+        renderCalendar(calendar.today())
+        renderList(ledger.getTransactions())
+      })
+    })
+  }
 
   id('list-income').onclick = () => {
     openDialog(calendar.today(), 'income', true)
@@ -483,6 +494,8 @@ function renderMinicalendar(date) {
   id('date-section').hidden = false
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
 function renderCategories(categories) {
   console.log(`Rendering categories.`)
   const listbox = id('categories')
@@ -490,7 +503,7 @@ function renderCategories(categories) {
     listbox.lastChild.remove()
   }
   let i = 0
-  for (const [_, c] of categories) {
+  for (const c of categories) {
     const div = document.createElement('div')
     const input = document.createElement('input')
     input.hidden = true
@@ -508,6 +521,34 @@ function renderCategories(categories) {
     label.appendChild(document.createTextNode(c.name))
     div.appendChild(label)
     listbox.appendChild(div)
+    i++
+  }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+function renderAccounts(accounts) {
+  console.log(`Rendering accounts.`)
+  const options = id('accounts')
+  while (options.hasChildNodes()) {
+    options.lastChild.remove()
+  }
+  let i = 0
+  for (const a of accounts) {
+    const input = document.createElement('input')
+    input.hidden = true
+    input.type = 'radio'
+    input.name = 'account'
+    input.id = `account-${i}`
+    input.value = a.name
+    if (i === 0) {
+      input.checked = true
+    }
+    options.appendChild(input)
+    const label = document.createElement('label')
+    label.setAttribute('for', input.id)
+    label.appendChild(document.createTextNode(a.name))
+    options.appendChild(label)
     i++
   }
 }
@@ -558,13 +599,11 @@ function setupService(s) {
     console.log(`Received ${event.data.title}.`)
     switch (event.data.title) {
       case 'accounts':
-        ledger.updateAccounts()
+        renderAccounts(ledger.getAccounts())
         break
 
       case 'categories':
-        ledger.updateCategories().then(() => {
-          renderCategories(ledger.getCategories())
-        })
+        renderCategories(ledger.getCategories())
         break
 
       case 'transactions':

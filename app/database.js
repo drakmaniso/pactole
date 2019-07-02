@@ -1,8 +1,9 @@
 'use strict'
 
+const _allDatabases = new Map()
 let _database
 
-export function open() {
+export function open(name) {
   return new Promise((resolve, reject) => {
     /*
     if (!indexedDB) {
@@ -10,13 +11,14 @@ export function open() {
     }
     */
 
-    if (_database) {
-      reject(new Error(`Database already opened.`))
+    if (_allDatabases.has(name)) {
+      _database = _allDatabases.get(name)
+      resolve(_database)
       return
     }
 
-    console.log('Opening database...')
-    let req = indexedDB.open('Pactole', 1)
+    console.log(`Opening database ${name}...`)
+    let req = indexedDB.open(name, 1)
     req.onerror = event => {
       reject(new Error(`failed to open database: ${event.target.error}`))
     }
@@ -26,47 +28,26 @@ export function open() {
         //TODO
         console.Error(`database error: ${event.target.errorCode}`)
       }
-      console.log('...database opened.')
+      console.log(`...database ${name} opened.`)
+      _allDatabases.set(name, _database)
       resolve(_database)
     }
 
     req.onupgradeneeded = event => {
-      console.log('  Upgrading database...')
+      console.log(`  Upgrading database ${name}...`)
       const db = event.target.result
-
-      db.createObjectStore('accounts', { keyPath: 'name' })
-      db.createObjectStore('categories', { keyPath: 'name' })
       const os = db.createObjectStore('transactions', { autoIncrement: true })
-
       os.transaction.oncomplete = () => {
-        {
-          const os = db
-            .transaction('accounts', 'readwrite')
-            .objectStore('accounts')
-          dummyAccounts.forEach(a => {
-            os.add(a)
-          })
-        }
-
-        {
-          const os = db
-            .transaction('categories', 'readwrite')
-            .objectStore('categories')
-          dummyCategories.forEach(c => {
-            os.add(c)
-          })
-        }
-
-        {
-          const os = db
-            .transaction('transactions', 'readwrite')
-            .objectStore('transactions')
-          dummyTransactions.forEach(t => {
-            os.add(t)
-          })
-        }
+        const os = db
+          .transaction('transactions', 'readwrite')
+          .objectStore('transactions')
+        /*
+        dummyTransactions.forEach(t => {
+          os.add(t)
+        })
+        */
       }
-      console.log('  ...database upgraded.')
+      console.log(`  ...database ${name} upgraded.`)
     }
   })
 }
@@ -87,7 +68,7 @@ export function getAll(osName) {
       reject(new Error(`datastore get request: ${event.target.error}`))
     }
     req.onsuccess = event => {
-      console.log(`getAll('${osName}'): ${req.result.length} objects`)
+      //console.log(`getAll('${osName}'): ${req.result.length} objects`)
       resolve(req.result)
     }
   })
@@ -115,18 +96,6 @@ export function addTransaction(t) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
-const dummyAccounts = [{ name: 'Christelle' }, { name: 'Laurent' }]
-
-const dummyCategories = [
-  { name: 'Maison', icon: '\uf015' },
-  { name: 'Santé', icon: '\uf0f1' },
-  { name: 'Nourriture', icon: '\uf2e7' },
-  { name: 'Habillement', icon: '\uf553' },
-  { name: 'Transport', icon: '\uf1b9' },
-  { name: 'Loisirs', icon: '\uf11b' },
-  { name: 'Autre', icon: '\uf128' },
-]
 
 const dummyTransactions = [
   {

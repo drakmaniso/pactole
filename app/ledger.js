@@ -2,25 +2,12 @@
 
 import * as database from './database.js'
 
-const _accounts = new Map()
-const _categories = new Map()
-
 // Transactions
 let _list = []
 const _calendar = new Map()
 
-export function open() {
-  return database.open()
-}
-
-export function updateAccounts() {
-  return database.getAll('accounts').then(accounts => {
-    console.log(`Updating accounts: ${accounts.length}`)
-    _accounts.clear()
-    for (const a of accounts) {
-      _accounts.set(a.name, a)
-    }
-  })
+export function open(name) {
+  return database.open(name)
 }
 
 export function updateCategories() {
@@ -47,10 +34,6 @@ export function updateTransactions() {
   })
 }
 
-export function getCategories() {
-  return _categories
-}
-
 export function getTransactions() {
   return _list
 }
@@ -64,3 +47,37 @@ export function addTransaction(t) {
     return updateTransactions()
   })
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+export function getAccounts() {
+  const s = localStorage.getItem('accounts')
+  if (!s) {
+    localStorage.setItem('accounts', JSON.stringify(dummyAccounts))
+    return dummyAccounts
+  }
+  return JSON.parse(s)
+}
+
+const dummyAccounts = [{ name: 'Christelle' }, { name: 'Laurent' }]
+
+///////////////////////////////////////////////////////////////////////////////
+
+export function getCategories() {
+  const s = localStorage.getItem('categories')
+  if (!s) {
+    localStorage.setItem('categories', JSON.stringify(dummyCategories))
+    return dummyCategories
+  }
+  return JSON.parse(s)
+}
+
+const dummyCategories = [
+  { name: 'Maison', icon: '\uf015' },
+  { name: 'Santé', icon: '\uf0f1' },
+  { name: 'Nourriture', icon: '\uf2e7' },
+  { name: 'Habillement', icon: '\uf553' },
+  { name: 'Transport', icon: '\uf1b9' },
+  { name: 'Loisirs', icon: '\uf11b' },
+  { name: 'Autre', icon: '\uf128' },
+]

@@ -21,6 +21,8 @@
     <main id="calendar">
 
       <header class="overview">
+        <form id="accounts" class="options">
+        </form>
         <button id="select-account">
           <div id="account">Solde actuel:</div>
           <div id="balance">1200 €</div>
@@ -124,16 +126,20 @@
         </section>
         <section>
           <h3><label for="mode">Mode d'affichage des opérations:</label></h3>
-          <div class="listbox">
-            <div><input checked="true" type="radio" name="mode" id="mode-0" value="calendar"><label for="mode-0">Calendrier</label></div>
-            <div><input type="radio" name="mode" id="mode-1" value="list"><label for="mode-1">Liste</label></div>
+          <div class="options">
+            <input checked="true" type="radio" name="mode" id="mode-0" value="calendar">
+            <label for="mode-0">Calendrier</label>
+            <input type="radio" name="mode" id="mode-1" value="list">
+            <label for="mode-1">Liste</label>
           </div>
         </section>
         <section>
           <h3>Catégories de dépense:</h3>
-          <div class="listbox">
-            <div><input checked="true" type="radio" name="settings-categories-toggle" id="settings-categories-toggle-0" value="on"><label for="settings-categories-toggle-0">Activer</label></div>
-            <div><input type="radio" name="settings-categories-toggle" id="settings-categories-toggle-1" value="off"><label for="settings-categories-toggle-1">Désactiver</label></div>
+          <div class="options">
+            <input checked="true" type="radio" name="settings-categories-toggle" id="settings-categories-toggle-0" value="on">
+            <label for="settings-categories-toggle-0">Activer</label>
+            <input type="radio" name="settings-categories-toggle" id="settings-categories-toggle-1" value="off">
+            <label for="settings-categories-toggle-1">Désactiver</label>
           </div>
           <table>
             <tr>
@@ -178,9 +184,11 @@
         </section>
         <section>
           <h3>Pointage:</h3>
-          <div class="listbox">
-            <div><input checked="true" type="radio" name="settings-reconciliation-toggle" id="settings-reconciliation-toggle-0" value="on"><label for="settings-reconciliation-toggle-0">Activer</label></div>
-            <div><input type="radio" name="settings-reconciliation-toggle" id="settings-reconciliation-toggle-1" value="off"><label for="settings-reconciliation-toggle-1">Désactiver</label></div>
+          <div class="options">
+            <input checked="true" type="radio" name="settings-reconciliation-toggle" id="settings-reconciliation-toggle-0" value="on">
+            <label for="settings-reconciliation-toggle-0">Activer</label>
+            <input type="radio" name="settings-reconciliation-toggle" id="settings-reconciliation-toggle-1" value="off">
+            <label for="settings-reconciliation-toggle-1">Désactiver</label>
           </div>
         </section>
       </div>
