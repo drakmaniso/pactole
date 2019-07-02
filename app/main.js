@@ -12,6 +12,7 @@ if (!('serviceWorker' in navigator)) {
   throw new Error('FATAL: Service workers are not supported by the navigator.')
 }
 
+/*
 navigator.storage.persist().then(persisted => {
   if (persisted) {
     console.log('Persistent storage allowed.')
@@ -26,6 +27,7 @@ navigator.storage.persist().then(persisted => {
     console.error('*** NOT Persisted! ***')
   }
 })
+*/
 
 onload = () => {
   navigator.serviceWorker
@@ -50,7 +52,6 @@ onload = () => {
         w.onstatechange = event => {
           if (event.target.state === 'installed') {
             console.log(`The new service has been installed.`)
-            //TODO: restart service?
           }
         }
       }
@@ -62,10 +63,15 @@ onload = () => {
 
 //navigator.serviceWorker.startMessages()
 
-navigator.serviceWorker.ready.then(registration => {
-  setupService(registration.active)
-  main()
-})
+navigator.serviceWorker.ready
+  .then(registration => {
+    setupService(registration.active)
+    send('open', 'Pactole')
+    main()
+  })
+  .catch(err => {
+    console.error(`Service worker not ready: ${err}`)
+  })
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -355,10 +361,10 @@ function renderList(transactions) {
     transList.removeChild(transList.firstChild)
   }
   const dateList = document.createElement('ul')
-  let currentDate = calendar.today()
+  let currentDate = null
   let currentList = null
   for (const t of ledger.getTransactions()) {
-    if (t.date !== currentDate) {
+    if ((currentDate === null) | (t.date !== currentDate)) {
       const li = document.createElement('li')
       li.setAttribute('class', 'date')
       li.innerHTML =
@@ -552,12 +558,9 @@ function setupService(s) {
         break
     }
   }
-  send('connect', null)
 }
 
 function send(title, content) {
   console.log(`Sending ${title} to service...`)
-  return new Promise((resolve, reject) => {
-    service.postMessage({ title: title, content: content })
-  })
+  return service.postMessage({ title: title, content: content })
 }

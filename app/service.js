@@ -6,15 +6,17 @@ function log(msg) {
 
 oninstall = event => {
   log('Installing service...')
+  event.waitUntil(skipWaiting())
   log('...service installed.')
 }
 
 onactivate = event => {
   log('Activating service...')
-  clients.claim()
+  event.waitUntil(clients.claim())
   log('...service activated.')
 }
 
+/*
 onfetch = event => {
   //log(`Fetch: ${event.request.url}`)
   switch (event.request.url) {
@@ -33,37 +35,42 @@ onfetch = event => {
   //    )
   //  )
 }
+*/
 
 onmessage = event => {
-  log(`Received ${event.data.title}.`)
-  if (!database) {
-    openDatabase().then(() => {
-      dispatch(event.data)
-    })
-  } else {
-    dispatch(event.data)
-  }
-}
+  const msg = event.data
+  log(`Received ${msg.title}.`)
+  switch (msg.title) {
+    case 'connectDISABLED':
+      readSettings().then(result => {
+        send('settings', result)
+      })
+      break
 
-function dispatch(message) {
-  switch (message.title) {
-    case 'connect':
-      sendAccounts()
-        .then(() => {
-          sendCategories()
+    case 'open':
+      let db
+      openDatabase(msg.content)
+        .then(db => {
+          sendCategories(db)
+          return db
         })
-        .then(() => {
-          sendTransactions()
+        .then(db => {
+          sendTransactions(db)
+          return db
         })
         .catch(err => {
           console.error(`* ${err}`)
         })
-
       break
+
     case 'new transaction':
-      addTransaction(message.content)
-        .then(() => {
-          sendTransactions()
+      openDatabase('Pactole')
+        .then(db => {
+          addTransaction(db, msg.content)
+          return db
+        })
+        .then(db => {
+          sendTransactions(db)
         })
         .catch(err => {
           console.error(`* ${err}`)
@@ -72,63 +79,85 @@ function dispatch(message) {
   }
 }
 
-async function sendAccounts() {
-  return getAll('accounts').then(result => {
-    send('accounts', result)
-  })
+function sendAccounts(db) {
+  getAll(db, 'accounts')
+    .then(result => {
+      send('accounts', result)
+    })
+    .catch(err => {
+      console.error(`* ${err}`)
+    })
 }
 
-async function sendCategories() {
-  return getAll('categories').then(result => {
-    send('categories', result)
-  })
+function sendCategories(db) {
+  getAll(db, 'categories')
+    .then(result => {
+      send('categories', result)
+    })
+    .catch(err => {
+      console.error(`* ${err}`)
+    })
 }
 
-async function sendTransactions() {
-  return getAll('transactions').then(result => {
-    send('transactions', result)
-  })
+function sendTransactions(db) {
+  getAll(db, 'transactions')
+    .then(result => {
+      send('transactions', result)
+    })
+    .catch(err => {
+      console.error(`* ${err}`)
+    })
 }
 
-async function send(title, content) {
-  const allclients = await clients.matchAll({
-    includeUnctonrolled: true,
+function send(title, content) {
+  clients.matchAll({ includeUnctonrolled: true }).then(clients => {
+    log(`Sending ${title} to ${clients.length} client(s)...`)
+    for (const c of clients) {
+      c.postMessage({ title: title, content: content })
+    }
   })
-  log(`Sending ${title} to ${allclients.length} client(s)...`)
-  for (const c of allclients) {
-    c.postMessage({ title: title, content: content })
-  }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-let database = null
+function readSettings() {
+  const settings = localStorage.getItem('settings')
+  if (!settings) {
+    settings = defaultSettings
+    localStorage.setItem('settings', JSON.stringify(settings))
+  } else {
+    settings = JSON.parse(settings)
+  }
+  return settings
+}
 
-async function openDatabase() {
+///////////////////////////////////////////////////////////////////////////////
+
+function openDatabase(name) {
   return new Promise((resolve, reject) => {
-    if (database !== null) {
-      reject(new Error('internal error: database already opened'))
-    }
+    /*
     if (!indexedDB) {
       reject(new Error('IndexedDB not supported by browser'))
     }
+    */
 
+    log('Opening database...')
     let req = indexedDB.open('Pactole', 1)
     req.onerror = event => {
       reject(new Error(`failed to open database: ${event.target.error}`))
     }
     req.onsuccess = event => {
-      log('Database opened.')
-      database = event.target.result
-      database.onerror = event => {
+      const db = event.target.result
+      db.onerror = event => {
         //TODO
         log(new Error(`database error: ${event.target.errorCode}`))
       }
-      resolve()
+      log('...database opened.')
+      resolve(db)
     }
 
     req.onupgradeneeded = event => {
-      log('Upgrading database...')
+      log('  Upgrading database...')
       const db = event.target.result
 
       db.createObjectStore('accounts', { keyPath: 'name' })
@@ -163,23 +192,19 @@ async function openDatabase() {
           })
         }
       }
-      log('...database upgraded.')
+      log('  ...database upgraded.')
     }
   })
 }
 
-async function getAll(osName) {
+function getAll(db, osName) {
   return new Promise(function(resolve, reject) {
-    if (database === null) {
-      reject(new Error('datastore not opened'))
-    }
-
-    let tr = database.transaction(osName, 'readonly')
+    let tr = db.transaction(osName, 'readonly')
     tr.onerror = event => {
       reject(new Error(`getAll('${osName}'): ${event.target.error}`))
     }
     tr.oncomplete = event => {
-      log(`getAll('${osName}'): transaction completed`)
+      // log(`getAll('${osName}'): transaction completed`)
     }
 
     let os = tr.objectStore(osName)
@@ -193,13 +218,9 @@ async function getAll(osName) {
   })
 }
 
-async function addTransaction(t) {
+function addTransaction(db, t) {
   return new Promise(function(resolve, reject) {
-    if (database === null) {
-      reject(new Error('datastore not opened'))
-    }
-
-    let tr = database.transaction('transactions', 'readwrite')
+    let tr = db.transaction('transactions', 'readwrite')
     tr.onerror = event => {
       reject(new Error(`addTransaction('${t}'): ${event.target.error}`))
     }
@@ -234,91 +255,100 @@ const dummyCategories = [
 
 const dummyTransactions = [
   {
-    date: '2019-05-02',
+    date: '2019-07-02',
     amount: 50000,
     category: "Entrée d'argent",
     description: 'AAH',
     reconciled: false,
   },
   {
-    date: '2019-05-02',
+    date: '2019-07-02',
     amount: 20000,
     category: "Entrée d'argent",
     description: '',
     reconciled: false,
   },
   {
-    date: '2019-05-03',
+    account: 'Christelle',
+    date: '2019-07-02',
+    amount: 87600,
+    category: "Entrée d'argent",
+    description: 'Salaire',
+    reconciled: false,
+  },
+  {
+    date: '2019-07-03',
     amount: -56000,
     category: 'Loyer',
     description: '',
     reconciled: false,
   },
   {
-    date: '2019-05-03',
+    date: '2019-07-03',
     amount: -15000,
     category: 'Électricité',
     description: '',
     reconciled: false,
   },
   {
-    date: '2019-05-03',
+    date: '2019-07-03',
     amount: -3000,
     category: 'Téléphone',
     description: '',
     reconciled: false,
   },
   {
-    date: '2019-05-05',
+    date: '2019-07-05',
     amount: -2300,
     category: 'Santé',
     description: 'pharmacie',
     reconciled: false,
   },
   {
-    date: '2019-05-09',
+    date: '2019-07-09',
     amount: -700,
     category: 'Transports',
     description: '',
     reconciled: false,
   },
   {
-    date: '2019-05-18',
+    date: '2019-07-18',
     amount: -6000,
     category: 'Alimentation',
     description: 'courses Super U',
     reconciled: false,
   },
   {
-    date: '2019-05-18',
+    date: '2019-07-18',
     amount: -2000,
     category: 'Divers',
     description: 'distributeur',
     reconciled: false,
   },
   {
-    date: '2019-05-20',
+    account: 'Christelle',
+    date: '2019-07-20',
     amount: -3200,
     category: 'Habillement',
     description: 'La Halle aux Vêtements',
     reconciled: false,
   },
   {
-    date: '2019-05-21',
+    date: '2019-07-21',
     amount: -2000,
     category: 'Divers',
     description: 'distributeur',
     reconciled: false,
   },
   {
-    date: '2019-05-23',
+    date: '2019-07-23',
     amount: -5500,
     category: 'Transports',
     description: 'essence',
     reconciled: false,
   },
   {
-    date: '2019-05-24',
+    date: '2019-07-24',
     amount: -3500,
     category: 'Loisirs',
     description: 'Raspberry Pi',
