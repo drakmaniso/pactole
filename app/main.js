@@ -66,8 +66,18 @@ onload = () => {
 navigator.serviceWorker.ready
   .then(registration => {
     setupService(registration.active)
-    send('open', 'Pactole')
-    main()
+    //send('open', 'Pactole')
+    ledger.open().then(() => {
+      ledger.updateAccounts()
+      ledger.updateCategories().then(() => {
+        renderCategories(ledger.getCategories())
+      })
+      ledger.updateTransactions().then(() => {
+        renderCalendar(calendar.today())
+        renderList(ledger.getTransactions())
+      })
+      main()
+    })
   })
   .catch(err => {
     console.error(`Service worker not ready: ${err}`)
@@ -152,7 +162,9 @@ function wireHTML() {
     if (id('dialog').classList.contains('expense')) {
       transac.amount = -transac.amount
     }
-    send('new transaction', transac)
+    ledger.addTransaction(transac).then(() => {
+      send('new transaction')
+    })
     closeDialog()
   }
 
@@ -188,6 +200,7 @@ function wireHTML() {
 ///////////////////////////////////////////////////////////////////////////////
 
 function renderCalendar(date) {
+  console.log('Rendering calendar page.')
   id('calendar-day').hidden = true
   const cal = id('calendar-month')
   while (cal.hasChildNodes()) {
@@ -356,6 +369,7 @@ function renderCalendarDay(date) {
 ///////////////////////////////////////////////////////////////////////////////
 
 function renderList(transactions) {
+  console.log('Rendering list page')
   const transList = id('transactions-list')
   while (transList.hasChildNodes()) {
     transList.removeChild(transList.firstChild)
@@ -470,12 +484,13 @@ function renderMinicalendar(date) {
 }
 
 function renderCategories(categories) {
+  console.log(`Rendering categories.`)
   const listbox = id('categories')
   while (listbox.hasChildNodes()) {
     listbox.lastChild.remove()
   }
   let i = 0
-  for (const c of categories) {
+  for (const [_, c] of categories) {
     const div = document.createElement('div')
     const input = document.createElement('input')
     input.hidden = true
@@ -543,18 +558,20 @@ function setupService(s) {
     console.log(`Received ${event.data.title}.`)
     switch (event.data.title) {
       case 'accounts':
-        ledger.updateAccounts(event.data.content)
+        ledger.updateAccounts()
         break
 
       case 'categories':
-        ledger.updateCategories(event.data.content)
-        renderCategories(event.data.content)
+        ledger.updateCategories().then(() => {
+          renderCategories(ledger.getCategories())
+        })
         break
 
       case 'transactions':
-        ledger.updateTransactions(event.data.content)
-        renderCalendar(calendar.today())
-        renderList(ledger.getTransactions())
+        ledger.updateTransactions().then(() => {
+          renderCalendar(calendar.today())
+          renderList(ledger.getTransactions())
+        })
         break
     }
   }
@@ -563,4 +580,17 @@ function setupService(s) {
 function send(title, content) {
   console.log(`Sending ${title} to service...`)
   return service.postMessage({ title: title, content: content })
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+function readSettings() {
+  const settings = localStorage.getItem('settings')
+  if (!settings) {
+    settings = defaultSettings
+    localStorage.setItem('settings', JSON.stringify(settings))
+  } else {
+    settings = JSON.parse(settings)
+  }
+  return settings
 }

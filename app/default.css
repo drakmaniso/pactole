@@ -59,7 +59,7 @@ body.keyboard-navigation button:focus {
   background: transparent; 
 }
 ::-webkit-scrollbar-thumb {
-  background: #888; 
+  background: var(--primary); 
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #555; 
