@@ -15,7 +15,7 @@
       <a id="nav-close" hidden="true" class="fa">&#xf00d;</a>
     </nav>
 
-    <main hidden id="home">
+    <main hidden id="page">
     </main>
 
     <main id="calendar">
@@ -49,7 +49,7 @@
 
     </main>
 
-    <main id="transactions" hidden="true">
+    <main id="list" hidden="true">
 
       <header class="overview">
         <button id="select-account">
@@ -89,7 +89,7 @@
             <label for="description">Description:</label>
             <input name="description" type="text">
           </section>
-        <section class="categories" id="categories-section">
+        <section class="categories" id="categories-section" hidden="true">
           <label for="category">Catégorie:</label>
           <div id="categories" class="listbox">
           </div>
@@ -136,10 +136,10 @@
         <section>
           <h3>Catégories de dépense:</h3>
           <div class="options">
-            <input checked="true" type="radio" name="settings-categories-toggle" id="settings-categories-toggle-0" value="on">
-            <label for="settings-categories-toggle-0">Activer</label>
-            <input type="radio" name="settings-categories-toggle" id="settings-categories-toggle-1" value="off">
-            <label for="settings-categories-toggle-1">Désactiver</label>
+            <input checked="true" type="radio" name="settings-categories-toggle" id="settings-categories-toggle-0" value="off">
+            <label for="settings-categories-toggle-0">Désactiver</label>
+            <input type="radio" name="settings-categories-toggle" id="settings-categories-toggle-1" value="on">
+            <label for="settings-categories-toggle-1">Activer</label>
           </div>
           <table>
             <tr>
@@ -185,10 +185,10 @@
         <section>
           <h3>Pointage:</h3>
           <div class="options">
-            <input checked="true" type="radio" name="settings-reconciliation-toggle" id="settings-reconciliation-toggle-0" value="on">
-            <label for="settings-reconciliation-toggle-0">Activer</label>
-            <input type="radio" name="settings-reconciliation-toggle" id="settings-reconciliation-toggle-1" value="off">
-            <label for="settings-reconciliation-toggle-1">Désactiver</label>
+            <input checked="true" type="radio" name="settings-reconciliation-toggle" id="settings-reconciliation-toggle-0" value="off">
+            <label for="settings-reconciliation-toggle-0">Désactiver</label>
+            <input type="radio" name="settings-reconciliation-toggle" id="settings-reconciliation-toggle-1" value="on">
+            <label for="settings-reconciliation-toggle-1">Activer</label>
           </div>
         </section>
       </div>

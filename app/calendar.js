@@ -15,6 +15,11 @@ export function today() {
   return date(d.getFullYear(), d.getMonth() + 1, d.getDate())
 }
 
+export function thismonth() {
+  const d = new Date()
+  return date(d.getFullYear(), d.getMonth() + 1, 1)
+}
+
 export const dayNames = [
   'Lundi',
   'Mardi',

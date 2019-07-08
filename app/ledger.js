@@ -60,24 +60,3 @@ export function getAccounts() {
 }
 
 const dummyAccounts = [{ name: 'Christelle' }, { name: 'Laurent' }]
-
-///////////////////////////////////////////////////////////////////////////////
-
-export function getCategories() {
-  const s = localStorage.getItem('categories')
-  if (!s) {
-    localStorage.setItem('categories', JSON.stringify(dummyCategories))
-    return dummyCategories
-  }
-  return JSON.parse(s)
-}
-
-const dummyCategories = [
-  { name: 'Maison', icon: '\uf015' },
-  { name: 'Santé', icon: '\uf0f1' },
-  { name: 'Nourriture', icon: '\uf2e7' },
-  { name: 'Habillement', icon: '\uf553' },
-  { name: 'Transport', icon: '\uf1b9' },
-  { name: 'Loisirs', icon: '\uf11b' },
-  { name: 'Autre', icon: '\uf128' },
-]

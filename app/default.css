@@ -167,7 +167,7 @@ nav a:hover {
 
 /* Transactions List */
 
-#transactions {
+#list {
   display: flex;
   flex-flow: row nowrap;
   justify-content: stretch;
@@ -209,30 +209,40 @@ li.date {
 
 #transactions-list li.income,
 #transactions-list li.expense {
+  flex: 1 0 auto;
   list-style: none;
   display: flex;
   flex-flow: row wrap;
-  flex: 1 0 auto;
+  justify-content: flex-start;
+  align-items: first baseline;
   padding-left: 1rem;
   padding-top: 0.25rem;
   padding-bottom: 0.25rem;
+  font-size: 1.5rem;
 }
 
-#transactions-list span.amount {
-  width: 6rem;
-  margin-right: 1rem;
-  text-align: right;
-}
-
-#transactions-list li.income span.amount {
+#transactions-list li.income > :nth-child(-n+2) {
   color: var(--income-bg);
 }
 
-#transactions-list li.expense span.amount {
+#transactions-list li.expense > :nth-child(-n+2) {
   color: var(--expense-bg);
 }
 
-#transactions section.actions {
+#transactions-list li .cents {
+  font-size: 1.125rem;
+}
+
+#transactions-list li > :first-child {
+  width: 6rem;
+  text-align: right;
+}
+#transactions-list li > :nth-child(2) {
+  width: 2rem;
+  margin-right: 1rem;
+}
+
+#list section.actions {
   position: fixed;
   bottom: 0;
   right: 32px;
@@ -246,7 +256,7 @@ li.date {
   background: transparent;
 }
 
-#transactions section.actions button {
+#list section.actions button {
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -266,7 +276,7 @@ li.date {
   user-select: none;
 }
 
-#transactions section.actions button.income {
+#list section.actions button.income {
   margin-top: auto;
   border: none;
   color: var(--income-fg);
@@ -274,7 +284,7 @@ li.date {
   box-shadow: 0px 2px 10px 0px var(--shadow);
 }
 
-#transactions section.actions button.expense {
+#list section.actions button.expense {
   border: none;
   color: var(--expense-fg);
   background: var(--expense-bg);
@@ -375,6 +385,7 @@ li.date {
   color: var(--fg-lighter);
   font-weight: bold;
   padding: 2px;
+  margin-bottom: 0.25rem;
 }
 
 #calendar-month > .month-cell > header.today {
@@ -414,73 +425,62 @@ li.date {
   display: flex;
   flex-flow: row wrap;
   justify-content: flex-start;
-  /* align-items: flex-start; */
+  align-items: flex-start; 
+  align-content: start; 
   padding: 0;
   margin: 0;
+  overflow-y: scroll;
 }
 
 #calendar-month > .month-cell > ul > li {
-  padding: 0 0.25rem;
-  margin-left: 0.25rem;
-  margin-top: 0.125rem;
-  margin-bottom: 0;
-  height: 1.75rem;
-  /* flex: none; */
   display: flex;
   justify-content: center;
-  align-items: center;
-  /* font-family: monospace; */
-  /* font-weight: bold; */
-  font-size: 0.75rem;
+  align-items: first baseline;
+  font-size: 1rem;
+  padding: 0.125rem 0.25rem;
+  margin: 0.125rem;
+  border-radius: 0.5rem / 50%;
 }
 
 #calendar-month > .month-cell > ul > li.income {
   color: #fff;
   background: var(--income-bg);
-  color: var(--income-bg);
-  background: #ccc;
-  border-radius: 1.275rem;
 }
 
 #calendar-month > .month-cell > ul > li.expense {
   color: #fff;
   background: var(--expense-bg);
-  color: var(--expense-bg);
-  background: #ccc;
-  border-radius: 0.25rem;
+}
+
+#calendar-month > .month-cell > ul > li > .cents {
+  font-size: 0.75rem;
 }
 
 #calendar-month > .month-cell > p {
   flex: 1;
   margin: 0;
+  overflow-y: scroll;
 }
 
 #calendar-month > .month-cell > p > span {
-  padding: 0 0.25rem;
-  margin-left: 0.25rem;
-  margin-top: 0.125rem;
-  margin-bottom: 0;
-  height: 1.5rem;
-  /* flex: none; */
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  /* font-family: monospace; */
-  /* font-weight: bold; */
-  font-size: 1rem;
+  font-size: 1.125rem;
+  padding: 0.125rem 0.25rem;
+  margin: 0.125rem;
+  border-radius: 50% / 25%;
 }
 
-#calendar-month > .month-cell > p > span.income {
+#calendar-month > .month-cell > p  span.income {
   color: #fff;
   background: var(--income-bg);
-  border-radius: 0.75rem;
-  border-radius: 0.125rem;
 }
 
-#calendar-month > .month-cell > p > span.expense {
+#calendar-month > .month-cell > p  span.expense {
   color: #fff;
   background: var(--expense-bg);
-  border-radius: 0.125rem;
+}
+
+#calendar-month > .month-cell > p  span.cents {
+  font-size: 0.625rem;
 }
 
 #calendar-day {
@@ -531,30 +531,32 @@ li.date {
 #calendar-day > ul > li {
   display: flex;
   justify-content: stretch;
+  align-items: first baseline;
   padding: 0.25rem 2rem;
+  font-size: 1.5rem;
 }
 
-/*
-#calendar-day > ul > li:nth-child(even) {
-    background: #add;
-}
-*/
-
-#calendar-day > ul > li.income {
+#calendar-day > ul > li.income > :nth-child(-n+2) {
   color: var(--income-bg);
 }
 
-#calendar-day > ul > li.expense {
+#calendar-day > ul > li.expense > :nth-child(-n+2) {
   color: var(--expense-bg);
 }
 
-#calendar-day > ul > li > div:first-child {
+#calendar-day > ul > li > :first-child {
   width: 6rem;
   text-align: right;
+}
+#calendar-day > ul > li > :nth-child(2) {
+  width: 2rem;
   margin-right: 1rem;
 }
+#calendar-day > ul > li > .cents {
+  font-size: 1.125rem;
+}
 
-#calendar-day > ul > li > div:last-child {
+#calendar-day > ul > li > :last-child {
   flex: 1;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -636,7 +638,6 @@ li.date {
 .dialog > * {
   max-height: 98%;
   max-width: 98%;
-  min-width: 50%;
   margin: auto;
   border: solid 0.25rem var(--bg-lighter);
   border-radius: 0.25rem;
@@ -911,7 +912,8 @@ li.date {
 
 /* Settings */
 
-#settings {
+#settings > div {
+  min-width: 66%;
 }
 
 #settings > div > section {
