@@ -37,11 +37,13 @@ export function open(name) {
       console.log(`  Upgrading database ${name}...`)
       const db = event.target.result
       const os = db.createObjectStore('transactions', { autoIncrement: true })
+      os.createIndex('date', 'date')
+      os.createIndex('category', 'category')
       os.transaction.oncomplete = () => {
+        /*
         const os = db
           .transaction('transactions', 'readwrite')
           .objectStore('transactions')
-        /*
         dummyTransactions.forEach(t => {
           os.add(t)
         })
@@ -74,6 +76,46 @@ export function getAll(osName) {
   })
 }
 
+export function getTransactionsOn(date) {
+  return new Promise(function(resolve, reject) {
+    let tr = _database.transaction('transactions', 'readonly')
+    tr.onerror = event => {
+      reject(new Error(`getTransactionsOn('${date}'): ${event.target.error}`))
+    }
+    tr.oncomplete = event => {
+      //console.log(`getAll('${osName}'): transaction completed`)
+    }
+
+    let os = tr.objectStore('transactions')
+    const idx = os.index('date')
+    let req = idx.getAllKeys(date)
+    req.onerror = event => {
+      reject(new Error(`datastore get request: ${event.target.error}`))
+    }
+    req.onsuccess = event => {
+      //console.log(`getAll('${osName}'): ${req.result.length} objects`)
+      resolve(req.result)
+    }
+  })
+}
+
+export function getTransaction(key) {
+  return new Promise((resolve, reject) => {
+    const tr = _database.transaction('transactions', 'readonly')
+    tr.onerrror = event => {
+      reject(new Error(`getTransaction('${key}): ${event.target.error}`))
+    }
+    const os = tr.objectStore('transactions')
+    const req = os.get(key)
+    req.onerror = event => {
+      reject(new Error(`getTransaction('${key}): ${event.target.error}`))
+    }
+    req.onsuccess = event => {
+      resolve(req.result)
+    }
+  })
+}
+
 export function addTransaction(t) {
   return new Promise(function(resolve, reject) {
     let tr = _database.transaction('transactions', 'readwrite')
@@ -88,6 +130,48 @@ export function addTransaction(t) {
     let req = os.add(t)
     req.onerror = event => {
       reject(new Error(`addTransaction(${t}): ${event.target.error}`))
+    }
+    req.onsuccess = event => {
+      resolve(req.result)
+    }
+  })
+}
+
+export function putTransaction(t, k) {
+  return new Promise(function(resolve, reject) {
+    let tr = _database.transaction('transactions', 'readwrite')
+    tr.onerror = event => {
+      reject(new Error(`putTransaction('${t}, ${k}'): ${event.target.error}`))
+    }
+    tr.oncomplete = event => {
+      //console.log(`addTransaction('${t}'): transaction completed`)
+    }
+
+    let os = tr.objectStore('transactions')
+    let req = os.put(t, k)
+    req.onerror = event => {
+      reject(new Error(`putTransaction(${t}, ${k}): ${event.target.error}`))
+    }
+    req.onsuccess = event => {
+      resolve(req.result)
+    }
+  })
+}
+
+export function deleteTransaction(k) {
+  return new Promise(function(resolve, reject) {
+    let tr = _database.transaction('transactions', 'readwrite')
+    tr.onerror = event => {
+      reject(new Error(`deleteTransaction('${k}'): ${event.target.error}`))
+    }
+    tr.oncomplete = event => {
+      //console.log(`addTransaction('${t}'): transaction completed`)
+    }
+
+    let os = tr.objectStore('transactions')
+    let req = os.delete(k)
+    req.onerror = event => {
+      reject(new Error(`deleteTransaction(${k}): ${event.target.error}`))
     }
     req.onsuccess = event => {
       resolve(req.result)

@@ -143,10 +143,19 @@ function wireHTML() {
     page.replaceState({ dialog: null })
   }
 
+  /*
   id('dialog').onclick = e => {
     if (e.target == id('dialog')) {
       page.replaceState({ dialog: null })
     }
+  }
+  */
+
+  id('dialog-delete').onclick = event => {
+    ledger.deleteTransaction(history.state.transaction).then(() => {
+      send('new transaction')
+      page.replaceState({ dialog: null, transaction: null })
+    })
   }
 
   id('dialog-confirm').onclick = event => {
@@ -162,10 +171,17 @@ function wireHTML() {
     if (id('dialog').classList.contains('expense')) {
       transac.amount = -transac.amount
     }
-    ledger.addTransaction(transac).then(() => {
-      send('new transaction')
-    })
-    page.replaceState({ dialog: null })
+    if (history.state.dialog == 'edit') {
+      ledger.putTransaction(transac, history.state.transaction).then(() => {
+        send('new transaction') //TODO
+      })
+      page.replaceState({ dialog: null, transaction: null })
+    } else {
+      ledger.addTransaction(transac).then(() => {
+        send('new transaction')
+      })
+      page.replaceState({ dialog: null })
+    }
   }
 
   id('nav-settings').onclick = () => {

@@ -35,15 +35,33 @@ export function updateTransactions() {
 }
 
 export function getTransactions() {
-  return _list
+  return database.getTransactionsOn()
+  // return _list
 }
 
 export function getTransactionsOn(date) {
-  return _calendar.get(date)
+  return database.getTransactionsOn(date)
+  // return _calendar.get(date)
+}
+
+export function getTransaction(key) {
+  return database.getTransaction(key)
 }
 
 export function addTransaction(t) {
   return database.addTransaction(t).then(() => {
+    return updateTransactions()
+  })
+}
+
+export function putTransaction(t, k) {
+  return database.putTransaction(t, k).then(() => {
+    return updateTransactions()
+  })
+}
+
+export function deleteTransaction(k) {
+  return database.deleteTransaction(k).then(() => {
     return updateTransactions()
   })
 }

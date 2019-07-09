@@ -49,7 +49,11 @@ export function render() {
 
   const dialog = id('dialog')
   if (dialog.hidden && history.state.dialog) {
-    openDialog()
+    if (history.state.dialog === 'edit') {
+      openEditDialog()
+    } else {
+      openDialog()
+    }
   } else if (!dialog.hidden && !history.state.dialog) {
     closeDialog()
   }
@@ -132,39 +136,17 @@ function renderCalendar() {
       }
       section.appendChild(header)
 
-      const transacs = ledger.getTransactionsOn(d)
-      if (transacs) {
-        /*
+      ledger.getTransactionsOn(d).then(keys => {
         const ul = document.createElement('ul')
-        for (const t of transacs) {
-          const li = document.createElement('li')
-          if (t.amount > 0) {
-            li.classList.add('income')
-          } else {
-            li.classList.add('expense')
-          }
-          li.appendChild(document.createTextNode(`${t.amount / 100}€`))
-          ul.appendChild(li)
+        for (const k of keys) {
+          ledger.getTransaction(k).then(t => {
+            const li = document.createElement('li')
+            appendMoney(li, t.amount)
+            ul.appendChild(li)
+          })
         }
         section.appendChild(ul)
-        */
-        const ul = document.createElement('ul')
-        for (const t of transacs) {
-          const li = document.createElement('li')
-          appendMoney(li, t.amount)
-          ul.appendChild(li)
-        }
-        section.appendChild(ul)
-        /*
-        const p = document.createElement('p')
-        for (const t of transacs) {
-          const span = document.createElement('span')
-          appendMoney(span, t.amount)
-          p.appendChild(span)
-        }
-        section.appendChild(p)
-        */
-      }
+      })
 
       if (d === history.state.day) {
         section.classList.toggle('checked', true)
@@ -212,71 +194,82 @@ function renderCalendarDay() {
   while (ul.hasChildNodes()) {
     ul.removeChild(ul.lastChild)
   }
-  const transacs = ledger.getTransactionsOn(history.state.day)
-  if (transacs) {
-    for (const t of transacs) {
-      const li = document.createElement('li')
-      appendMoney(li, t.amount)
-      const span = document.createElement('span')
-      if (t.description !== '') {
-        span.appendChild(document.createTextNode(t.description))
-      } else {
-        if (t.amount > 0) {
-          span.appendChild(document.createTextNode("Entrée d'argent"))
+  ledger.getTransactionsOn(history.state.day).then(keys => {
+    for (const k of keys) {
+      ledger.getTransaction(k).then(t => {
+        const li = document.createElement('li')
+        appendMoney(li, t.amount)
+        const span = document.createElement('span')
+        if (t.description !== '') {
+          span.appendChild(document.createTextNode(t.description))
         } else {
-          span.appendChild(document.createTextNode('Dépense'))
+          if (t.amount > 0) {
+            span.appendChild(document.createTextNode("Entrée d'argent"))
+          } else {
+            span.appendChild(document.createTextNode('Dépense'))
+          }
         }
-      }
-      li.appendChild(span)
-      ul.appendChild(li)
+        li.appendChild(span)
+        li.dataset.key = k
+        li.onclick = () => {
+          replaceState({ dialog: 'edit', transaction: k })
+        }
+        ul.appendChild(li)
+      })
     }
-  }
+  })
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 function renderList() {
-  const transactions = ledger.getTransactions()
-  console.log('Rendering list page')
-  const transList = id('transactions-list')
-  while (transList.hasChildNodes()) {
-    transList.removeChild(transList.firstChild)
-  }
-  const dateList = document.createElement('ul')
-  let currentDate = null
-  let currentList = null
-  for (const t of ledger.getTransactions()) {
-    if ((currentDate === null) | (t.date !== currentDate)) {
-      const li = document.createElement('li')
-      li.setAttribute('class', 'date')
-      li.innerHTML =
-        '' +
-        calendar.weekdayName(t.date) +
-        ' ' +
-        calendar.day(t.date) +
-        ' ' +
-        calendar.monthName(t.date)
-      dateList.appendChild(li)
-      currentList = document.createElement('ul')
-      dateList.appendChild(currentList)
-      currentDate = t.date
+  ledger.getTransactions().then(keys => {
+    console.log('Rendering list page')
+    const transList = id('transactions-list')
+    while (transList.hasChildNodes()) {
+      transList.removeChild(transList.firstChild)
     }
-    const li = document.createElement('li')
-    if (t.amount > 0) {
-      li.classList.add('income')
-    } else {
-      li.classList.add('expense')
+    const dateList = document.createElement('ul')
+    let currentDate = null
+    let currentList = null
+    for (const k of keys) {
+      ledger.getTransaction(k).then(t => {
+        if ((currentDate === null) | (t.date !== currentDate)) {
+          const li = document.createElement('li')
+          li.setAttribute('class', 'date')
+          li.innerHTML =
+            '' +
+            calendar.weekdayName(t.date) +
+            ' ' +
+            calendar.day(t.date) +
+            ' ' +
+            calendar.monthName(t.date)
+          dateList.appendChild(li)
+          currentList = document.createElement('ul')
+          dateList.appendChild(currentList)
+          currentDate = t.date
+        }
+        const li = document.createElement('li')
+        if (t.amount > 0) {
+          li.classList.add('income')
+        } else {
+          li.classList.add('expense')
+        }
+        appendMoney(li, t.amount)
+        if (t.description !== '') {
+          li.appendChild(document.createTextNode(t.description))
+        }
+        if (t.category !== '') {
+          li.appendChild(document.createTextNode(' (' + t.category + ')'))
+        }
+        li.onclick = () => {
+          replaceState({ dialog: 'edit', transaction: k })
+        }
+        currentList.appendChild(li)
+      })
     }
-    appendMoney(li, t.amount)
-    if (t.description !== '') {
-      li.appendChild(document.createTextNode(t.description))
-    }
-    if (t.category !== '') {
-      li.appendChild(document.createTextNode(' (' + t.category + ')'))
-    }
-    currentList.appendChild(li)
-  }
-  transList.appendChild(dateList)
+    transList.appendChild(dateList)
+  })
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -443,8 +436,41 @@ function openDialog() {
 
   form.elements['date'].value = date
 
+  id('dialog-delete').hidden = true
   dialog.hidden = false
   form.elements['amount'].focus()
+}
+
+function openEditDialog() {
+  ledger.getTransaction(history.state.transaction).then(t => {
+    const dialog = id('dialog')
+    const label = id('amount-label')
+    let amount = t.amount
+    dialog.classList.remove('income', 'expense')
+    if (t.amount < 0) {
+      dialog.classList.add('expense')
+      label.innerHTML = 'Dépense:'
+      amount = -amount
+    } else {
+      dialog.classList.add('income')
+      label.innerHTML = "Entrée d'argent:"
+    }
+
+    const form = document.forms['dialog-form']
+    form.reset()
+
+    form.elements['date'].value = t.date
+    form.elements['amount'].value = amount / 100
+    form.elements['category'].value = t.category
+    form.elements['description'].value = t.description
+
+    renderMinicalendar(t.date)
+    id('date-section').hidden = false
+
+    id('dialog-delete').hidden = false
+    dialog.hidden = false
+    form.elements['amount'].focus()
+  })
 }
 
 function closeDialog() {
