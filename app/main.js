@@ -81,9 +81,7 @@ navigator.serviceWorker.ready
     ledger.open(accounts[0].name).then(() => {
       page.renderAccounts()
       page.renderCategories()
-      ledger.updateTransactions().then(() => {
-        page.render()
-      })
+      page.render()
       wireHTML()
     })
   })
@@ -116,9 +114,7 @@ function wireHTML() {
     console.log(`Switch to account ${a}`)
     ledger.open(a).then(() => {
       page.renderCategories()
-      ledger.updateTransactions().then(() => {
-        page.replaceState({ update: true })
-      })
+      page.replaceState({ update: true })
     })
   }
 
@@ -229,9 +225,7 @@ function setupService(s) {
         break
 
       case 'transactions':
-        ledger.updateTransactions().then(() => {
-          page.replaceState({ update: true })
-        })
+        page.replaceState({ update: true })
         break
     }
   }

@@ -136,7 +136,7 @@ function renderCalendar() {
       }
       section.appendChild(header)
 
-      ledger.getTransactionsOn(d).then(keys => {
+      ledger.getTransactionKeys(d).then(keys => {
         const ul = document.createElement('ul')
         for (const k of keys) {
           ledger.getTransaction(k).then(t => {
@@ -194,7 +194,7 @@ function renderCalendarDay() {
   while (ul.hasChildNodes()) {
     ul.removeChild(ul.lastChild)
   }
-  ledger.getTransactionsOn(history.state.day).then(keys => {
+  ledger.getTransactionKeys(history.state.day).then(keys => {
     for (const k of keys) {
       ledger.getTransaction(k).then(t => {
         const li = document.createElement('li')
@@ -223,7 +223,7 @@ function renderCalendarDay() {
 ///////////////////////////////////////////////////////////////////////////////
 
 function renderList() {
-  ledger.getTransactions().then(keys => {
+  ledger.getTransactionKeys().then(keys => {
     console.log('Rendering list page')
     const transList = id('transactions-list')
     while (transList.hasChildNodes()) {
