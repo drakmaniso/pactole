@@ -23,18 +23,17 @@ export function render() {
         dataset.month = history.state.month
         id('calendar').hidden = false
         id('list').hidden = true
-        if (!history.state.day) {
-          id('calendar-day').hidden = true
-        } else {
-          id('calendar-day').hidden = false
-          if (history.state.update || history.state.day != dataset.day) {
-            renderCalendarDay()
-            dataset.day = history.state.day
-            id('calendar-day').hidden = false
-          }
-        }
-        removeState('update')
       }
+      if (history.state.update || history.state.day != dataset.day) {
+        if (history.state.day) {
+          renderCalendarDay()
+          id('calendar-day').hidden = false
+        } else {
+          id('calendar-day').hidden = true
+        }
+        dataset.day = history.state.day
+      }
+      removeState('update')
       break
     case 'list':
       if (history.state.update || id('list').hidden) {
@@ -108,7 +107,6 @@ function renderCalendar() {
     next.setAttribute('class', 'fa')
     next.appendChild(document.createTextNode('\uf061'))
     next.addEventListener('click', event => {
-      closeDialog()
       pushState({
         month: calendar.delta(history.state.month, 0, +1, 0),
         day: null,
@@ -180,7 +178,6 @@ function renderCalendar() {
         }
         event.currentTarget.classList.toggle('checked', true)
         pushState({ day: d })
-        renderCalendarDay()
       })
     }
     cal.appendChild(section)
