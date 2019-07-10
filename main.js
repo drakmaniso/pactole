@@ -32,7 +32,7 @@ navigator.storage.persist().then(persisted => {
 
 onload = () => {
   navigator.serviceWorker
-    .register('/service.js')
+    .register('./service.js')
     .then(registration => {
       if (registration.installing) {
         console.log(
