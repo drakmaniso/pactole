@@ -352,6 +352,10 @@ export function renderCategories() {
   while (listbox.hasChildNodes()) {
     listbox.lastChild.remove()
   }
+  const settingsCategories = id('settings-categories')
+  while (settingsCategories.hasChildNodes()) {
+    settingsCategories.lastChild.remove()
+  }
   let i = 0
   for (const c of categories) {
     const div = document.createElement('div')
@@ -371,8 +375,38 @@ export function renderCategories() {
     label.appendChild(document.createTextNode(c.name))
     div.appendChild(label)
     listbox.appendChild(div)
+    {
+      const tr = document.createElement('tr')
+      const td1 = document.createElement('td')
+      const button1 = document.createElement('button')
+      button1.classList.add('fa', 'icon')
+      button1.appendChild(document.createTextNode(c.icon))
+      td1.appendChild(button1)
+      tr.appendChild(td1)
+      const td2 = document.createElement('td')
+      const input = document.createElement('input')
+      input.type = 'text'
+      input.value = c.name
+      td2.appendChild(input)
+      tr.appendChild(td2)
+      const td3 = document.createElement('td')
+      const button2 = document.createElement('button')
+      button2.classList.add('fa')
+      button2.appendChild(document.createTextNode('\uf1f8'))
+      td3.appendChild(button2)
+      tr.appendChild(td3)
+      settingsCategories.appendChild(tr)
+    }
     i++
   }
+  const tr = document.createElement('tr')
+  const td = document.createElement('td')
+  const button = document.createElement('button')
+  button.classList.add('fa')
+  button.appendChild(document.createTextNode('\uf067'))
+  td.appendChild(button)
+  tr.appendChild(td)
+  settingsCategories.appendChild(tr)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -383,6 +417,10 @@ export function renderAccounts() {
   const options = id('accounts')
   while (options.hasChildNodes()) {
     options.lastChild.remove()
+  }
+  const settingsAccounts = id('settings-accounts')
+  while (settingsAccounts.hasChildNodes()) {
+    settingsAccounts.lastChild.remove()
   }
   let i = 0
   for (const a of accounts) {
@@ -400,17 +438,39 @@ export function renderAccounts() {
     label.setAttribute('for', input.id)
     label.appendChild(document.createTextNode(a.name))
     options.appendChild(label)
+    {
+      // In the Settings
+      const tr = document.createElement('tr')
+      const td1 = document.createElement('td')
+      const input = document.createElement('input')
+      input.type = 'text'
+      input.value = `${a.name}`
+      td1.appendChild(input)
+      tr.appendChild(td1)
+      const td2 = document.createElement('td')
+      const button = document.createElement('button')
+      button.classList.add('fa')
+      button.appendChild(document.createTextNode('\uf1f8'))
+      td2.appendChild(button)
+      tr.appendChild(td2)
+      settingsAccounts.appendChild(tr)
+    }
     i++
   }
+  const tr = document.createElement('tr')
+  const td = document.createElement('td')
+  const button = document.createElement('button')
+  button.classList.add('fa')
+  button.appendChild(document.createTextNode('\uf067'))
+  td.appendChild(button)
+  tr.appendChild(td)
+  settingsAccounts.appendChild(tr)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 function openDialog() {
-  let date = history.state.day
-  if (history.state.mode === 'list') {
-    date = calendar.today()
-  }
+  const date = history.state.day
   const dialog = id('dialog')
   dialog.classList.remove('income', 'expense')
   dialog.classList.add(history.state.dialog)
@@ -425,16 +485,17 @@ function openDialog() {
       break
   }
 
-  if (history.state.mode === 'list') {
-    renderMinicalendar(date)
-  } else {
-    id('date-section').hidden = true
-  }
-
   const form = document.forms['dialog-form']
   form.reset()
 
   form.elements['date'].value = date
+
+  if (history.state.mode === 'list') {
+    renderMinicalendar(date)
+    id('date-section').hidden = false
+  } else {
+    id('date-section').hidden = true
+  }
 
   id('dialog-delete').hidden = true
   dialog.hidden = false
@@ -464,8 +525,12 @@ function openEditDialog() {
     form.elements['category'].value = t.category
     form.elements['description'].value = t.description
 
-    renderMinicalendar(t.date)
-    id('date-section').hidden = false
+    if (history.state.mode === 'list') {
+      renderMinicalendar(t.date)
+      id('date-section').hidden = false
+    } else {
+      id('date-section').hidden = true
+    }
 
     id('dialog-delete').hidden = false
     dialog.hidden = false
@@ -497,7 +562,7 @@ function appendMoney(container, amount) {
   const span2 = document.createElement('span')
   if (c > 0) {
     span2.classList.toggle('cents', true)
-    span2.appendChild(document.createTextNode('.' + `${c}`.padStart(2, '0')))
+    span2.appendChild(document.createTextNode(',' + `${c}`.padStart(2, '0')))
   }
   container.appendChild(span2)
   //result.appendChild(document.createTextNode(' €'))

@@ -1,8 +1,8 @@
-- Implement correct client-side routing.
-- Display amount correctly (cents).
-- Implement transaction editing/deleting.
-- Disallow future transactions
+- Confirm dialog for deletion.
+- Disallow future transactions.
+- Display correct balance.
+- Correct display of amount in edit dialog.
 - Reconcile page.
 - Summary page.
-- Settings page.
+- Finish settings page.
 - Clean-up css.

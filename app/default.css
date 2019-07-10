@@ -42,6 +42,11 @@ button {
   border-radius: 1.25rem;
   border: solid 3px transparent;
   cursor: pointer;
+  padding: 0 1rem;
+}
+
+button:not(.fa) {
+  font-weight: bold;
 }
 
 button {
@@ -139,8 +144,12 @@ nav a:hover {
   flex-flow: column;
   align-items: center;
   padding: 3rem;
-  color: var(--primary);
+  color: #000;
   background: var(--bg-darker);
+}
+
+#accounts label:only-of-type {
+  display: none;
 }
 
 #balance {
@@ -912,11 +921,11 @@ li.date {
 
 /* Settings */
 
-#settings > div {
+#settings-form {
   min-width: 66%;
 }
 
-#settings > div > section {
+#settings-form > section {
   display: flex;
   flex-flow: column wrap;
   align-items: flex-start;
@@ -941,3 +950,24 @@ li.date {
   color: var(--local-primary);
 }
 
+#settings-categories > tr > td > button.icon {
+  color: #000;
+}
+
+#settings .actions {
+  display: flex;
+  flex-flow: row;
+  justify-content: flex-end;
+  align-items: center;
+  user-select: none;
+}
+
+#settings .actions button {
+  border-color: var(--local-primary);
+  margin-left: 2rem;
+}
+
+#settings .actions button:last-child {
+  color: var(--local-on-primary);
+  background: var(--local-primary);
+}

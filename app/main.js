@@ -119,11 +119,11 @@ function wireHTML() {
   }
 
   id('list-income').onclick = () => {
-    page.replaceState({ dialog: 'income' })
+    page.replaceState({ date: calendar.today(), dialog: 'income' })
   }
 
   id('list-expense').onclick = () => {
-    page.replaceState({ dialog: 'expense' })
+    page.replaceState({ date: calendar.today(), dialog: 'expense' })
   }
 
   id('calendar-income').onclick = () => {

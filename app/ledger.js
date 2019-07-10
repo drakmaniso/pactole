@@ -3,8 +3,8 @@
 export function getAccounts() {
   const s = localStorage.getItem('accounts')
   if (!s) {
-    localStorage.setItem('accounts', JSON.stringify(dummyAccounts))
-    return dummyAccounts
+    localStorage.setItem('accounts', JSON.stringify(defaultAccounts))
+    return defaultAccounts
   }
   return JSON.parse(s)
 }
@@ -323,4 +323,4 @@ const dummyTransactions = [
 
 ///////////////////////////////////////////////////////////////////////////////
 
-const dummyAccounts = [{ name: 'Christelle' }, { name: 'Laurent' }]
+const defaultAccounts = [{ name: 'Compte' }]
