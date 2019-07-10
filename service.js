@@ -6,36 +6,68 @@ function log(msg) {
 
 oninstall = event => {
   log('Installing service...')
-  event.waitUntil(skipWaiting())
+  event.waitUntil(
+    caches
+      .open('pactole')
+      .then(cache => {
+        return cache.addAll([
+          './',
+          'favicon.ico',
+          'manifest.json',
+          'styles/main.css',
+          'styles/normalize.css',
+          'styles/palette.css',
+          'styles/fonts/fa-solid-900.woff2',
+          'styles/fonts/fa-solid.css',
+          'scripts/calendar.js',
+          'scripts/ledger.js',
+          'scripts/main.js',
+          'scripts/page.js',
+          'scripts/settings.js',
+          'images/icon-192x192.png',
+          'images/icon-512x512.png',
+        ])
+      })
+      .then(() => {
+        log('done caching.')
+      })
+      .catch(err => {
+        console.error(err)
+      }),
+  )
   log('...service installed.')
 }
 
 onactivate = event => {
   log('Activating service...')
-  event.waitUntil(clients.claim())
+  event.waitUntil(
+    caches.keys().then(names => {
+      return Promise.all(
+        names
+          .filter(n => {
+            // Return true to remove n from the cache
+          })
+          .map(n => {
+            return caches.delete(n)
+          }),
+      )
+    }),
+  )
   log('...service activated.')
 }
 
-/*
 onfetch = event => {
-  //log(`Fetch: ${event.request.url}`)
-  switch (event.request.url) {
-    case 'http://localhost:8383/accounts.json':
-      event.respondWith(new Response('{"name": "foobar"}'))
-    default:
-  }
-  //  event.respondWith(
-  //    caches.match(event.request)
-  //      .then(function(response) {
-  //         if (response) {
-  //           return response
-  //         }
-  //        return fetch(event.request)
-  //      }
-  //    )
-  //  )
+  // log(`fetch: ${event.request.url}...`)
+  event.respondWith(
+    caches.match(event.request).then(response => {
+      if (response) {
+        return response
+      }
+      console.error(`* CACHE FAIL: ${event.request.url}`)
+      return fetch(event.request)
+    }),
+  )
 }
-*/
 
 onmessage = event => {
   const msg = event.data
