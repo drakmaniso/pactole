@@ -19,6 +19,7 @@ export function render() {
         id('calendar').hidden ||
         history.state.month != dataset.month
       ) {
+        renderOverview()
         renderCalendar()
         dataset.month = history.state.month
         id('calendar').hidden = false
@@ -37,6 +38,7 @@ export function render() {
       break
     case 'list':
       if (history.state.update || id('list').hidden) {
+        renderOverview()
         renderList()
         id('calendar').hidden = true
         id('list').hidden = false
@@ -65,6 +67,45 @@ export function render() {
     settings.hidden = true
   }
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+function renderOverview() {
+  console.log('Rendering overview section.')
+  const balance = id('balance')
+  let sum = 0
+  ledger
+    .getTransactionKeys()
+    .then(keys => {
+      return Promise.all(
+        keys.map(k => {
+          return ledger.getTransaction(k).then(t => {
+            sum += t.amount
+          })
+        }),
+      )
+    })
+    .then(() => {
+      while (balance.hasChildNodes()) {
+        balance.removeChild(balance.lastChild)
+      }
+      appendMoney(balance, sum)
+    })
+}
+
+/*
+class Overview extends HTMLSectionElement {
+  constructor() {
+    super()
+    let shadow = this.attachShadow({ mode: 'open' })
+    let template = id('overview-template')
+    let clone = document.importNode(template.content, true)
+    shadow.appendChild(clone)
+  }
+}
+
+customElements.define('overview', Overview, { extends: 'section' })
+*/
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -481,7 +522,7 @@ function openDialog() {
       label.innerHTML = "Entrée d'argent:"
       break
     case 'expense':
-      label.innerHTML = 'Dépense:'
+      label.innerHTML = 'Nouvelle dépense:'
       break
   }
 
@@ -551,18 +592,24 @@ function appendMoney(container, amount) {
 
   const span1 = document.createElement('span')
   if (amount < 0) {
+    container.classList.toggle('income', false)
     container.classList.toggle('expense', true)
-    span1.appendChild(document.createTextNode(`-${b}`))
+    span1.textContent = `-${b}`
   } else {
     container.classList.toggle('income', true)
-    span1.appendChild(document.createTextNode(`+${b}`))
+    container.classList.toggle('expense', false)
+    if (container.id === 'balance') {
+      span1.textContent = `${b}`
+    } else {
+      span1.textContent = `+${b}`
+    }
   }
   container.appendChild(span1)
 
   const span2 = document.createElement('span')
   if (c > 0) {
     span2.classList.toggle('cents', true)
-    span2.appendChild(document.createTextNode(',' + `${c}`.padStart(2, '0')))
+    span2.textContent = ',' + `${c}`.padStart(2, '0')
   }
   container.appendChild(span2)
   //result.appendChild(document.createTextNode(' €'))

@@ -13,7 +13,6 @@ if (!('serviceWorker' in navigator)) {
   throw new Error('FATAL: Service workers are not supported by the navigator.')
 }
 
-/*
 navigator.storage.persist().then(persisted => {
   if (persisted) {
     console.log('Persistent storage allowed.')
@@ -26,9 +25,9 @@ navigator.storage.persist().then(persisted => {
     })
   } else {
     console.error('*** NOT Persisted! ***')
+    //TODO
   }
 })
-*/
 
 onload = () => {
   navigator.serviceWorker
@@ -98,10 +97,25 @@ function wireHTML() {
   }
 
   window.addEventListener('keydown', e => {
-    switch (e.keyCode) {
-      case 9: // Tab
-        document.body.classList.toggle('keyboard-navigation', true)
-        break
+    if (e.key === 'Tab') {
+      // Tab
+      document.body.classList.toggle('keyboard-navigation', true)
+      return
+    }
+
+    if (e.key === 'Alt') {
+      id('nav-settings').hidden = false
+    }
+
+    if (e.key === 'r' && e.altKey) {
+      console.log('Requesting application update')
+      send('update application')
+      return
+    }
+  })
+  window.addEventListener('keyup', e => {
+    if (e.key === 'Alt') {
+      id('nav-settings').hidden = true
     }
   })
 
@@ -180,7 +194,7 @@ function wireHTML() {
     }
   }
 
-  id('nav-settings').onclick = () => {
+  id('nav-settings').onclick = event => {
     page.replaceState({ settings: true })
   }
 
@@ -226,6 +240,10 @@ function setupService(s) {
 
       case 'transactions':
         page.replaceState({ update: true })
+        break
+
+      case 'reload':
+        location.reload()
         break
     }
   }

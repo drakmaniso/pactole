@@ -13,8 +13,7 @@
   <body>
 
     <nav id="navigation">
-      <a id="nav-settings" class="fa">&#xf013;</a>
-      <a id="nav-close" hidden="true" class="fa">&#xf00d;</a>
+      <a id="nav-settings" class="fa" hidden="true">&#xf013;</a>
     </nav>
 
     <main hidden id="page">
@@ -27,11 +26,11 @@
         </form>
         <section>
           <div id="account">Solde actuel:</div>
-          <div id="balance">1200 €</div>
+          <div id="balance"></div>
         </section>
         <div>
-          <button id="open-summary">Résumé</button>
-          <button id="open-reconcile">Pointage</button>
+          <button id="open-summary" hidden="true">Résumé</button>
+          <button id="open-reconcile" hidden="true">Pointage</button>
         </div>
       </header>
 
@@ -56,11 +55,11 @@
       <header class="overview">
         <button id="select-account">
           <div id="account">Solde actuel:</div>
-          <div id="balance">1200 €</div>
+          <div id="balance"></div>
         </button>
         <div>
-          <button id="open-summary">Résumé</button>
-          <button id="open-reconcile">Pointage</button>
+          <button id="open-summary" hidden="true">Résumé</button>
+          <button id="open-reconcile" hidden="true">Pointage</button>
         </div>
       </header>
 
@@ -70,7 +69,7 @@
       </section>
 
       <section class="actions">
-        <button id="list-income" class="income">Arrivée d'argent</button>
+        <button id="list-income" class="income">Entrée d'argent</button>
         <button id="list-expense" class="expense">Nouvelle dépense</button>
       </section>
     </main>
@@ -84,7 +83,7 @@
         </section>
           <section class="amount">
             <label for="amount" id="amount-label">Montant:</label>
-            <input name="amount" type="text" autocomplete="off">
+            <input name="amount" type="text" inputmode="decimal" required="true" pattern="[0-9][0-9]*[,.]?[0-9]?[0-9]?" autocomplete="off">
             <span class="money-symbol">€</span>
           </section>
           <section class="description">
@@ -154,4 +153,20 @@
 
     <script src="scripts/main.js" type="module"></script>
   </body>
+
+  <template id="overview-template">
+    <header class="overview">
+      <form id="accounts" class="options">
+      </form>
+      <section>
+        <div>Solde actuel:</div>
+        <div id="balance"></div>
+      </section>
+      <div>
+        <button id="open-summary" hidden="true">Résumé</button>
+        <button id="open-reconcile" hidden="true">Pointage</button>
+      </div>
+    </header>
+  </template>
+
 </html>

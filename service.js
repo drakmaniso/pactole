@@ -1,5 +1,23 @@
 'use strict'
 
+const files = [
+  './',
+  'favicon.ico',
+  'manifest.json',
+  'styles/main.css',
+  'styles/normalize.css',
+  'styles/palette.css',
+  'styles/fonts/fa-solid-900.woff2',
+  'styles/fonts/fa-solid.css',
+  'scripts/calendar.js',
+  'scripts/ledger.js',
+  'scripts/main.js',
+  'scripts/page.js',
+  'scripts/settings.js',
+  'images/icon-192x192.png',
+  'images/icon-512x512.png',
+]
+
 function log(msg) {
   console.log(`* ${msg}`)
 }
@@ -10,23 +28,7 @@ oninstall = event => {
     caches
       .open('pactole')
       .then(cache => {
-        return cache.addAll([
-          './',
-          'favicon.ico',
-          'manifest.json',
-          'styles/main.css',
-          'styles/normalize.css',
-          'styles/palette.css',
-          'styles/fonts/fa-solid-900.woff2',
-          'styles/fonts/fa-solid.css',
-          'scripts/calendar.js',
-          'scripts/ledger.js',
-          'scripts/main.js',
-          'scripts/page.js',
-          'scripts/settings.js',
-          'images/icon-192x192.png',
-          'images/icon-512x512.png',
-        ])
+        return cache.addAll(files)
       })
       .then(() => {
         log('done caching.')
@@ -40,6 +42,7 @@ oninstall = event => {
 
 onactivate = event => {
   log('Activating service...')
+  event.waitUntil(clients.claim())
   event.waitUntil(
     caches.keys().then(names => {
       return Promise.all(
@@ -57,14 +60,16 @@ onactivate = event => {
 }
 
 onfetch = event => {
-  // log(`fetch: ${event.request.url}...`)
+  //log(`fetch: ${event.request.url}...`)
   event.respondWith(
     caches.match(event.request).then(response => {
       if (response) {
+        //log(`cached: ${event.request.url}`)
         return response
       }
       console.error(`* CACHE FAIL: ${event.request.url}`)
-      return fetch(event.request)
+      return
+      //return fetch(event.request)
     }),
   )
 }
@@ -75,6 +80,24 @@ onmessage = event => {
   switch (msg.title) {
     case 'new transaction':
       send('transactions', null)
+      break
+    case 'update application':
+      log('Updating application...')
+      event.waitUntil(
+        caches
+          .open('pactole')
+          .then(cache => {
+            return cache.addAll(files)
+          })
+          .then(() => {
+            log('done caching.')
+            send('reload')
+          })
+          .catch(err => {
+            console.error(err)
+          }),
+      )
+      log('...application updated.')
       break
   }
 }
