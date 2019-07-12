@@ -68,8 +68,8 @@ onfetch = event => {
         return response
       }
       console.error(`* CACHE FAIL: ${event.request.url}`)
-      return
-      //return fetch(event.request)
+      //return
+      return fetch(event.request, { cache: 'reload' })
     }),
   )
 }
@@ -87,7 +87,11 @@ onmessage = event => {
         caches
           .open('pactole')
           .then(cache => {
-            return cache.addAll(files)
+            return cache.addAll(
+              files.map(f => {
+                new Request(f, { cache: 'reload' })
+              }),
+            )
           })
           .then(() => {
             log('done caching.')
