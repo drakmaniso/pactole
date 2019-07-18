@@ -61,13 +61,13 @@ body.keyboard-navigation button:focus {
   width: 16px;
 }
 ::-webkit-scrollbar-track {
-  background: transparent; 
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--primary); 
+  background: var(--primary);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #555; 
+  background: #555;
 }
 
 .options {
@@ -155,7 +155,7 @@ nav a:hover {
 #balance {
   font-size: 3rem;
 }
- 
+
 #balance.expense {
   color: var(--expense-bg);
 }
@@ -449,8 +449,8 @@ li.date {
   display: flex;
   flex-flow: row wrap;
   justify-content: flex-start;
-  align-items: flex-start; 
-  align-content: start; 
+  align-items: flex-start;
+  align-content: start;
   padding: 0;
   margin: 0;
   overflow-y: scroll;
@@ -775,7 +775,7 @@ li.date {
   user-select: none;
   contain: content;
   padding: 1rem;
-  /* border-radius: 1.25rem; 
+  /* border-radius: 1.25rem;
     border: solid 2px var(--local-primary); */
   border-right: solid 2px var(--fg-lighter);
   background: var(--bg-lighter);

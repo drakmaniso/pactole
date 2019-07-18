@@ -28,35 +28,44 @@ oninstall = event => {
     caches
       .open('pactole')
       .then(cache => {
-        return cache.addAll(files)
+        log('...installing cache...')
+        return cache.addAll(
+          files.map(f => {
+            return new Request(f, { cache: 'no-store' })
+          }),
+        )
       })
       .then(() => {
-        log('done caching.')
+        log('...service installed.')
       })
       .catch(err => {
         console.error(err)
       }),
   )
-  log('...service installed.')
 }
 
 onactivate = event => {
   log('Activating service...')
-  event.waitUntil(clients.claim())
   event.waitUntil(
-    caches.keys().then(names => {
-      return Promise.all(
-        names
-          .filter(n => {
-            // Return true to remove n from the cache
-          })
-          .map(n => {
-            return caches.delete(n)
-          }),
-      )
-    }),
+    clients.claim().then(
+      caches
+        .keys()
+        .then(names => {
+          return Promise.all(
+            names
+              .filter(n => {
+                // Return true to remove n from the cache
+              })
+              .map(n => {
+                return caches.delete(n)
+              }),
+          )
+        })
+        .then(() => {
+          log('...service activated.')
+        }),
+    ),
   )
-  log('...service activated.')
 }
 
 onfetch = event => {
@@ -69,7 +78,7 @@ onfetch = event => {
       }
       console.error(`* CACHE FAIL: ${event.request.url}`)
       //return
-      return fetch(event.request, { cache: 'reload' })
+      return fetch(event.request, { cache: 'no-store' })
     }),
   )
 }
@@ -87,28 +96,31 @@ onmessage = event => {
         caches
           .open('pactole')
           .then(cache => {
+            log('...updating cache...')
+            //return cache.addAll(files)
             return cache.addAll(
               files.map(f => {
-                new Request(f, { cache: 'reload' })
+                return new Request(f, { cache: 'reload' })
               }),
             )
           })
           .then(() => {
-            log('done caching.')
-            send('reload')
+            return send('reload')
+          })
+          .then(() => {
+            log('...application updated.')
           })
           .catch(err => {
             console.error(err)
           }),
       )
-      log('...application updated.')
       break
   }
 }
 
 function send(title, content) {
-  clients.matchAll({ includeUnctonrolled: true }).then(clients => {
-    log(`Sending ${title} to ${clients.length} client(s)...`)
+  return clients.matchAll({ includeUnctonrolled: true }).then(clients => {
+    log(`Sending ${title} to ${clients.length} client(s).`)
     for (const c of clients) {
       c.postMessage({ title: title, content: content })
     }
