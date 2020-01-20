@@ -1,8 +1,0 @@
-- Confirm dialog for deletion.
-- Import and export for database.
-- Disallow future transactions.
-- Correct display of amount in edit dialog.
-- Reconcile page.
-- Summary page.
-- Finish settings page.
-- Clean-up css.
