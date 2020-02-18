@@ -90,16 +90,11 @@ update msg model =
             ( { model | account = a }, Cmd.none )
 
         Msg.UpdateAccounts json ->
-            case
-                Decode.decodeValue
-                    (Decode.list Decode.string)
-                    -- """["to","ti"]"""
-                    json
-            of
-                Ok acc ->
-                    case acc of
+            case Decode.decodeValue (Decode.list Decode.string) json of
+                Ok accounts ->
+                    case accounts of
                         first :: _ ->
-                            ( { model | accounts = acc, account = first }, Cmd.none )
+                            ( { model | accounts = accounts, account = first }, Cmd.none )
 
                         _ ->
                             let
@@ -141,22 +136,21 @@ view model =
                     View.Tabular.view
 
         dialog =
-            \m ->
-                el
-                    [ width fill
-                    , height fill
-                    , padding 16
-                    , behindContent
-                        (Input.button
-                            [ width fill
-                            , height fill
-                            , Background.color (rgba 0 0 0 0.75)
-                            , htmlAttribute <| Html.Attributes.style "z-index" "1000"
-                            ]
-                            { label = none, onPress = Just Msg.Close }
-                        )
-                    ]
-                    (View.Settings.view m)
+            el
+                [ width fill
+                , height fill
+                , padding 16
+                , behindContent
+                    (Input.button
+                        [ width fill
+                        , height fill
+                        , Background.color (rgba 0 0 0 0.75)
+                        , htmlAttribute <| Html.Attributes.style "z-index" "1000"
+                        ]
+                        { label = none, onPress = Just Msg.Close }
+                    )
+                ]
+                (View.Settings.view model)
     in
     { title = "Pactole 2"
     , body =
@@ -169,7 +163,7 @@ view model =
 
             Model.Settings ->
                 [ layout
-                    [ inFront (dialog model)
+                    [ inFront dialog
                     ]
                     (root model)
                 ]

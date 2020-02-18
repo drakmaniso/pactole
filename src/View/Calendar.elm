@@ -124,7 +124,7 @@ dayGridView model =
 
                 _ ->
                     row
-                        [ width fill, height fill, spacing 4 ]
+                        [ width fill, height fill, scrollbarY, spacing 4 ]
                         (walkDays day)
                         :: walkWeeks (incrementWeek day)
 
@@ -148,7 +148,7 @@ dayCell model day =
         style =
             [ width fill
             , height fill
-            , clip
+            , scrollbarY
 
             -- BUGGY: , focused [ Border.shadow {offset = (0, 0), size = 4, blur = 8, color = (rgba 0 0 0 0.20)} ]
             ]
@@ -168,7 +168,7 @@ dayCell model day =
             style
             { label =
                 Element.column
-                    [ width fill, height fill ]
+                    [ width fill, height fill, scrollbarY ]
                     [ el
                         ([ width fill
                          , paddingXY 8 4
@@ -190,9 +190,10 @@ dayCell model day =
                                 String.fromInt (Calendar.getDay day)
                             )
                         )
-                    , Element.paragraph
+                    , Element.wrappedRow
                         [ width fill
                         , height fill
+                        , scrollbarY
                         ]
                         (dayCellTransactions model day)
                     ]
@@ -299,7 +300,7 @@ dayView model =
             , Font.size 26
             ]
             (if model.date == model.today then
-                text "Aujourd'ui"
+                text "Aujourd'hui"
 
              else
                 text (getWeekdayName model.date ++ " " ++ String.fromInt (Calendar.getDay model.date))

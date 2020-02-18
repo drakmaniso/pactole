@@ -29,7 +29,7 @@ myLedger =
             Calendar.fromPosix (Time.millisToPosix 0)
 
         date1 =
-            case Calendar.fromRawParts { year = 2019, month = Time.Nov, day = 26 } of
+            case Calendar.fromRawParts { year = 2020, month = Time.Jan, day = 26 } of
                 Nothing ->
                     Debug.log "what?" defaultDate
 
@@ -37,7 +37,7 @@ myLedger =
                     date
 
         date2 =
-            case Calendar.fromRawParts { year = 2019, month = Time.Nov, day = 10 } of
+            case Calendar.fromRawParts { year = 2020, month = Time.Jan, day = 10 } of
                 Nothing ->
                     Debug.log "what?" defaultDate
 
@@ -47,37 +47,76 @@ myLedger =
     Ledger
         [ Transaction date1 (Money -5000) (Description "Foo") NoCategory NotReconciled
         , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
+        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
+        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
+        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
+        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
+        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
+        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
+        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
+        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
+        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
+        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
+        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
+        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
+        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
+        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
+        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
+        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
+        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
+        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
+        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
+        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
+        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
+        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
+        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
+        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
+        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
+        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
+        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
+        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
+        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
+        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
+        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
+        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
+        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
+        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
+        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
         , Transaction date2 (Money -2350) (Description "Baz") NoCategory NotReconciled
         ]
 
 
 encodeTransaction : Transaction -> E.Value
-encodeTransaction (Transaction dat (Money amo) des cat rec) =
+encodeTransaction (Transaction date (Money ammount) description category reconciled) =
+    let
+        withRec =
+            case reconciled of
+                NotReconciled ->
+                    []
+
+                Reconciled ->
+                    [ ( "reconciled", E.bool True ) ]
+
+        withCatRec =
+            case category of
+                NoCategory ->
+                    withRec
+
+                Category c ->
+                    ( "category", E.string c ) :: withRec
+
+        withDescCatRec =
+            case description of
+                NoDescription ->
+                    withCatRec
+
+                Description d ->
+                    ( "description", E.string d ) :: withCatRec
+    in
     E.object
-        ([ ( "date", E.int (dateToInt dat) )
-         , ( "amount", E.int amo )
-         ]
-            ++ (case des of
-                    NoDescription ->
-                        []
-
-                    Description d ->
-                        [ ( "description", E.string d ) ]
-               )
-            ++ (case cat of
-                    NoCategory ->
-                        []
-
-                    Category c ->
-                        [ ( "category", E.string c ) ]
-               )
-            ++ (case rec of
-                    NotReconciled ->
-                        []
-
-                    Reconciled ->
-                        [ ( "reconciled", E.bool True ) ]
-               )
+        (( "date", E.int (dateToInt date) )
+            :: ( "amount", E.int ammount )
+            :: withDescCatRec
         )
 
 
@@ -96,25 +135,31 @@ decodeTransaction js =
             Err e
 
         Ok v ->
-            Ok
-                (Transaction
-                    (intToDate v.date)
-                    (Money v.amount)
-                    (case v.description of
+            let
+                date =
+                    intToDate v.date
+
+                money =
+                    Money v.amount
+
+                description =
+                    case v.description of
                         Nothing ->
                             NoDescription
 
                         Just d ->
                             Description d
-                    )
-                    (case v.category of
+
+                category =
+                    case v.category of
                         Nothing ->
                             NoCategory
 
                         Just c ->
                             Category c
-                    )
-                    (case v.reconciled of
+
+                reconciled =
+                    case v.reconciled of
                         Nothing ->
                             NotReconciled
 
@@ -123,8 +168,8 @@ decodeTransaction js =
 
                         Just True ->
                             Reconciled
-                    )
-                )
+            in
+            Ok (Transaction date money description category reconciled)
 
 
 type alias JsonTransaction =
