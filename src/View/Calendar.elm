@@ -190,10 +190,11 @@ dayCell model day =
                                 String.fromInt (Calendar.getDay day)
                             )
                         )
-                    , Element.wrappedRow
+                    , Element.paragraph
                         [ width fill
                         , height fill
                         , scrollbarY
+                        , padding 8
                         ]
                         (dayCellTransactions model day)
                     ]
@@ -209,7 +210,11 @@ dayCell model day =
 dayCellTransactions : Model.Model -> Calendar.Date -> List (Element Msg.Msg)
 dayCellTransactions model day =
     let
-        render (Ledger.Transaction date (Ledger.Money amount) desc cat rec) =
+        render (Ledger.Transaction transaction) =
+            let
+                (Ledger.Money amount) =
+                    transaction.amount
+            in
             el
                 [ paddingXY 8 2
                 , Font.size 16
@@ -220,8 +225,6 @@ dayCellTransactions model day =
                   else
                     Background.color (rgb 0.2 0.7 0.1)
                 , Border.rounded 16
-                , Border.color (rgb 0.94 0.92 0.87)
-                , Border.width 2
                 ]
                 (text (String.fromInt (amount // 100)))
 
@@ -231,9 +234,10 @@ dayCellTransactions model day =
     List.map
         render
         (List.filter
-            (\(Ledger.Transaction d _ _ _ _) -> d == day)
+            (\(Ledger.Transaction t) -> t.date == day)
             transacs
         )
+        |> List.intersperse (text " ")
 
 
 

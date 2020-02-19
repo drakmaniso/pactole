@@ -20,7 +20,13 @@ type Ledger
 
 
 type Transaction
-    = Transaction Calendar.Date Money Description Category Reconciliation
+    = Transaction
+        { date : Calendar.Date
+        , amount : Money
+        , description : Description
+        , category : Category
+        , reconciliation : Reconciliation
+        }
 
 
 myLedger =
@@ -29,7 +35,7 @@ myLedger =
             Calendar.fromPosix (Time.millisToPosix 0)
 
         date1 =
-            case Calendar.fromRawParts { year = 2020, month = Time.Jan, day = 26 } of
+            case Calendar.fromRawParts { year = 2020, month = Time.Feb, day = 26 } of
                 Nothing ->
                     Debug.log "what?" defaultDate
 
@@ -37,7 +43,7 @@ myLedger =
                     date
 
         date2 =
-            case Calendar.fromRawParts { year = 2020, month = Time.Jan, day = 10 } of
+            case Calendar.fromRawParts { year = 2020, month = Time.Feb, day = 10 } of
                 Nothing ->
                     Debug.log "what?" defaultDate
 
@@ -45,52 +51,332 @@ myLedger =
                     date
     in
     Ledger
-        [ Transaction date1 (Money -5000) (Description "Foo") NoCategory NotReconciled
-        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
-        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
-        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
-        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
-        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
-        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
-        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
-        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
-        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
-        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
-        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
-        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
-        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
-        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
-        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
-        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
-        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
-        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
-        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
-        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
-        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
-        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
-        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
-        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
-        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
-        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
-        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
-        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
-        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
-        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
-        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
-        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
-        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
-        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
-        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
-        , Transaction date1 (Money 20000) (Description "Bar") NoCategory NotReconciled
-        , Transaction date2 (Money -2350) (Description "Baz") NoCategory NotReconciled
+        [ Transaction
+            { date = date2
+            , amount = Money -5000
+            , description = Description "Foo"
+            , category = NoCategory
+            , reconciliation = NotReconciled
+            }
+        , Transaction
+            { date = date2
+            , amount = Money 2500
+            , description = Description "Bar"
+            , category = NoCategory
+            , reconciliation = NotReconciled
+            }
+        , Transaction
+            { date = date2
+            , amount = Money 2500
+            , description = Description "Bar"
+            , category = NoCategory
+            , reconciliation = NotReconciled
+            }
+        , Transaction
+            { date = date2
+            , amount = Money 2500
+            , description = Description "Bar"
+            , category = NoCategory
+            , reconciliation = NotReconciled
+            }
+        , Transaction
+            { date = date2
+            , amount = Money 2500
+            , description = Description "Bar"
+            , category = NoCategory
+            , reconciliation = NotReconciled
+            }
+        , Transaction
+            { date = date2
+            , amount = Money 2500
+            , description = Description "Bar"
+            , category = NoCategory
+            , reconciliation = NotReconciled
+            }
+        , Transaction
+            { date = date2
+            , amount = Money 2500
+            , description = Description "Bar"
+            , category = NoCategory
+            , reconciliation = NotReconciled
+            }
+        , Transaction
+            { date = date2
+            , amount = Money 2500
+            , description = Description "Bar"
+            , category = NoCategory
+            , reconciliation = NotReconciled
+            }
+        , Transaction
+            { date = date2
+            , amount = Money 2500
+            , description = Description "Bar"
+            , category = NoCategory
+            , reconciliation = NotReconciled
+            }
+        , Transaction
+            { date = date1
+            , amount = Money -500
+            , description = Description "Foo"
+            , category = NoCategory
+            , reconciliation = NotReconciled
+            }
+        , Transaction
+            { date = date1
+            , amount = Money 2500
+            , description = Description "Bar"
+            , category = NoCategory
+            , reconciliation = NotReconciled
+            }
+        , Transaction
+            { date = date1
+            , amount = Money 2500
+            , description = Description "Bar"
+            , category = NoCategory
+            , reconciliation = NotReconciled
+            }
+        , Transaction
+            { date = date1
+            , amount = Money 2500
+            , description = Description "Bar"
+            , category = NoCategory
+            , reconciliation = NotReconciled
+            }
+        , Transaction
+            { date = date1
+            , amount = Money -500
+            , description = Description "Foo"
+            , category = NoCategory
+            , reconciliation = NotReconciled
+            }
+        , Transaction
+            { date = date1
+            , amount = Money -500
+            , description = Description "Foo"
+            , category = NoCategory
+            , reconciliation = NotReconciled
+            }
+        , Transaction
+            { date = date1
+            , amount = Money -500
+            , description = Description "Foo"
+            , category = NoCategory
+            , reconciliation = NotReconciled
+            }
+        , Transaction
+            { date = date1
+            , amount = Money -500
+            , description = Description "Foo"
+            , category = NoCategory
+            , reconciliation = NotReconciled
+            }
+        , Transaction
+            { date = date1
+            , amount = Money -500
+            , description = Description "Foo"
+            , category = NoCategory
+            , reconciliation = NotReconciled
+            }
+        , Transaction
+            { date = date1
+            , amount = Money -500
+            , description = Description "Foo"
+            , category = NoCategory
+            , reconciliation = NotReconciled
+            }
+        , Transaction
+            { date = date1
+            , amount = Money -500
+            , description = Description "Foo"
+            , category = NoCategory
+            , reconciliation = NotReconciled
+            }
+        , Transaction
+            { date = date1
+            , amount = Money -500
+            , description = Description "Foo"
+            , category = NoCategory
+            , reconciliation = NotReconciled
+            }
+        , Transaction
+            { date = date1
+            , amount = Money -500
+            , description = Description "Foo"
+            , category = NoCategory
+            , reconciliation = NotReconciled
+            }
+        , Transaction
+            { date = date1
+            , amount = Money -500
+            , description = Description "Foo"
+            , category = NoCategory
+            , reconciliation = NotReconciled
+            }
+        , Transaction
+            { date = date1
+            , amount = Money -500
+            , description = Description "Foo"
+            , category = NoCategory
+            , reconciliation = NotReconciled
+            }
+        , Transaction
+            { date = date1
+            , amount = Money -500
+            , description = Description "Foo"
+            , category = NoCategory
+            , reconciliation = NotReconciled
+            }
+        , Transaction
+            { date = date1
+            , amount = Money -500
+            , description = Description "Foo"
+            , category = NoCategory
+            , reconciliation = NotReconciled
+            }
+        , Transaction
+            { date = date1
+            , amount = Money -500
+            , description = Description "Foo"
+            , category = NoCategory
+            , reconciliation = NotReconciled
+            }
+        , Transaction
+            { date = date1
+            , amount = Money -500
+            , description = Description "Foo"
+            , category = NoCategory
+            , reconciliation = NotReconciled
+            }
+        , Transaction
+            { date = date1
+            , amount = Money -500
+            , description = Description "Foo"
+            , category = NoCategory
+            , reconciliation = NotReconciled
+            }
+        , Transaction
+            { date = date1
+            , amount = Money -500
+            , description = Description "Foo"
+            , category = NoCategory
+            , reconciliation = NotReconciled
+            }
+        , Transaction
+            { date = date1
+            , amount = Money -500
+            , description = Description "Foo"
+            , category = NoCategory
+            , reconciliation = NotReconciled
+            }
+        , Transaction
+            { date = date1
+            , amount = Money -500
+            , description = Description "Foo"
+            , category = NoCategory
+            , reconciliation = NotReconciled
+            }
+        , Transaction
+            { date = date1
+            , amount = Money -500
+            , description = Description "Foo"
+            , category = NoCategory
+            , reconciliation = NotReconciled
+            }
+        , Transaction
+            { date = date1
+            , amount = Money -500
+            , description = Description "Foo"
+            , category = NoCategory
+            , reconciliation = NotReconciled
+            }
+        , Transaction
+            { date = date1
+            , amount = Money -500
+            , description = Description "Foo"
+            , category = NoCategory
+            , reconciliation = NotReconciled
+            }
+        , Transaction
+            { date = date1
+            , amount = Money -500
+            , description = Description "Foo"
+            , category = NoCategory
+            , reconciliation = NotReconciled
+            }
+        , Transaction
+            { date = date1
+            , amount = Money -500
+            , description = Description "Foo"
+            , category = NoCategory
+            , reconciliation = NotReconciled
+            }
+        , Transaction
+            { date = date1
+            , amount = Money -500
+            , description = Description "Foo"
+            , category = NoCategory
+            , reconciliation = NotReconciled
+            }
+        , Transaction
+            { date = date1
+            , amount = Money -500
+            , description = Description "Foo"
+            , category = NoCategory
+            , reconciliation = NotReconciled
+            }
+        , Transaction
+            { date = date1
+            , amount = Money -500
+            , description = Description "Foo"
+            , category = NoCategory
+            , reconciliation = NotReconciled
+            }
+        , Transaction
+            { date = date1
+            , amount = Money -500
+            , description = Description "Foo"
+            , category = NoCategory
+            , reconciliation = NotReconciled
+            }
+        , Transaction
+            { date = date1
+            , amount = Money 2500
+            , description = Description "Bar"
+            , category = NoCategory
+            , reconciliation = NotReconciled
+            }
+        , Transaction
+            { date = date1
+            , amount = Money 2500
+            , description = Description "Bar"
+            , category = NoCategory
+            , reconciliation = NotReconciled
+            }
+        , Transaction
+            { date = date1
+            , amount = Money 2500
+            , description = Description "Bar"
+            , category = NoCategory
+            , reconciliation = NotReconciled
+            }
+        , Transaction
+            { date = date1
+            , amount = Money 2500
+            , description = Description "Bar"
+            , category = NoCategory
+            , reconciliation = NotReconciled
+            }
         ]
 
 
 encodeTransaction : Transaction -> E.Value
-encodeTransaction (Transaction date (Money ammount) description category reconciled) =
+encodeTransaction (Transaction { date, amount, description, category, reconciliation }) =
     let
+        (Money money) =
+            amount
+
         withRec =
-            case reconciled of
+            case reconciliation of
                 NotReconciled ->
                     []
 
@@ -115,7 +401,7 @@ encodeTransaction (Transaction date (Money ammount) description category reconci
     in
     E.object
         (( "date", E.int (dateToInt date) )
-            :: ( "amount", E.int ammount )
+            :: ( "amount", E.int money )
             :: withDescCatRec
         )
 
@@ -169,7 +455,15 @@ decodeTransaction js =
                         Just True ->
                             Reconciled
             in
-            Ok (Transaction date money description category reconciled)
+            Ok
+                (Transaction
+                    { date = date
+                    , amount = money
+                    , description = description
+                    , category = category
+                    , reconciliation = reconciled
+                    }
+                )
 
 
 type alias JsonTransaction =

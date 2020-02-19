@@ -152,7 +152,7 @@ view model =
                 ]
                 (View.Settings.view model)
     in
-    { title = "Pactole 2"
+    { title = "Pactole"
     , body =
         case model.dialog of
             Model.None ->
