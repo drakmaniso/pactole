@@ -210,32 +210,25 @@ dayCell model day =
 dayCellTransactions : Model.Model -> Calendar.Date -> List (Element Msg.Msg)
 dayCellTransactions model day =
     let
-        render (Ledger.Transaction transaction) =
-            let
-                (Ledger.Money amount) =
-                    transaction.amount
-            in
+        render transaction =
             el
                 [ paddingXY 8 2
                 , Font.size 16
                 , Font.color (rgb 1 1 1)
-                , if amount < 0 then
+                , if Ledger.isExpense transaction then
                     Background.color (rgb 0.8 0.25 0.2)
 
                   else
                     Background.color (rgb 0.2 0.7 0.1)
                 , Border.rounded 16
                 ]
-                (text (String.fromInt (amount // 100)))
-
-        (Ledger.Ledger transacs) =
-            model.ledger
+                (text (Ledger.formatAmount transaction.amount))
     in
     List.map
         render
         (List.filter
-            (\(Ledger.Transaction t) -> t.date == day)
-            transacs
+            (\t -> t.date == day)
+            (Ledger.transactions model.ledger)
         )
         |> List.intersperse (text " ")
 

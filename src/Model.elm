@@ -1,4 +1,9 @@
-module Model exposing (Dialog(..), Mode(..), Model, init)
+module Model exposing
+    ( Dialog(..)
+    , Mode(..)
+    , Model
+    , init
+    )
 
 import Calendar
 import Ledger

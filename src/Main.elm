@@ -4,7 +4,7 @@ import Array
 import Browser
 import Browser.Navigation as Navigation
 import Calendar
-import Element exposing (..)
+import Element as E
 import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
@@ -136,18 +136,18 @@ view model =
                     View.Tabular.view
 
         dialog =
-            el
-                [ width fill
-                , height fill
-                , padding 16
-                , behindContent
+            E.el
+                [ E.width E.fill
+                , E.height E.fill
+                , E.padding 16
+                , E.behindContent
                     (Input.button
-                        [ width fill
-                        , height fill
-                        , Background.color (rgba 0 0 0 0.75)
-                        , htmlAttribute <| Html.Attributes.style "z-index" "1000"
+                        [ E.width E.fill
+                        , E.height E.fill
+                        , Background.color (E.rgba 0 0 0 0.75)
+                        , E.htmlAttribute <| Html.Attributes.style "z-index" "1000"
                         ]
-                        { label = none, onPress = Just Msg.Close }
+                        { label = E.none, onPress = Just Msg.Close }
                     )
                 ]
                 (View.Settings.view model)
@@ -156,14 +156,14 @@ view model =
     , body =
         case model.dialog of
             Model.None ->
-                [ layout
+                [ E.layout
                     []
                     (root model)
                 ]
 
             Model.Settings ->
-                [ layout
-                    [ inFront dialog
+                [ E.layout
+                    [ E.inFront dialog
                     ]
                     (root model)
                 ]
@@ -194,6 +194,10 @@ posixToDate zone time =
 
         Nothing ->
             Calendar.fromPosix (Time.millisToPosix 0)
+
+
+
+-- PORTS
 
 
 port storeAccounts : Encode.Value -> Cmd msg
