@@ -12,6 +12,7 @@ import Ledger
 import Model
 import Msg
 import Time
+import View.Style as Style
 
 
 view : Model.Model -> Element Msg.Msg
@@ -21,18 +22,7 @@ view model =
         , height fill
         , paddingXY 8 4
         , htmlAttribute <| Html.Attributes.style "z-index" "-1"
-        , Background.color (rgb 0.85 0.82 0.75)
-        , inFront
-            (el
-                [ alignTop, alignRight ]
-                (Input.button
-                    [ Font.family [ Font.typeface "Font Awesome 5 Free" ]
-                    , Font.size 26
-                    , padding 8
-                    ]
-                    { label = text "\u{F013}", onPress = Just Msg.ToSettings }
-                )
-            )
+        , Background.color Style.bgPage
         ]
         [ column
             [ width (fillPortion 25), height fill, padding 16, alignTop ]
@@ -60,16 +50,16 @@ monthView model =
             [ Input.button
                 [ width (fillPortion 1), height fill ]
                 { label =
-                    el [ centerX, Font.size 32, Font.family [ Font.typeface "Font Awesome 5 Free" ] ] (text "\u{F060}")
+                    el Style.icons (text "\u{F060}")
                 , onPress = Just (Msg.SelectDay (Calendar.decrementMonth model.date))
                 }
             , el
                 [ width (fillPortion 3), height fill ]
-                (el [ centerX, Font.size 28, Font.bold ] (text (getMonthFullName model model.date)))
+                (el Style.calendarMonthName (text (getMonthFullName model model.date)))
             , Input.button
                 [ width (fillPortion 1), height fill ]
                 { label =
-                    el [ centerX, Font.size 32, Font.family [ Font.typeface "Font Awesome 5 Free" ] ] (text "\u{F061}")
+                    el Style.icons (text "\u{F061}")
                 , onPress = Just (Msg.SelectDay (Calendar.incrementMonth model.date))
                 }
             ]
@@ -77,13 +67,13 @@ monthView model =
             ++ dayGridView model
             ++ [ row
                     [ width fill, alignBottom ]
-                    [ el [ width fill ] (el [ centerX, Font.size 16 ] (text "Lundi"))
-                    , el [ width fill ] (el [ centerX, Font.size 16 ] (text "Mardi"))
-                    , el [ width fill ] (el [ centerX, Font.size 16 ] (text "Mercredi"))
-                    , el [ width fill ] (el [ centerX, Font.size 16 ] (text "Jeudi"))
-                    , el [ width fill ] (el [ centerX, Font.size 16 ] (text "Vendredi"))
-                    , el [ width fill ] (el [ centerX, Font.size 16 ] (text "Samedi"))
-                    , el [ width fill ] (el [ centerX, Font.size 16 ] (text "Dimanche"))
+                    [ el [ width fill ] (el Style.weekDayName (text "Lundi"))
+                    , el [ width fill ] (el Style.weekDayName (text "Mardi"))
+                    , el [ width fill ] (el Style.weekDayName (text "Mercredi"))
+                    , el [ width fill ] (el Style.weekDayName (text "Jeudi"))
+                    , el [ width fill ] (el Style.weekDayName (text "Vendredi"))
+                    , el [ width fill ] (el Style.weekDayName (text "Samedi"))
+                    , el [ width fill ] (el Style.weekDayName (text "Dimanche"))
                     ]
                ]
         )
@@ -124,7 +114,7 @@ dayGridView model =
 
                 _ ->
                     row
-                        [ width fill, height fill, scrollbarY, spacing 4 ]
+                        [ width fill, height fill, clipY, spacing 4 ]
                         (walkDays day)
                         :: walkWeeks (incrementWeek day)
 
@@ -146,21 +136,14 @@ dayCell model day =
             model.selected && day == model.date
 
         style =
-            [ width fill
-            , height fill
-            , scrollbarY
-
-            -- BUGGY: , focused [ Border.shadow {offset = (0, 0), size = 4, blur = 8, color = (rgba 0 0 0 0.20)} ]
-            ]
-                ++ (if sel then
-                        [ Background.color (rgb 1 1 1)
-                        , Border.rounded 8
-                        , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 8, color = rgba 0 0 0 0.2 }
-                        , htmlAttribute <| Html.Attributes.style "z-index" "0"
-                        ]
+            width fill
+                :: height fill
+                :: scrollbarY
+                :: (if sel then
+                        Style.dayCellSelected
 
                     else
-                        [ Background.color (rgb 0.94 0.92 0.87), Border.rounded 2 ]
+                        Style.dayCell
                    )
     in
     if Calendar.getMonth day == Calendar.getMonth model.date then
@@ -176,7 +159,9 @@ dayCell model day =
                          , Font.center
                          ]
                             ++ (if sel then
-                                    [ Font.color (rgb 1 1 1), Background.color (rgb 0.3 0.6 0.7) ]
+                                    [ Font.color (rgb 1 1 1)
+                                    , Background.color Style.bgTitle
+                                    ]
 
                                 else
                                     []
@@ -203,7 +188,11 @@ dayCell model day =
 
     else
         el
-            [ width fill, height fill ]
+            (width
+                fill
+                :: height fill
+                :: Style.dayCellNone
+            )
             none
 
 
@@ -239,17 +228,24 @@ dayCellTransactions model day =
 
 summaryView model =
     column
-        [ centerX ]
-        [ Input.radioRow
+        [ width fill ]
+        [ row
             [ width fill ]
-            { onChange = Msg.ChooseAccount
-            , selected = Just model.account
-            , label = Input.labelHidden "Compte"
-            , options =
-                List.map
-                    (\acc -> Input.optionWith acc (accountOption acc))
-                    model.accounts
-            }
+            [ Input.radioRow
+                [ width fill ]
+                { onChange = Msg.ChooseAccount
+                , selected = Just model.account
+                , label = Input.labelHidden "Compte"
+                , options =
+                    List.map
+                        (\acc -> Input.optionWith acc (accountOption acc))
+                        model.accounts
+                }
+            , el [ width fill ] none
+            , Input.button
+                Style.iconsSettings
+                { label = text "\u{F013}", onPress = Just Msg.ToSettings }
+            ]
         ]
 
 

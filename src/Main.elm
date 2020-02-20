@@ -2,6 +2,7 @@ port module Main exposing (..)
 
 import Array
 import Browser
+import Browser.Events
 import Browser.Navigation as Navigation
 import Calendar
 import Element as E
@@ -21,6 +22,7 @@ import Time
 import Url
 import View.Calendar
 import View.Settings
+import View.Style
 import View.Tabular
 
 
@@ -110,6 +112,9 @@ update msg model =
                     in
                     ( model, Cmd.none )
 
+        Msg.KeyDown string ->
+            ( { model | dialog = Model.Settings }, Cmd.none )
+
 
 
 -- SUBSCRIPTIONS
@@ -117,7 +122,15 @@ update msg model =
 
 subscriptions : Model.Model -> Sub Msg.Msg
 subscriptions _ =
-    getAccounts Msg.UpdateAccounts
+    Sub.batch
+        [ getAccounts Msg.UpdateAccounts
+        , Browser.Events.onKeyDown (Decode.succeed Msg.ToSettings)
+        ]
+
+
+keyDownDecoder : Decode.Decoder Msg.Msg
+keyDownDecoder =
+    Decode.succeed (Msg.KeyDown "foobar")
 
 
 
@@ -154,19 +167,31 @@ view model =
     in
     { title = "Pactole"
     , body =
-        case model.dialog of
-            Model.None ->
-                [ E.layout
-                    []
-                    (root model)
+        [ E.layoutWith
+            { options =
+                [ E.focusStyle
+                    { borderColor = Just View.Style.bgTitle
+                    , backgroundColor = Nothing
+                    , shadow =
+                        Just
+                            { color = View.Style.bgTitle
+                            , offset = ( 0, 0 )
+                            , blur = 0
+                            , size = 2
+                            }
+                    }
                 ]
+            }
+            (case model.dialog of
+                Model.None ->
+                    []
 
-            Model.Settings ->
-                [ E.layout
+                Model.Settings ->
                     [ E.inFront dialog
                     ]
-                    (root model)
-                ]
+            )
+            (root model)
+        ]
     }
 
 

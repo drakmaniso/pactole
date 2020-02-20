@@ -17,3 +17,4 @@ type Msg
     | SelectDay Calendar.Date
     | ChooseAccount String
     | UpdateAccounts Json.Decode.Value
+    | KeyDown String
