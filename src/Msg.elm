@@ -16,5 +16,6 @@ type Msg
     | Close
     | SelectDay Calendar.Date
     | ChooseAccount String
-    | UpdateAccounts Json.Decode.Value
+    | OnStoreChange String
+    | OnLedgerChange Json.Decode.Value
     | KeyDown String
