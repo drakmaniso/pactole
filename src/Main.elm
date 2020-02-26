@@ -113,7 +113,8 @@ update msg model =
                     ( model, Cmd.none )
 
         Msg.KeyDown string ->
-            ( { model | dialog = Model.Settings }, Cmd.none )
+            -- TODO
+            ( model, Cmd.none )
 
 
 
@@ -124,13 +125,14 @@ subscriptions : Model.Model -> Sub Msg.Msg
 subscriptions _ =
     Sub.batch
         [ getAccounts Msg.UpdateAccounts
-        , Browser.Events.onKeyDown (Decode.succeed Msg.ToSettings)
+        , Browser.Events.onKeyDown keyDownDecoder
         ]
 
 
 keyDownDecoder : Decode.Decoder Msg.Msg
 keyDownDecoder =
-    Decode.succeed (Msg.KeyDown "foobar")
+    Decode.field "key" Decode.string
+        |> Decode.map Msg.KeyDown
 
 
 
