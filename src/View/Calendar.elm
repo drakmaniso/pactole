@@ -1,6 +1,6 @@
 module View.Calendar exposing (view)
 
-import Calendar
+import Date
 import Debug
 import Element exposing (..)
 import Element.Background as Background
@@ -51,16 +51,16 @@ monthView model =
                 [ width (fillPortion 1), height fill ]
                 { label =
                     el Style.icons (text "\u{F060}")
-                , onPress = Just (Msg.SelectDay (Calendar.decrementMonth model.date))
+                , onPress = Just (Msg.SelectDay (Date.decrementMonth model.date))
                 }
             , el
                 [ width (fillPortion 3), height fill ]
-                (el Style.calendarMonthName (text (getMonthFullName model model.date)))
+                (el Style.calendarMonthName (text (Date.getMonthFullName model.today model.date)))
             , Input.button
                 [ width (fillPortion 1), height fill ]
                 { label =
                     el Style.icons (text "\u{F061}")
-                , onPress = Just (Msg.SelectDay (Calendar.incrementMonth model.date))
+                , onPress = Just (Msg.SelectDay (Date.incrementMonth model.date))
                 }
             ]
          ]
@@ -83,32 +83,32 @@ dayGridView : Model.Model -> List (Element Msg.Msg)
 dayGridView model =
     let
         findTheFirst day =
-            if Calendar.getDay day == 1 then
+            if Date.getDay day == 1 then
                 day
 
             else
-                findTheFirst (Calendar.decrementDay day)
+                findTheFirst (Date.decrementDay day)
 
         findTheLast day =
-            if Calendar.getDay day == Calendar.lastDayOf day then
+            if Date.getDay day == Date.lastDayOf day then
                 day
 
             else
-                findTheLast (Calendar.incrementDay day)
+                findTheLast (Date.incrementDay day)
 
         lastDay =
             findTheLast model.date
 
         findMonday day =
-            case Calendar.getWeekday day of
+            case Date.getWeekday day of
                 Time.Mon ->
                     day
 
                 _ ->
-                    findMonday (Calendar.decrementDay day)
+                    findMonday (Date.decrementDay day)
 
         walkWeeks day =
-            case ( Calendar.compare day lastDay, Calendar.getWeekday day ) of
+            case ( Date.compare day lastDay, Date.getWeekday day ) of
                 ( GT, Time.Mon ) ->
                     []
 
@@ -116,20 +116,20 @@ dayGridView model =
                     row
                         [ width fill, height fill, clipY, spacing 4 ]
                         (walkDays day)
-                        :: walkWeeks (incrementWeek day)
+                        :: walkWeeks (Date.incrementWeek day)
 
         walkDays day =
-            case Calendar.getWeekday day of
+            case Date.getWeekday day of
                 Time.Sun ->
                     [ dayCell model day ]
 
                 _ ->
-                    dayCell model day :: walkDays (Calendar.incrementDay day)
+                    dayCell model day :: walkDays (Date.incrementDay day)
     in
     walkWeeks (findMonday (findTheFirst model.date))
 
 
-dayCell : Model.Model -> Calendar.Date -> Element Msg.Msg
+dayCell : Model.Model -> Date.Date -> Element Msg.Msg
 dayCell model day =
     let
         sel =
@@ -146,7 +146,7 @@ dayCell model day =
                         Style.dayCell
                    )
     in
-    if Calendar.getMonth day == Calendar.getMonth model.date then
+    if Date.getMonth day == Date.getMonth model.date then
         Input.button
             style
             { label =
@@ -172,7 +172,7 @@ dayCell model day =
                                 "Aujourd'hui"
 
                              else
-                                String.fromInt (Calendar.getDay day)
+                                String.fromInt (Date.getDay day)
                             )
                         )
                     , Element.paragraph
@@ -196,7 +196,7 @@ dayCell model day =
             none
 
 
-dayCellTransactions : Model.Model -> Calendar.Date -> List (Element Msg.Msg)
+dayCellTransactions : Model.Model -> Date.Date -> List (Element Msg.Msg)
 dayCellTransactions model day =
     let
         render transaction =
@@ -234,7 +234,7 @@ summaryView model =
             [ Input.radioRow
                 [ width fill ]
                 { onChange = Msg.ChooseAccount
-                , selected = Just model.account
+                , selected = model.account
                 , label = Input.labelHidden "Compte"
                 , options =
                     List.map
@@ -296,97 +296,6 @@ dayView model =
                 text "Aujourd'hui"
 
              else
-                text (getWeekdayName model.date ++ " " ++ String.fromInt (Calendar.getDay model.date))
+                text (Date.getWeekdayName model.date ++ " " ++ String.fromInt (Date.getDay model.date))
             )
         ]
-
-
-
--- DATE TOOLS
-
-
-incrementWeek date =
-    date
-        |> Calendar.incrementDay
-        |> Calendar.incrementDay
-        |> Calendar.incrementDay
-        |> Calendar.incrementDay
-        |> Calendar.incrementDay
-        |> Calendar.incrementDay
-        |> Calendar.incrementDay
-
-
-getMonthName : Time.Month -> String
-getMonthName m =
-    case m of
-        Time.Jan ->
-            "Janvier"
-
-        Time.Feb ->
-            "Février"
-
-        Time.Mar ->
-            "Mars"
-
-        Time.Apr ->
-            "Avril"
-
-        Time.May ->
-            "Mai"
-
-        Time.Jun ->
-            "Juin"
-
-        Time.Jul ->
-            "Juillet"
-
-        Time.Aug ->
-            "Août"
-
-        Time.Sep ->
-            "Septembre"
-
-        Time.Oct ->
-            "Octobre"
-
-        Time.Nov ->
-            "Novembre"
-
-        Time.Dec ->
-            "Décembre"
-
-
-getWeekdayName d =
-    case Calendar.getWeekday d of
-        Time.Mon ->
-            "Lundi"
-
-        Time.Tue ->
-            "Mardi"
-
-        Time.Wed ->
-            "Mercredi"
-
-        Time.Thu ->
-            "Jeudi"
-
-        Time.Fri ->
-            "Vendredi"
-
-        Time.Sat ->
-            "Samedi"
-
-        Time.Sun ->
-            "Dimanche"
-
-
-getMonthFullName model d =
-    let
-        n =
-            getMonthName (Calendar.getMonth model.date)
-    in
-    if Calendar.getYear d == Calendar.getYear model.today then
-        n
-
-    else
-        n ++ " " ++ String.fromInt (Calendar.getYear d)

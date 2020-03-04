@@ -12,8 +12,7 @@ module Ledger exposing
     , transactions
     )
 
-import Array
-import Calendar
+import Date
 import Json.Decode as Decode
 import Json.Encode as Encode
 import Time
@@ -24,7 +23,7 @@ type Ledger
 
 
 type alias Transaction =
-    { date : Calendar.Date
+    { date : Date.Date
     , amount : Money
     , description : Description
     , category : Category
@@ -87,7 +86,7 @@ encodeTransaction { date, amount, description, category, reconciliation } =
                     ( "description", Encode.string d ) :: withCatRec
     in
     Encode.object
-        (( "date", Encode.int (dateToInt date) )
+        (( "date", Encode.int (Date.toInt date) )
             :: ( "amount", Encode.int money )
             :: withDescCatRec
         )
@@ -106,68 +105,18 @@ transactionDecoder =
 -- DATE
 
 
-dateDecoder : Decode.Decoder Calendar.Date
+dateDecoder : Decode.Decoder Date.Date
 dateDecoder =
     let
         toDate a =
             case a of
                 Ok aa ->
-                    intToDate aa
+                    Date.fromInt aa
 
                 Err e ->
-                    Debug.log (Decode.errorToString e) (intToDate 0)
+                    Debug.log (Decode.errorToString e) (Date.fromInt 0)
     in
-    Decode.map intToDate (Decode.field "date" Decode.int)
-
-
-dateToInt : Calendar.Date -> Int
-dateToInt date =
-    let
-        y =
-            Calendar.getYear date
-
-        m =
-            (Calendar.getMonth date |> Calendar.monthToInt) + 1
-
-        d =
-            Calendar.getDay date
-    in
-    d + 100 * m + 10000 + y
-
-
-intToDate n =
-    let
-        y =
-            n // 10000
-
-        m =
-            (n - y * 10000) // 100
-
-        d =
-            n - y * 10000 - m * 100
-
-        mm =
-            Array.get (m - 1) Calendar.months
-
-        raw =
-            Calendar.fromRawParts
-                { year = y
-                , month =
-                    case mm of
-                        Nothing ->
-                            Debug.log "Ledger.intToDate failed" Time.Jan
-
-                        Just mmm ->
-                            mmm
-                , day = d
-                }
-    in
-    case raw of
-        Nothing ->
-            Debug.log "Ledger.intToDate failed" (Calendar.fromPosix (Time.millisToPosix 0))
-
-        Just date ->
-            date
+    Decode.map Date.fromInt (Decode.field "date" Decode.int)
 
 
 
@@ -284,23 +233,13 @@ reconciliationDecoder =
 myLedger =
     let
         defaultDate =
-            Calendar.fromPosix (Time.millisToPosix 0)
+            Date.fromPosix (Time.millisToPosix 0)
 
         date1 =
-            case Calendar.fromRawParts { year = 2020, month = Time.Feb, day = 26 } of
-                Nothing ->
-                    Debug.log "what?" defaultDate
-
-                Just date ->
-                    date
+            Date.fromInt 20200226
 
         date2 =
-            case Calendar.fromRawParts { year = 2020, month = Time.Feb, day = 10 } of
-                Nothing ->
-                    Debug.log "what?" defaultDate
-
-                Just date ->
-                    date
+            Date.fromInt 20200312
     in
     Ledger
         { transactions =

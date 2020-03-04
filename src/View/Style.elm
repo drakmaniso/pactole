@@ -11,6 +11,10 @@ bgPage =
     rgb 0.85 0.82 0.75
 
 
+bgWhite =
+    rgb 1.0 1.0 1.0
+
+
 bgTitle =
     rgb 0.3 0.6 0.7
 

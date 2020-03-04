@@ -6,59 +6,38 @@ module Model exposing
     )
 
 import Array as Array
-import Calendar
+import Date
 import Json.Decode as Decode
 import Ledger
 import Time
 
 
 defaultDate =
-    Calendar.fromPosix (Time.millisToPosix 0)
+    Date.fromPosix (Time.millisToPosix 0)
 
 
-init : String -> Model
+init : () -> Model
 init flags =
-    let
-        accountList =
-            case
-                Decode.decodeString
-                    (Decode.field "accounts" (Decode.array Decode.string))
-                    flags
-            of
-                Ok a ->
-                    Array.toList a
-
-                Err e ->
-                    Debug.log (Decode.errorToString e) []
-
-        ( accounts, account ) =
-            case accountList of
-                first :: _ ->
-                    ( accountList, first )
-
-                _ ->
-                    ( [ "Mon Compte" ], "Mon Compte" )
-    in
-    { mode = Calendar
+    { mode = Tabular
     , dialog = None
-    , today = Calendar.fromPosix (Time.millisToPosix 0)
-    , date = Calendar.fromPosix (Time.millisToPosix 0)
+    , today = Date.fromPosix (Time.millisToPosix 0)
+    , date = Date.fromPosix (Time.millisToPosix 0)
     , selected = False
     , ledger = Ledger.myLedger
-    , accounts = accounts
-    , account = account
+    , accounts = []
+    , account = Nothing
     }
 
 
 type alias Model =
     { mode : Mode
     , dialog : Dialog
-    , today : Calendar.Date
-    , date : Calendar.Date
+    , today : Date.Date
+    , date : Date.Date
     , selected : Bool
     , ledger : Ledger.Ledger
     , accounts : List String
-    , account : String
+    , account : Maybe String
     }
 
 

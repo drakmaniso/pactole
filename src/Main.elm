@@ -4,7 +4,7 @@ import Array
 import Browser
 import Browser.Events
 import Browser.Navigation as Navigation
-import Calendar
+import Date
 import Element as E
 import Element.Background as Background
 import Element.Border as Border
@@ -45,12 +45,14 @@ main =
 -- MODEL
 
 
-init : String -> Url.Url -> Navigation.Key -> ( Model.Model, Cmd Msg.Msg )
+init : () -> Url.Url -> Navigation.Key -> ( Model.Model, Cmd Msg.Msg )
 init flags _ _ =
     ( Model.init flags
     , Cmd.batch
-        [ Task.perform Msg.Today (Task.map2 posixToDate Time.here Time.now)
-        , getLedger "Christelle"
+        [ Task.perform Msg.Today (Task.map2 Date.fromZoneAndPosix Time.here Time.now)
+        , openAccount "Tom"
+
+        --, getLedger "Christelle"
         ]
     )
 
@@ -92,36 +94,47 @@ update msg model =
             ( { model | date = d, selected = True }, Cmd.none )
 
         Msg.ChooseAccount a ->
-            ( { model | account = a }, Cmd.none )
+            ( { model | account = Just a }, Cmd.none )
 
-        Msg.OnStoreChange store ->
-            ( model, Cmd.none )
-
-        Msg.OnLedgerChange json ->
+        Msg.OnAccounts json ->
             let
-                name =
-                    Decode.decodeValue (Decode.field "name" Decode.string) json
+                ( accounts, account ) =
+                    case Decode.decodeValue (Decode.list Decode.string) json of
+                        Ok a ->
+                            ( a, List.head a )
 
-                ledger =
-                    Decode.decodeValue (Decode.field "ledger" Ledger.decoder) json
-
-                newmodel =
-                    case ( name, ledger ) of
-                        ( Ok n, Ok l ) ->
-                            if n == model.account then
-                                { model | ledger = Debug.log "sdfsdfsdf" l }
-
-                            else
-                                model
-
-                        ( Err e, _ ) ->
-                            Debug.log (Decode.errorToString e) model
-
-                        ( _, Err e ) ->
-                            Debug.log ("OnLedgerChange " ++ Decode.errorToString e) model
+                        Err e ->
+                            Debug.log ("Msg.OnAccounts: " ++ Decode.errorToString e)
+                                ( [], Nothing )
             in
-            ( newmodel, Cmd.none )
+            ( { model | accounts = accounts, account = account }, Cmd.none )
 
+        {-
+           Msg.OnLedgerChange json ->
+               let
+                   name =
+                       Decode.decodeValue (Decode.field "name" Decode.string) json
+
+                   ledger =
+                       Decode.decodeValue (Decode.field "ledger" Ledger.decoder) json
+
+                   newmodel =
+                       case ( name, ledger ) of
+                           ( Ok n, Ok l ) ->
+                               if n == model.account then
+                                   { model | ledger = Debug.log "sdfsdfsdf" l }
+
+                               else
+                                   model
+
+                           ( Err e, _ ) ->
+                               Debug.log (Decode.errorToString e) model
+
+                           ( _, Err e ) ->
+                               Debug.log ("OnLedgerChange " ++ Decode.errorToString e) model
+               in
+               ( newmodel, Cmd.none )
+        -}
         {-
            Msg.UpdateAccounts json ->
                case Decode.decodeValue (Decode.list Decode.string) json of
@@ -156,8 +169,7 @@ update msg model =
 subscriptions : Model.Model -> Sub Msg.Msg
 subscriptions _ =
     Sub.batch
-        [ onStoreChange Msg.OnStoreChange
-        , onLedgerChange Msg.OnLedgerChange
+        [ onAccounts Msg.OnAccounts
         , Browser.Events.onKeyDown keyDownDecoder
         ]
 
@@ -231,47 +243,27 @@ view model =
 
 
 
--- DATE TOOLS
--- Needed to obtain a date in the local time zone
--- (the Calendar package can only create UTC)
+-- OUTPUT PORTS
 
 
-posixToDate : Time.Zone -> Time.Posix -> Calendar.Date
-posixToDate zone time =
-    let
-        y =
-            Time.toYear zone time
+port getAccounts : () -> Cmd m
 
-        m =
-            Time.toMonth zone time
 
-        d =
-            Time.toDay zone time
-    in
-    case Calendar.fromRawParts { day = d, month = m, year = y } of
-        Just date ->
-            date
+port openAccount : String -> Cmd m
 
-        Nothing ->
-            Calendar.fromPosix (Time.millisToPosix 0)
+
+
+-- INPUT PORTS
+
+
+port onAccounts : (Decode.Value -> m) -> Sub m
 
 
 
 -- PORTS
-
-
-port onStoreChange : (String -> msg) -> Sub msg
-
-
-port storeCache : Maybe Encode.Value -> Cmd msg
-
-
-port getLedger : String -> Cmd msg
-
-
-port onLedgerChange : (Decode.Value -> msg) -> Sub msg
-
-
-
+---port onStoreChange : (String -> msg) -> Sub msg
+---port storeCache : Maybe Encode.Value -> Cmd msg
+---port getLedger : String -> Cmd msg
+---port onLedgerChange : (Decode.Value -> msg) -> Sub msg
 -- port storeAccounts : Encode.Value -> Cmd msg
 -- port getAccounts : (Decode.Value -> msg) -> Sub msg
