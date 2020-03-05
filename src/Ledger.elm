@@ -6,9 +6,9 @@ module Ledger exposing
     , Reconciliation
     , Transaction
     , decoder
+    , empty
     , formatAmount
     , isExpense
-    , myLedger
     , transactions
     )
 
@@ -31,15 +31,13 @@ type alias Transaction =
     }
 
 
+empty =
+    Ledger { transactions = [] }
 
-{-
-   decoder =
-       let
-           toLedger transacs =
-               Ledger { transactions = transacs }
-       in
-       Decode.map toLedger (Decode.list transactionDecoder)
--}
+
+transactions : Ledger -> List Transaction
+transactions (Ledger ledger) =
+    ledger.transactions
 
 
 decoder =
@@ -48,11 +46,6 @@ decoder =
             Ledger { transactions = t }
     in
     Decode.map toLedger (Decode.field "transactions" (Decode.list transactionDecoder))
-
-
-transactions : Ledger -> List Transaction
-transactions (Ledger ledger) =
-    ledger.transactions
 
 
 encodeTransaction : Transaction -> Encode.Value
@@ -224,294 +217,3 @@ reconciliationDecoder =
                     NotReconciled
     in
     Decode.map toReconciliation (Decode.maybe (Decode.field "reconciled" Decode.bool))
-
-
-
----------------------------------- DUMMY LEDGER
-
-
-myLedger =
-    let
-        defaultDate =
-            Date.fromPosix (Time.millisToPosix 0)
-
-        date1 =
-            Date.fromInt 20200226
-
-        date2 =
-            Date.fromInt 20200312
-    in
-    Ledger
-        { transactions =
-            [ { date = date2
-              , amount = Money -5000
-              , description = Description "Foo"
-              , category = NoCategory
-              , reconciliation = NotReconciled
-              }
-            , { date = date2
-              , amount = Money 2500
-              , description = Description "Bar"
-              , category = NoCategory
-              , reconciliation = NotReconciled
-              }
-            , { date = date2
-              , amount = Money 2500
-              , description = Description "Bar"
-              , category = NoCategory
-              , reconciliation = NotReconciled
-              }
-            , { date = date2
-              , amount = Money 2500
-              , description = Description "Bar"
-              , category = NoCategory
-              , reconciliation = NotReconciled
-              }
-            , { date = date2
-              , amount = Money 2500
-              , description = Description "Bar"
-              , category = NoCategory
-              , reconciliation = NotReconciled
-              }
-            , { date = date2
-              , amount = Money 2500
-              , description = Description "Bar"
-              , category = NoCategory
-              , reconciliation = NotReconciled
-              }
-            , { date = date2
-              , amount = Money 2500
-              , description = Description "Bar"
-              , category = NoCategory
-              , reconciliation = NotReconciled
-              }
-            , { date = date2
-              , amount = Money 2500
-              , description = Description "Bar"
-              , category = NoCategory
-              , reconciliation = NotReconciled
-              }
-            , { date = date2
-              , amount = Money 2500
-              , description = Description "Bar"
-              , category = NoCategory
-              , reconciliation = NotReconciled
-              }
-            , { date = date1
-              , amount = Money -500
-              , description = Description "Foo"
-              , category = NoCategory
-              , reconciliation = NotReconciled
-              }
-            , { date = date1
-              , amount = Money 2500
-              , description = Description "Bar"
-              , category = NoCategory
-              , reconciliation = NotReconciled
-              }
-            , { date = date1
-              , amount = Money 2500
-              , description = Description "Bar"
-              , category = NoCategory
-              , reconciliation = NotReconciled
-              }
-            , { date = date1
-              , amount = Money 2500
-              , description = Description "Bar"
-              , category = NoCategory
-              , reconciliation = NotReconciled
-              }
-            , { date = date1
-              , amount = Money -500
-              , description = Description "Foo"
-              , category = NoCategory
-              , reconciliation = NotReconciled
-              }
-            , { date = date1
-              , amount = Money -500
-              , description = Description "Foo"
-              , category = NoCategory
-              , reconciliation = NotReconciled
-              }
-            , { date = date1
-              , amount = Money -500
-              , description = Description "Foo"
-              , category = NoCategory
-              , reconciliation = NotReconciled
-              }
-            , { date = date1
-              , amount = Money -500
-              , description = Description "Foo"
-              , category = NoCategory
-              , reconciliation = NotReconciled
-              }
-            , { date = date1
-              , amount = Money -500
-              , description = Description "Foo"
-              , category = NoCategory
-              , reconciliation = NotReconciled
-              }
-            , { date = date1
-              , amount = Money -500
-              , description = Description "Foo"
-              , category = NoCategory
-              , reconciliation = NotReconciled
-              }
-            , { date = date1
-              , amount = Money -500
-              , description = Description "Foo"
-              , category = NoCategory
-              , reconciliation = NotReconciled
-              }
-            , { date = date1
-              , amount = Money -500
-              , description = Description "Foo"
-              , category = NoCategory
-              , reconciliation = NotReconciled
-              }
-            , { date = date1
-              , amount = Money -500
-              , description = Description "Foo"
-              , category = NoCategory
-              , reconciliation = NotReconciled
-              }
-            , { date = date1
-              , amount = Money -500
-              , description = Description "Foo"
-              , category = NoCategory
-              , reconciliation = NotReconciled
-              }
-            , { date = date1
-              , amount = Money -500
-              , description = Description "Foo"
-              , category = NoCategory
-              , reconciliation = NotReconciled
-              }
-            , { date = date1
-              , amount = Money -500
-              , description = Description "Foo"
-              , category = NoCategory
-              , reconciliation = NotReconciled
-              }
-            , { date = date1
-              , amount = Money -500
-              , description = Description "Foo"
-              , category = NoCategory
-              , reconciliation = NotReconciled
-              }
-            , { date = date1
-              , amount = Money -500
-              , description = Description "Foo"
-              , category = NoCategory
-              , reconciliation = NotReconciled
-              }
-            , { date = date1
-              , amount = Money -500
-              , description = Description "Foo"
-              , category = NoCategory
-              , reconciliation = NotReconciled
-              }
-            , { date = date1
-              , amount = Money -500
-              , description = Description "Foo"
-              , category = NoCategory
-              , reconciliation = NotReconciled
-              }
-            , { date = date1
-              , amount = Money -500
-              , description = Description "Foo"
-              , category = NoCategory
-              , reconciliation = NotReconciled
-              }
-            , { date = date1
-              , amount = Money -500
-              , description = Description "Foo"
-              , category = NoCategory
-              , reconciliation = NotReconciled
-              }
-            , { date = date1
-              , amount = Money -500
-              , description = Description "Foo"
-              , category = NoCategory
-              , reconciliation = NotReconciled
-              }
-            , { date = date1
-              , amount = Money -500
-              , description = Description "Foo"
-              , category = NoCategory
-              , reconciliation = NotReconciled
-              }
-            , { date = date1
-              , amount = Money -500
-              , description = Description "Foo"
-              , category = NoCategory
-              , reconciliation = NotReconciled
-              }
-            , { date = date1
-              , amount = Money -500
-              , description = Description "Foo"
-              , category = NoCategory
-              , reconciliation = NotReconciled
-              }
-            , { date = date1
-              , amount = Money -500
-              , description = Description "Foo"
-              , category = NoCategory
-              , reconciliation = NotReconciled
-              }
-            , { date = date1
-              , amount = Money -500
-              , description = Description "Foo"
-              , category = NoCategory
-              , reconciliation = NotReconciled
-              }
-            , { date = date1
-              , amount = Money -500
-              , description = Description "Foo"
-              , category = NoCategory
-              , reconciliation = NotReconciled
-              }
-            , { date = date1
-              , amount = Money -500
-              , description = Description "Foo"
-              , category = NoCategory
-              , reconciliation = NotReconciled
-              }
-            , { date = date1
-              , amount = Money -500
-              , description = Description "Foo"
-              , category = NoCategory
-              , reconciliation = NotReconciled
-              }
-            , { date = date1
-              , amount = Money -500
-              , description = Description "Foo"
-              , category = NoCategory
-              , reconciliation = NotReconciled
-              }
-            , { date = date1
-              , amount = Money 2500
-              , description = Description "Bar"
-              , category = NoCategory
-              , reconciliation = NotReconciled
-              }
-            , { date = date1
-              , amount = Money 2500
-              , description = Description "Bar"
-              , category = NoCategory
-              , reconciliation = NotReconciled
-              }
-            , { date = date1
-              , amount = Money 2500
-              , description = Description "Bar"
-              , category = NoCategory
-              , reconciliation = NotReconciled
-              }
-            , { date = date1
-              , amount = Money 2500
-              , description = Description "Bar"
-              , category = NoCategory
-              , reconciliation = NotReconciled
-              }
-            ]
-        }

@@ -1,4 +1,4 @@
-port module Main exposing (..)
+module Main exposing (..)
 
 import Array
 import Browser
@@ -17,6 +17,7 @@ import Json.Encode as Encode
 import Ledger
 import Model
 import Msg
+import Ports
 import Task
 import Time
 import Url
@@ -45,14 +46,13 @@ main =
 -- MODEL
 
 
-init : () -> Url.Url -> Navigation.Key -> ( Model.Model, Cmd Msg.Msg )
+init : Decode.Value -> Url.Url -> Navigation.Key -> ( Model.Model, Cmd Msg.Msg )
 init flags _ _ =
     ( Model.init flags
     , Cmd.batch
         [ Task.perform Msg.Today (Task.map2 Date.fromZoneAndPosix Time.here Time.now)
-        , openAccount "Tom"
 
-        --, getLedger "Christelle"
+        --, Ports.selectAccount "Tom"
         ]
     )
 
@@ -93,10 +93,10 @@ update msg model =
         Msg.SelectDay d ->
             ( { model | date = d, selected = True }, Cmd.none )
 
-        Msg.ChooseAccount a ->
-            ( { model | account = Just a }, Cmd.none )
+        Msg.ChooseAccount name ->
+            ( { model | account = Just name }, Ports.selectAccount name )
 
-        Msg.OnAccounts json ->
+        Msg.SetAccounts json ->
             let
                 ( accounts, account ) =
                     case Decode.decodeValue (Decode.list Decode.string) json of
@@ -104,59 +104,24 @@ update msg model =
                             ( a, List.head a )
 
                         Err e ->
-                            Debug.log ("Msg.OnAccounts: " ++ Decode.errorToString e)
+                            Debug.log ("Msg.SetAccounts: " ++ Decode.errorToString e)
                                 ( [], Nothing )
             in
             ( { model | accounts = accounts, account = account }, Cmd.none )
 
-        {-
-           Msg.OnLedgerChange json ->
-               let
-                   name =
-                       Decode.decodeValue (Decode.field "name" Decode.string) json
+        Msg.SetLedger json ->
+            let
+                ledger =
+                    case Decode.decodeValue Ledger.decoder json of
+                        Ok l ->
+                            l
 
-                   ledger =
-                       Decode.decodeValue (Decode.field "ledger" Ledger.decoder) json
+                        Err e ->
+                            Debug.log ("Msg.SetLedger: " ++ Decode.errorToString e)
+                                Ledger.empty
+            in
+            ( { model | ledger = ledger }, Cmd.none )
 
-                   newmodel =
-                       case ( name, ledger ) of
-                           ( Ok n, Ok l ) ->
-                               if n == model.account then
-                                   { model | ledger = Debug.log "sdfsdfsdf" l }
-
-                               else
-                                   model
-
-                           ( Err e, _ ) ->
-                               Debug.log (Decode.errorToString e) model
-
-                           ( _, Err e ) ->
-                               Debug.log ("OnLedgerChange " ++ Decode.errorToString e) model
-               in
-               ( newmodel, Cmd.none )
-        -}
-        {-
-           Msg.UpdateAccounts json ->
-               case Decode.decodeValue (Decode.list Decode.string) json of
-                   Ok accounts ->
-                       case accounts of
-                           first :: _ ->
-                               ( { model | accounts = accounts, account = first }, Cmd.none )
-
-                           _ ->
-                               let
-                                   _ =
-                                       Debug.log "empty UpdateAccounts json value" ""
-                               in
-                               ( model, Cmd.none )
-
-                   Err e ->
-                       let
-                           _ =
-                               Debug.log "Invalid UpdateAccounts json value" e
-                       in
-                       ( model, Cmd.none )
-        -}
         Msg.KeyDown string ->
             -- TODO
             ( model, Cmd.none )
@@ -169,7 +134,8 @@ update msg model =
 subscriptions : Model.Model -> Sub Msg.Msg
 subscriptions _ =
     Sub.batch
-        [ onAccounts Msg.OnAccounts
+        [ Ports.accounts Msg.SetAccounts
+        , Ports.ledger Msg.SetLedger
         , Browser.Events.onKeyDown keyDownDecoder
         ]
 
@@ -240,30 +206,3 @@ view model =
             (root model)
         ]
     }
-
-
-
--- OUTPUT PORTS
-
-
-port getAccounts : () -> Cmd m
-
-
-port openAccount : String -> Cmd m
-
-
-
--- INPUT PORTS
-
-
-port onAccounts : (Decode.Value -> m) -> Sub m
-
-
-
--- PORTS
----port onStoreChange : (String -> msg) -> Sub msg
----port storeCache : Maybe Encode.Value -> Cmd msg
----port getLedger : String -> Cmd msg
----port onLedgerChange : (Decode.Value -> msg) -> Sub msg
--- port storeAccounts : Encode.Value -> Cmd msg
--- port getAccounts : (Decode.Value -> msg) -> Sub msg

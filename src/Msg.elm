@@ -2,7 +2,7 @@ module Msg exposing (Msg(..))
 
 import Browser
 import Date
-import Json.Decode
+import Json.Decode as Decode
 import Url
 
 
@@ -16,5 +16,6 @@ type Msg
     | Close
     | SelectDay Date.Date
     | ChooseAccount String
-    | OnAccounts Json.Decode.Value
+    | SetAccounts Decode.Value
+    | SetLedger Decode.Value
     | KeyDown String

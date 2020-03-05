@@ -12,16 +12,60 @@
 </head>
 
 <body>
-  <script src="./ledger.js" type="module"></script>
   <script>
-    var app = Elm.Main.init({});
+    var accounts
+    try {
+      accounts = JSON.parse (localStorage.getItem ("accounts"))
+    } catch (e) {
+      console.error (e)
+      accounts = []
+    }
 
-    var accounts = JSON.parse(localStorage.getItem("accounts"))
-    //TODO: hangle JSON.parse exception
-    app.ports.onAccounts.send(accounts)
+    var account
+    if (accounts instanceof Array && accounts.length > 0 && typeof accounts[0] == "string") {
+      account = accounts[0]
+    }
 
-    app.ports.openAccount.subscribe(function(name) {
-      console.log("Opening account...")
+    function getLedger (account) {
+      var result
+      if (account !== null) {
+        var key = "ledger." + account
+        try {
+          result = JSON.parse (localStorage.getItem (key))
+        } catch (e) {
+          console.error (e)
+          result = null
+        }
+      }
+      return result
+    }
+    var ledger = getLedger (account)
+
+
+    var flags = {
+      accounts: accounts,
+      ledger: ledger
+    }
+    var app = Elm.Main.init({flags: flags})
+
+    app.ports.selectAccount.subscribe(function(name) {
+      console.log("Account " + name + " selected.")
+      account = name
+      app.ports.ledger.send (getLedger (account))
+    })
+
+    // Whenever localStorage changes in another tab, report it if necessary.
+    window.addEventListener("storage", function(event) {
+      console.log ("Storage event!")
+      if (event.storageArea === localStorage) {
+        console.log ("LOCAL storage event!")
+        let v = JSON.parse(event.newValue)
+        //TODO: handle JSON.parse exceptions
+        switch (event.key) {
+          case "accounts":
+            app.ports.accounts.send(v)
+        }
+      }
     })
 
 
@@ -51,29 +95,6 @@
       setTimeout(function() { app.ports.onStoreChange.send(val); }, 0);
     });
     */
-
-    // Whenever localStorage changes in another tab, report it if necessary.
-    window.addEventListener("storage", function(event) {
-      if (event.storageArea === localStorage) {
-        let v = JSON.parse(event.newValue)
-        //TODO: handle JSON.parse exceptions
-        switch (event.key) {
-          case "accounts":
-            app.ports.onAccounts.send(v);
-        }
-          /*
-        if (event.key === "accounts") {
-          app.ports.onAccounts.send(v);
-        }
-        else {
-          app.ports.onLedgerChange.send({
-            name: event.key,
-            ledger: v
-          });
-        }
-          */
-      }
-    }, false);
 
   </script>
 </body>
