@@ -5,9 +5,9 @@ module Ledger exposing
     , Money
     , Reconciliation
     , Transaction
+    , amountParts
     , decoder
     , empty
-    , formatAmount
     , isExpense
     , transactions
     )
@@ -18,17 +18,12 @@ import Json.Encode as Encode
 import Time
 
 
+
+-- LEDGER
+
+
 type Ledger
     = Ledger { transactions : List Transaction }
-
-
-type alias Transaction =
-    { date : Date.Date
-    , amount : Money
-    , description : Description
-    , category : Category
-    , reconciliation : Reconciliation
-    }
 
 
 empty =
@@ -46,6 +41,27 @@ decoder =
             Ledger { transactions = t }
     in
     Decode.map toLedger (Decode.field "transactions" (Decode.list transactionDecoder))
+
+
+
+-- TRANSACTION
+
+
+type alias Transaction =
+    { date : Date.Date
+    , amount : Money
+    , description : Description
+    , category : Category
+    , reconciliation : Reconciliation
+    }
+
+
+isExpense transaction =
+    let
+        (Money amount) =
+            transaction.amount
+    in
+    amount < 0
 
 
 encodeTransaction : Transaction -> Encode.Value
@@ -134,16 +150,28 @@ amountDecoder =
     Decode.map Money (Decode.field "amount" Decode.int)
 
 
-isExpense transaction =
+amountParts (Money amount) =
     let
-        (Money amount) =
-            transaction.amount
+        units =
+            String.fromInt (amount // 100)
+
+        mainPart =
+            if amount < 0 then
+                units
+
+            else
+                "+" ++ units
+
+        cents =
+            abs (remainderBy 100 amount)
     in
-    amount < 0
+    if cents /= 0 then
+        { units = mainPart ++ ","
+        , cents = Just (String.padLeft 2 '0' (String.fromInt cents))
+        }
 
-
-formatAmount (Money amount) =
-    String.fromInt (amount // 100)
+    else
+        { units = mainPart, cents = Nothing }
 
 
 

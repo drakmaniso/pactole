@@ -11,12 +11,39 @@ bgPage =
     rgb 0.85 0.82 0.75
 
 
+bgLight =
+    rgb 0.94 0.92 0.87
+
+
 bgWhite =
     rgb 1.0 1.0 1.0
 
 
 bgTitle =
     rgb 0.3 0.6 0.7
+
+
+fontFamily =
+    Font.family
+        [ Font.typeface "Nunito Sans"
+        , Font.sansSerif
+        ]
+
+
+bigFont =
+    Font.size 32
+
+
+smallFont =
+    Font.size 20
+
+
+smallerFont =
+    Font.size 14
+
+
+verySmallFont =
+    Font.size 16
 
 
 icons =
@@ -37,7 +64,7 @@ iconsSettings =
 calendarMonthName =
     [ centerX
     , Font.bold
-    , Font.size 28
+    , bigFont
     ]
 
 
@@ -46,7 +73,7 @@ weekDayName =
 
 
 dayCell =
-    [ Background.color (rgb 0.94 0.92 0.87)
+    [ Background.color bgLight
     , Border.color (rgba 0 0 0 0)
     , Border.width 2
     , Border.rounded 2

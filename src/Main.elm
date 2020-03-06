@@ -51,8 +51,6 @@ init flags _ _ =
     ( Model.init flags
     , Cmd.batch
         [ Task.perform Msg.Today (Task.map2 Date.fromZoneAndPosix Time.here Time.now)
-
-        --, Ports.selectAccount "Tom"
         ]
     )
 
@@ -107,7 +105,7 @@ update msg model =
                             Debug.log ("Msg.SetAccounts: " ++ Decode.errorToString e)
                                 ( [], Nothing )
             in
-            ( { model | accounts = accounts, account = account }, Cmd.none )
+            ( { model | accounts = accounts, account = account, ledger = Ledger.empty }, Cmd.none )
 
         Msg.SetLedger json ->
             let
@@ -165,6 +163,7 @@ view model =
             E.el
                 [ E.width E.fill
                 , E.height E.fill
+                , View.Style.fontFamily
                 , E.padding 16
                 , E.behindContent
                     (Input.button

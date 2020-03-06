@@ -13,6 +13,7 @@ import Model
 import Msg
 import Time
 import View.Style as Style
+import View.Summary as Summary
 
 
 view : Model.Model -> Element Msg.Msg
@@ -20,15 +21,17 @@ view model =
     row
         [ width fill
         , height fill
-        , paddingXY 8 4
+        , clipX
+        , clipY
         , htmlAttribute <| Html.Attributes.style "z-index" "-1"
         , Background.color Style.bgPage
+        , Style.fontFamily
         ]
         [ column
             [ width (fillPortion 25), height fill, padding 16, alignTop ]
             [ el
                 [ width fill, height (fillPortion 33) ]
-                (summaryView model)
+                (Summary.view model)
             , dayView model
             ]
         , el
@@ -154,8 +157,8 @@ dayCell model day =
                     [ width fill, height fill, scrollbarY ]
                     [ el
                         ([ width fill
-                         , paddingXY 8 4
-                         , Font.bold
+                         , paddingXY 4 4
+                         , Style.smallFont
                          , Font.center
                          ]
                             ++ (if sel then
@@ -178,8 +181,10 @@ dayCell model day =
                     , Element.paragraph
                         [ width fill
                         , height fill
+                        , clipX
                         , scrollbarY
-                        , padding 8
+                        , paddingXY 4 8
+                        , spacing 12
                         ]
                         (dayCellTransactions model day)
                     ]
@@ -200,9 +205,13 @@ dayCellTransactions : Model.Model -> Date.Date -> List (Element Msg.Msg)
 dayCellTransactions model day =
     let
         render transaction =
-            el
-                [ paddingXY 8 2
-                , Font.size 16
+            let
+                parts =
+                    Ledger.amountParts transaction.amount
+            in
+            row
+                [ paddingEach { top = 4, bottom = 3, left = 6, right = 8 }
+                , Style.smallFont
                 , Font.color (rgb 1 1 1)
                 , if Ledger.isExpense transaction then
                     Background.color (rgb 0.8 0.25 0.2)
@@ -210,8 +219,23 @@ dayCellTransactions model day =
                   else
                     Background.color (rgb 0.2 0.7 0.1)
                 , Border.rounded 16
+                , Border.width 0
                 ]
-                (text (Ledger.formatAmount transaction.amount))
+                (el [ Style.smallFont ] (text parts.units)
+                    :: (case parts.cents of
+                            Nothing ->
+                                []
+
+                            Just cents ->
+                                [ el
+                                    [ Style.smallerFont
+                                    , alignBottom
+                                    , paddingXY 0 1
+                                    ]
+                                    (text cents)
+                                ]
+                       )
+                )
     in
     List.map
         render
@@ -220,54 +244,6 @@ dayCellTransactions model day =
             (Ledger.transactions model.ledger)
         )
         |> List.intersperse (text " ")
-
-
-
--- SUMMARY VIEW
-
-
-summaryView model =
-    column
-        [ width fill ]
-        [ row
-            [ width fill ]
-            [ Input.radioRow
-                [ width fill ]
-                { onChange = Msg.ChooseAccount
-                , selected = model.account
-                , label = Input.labelHidden "Compte"
-                , options =
-                    List.map
-                        (\acc -> Input.optionWith acc (accountOption acc))
-                        model.accounts
-                }
-            , el [ width fill ] none
-            , Input.button
-                Style.iconsSettings
-                { label = text "\u{F013}", onPress = Just Msg.ToSettings }
-            ]
-        ]
-
-
-accountOption : String -> Input.OptionState -> Element msg
-accountOption value state =
-    el
-        ([ centerX
-         , paddingXY 16 8
-         , Border.rounded 3
-         ]
-            ++ (case state of
-                    Input.Idle ->
-                        [ Font.color (rgb 0.3 0.6 0.7) ]
-
-                    Input.Focused ->
-                        []
-
-                    Input.Selected ->
-                        [ Font.color (rgb 1 1 1), Background.color (rgb 0.3 0.6 0.7) ]
-               )
-        )
-        (text value)
 
 
 
@@ -290,7 +266,7 @@ dayView model =
             , Font.color (rgb 1 1 1)
             , Font.center
             , Font.bold
-            , Font.size 26
+            , Style.bigFont
             ]
             (if model.date == model.today then
                 text "Aujourd'hui"

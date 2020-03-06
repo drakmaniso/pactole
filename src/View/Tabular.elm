@@ -6,10 +6,12 @@ import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
 import Element.Input as Input
+import Html.Attributes
 import Ledger
 import Model
 import Msg
 import View.Style as Style
+import View.Summary as Summary
 
 
 view : Model.Model -> Element Msg.Msg
@@ -17,18 +19,20 @@ view model =
     row
         [ width fill
         , height fill
+        , clipX
+        , clipY
+        , htmlAttribute <| Html.Attributes.style "z-index" "-1"
         , Background.color Style.bgPage
-        , inFront (el [ alignTop, alignRight ] (Input.button [] { label = text "[Config]", onPress = Just Msg.ToSettings }))
+        , Style.fontFamily
         ]
         [ column
-            [ width (fillPortion 3), height fill ]
-            [ el [ centerX, alignTop ] (text "Opérations")
-            , row
-                [ width fill, height fill ]
-                []
+            [ width (fillPortion 25), height fill, padding 16, alignTop ]
+            [ el
+                [ width fill, height (fillPortion 33) ]
+                (Summary.view model)
             ]
         , column
-            [ width (fillPortion 6), height fill, Background.color Style.bgWhite ]
+            [ width (fillPortion 75), height fill, Background.color Style.bgLight ]
             (transactionView model)
         ]
 
@@ -54,13 +58,16 @@ makeRow transaction ( prevDate, accum ) =
                     )
                 )
 
+        parts =
+            Ledger.amountParts transaction.amount
+
         txt =
             el []
                 (text
                     ("transaction: "
                         ++ Date.toString transaction.date
                         ++ " amount="
-                        ++ Ledger.formatAmount transaction.amount
+                        ++ parts.units
                     )
                 )
     in
