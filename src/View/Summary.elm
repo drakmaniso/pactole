@@ -21,14 +21,18 @@ view model =
         ]
         [ Element.row
             [ Element.width Element.fill ]
-            [ Input.button
-                [ Style.fontIcons
-                , Style.normalFont
-                , Element.centerX
-                , Element.paddingXY 16 0
-                , Font.color Style.fgTitle
-                ]
-                { label = Element.text "\u{F013}", onPress = Just Msg.ToSettings }
+            [ if model.showAdvanced then
+                Input.button
+                    [ Style.fontIcons
+                    , Style.normalFont
+                    , Element.centerX
+                    , Element.paddingXY 16 0
+                    , Font.color Style.fgTitle
+                    ]
+                    { label = Element.text "\u{F013}", onPress = Just Msg.ToSettings }
+
+              else
+                Element.el [] Element.none
 
             --{ label = Element.text "\u{F0C9}", onPress = Just Msg.ToSettings }
             , Input.radioRow
@@ -53,7 +57,7 @@ accountOption value state =
         ([ Element.centerX
          , Element.paddingXY 16 8
          , Border.rounded 3
-         , Style.normalFont
+         , Style.bigFont
          ]
             ++ (case state of
                     Input.Idle ->

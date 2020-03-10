@@ -257,26 +257,10 @@ cellContentFor model day =
 
 
 dayView model =
-    let
-        btnStyle fg bg =
-            [ Background.color fg
-            , width (fillPortion 2)
-            , Font.color bg
-            , Style.bigFont
-            , Font.center
-            , Style.fontIcons
-            , paddingXY 24 6
-            , Border.width 3
-            , Border.color bg
-            , Border.rounded 24
-
-            --, Border.shadow { offset = ( 0, 0 ), size = 2, blur = 4, color = rgba 0 0 0 0.2 }
-            ]
-    in
     column
         [ width fill
         , height fill
-        , Border.rounded 16
+        , Border.rounded 7
         , clip
         , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 8, color = rgba 0 0 0 0.2 }
         , Background.color Style.bgWhite
@@ -310,12 +294,12 @@ dayView model =
             ]
             [ --el [ width (fillPortion 1) ] none
               Input.button
-                (btnStyle Style.fgOnIncome Style.bgIncome)
-                { label = text "\u{F067}", onPress = Nothing }
+                (Style.iconButton (fillPortion 2) Style.fgIncome Style.bgWhite)
+                { label = text "\u{F067}", onPress = Just Msg.ToIncome }
 
             --, el [ width (fillPortion 1) ] none
             , Input.button
-                (btnStyle Style.fgOnExpense Style.bgExpense)
+                (Style.iconButton (fillPortion 2) Style.fgExpense Style.bgWhite)
                 { label = text "\u{F068}", onPress = Nothing }
 
             --, el [ width (fillPortion 1) ] none
@@ -341,7 +325,7 @@ dayContentFor model day =
                         [ width fill
                         ]
                         [ el
-                            [ width (fillPortion 30)
+                            [ width (fillPortion 33)
                             , height fill
                             ]
                             (column
@@ -357,18 +341,25 @@ dayContentFor model day =
                                         Font.color Style.fgIncome
                                     ]
                                     [ el
-                                        [ width (fillPortion 80)
+                                        [ width (fillPortion 75)
                                         , Style.normalFont
                                         , Font.alignRight
                                         ]
                                         (text parts.units)
                                     , case parts.cents of
                                         Nothing ->
-                                            el [ width (fillPortion 20) ] none
+                                            el
+                                                [ width (fillPortion 25)
+                                                , Style.smallFont
+                                                , Font.alignLeft
+                                                , alignBottom
+                                                , paddingXY 0 1
+                                                ]
+                                                none
 
                                         Just cents ->
                                             el
-                                                [ width (fillPortion 20)
+                                                [ width (fillPortion 25)
                                                 , Style.smallFont
                                                 , Font.alignLeft
                                                 , alignBottom
@@ -380,7 +371,7 @@ dayContentFor model day =
                                 ]
                             )
                         , el
-                            [ width (fillPortion 70)
+                            [ width (fillPortion 66)
                             , alignTop
                             , Style.normalFont
                             , Font.color (rgb 0 0 0)

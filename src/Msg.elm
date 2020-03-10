@@ -12,6 +12,9 @@ type Msg
     | UrlChanged Url.Url
     | ToCalendar
     | ToTabular
+    | ToIncome
+    | DialogAmount String
+    | DialogDescription String
     | ToSettings
     | Close
     | SelectDay Date.Date
@@ -19,3 +22,4 @@ type Msg
     | SetAccounts Decode.Value
     | SetLedger Decode.Value
     | KeyDown String
+    | KeyUp String

@@ -100,6 +100,27 @@ iconsSettings =
     ]
 
 
+customButton w fg bg =
+    [ Background.color bg
+    , width w
+    , Font.color fg
+    , Font.center
+    , Border.width 3
+    , Border.color fg
+    , Border.rounded 24
+
+    --, Border.shadow { offset = ( 0, 0 ), size = 2, blur = 4, color = rgba 0 0 0 0.2 }
+    ]
+
+
+button w fg bg =
+    normalFont :: paddingXY 24 8 :: customButton w fg bg
+
+
+iconButton w fg bg =
+    fontIcons :: bigFont :: paddingXY 12 6 :: customButton w fg bg
+
+
 calendarMonthName =
     [ centerX
     , Font.bold
@@ -114,7 +135,7 @@ weekDayName =
 dayCell =
     [ Background.color bgLight
     , Border.color (rgba 0 0 0 0)
-    , Border.width 2
+    , Border.width 3
     , Border.rounded 2
 
     -- , focused [ Border.color bgTitle, Border.shadow { offset = ( 0, 0 ), size = 0, blur = 0, color = rgba 0 0 0 0 } ]
@@ -124,8 +145,8 @@ dayCell =
 dayCellSelected =
     [ Background.color (rgb 1 1 1)
     , Border.color bgTitle
-    , Border.rounded 8
-    , Border.width 2
+    , Border.rounded 7
+    , Border.width 3
     , focused [ Border.shadow { offset = ( 0, 0 ), size = 0, blur = 0, color = rgba 0 0 0 0 } ]
 
     -- , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 8, color = rgba 0 0 0 0.2 }
@@ -135,5 +156,5 @@ dayCellSelected =
 
 dayCellNone =
     [ Border.color (rgba 0 0 0 0)
-    , Border.width 2
+    , Border.width 3
     ]

@@ -22,6 +22,7 @@ import Task
 import Time
 import Url
 import View.Calendar
+import View.Income
 import View.Settings
 import View.Style
 import View.Tabular
@@ -82,6 +83,15 @@ update msg model =
         Msg.ToTabular ->
             ( { model | mode = Model.Tabular }, Cmd.none )
 
+        Msg.ToIncome ->
+            ( { model | dialog = Model.Income }, Cmd.none )
+
+        Msg.DialogAmount string ->
+            ( { model | dialogAmount = string }, Cmd.none )
+
+        Msg.DialogDescription string ->
+            ( { model | dialogDescription = string }, Cmd.none )
+
         Msg.ToSettings ->
             ( { model | dialog = Model.Settings }, Cmd.none )
 
@@ -121,8 +131,18 @@ update msg model =
             ( { model | ledger = ledger }, Cmd.none )
 
         Msg.KeyDown string ->
-            -- TODO
-            ( model, Cmd.none )
+            ( if string == "Alt" || string == "Control" then
+                { model | showAdvanced = True }
+
+              else
+                model
+            , Cmd.none
+            )
+
+        Msg.KeyUp string ->
+            ( { model | showAdvanced = False }
+            , Cmd.none
+            )
 
 
 
@@ -134,14 +154,15 @@ subscriptions _ =
     Sub.batch
         [ Ports.accounts Msg.SetAccounts
         , Ports.ledger Msg.SetLedger
-        , Browser.Events.onKeyDown keyDownDecoder
+        , Browser.Events.onKeyDown (keyDecoder Msg.KeyDown)
+        , Browser.Events.onKeyUp (keyDecoder Msg.KeyUp)
         ]
 
 
-keyDownDecoder : Decode.Decoder Msg.Msg
-keyDownDecoder =
+keyDecoder : (String -> Msg.Msg) -> Decode.Decoder Msg.Msg
+keyDecoder msg =
     Decode.field "key" Decode.string
-        |> Decode.map Msg.KeyDown
+        |> Decode.map msg
 
 
 
@@ -159,7 +180,7 @@ view model =
                 Model.Tabular ->
                     View.Tabular.view
 
-        dialog =
+        dialog contentView =
             E.el
                 [ E.width E.fill
                 , E.height E.fill
@@ -169,13 +190,13 @@ view model =
                     (Input.button
                         [ E.width E.fill
                         , E.height E.fill
-                        , Background.color (E.rgba 0 0 0 0.75)
+                        , Background.color (E.rgba 0 0 0 0.6)
                         , E.htmlAttribute <| Html.Attributes.style "z-index" "1000"
                         ]
                         { label = E.none, onPress = Just Msg.Close }
                     )
                 ]
-                (View.Settings.view model)
+                contentView
     in
     { title = "Pactole"
     , body =
@@ -198,8 +219,12 @@ view model =
                 Model.None ->
                     []
 
+                Model.Income ->
+                    [ E.inFront (dialog (View.Income.view model))
+                    ]
+
                 Model.Settings ->
-                    [ E.inFront dialog
+                    [ E.inFront (dialog (View.Settings.view model))
                     ]
             )
             (root model)

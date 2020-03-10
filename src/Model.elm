@@ -12,6 +12,32 @@ import Ledger
 import Time
 
 
+type alias Model =
+    { mode : Mode
+    , dialog : Dialog
+    , today : Date.Date
+    , date : Date.Date
+    , selected : Bool
+    , ledger : Ledger.Ledger
+    , accounts : List String
+    , account : Maybe String
+    , showAdvanced : Bool
+    , dialogAmount : String
+    , dialogDescription : String
+    }
+
+
+type Mode
+    = Calendar
+    | Tabular
+
+
+type Dialog
+    = None
+    | Income
+    | Settings
+
+
 defaultDate =
     Date.fromPosix (Time.millisToPosix 0)
 
@@ -43,26 +69,7 @@ init flags =
     , ledger = ledger
     , accounts = accounts
     , account = account
+    , showAdvanced = False
+    , dialogAmount = ""
+    , dialogDescription = ""
     }
-
-
-type alias Model =
-    { mode : Mode
-    , dialog : Dialog
-    , today : Date.Date
-    , date : Date.Date
-    , selected : Bool
-    , ledger : Ledger.Ledger
-    , accounts : List String
-    , account : Maybe String
-    }
-
-
-type Mode
-    = Calendar
-    | Tabular
-
-
-type Dialog
-    = None
-    | Settings
