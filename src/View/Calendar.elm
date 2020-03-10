@@ -28,11 +28,17 @@ view model =
         , Style.fontFamily
         ]
         [ column
-            [ width (fillPortion 25), height fill, padding 16, alignTop ]
+            [ width (fillPortion 25)
+            , height fill
+            , padding 16
+            , alignTop
+            ]
             [ el
                 [ width fill, height (fillPortion 33) ]
                 (Summary.view model)
-            , dayView model
+            , el
+                [ width fill, height (fillPortion 66) ]
+                (dayView model)
             ]
         , el
             [ width (fillPortion 75), height fill ]
@@ -67,7 +73,7 @@ monthView model =
                 }
             ]
          ]
-            ++ dayGridView model
+            ++ gridView model
             ++ [ row
                     [ width fill, alignBottom ]
                     [ el [ width fill ] (el Style.weekDayName (text "Lundi"))
@@ -82,8 +88,8 @@ monthView model =
         )
 
 
-dayGridView : Model.Model -> List (Element Msg.Msg)
-dayGridView model =
+gridView : Model.Model -> List (Element Msg.Msg)
+gridView model =
     let
         findTheFirst day =
             if Date.getDay day == 1 then
@@ -124,16 +130,16 @@ dayGridView model =
         walkDays day =
             case Date.getWeekday day of
                 Time.Sun ->
-                    [ dayCell model day ]
+                    [ cellViewOf model day ]
 
                 _ ->
-                    dayCell model day :: walkDays (Date.incrementDay day)
+                    cellViewOf model day :: walkDays (Date.incrementDay day)
     in
     walkWeeks (findMonday (findTheFirst model.date))
 
 
-dayCell : Model.Model -> Date.Date -> Element Msg.Msg
-dayCell model day =
+cellViewOf : Model.Model -> Date.Date -> Element Msg.Msg
+cellViewOf model day =
     let
         sel =
             model.selected && day == model.date
@@ -186,7 +192,7 @@ dayCell model day =
                         , paddingXY 4 8
                         , spacing 12
                         ]
-                        (dayCellTransactions model day)
+                        (cellContentFor model day)
                     ]
             , onPress = Just (Msg.SelectDay day)
             }
@@ -201,8 +207,8 @@ dayCell model day =
             none
 
 
-dayCellTransactions : Model.Model -> Date.Date -> List (Element Msg.Msg)
-dayCellTransactions model day =
+cellContentFor : Model.Model -> Date.Date -> List (Element Msg.Msg)
+cellContentFor model day =
     let
         render transaction =
             let
@@ -214,10 +220,10 @@ dayCellTransactions model day =
                 , Style.smallFont
                 , Font.color (rgb 1 1 1)
                 , if Ledger.isExpense transaction then
-                    Background.color (rgb 0.8 0.25 0.2)
+                    Background.color Style.fgExpense
 
                   else
-                    Background.color (rgb 0.2 0.7 0.1)
+                    Background.color Style.fgIncome
                 , Border.rounded 16
                 , Border.width 0
                 ]
@@ -251,18 +257,35 @@ dayCellTransactions model day =
 
 
 dayView model =
+    let
+        btnStyle fg bg =
+            [ Background.color fg
+            , width (fillPortion 2)
+            , Font.color bg
+            , Style.bigFont
+            , Font.center
+            , Style.fontIcons
+            , paddingXY 24 6
+            , Border.width 3
+            , Border.color bg
+            , Border.rounded 24
+
+            --, Border.shadow { offset = ( 0, 0 ), size = 2, blur = 4, color = rgba 0 0 0 0.2 }
+            ]
+    in
     column
         [ width fill
-        , height (fillPortion 66)
+        , height fill
         , Border.rounded 16
         , clip
         , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 8, color = rgba 0 0 0 0.2 }
-        , Background.color (rgb 1 1 1)
+        , Background.color Style.bgWhite
         ]
         [ el
             [ width fill
+            , height shrink
             , paddingXY 4 12
-            , Background.color (rgb 0.3 0.6 0.7)
+            , Background.color Style.bgTitle
             , Font.color (rgb 1 1 1)
             , Font.center
             , Font.bold
@@ -274,4 +297,101 @@ dayView model =
              else
                 text (Date.getWeekdayName model.date ++ " " ++ String.fromInt (Date.getDay model.date))
             )
+        , column
+            [ width fill
+            , height fill
+            ]
+            (dayContentFor model model.date)
+        , row
+            [ width fill
+            , height shrink
+            , spacing 24
+            , paddingXY 24 12
+            ]
+            [ --el [ width (fillPortion 1) ] none
+              Input.button
+                (btnStyle Style.fgOnIncome Style.bgIncome)
+                { label = text "\u{F067}", onPress = Nothing }
+
+            --, el [ width (fillPortion 1) ] none
+            , Input.button
+                (btnStyle Style.fgOnExpense Style.bgExpense)
+                { label = text "\u{F068}", onPress = Nothing }
+
+            --, el [ width (fillPortion 1) ] none
+            ]
         ]
+
+
+dayContentFor : Model.Model -> Date.Date -> List (Element Msg.Msg)
+dayContentFor model day =
+    let
+        render transaction =
+            let
+                parts =
+                    Ledger.amountParts transaction.amount
+            in
+            Input.button
+                [ width fill
+                , paddingEach { top = 8, bottom = 8, left = 6, right = 6 }
+                ]
+                { onPress = Nothing
+                , label =
+                    row
+                        [ width fill
+                        ]
+                        [ el
+                            [ width (fillPortion 30)
+                            , height fill
+                            ]
+                            (column
+                                [ width fill ]
+                                [ row
+                                    [ width fill
+                                    , height shrink
+                                    , paddingEach { top = 0, bottom = 0, left = 0, right = 16 }
+                                    , if Ledger.isExpense transaction then
+                                        Font.color Style.fgExpense
+
+                                      else
+                                        Font.color Style.fgIncome
+                                    ]
+                                    [ el
+                                        [ width (fillPortion 80)
+                                        , Style.normalFont
+                                        , Font.alignRight
+                                        ]
+                                        (text parts.units)
+                                    , case parts.cents of
+                                        Nothing ->
+                                            el [ width (fillPortion 20) ] none
+
+                                        Just cents ->
+                                            el
+                                                [ width (fillPortion 20)
+                                                , Style.smallFont
+                                                , Font.alignLeft
+                                                , alignBottom
+                                                , paddingXY 0 1
+                                                ]
+                                                (text cents)
+                                    ]
+                                , el [ height fill ] none
+                                ]
+                            )
+                        , el
+                            [ width (fillPortion 70)
+                            , alignTop
+                            , Style.normalFont
+                            , Font.color (rgb 0 0 0)
+                            ]
+                            (paragraph [] [ text (Ledger.getDescription transaction) ])
+                        ]
+                }
+    in
+    List.map
+        render
+        (List.filter
+            (\t -> t.date == day)
+            (Ledger.transactions model.ledger)
+        )

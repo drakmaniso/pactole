@@ -73,22 +73,10 @@
           case "accounts":
             app.ports.accounts.send(v)
         }
+        //TODO: propagate ledger-keys changes
       }
     })
 
-
-    /*
-    var storageKey = "store";
-    var flags = localStorage.getItem(storageKey);
-    var app = Elm.Main.init({flags: flags});
-
-    app.ports.getLedger.subscribe(function(name) {
-      console.log("from JS getLedger: name = ", name);
-      var ledger = localStorage.getItem(name);
-      app.ports.onLedgerChange.send({name: name, ledger: JSON.parse(ledger)});
-      //TODO: handle JSON.parse exceptions
-    })
-    */
 
     /*
     app.ports.storeCache.subscribe(function(val) {

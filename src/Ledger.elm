@@ -8,6 +8,7 @@ module Ledger exposing
     , amountParts
     , decoder
     , empty
+    , getDescription
     , isExpense
     , transactions
     )
@@ -38,7 +39,10 @@ transactions (Ledger ledger) =
 decoder =
     let
         toLedger t =
-            Ledger { transactions = t }
+            Ledger
+                { transactions =
+                    List.sortWith (\a b -> Date.compare a.date b.date) t
+                }
     in
     Decode.map toLedger (Decode.field "transactions" (Decode.list transactionDecoder))
 
@@ -62,6 +66,19 @@ isExpense transaction =
             transaction.amount
     in
     amount < 0
+
+
+getDescription transaction =
+    case transaction.description of
+        Description d ->
+            d
+
+        NoDescription ->
+            if isExpense transaction then
+                "Dépense"
+
+            else
+                "Entrée d'argent"
 
 
 encodeTransaction : Transaction -> Encode.Value
@@ -166,8 +183,8 @@ amountParts (Money amount) =
             abs (remainderBy 100 amount)
     in
     if cents /= 0 then
-        { units = mainPart ++ ","
-        , cents = Just (String.padLeft 2 '0' (String.fromInt cents))
+        { units = mainPart
+        , cents = Just ("," ++ String.padLeft 2 '0' (String.fromInt cents))
         }
 
     else

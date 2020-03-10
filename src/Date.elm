@@ -115,8 +115,12 @@ getMonthNumber m =
             12
 
 
-getMonthName : Time.Month -> String
-getMonthName m =
+getMonthName : Date -> String
+getMonthName (Date d) =
+    let
+        m =
+            Calendar.getMonth d
+    in
     case m of
         Time.Jan ->
             "Janvier"
@@ -182,7 +186,7 @@ getWeekdayName (Date d) =
 getMonthFullName (Date today) (Date d) =
     let
         n =
-            getMonthName (Calendar.getMonth d)
+            getMonthName (Date d)
     in
     if Calendar.getYear d == Calendar.getYear today then
         n

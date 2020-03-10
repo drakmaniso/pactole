@@ -51,10 +51,18 @@ transactionView model =
 makeRow transaction ( prevDate, accum ) =
     let
         dateTxt =
-            el []
+            el
+                [ paddingEach { left = 12, right = 12, top = 24, bottom = 12 }
+                , Style.bigFont
+                , Font.color Style.fgTitle
+                ]
                 (text
-                    ("--"
-                        ++ Date.toString transaction.date
+                    (Date.getWeekdayName transaction.date
+                        ++ " "
+                        ++ String.fromInt (Date.getDay transaction.date)
+                        ++ " "
+                        ++ Date.getMonthName transaction.date
+                     --TODO: add year for previous years
                     )
                 )
 

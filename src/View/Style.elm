@@ -8,7 +8,9 @@ import Html.Attributes
 
 
 bgPage =
-    rgb 0.85 0.82 0.75
+    --rgb 0.85 0.82 0.75
+    --rgb 0.76 0.73 0.65
+    rgb 0.74 0.71 0.65
 
 
 bgLight =
@@ -19,8 +21,37 @@ bgWhite =
     rgb 1.0 1.0 1.0
 
 
+bgExpense =
+    rgb 0.8 0.25 0.2
+
+
+fgExpense =
+    bgExpense
+
+
+fgOnExpense =
+    rgb 1.0 1.0 1.0
+
+
+bgIncome =
+    rgb255 44 136 32
+
+
+fgIncome =
+    bgIncome
+
+
+fgOnIncome =
+    rgb 1.0 1.0 1.0
+
+
 bgTitle =
-    rgb 0.3 0.6 0.7
+    --rgb 0.3 0.6 0.7
+    rgb 0.12 0.51 0.65
+
+
+fgTitle =
+    bgTitle
 
 
 fontFamily =
@@ -34,6 +65,10 @@ bigFont =
     Font.size 32
 
 
+normalFont =
+    Font.size 26
+
+
 smallFont =
     Font.size 20
 
@@ -44,6 +79,10 @@ smallerFont =
 
 verySmallFont =
     Font.size 16
+
+
+fontIcons =
+    Font.family [ Font.typeface "Font Awesome 5 Free" ]
 
 
 icons =
