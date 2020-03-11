@@ -54,6 +54,10 @@ fgTitle =
     bgTitle
 
 
+fgOnTitle =
+    rgb 1 1 1
+
+
 fontFamily =
     Font.family
         [ Font.typeface "Nunito Sans"
@@ -100,25 +104,37 @@ iconsSettings =
     ]
 
 
-customButton w fg bg =
-    [ Background.color bg
+customButton w fg bg filled =
+    [ Background.color
+        (if filled then
+            fg
+
+         else
+            bg
+        )
+    , Font.color
+        (if filled then
+            bg
+
+         else
+            fg
+        )
+    , Border.color fg
     , width w
-    , Font.color fg
     , Font.center
     , Border.width 3
-    , Border.color fg
     , Border.rounded 24
 
     --, Border.shadow { offset = ( 0, 0 ), size = 2, blur = 4, color = rgba 0 0 0 0.2 }
     ]
 
 
-button w fg bg =
-    normalFont :: paddingXY 24 8 :: customButton w fg bg
+button w fg bg inverted =
+    normalFont :: paddingXY 24 8 :: customButton w fg bg inverted
 
 
-iconButton w fg bg =
-    fontIcons :: bigFont :: paddingXY 12 6 :: customButton w fg bg
+iconButton w fg bg inverted =
+    fontIcons :: bigFont :: paddingXY 12 6 :: customButton w fg bg inverted
 
 
 calendarMonthName =

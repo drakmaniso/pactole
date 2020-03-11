@@ -5,35 +5,77 @@ import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
 import Element.Input as Input
-import Html.Attributes as HtmlAttr
+import Html.Attributes
 import Model
 import Msg
+import View.Style as Style
 
 
 view : Model.Model -> Element Msg.Msg
 view model =
-    column
-        [ centerX
-        , centerY
-        , width (shrink |> minimum 400)
-        , height (shrink |> minimum 200)
-        , Border.rounded 16
-        , clip
-        , Background.color (rgb 1 1 1)
-        , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 16, color = rgba 0 0 0 0.5 }
-        , htmlAttribute <| HtmlAttr.style "z-index" "1000"
+    row
+        [ width fill
+        , height fill
+        , clipX
+        , clipY
+        , htmlAttribute <| Html.Attributes.style "z-index" "-1"
+        , Background.color Style.bgPage
+        , Style.fontFamily
         ]
-        [ row
-            [ width fill, paddingXY 16 8, alignTop, Background.color (rgb 0.9 0.8 0.8) ]
-            [ el [ width fill, height fill ] (text "Configuration")
-            , Input.button [] { label = el [ centerX ] (text " X "), onPress = Just Msg.Close }
-            ]
-        , row
-            [ alignTop ]
-            [ column
+        [ column
+            [ width (fillPortion 25), height fill, padding 16, alignTop ]
+            [ Input.button
                 []
-                [ Input.button [] { label = text "Calendrier", onPress = Just Msg.ToCalendar }
-                , Input.button [] { label = text "Opérations", onPress = Just Msg.ToTabular }
+                { onPress = Just Msg.ToMainPage
+                , label =
+                    el
+                        (Style.button shrink Style.fgTitle Style.bgWhite True)
+                        (text "Confirmer")
+                }
+            , el
+                [ width fill, height fill ]
+                none
+            ]
+        , column
+            [ width (fillPortion 75)
+            , height fill
+            , padding 24
+            , spacing 24
+            , Background.color Style.bgLight
+            , Style.normalFont
+            ]
+            [ el
+                [ Style.bigFont
+                , paddingEach { top = 0, bottom = 24, left = 0, right = 0 }
                 ]
+                (text "Configuration")
+            , el [] (text "Comptes enregistrés sur cet ordinateur:")
+            , table
+                []
+                { data = model.accounts
+                , columns =
+                    [ { header = text "Nom du compte"
+                      , width = fill
+                      , view = \account -> el [] (text account)
+                      }
+                    ]
+                }
+            , Input.radio
+                [ padding 12, spacing 12 ]
+                { onChange =
+                    \o ->
+                        case o of
+                            Model.Calendar ->
+                                Msg.ToCalendar
+
+                            Model.Tabular ->
+                                Msg.ToTabular
+                , label = Input.labelAbove [] (text "Mode d'affichage des opérations:")
+                , options =
+                    [ Input.option Model.Calendar (text "Calendrier")
+                    , Input.option Model.Tabular (text "Liste")
+                    ]
+                , selected = Just model.mode
+                }
             ]
         ]

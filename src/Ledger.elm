@@ -5,12 +5,16 @@ module Ledger exposing
     , Money
     , Reconciliation
     , Transaction
-    , amountParts
     , decoder
     , empty
-    , getDescription
+    , getAllTransactions
+    , getAmountInput
+    , getAmountParts
+    , getDateTransactions
+    , getDescriptionDisplay
+    , getDescriptionInput
+    , getTransaction
     , isExpense
-    , transactions
     )
 
 import Date
@@ -24,16 +28,45 @@ import Time
 
 
 type Ledger
-    = Ledger { transactions : List Transaction }
+    = Ledger
+        { transactions : List Transaction
+        , nextId : Int
+        }
 
 
 empty =
-    Ledger { transactions = [] }
+    Ledger { transactions = [], nextId = 0 }
 
 
-transactions : Ledger -> List Transaction
-transactions (Ledger ledger) =
+getAllTransactions : Ledger -> List Transaction
+getAllTransactions (Ledger ledger) =
     ledger.transactions
+
+
+getDateTransactions : Date.Date -> Ledger -> List Transaction
+getDateTransactions date (Ledger ledger) =
+    List.filter
+        (\t -> t.date == date)
+        ledger.transactions
+
+
+getTransaction : Int -> Ledger -> Maybe Transaction
+getTransaction id (Ledger ledger) =
+    let
+        matches =
+            List.filter
+                (\t -> t.id == id)
+                ledger.transactions
+    in
+    case matches of
+        [] ->
+            Nothing
+
+        [ t ] ->
+            Just t
+
+        _ ->
+            Debug.log "INCONSISTENT LEDGER: MULTIPLE TRANSACIONTS WITH SAME ID" Nothing
 
 
 decoder =
@@ -42,6 +75,17 @@ decoder =
             Ledger
                 { transactions =
                     List.sortWith (\a b -> Date.compare a.date b.date) t
+                , nextId =
+                    List.map .id t
+                        |> List.maximum
+                        |> (\v ->
+                                case v of
+                                    Nothing ->
+                                        0
+
+                                    Just vv ->
+                                        vv + 1
+                           )
                 }
     in
     Decode.map toLedger (Decode.field "transactions" (Decode.list transactionDecoder))
@@ -52,7 +96,8 @@ decoder =
 
 
 type alias Transaction =
-    { date : Date.Date
+    { id : Int
+    , date : Date.Date
     , amount : Money
     , description : Description
     , category : Category
@@ -66,19 +111,6 @@ isExpense transaction =
             transaction.amount
     in
     amount < 0
-
-
-getDescription transaction =
-    case transaction.description of
-        Description d ->
-            d
-
-        NoDescription ->
-            if isExpense transaction then
-                "Dépense"
-
-            else
-                "Entrée d'argent"
 
 
 encodeTransaction : Transaction -> Encode.Value
@@ -119,12 +151,22 @@ encodeTransaction { date, amount, description, category, reconciliation } =
 
 
 transactionDecoder =
-    Decode.map5 Transaction
+    Decode.map6 Transaction
+        idDecoder
         dateDecoder
         amountDecoder
         descriptionDecoder
         categoryDecoder
         reconciliationDecoder
+
+
+
+-- ID
+
+
+idDecoder : Decode.Decoder Int
+idDecoder =
+    Decode.field "id" Decode.int
 
 
 
@@ -167,8 +209,11 @@ amountDecoder =
     Decode.map Money (Decode.field "amount" Decode.int)
 
 
-amountParts (Money amount) =
+getAmountParts transaction =
     let
+        (Money amount) =
+            transaction.amount
+
         units =
             String.fromInt (amount // 100)
 
@@ -189,6 +234,24 @@ amountParts (Money amount) =
 
     else
         { units = mainPart, cents = Nothing }
+
+
+getAmountInput transaction =
+    let
+        (Money amount) =
+            transaction.amount
+
+        units =
+            String.fromInt (amount // 100)
+
+        cents =
+            abs (remainderBy 100 amount)
+    in
+    if cents == 0 then
+        units
+
+    else
+        units ++ "," ++ String.padLeft 2 '0' (String.fromInt cents)
 
 
 
@@ -212,6 +275,28 @@ descriptionDecoder =
                     NoDescription
     in
     Decode.map toDescription (Decode.maybe (Decode.field "description" Decode.string))
+
+
+getDescriptionInput transaction =
+    case transaction.description of
+        Description d ->
+            d
+
+        NoDescription ->
+            ""
+
+
+getDescriptionDisplay transaction =
+    case transaction.description of
+        Description d ->
+            d
+
+        NoDescription ->
+            if isExpense transaction then
+                "Dépense"
+
+            else
+                "Entrée d'argent"
 
 
 

@@ -15,6 +15,7 @@ type Msg
     | ToIncome
     | DialogAmount String
     | DialogDescription String
+    | ToMainPage
     | ToSettings
     | Close
     | SelectDay Date.Date
@@ -23,3 +24,4 @@ type Msg
     | SetLedger Decode.Value
     | KeyDown String
     | KeyUp String
+    | Edit Int

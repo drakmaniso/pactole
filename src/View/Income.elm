@@ -17,7 +17,7 @@ view model =
         [ centerX
         , centerY
         , width (shrink |> minimum 600)
-        , height (shrink |> minimum 400)
+        , height shrink
         , Border.rounded 7
         , paddingXY 32 16
         , spacing 16
@@ -40,7 +40,8 @@ view model =
                 ]
                 { label =
                     Input.labelLeft
-                        [ Style.bigFont
+                        [ Input.focusedOnLoad
+                        , Style.bigFont
                         , width shrink
                         , height fill
                         , Font.color Style.fgIncome
@@ -64,15 +65,14 @@ view model =
             , el [ width fill ] none
             ]
         , Input.multiline
-            [ Style.normalFont
+            [ Style.bigFont
             , paddingXY 8 12
             , Border.width 1
             , width fill
             ]
             { label =
                 Input.labelLeft
-                    [ Style.normalFont
-                    , width shrink
+                    [ width shrink
                     , height fill
                     , Font.color Style.fgIncome
                     , paddingEach { top = 12, bottom = 12, left = 0, right = 24 }
@@ -89,12 +89,13 @@ view model =
         , row
             [ alignRight
             , spacing 24
+            , paddingEach { top = 24, bottom = 0, left = 0, right = 0 }
             ]
             [ Input.button
-                (Style.button shrink Style.fgIncome Style.bgWhite)
+                (Style.button shrink Style.fgIncome Style.bgWhite False)
                 { label = text "Annuler", onPress = Nothing }
             , Input.button
-                (Style.button shrink Style.fgOnIncome Style.bgIncome)
+                (Style.button shrink Style.fgIncome Style.bgWhite True)
                 { label = text "Confirmer", onPress = Nothing }
             ]
         ]

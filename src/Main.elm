@@ -84,7 +84,7 @@ update msg model =
             ( { model | mode = Model.Tabular }, Cmd.none )
 
         Msg.ToIncome ->
-            ( { model | dialog = Model.Income }, Cmd.none )
+            ( { model | dialog = Model.Dialog }, Cmd.none )
 
         Msg.DialogAmount string ->
             ( { model | dialogAmount = string }, Cmd.none )
@@ -92,8 +92,11 @@ update msg model =
         Msg.DialogDescription string ->
             ( { model | dialogDescription = string }, Cmd.none )
 
+        Msg.ToMainPage ->
+            ( { model | page = Model.MainPage }, Cmd.none )
+
         Msg.ToSettings ->
-            ( { model | dialog = Model.Settings }, Cmd.none )
+            ( { model | page = Model.Settings }, Cmd.none )
 
         Msg.Close ->
             ( { model | dialog = Model.None }, Cmd.none )
@@ -144,6 +147,36 @@ update msg model =
             , Cmd.none
             )
 
+        Msg.Edit id ->
+            let
+                transac =
+                    Ledger.getTransaction id model.ledger
+
+                dialog =
+                    case transac of
+                        Nothing ->
+                            Model.None
+
+                        Just t ->
+                            if Ledger.isExpense t then
+                                Model.Dialog
+
+                            else
+                                Model.Dialog
+            in
+            case transac of
+                Nothing ->
+                    ( model, Debug.log "*** Unable to get transaction" Cmd.none )
+
+                Just t ->
+                    ( { model
+                        | dialogDescription = Ledger.getDescriptionInput t
+                        , dialogAmount = Ledger.getAmountInput t
+                        , dialog = dialog
+                      }
+                    , Cmd.none
+                    )
+
 
 
 -- SUBSCRIPTIONS
@@ -173,12 +206,17 @@ view : Model.Model -> Browser.Document Msg.Msg
 view model =
     let
         root =
-            case model.mode of
-                Model.Calendar ->
-                    View.Calendar.view
+            case model.page of
+                Model.Settings ->
+                    View.Settings.view
 
-                Model.Tabular ->
-                    View.Tabular.view
+                Model.MainPage ->
+                    case model.mode of
+                        Model.Calendar ->
+                            View.Calendar.view
+
+                        Model.Tabular ->
+                            View.Tabular.view
 
         dialog contentView =
             E.el
@@ -219,12 +257,8 @@ view model =
                 Model.None ->
                     []
 
-                Model.Income ->
+                Model.Dialog ->
                     [ E.inFront (dialog (View.Income.view model))
-                    ]
-
-                Model.Settings ->
-                    [ E.inFront (dialog (View.Settings.view model))
                     ]
             )
             (root model)

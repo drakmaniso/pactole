@@ -2,6 +2,7 @@ module Model exposing
     ( Dialog(..)
     , Mode(..)
     , Model
+    , Page(..)
     , init
     )
 
@@ -13,7 +14,8 @@ import Time
 
 
 type alias Model =
-    { mode : Mode
+    { page : Page
+    , mode : Mode
     , dialog : Dialog
     , today : Date.Date
     , date : Date.Date
@@ -27,6 +29,11 @@ type alias Model =
     }
 
 
+type Page
+    = MainPage
+    | Settings
+
+
 type Mode
     = Calendar
     | Tabular
@@ -34,8 +41,7 @@ type Mode
 
 type Dialog
     = None
-    | Income
-    | Settings
+    | Dialog
 
 
 defaultDate =
@@ -61,7 +67,8 @@ init flags =
                 Err e ->
                     Debug.log ("init flags ledger: " ++ Decode.errorToString e) Ledger.empty
     in
-    { mode = Calendar
+    { page = MainPage
+    , mode = Calendar
     , dialog = None
     , today = Date.fromPosix (Time.millisToPosix 0)
     , date = Date.fromPosix (Time.millisToPosix 0)

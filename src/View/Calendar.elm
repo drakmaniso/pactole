@@ -213,7 +213,7 @@ cellContentFor model day =
         render transaction =
             let
                 parts =
-                    Ledger.amountParts transaction.amount
+                    Ledger.getAmountParts transaction
             in
             row
                 [ paddingEach { top = 4, bottom = 3, left = 6, right = 8 }
@@ -245,10 +245,7 @@ cellContentFor model day =
     in
     List.map
         render
-        (List.filter
-            (\t -> t.date == day)
-            (Ledger.transactions model.ledger)
-        )
+        (Ledger.getDateTransactions day model.ledger)
         |> List.intersperse (text " ")
 
 
@@ -294,12 +291,12 @@ dayView model =
             ]
             [ --el [ width (fillPortion 1) ] none
               Input.button
-                (Style.iconButton (fillPortion 2) Style.fgIncome Style.bgWhite)
+                (Style.iconButton (fillPortion 2) Style.fgIncome Style.bgWhite False)
                 { label = text "\u{F067}", onPress = Just Msg.ToIncome }
 
             --, el [ width (fillPortion 1) ] none
             , Input.button
-                (Style.iconButton (fillPortion 2) Style.fgExpense Style.bgWhite)
+                (Style.iconButton (fillPortion 2) Style.fgExpense Style.bgWhite False)
                 { label = text "\u{F068}", onPress = Nothing }
 
             --, el [ width (fillPortion 1) ] none
@@ -313,13 +310,13 @@ dayContentFor model day =
         render transaction =
             let
                 parts =
-                    Ledger.amountParts transaction.amount
+                    Ledger.getAmountParts transaction
             in
             Input.button
                 [ width fill
                 , paddingEach { top = 8, bottom = 8, left = 6, right = 6 }
                 ]
-                { onPress = Nothing
+                { onPress = Just (Msg.Edit transaction.id)
                 , label =
                     row
                         [ width fill
@@ -376,13 +373,10 @@ dayContentFor model day =
                             , Style.normalFont
                             , Font.color (rgb 0 0 0)
                             ]
-                            (paragraph [] [ text (Ledger.getDescription transaction) ])
+                            (paragraph [] [ text (Ledger.getDescriptionDisplay transaction) ])
                         ]
                 }
     in
     List.map
         render
-        (List.filter
-            (\t -> t.date == day)
-            (Ledger.transactions model.ledger)
-        )
+        (Ledger.getDateTransactions day model.ledger)

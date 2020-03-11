@@ -43,7 +43,7 @@ transactionView model =
         (List.foldl
             makeRow
             ( Nothing, [] )
-            (Ledger.transactions model.ledger)
+            (Ledger.getAllTransactions model.ledger)
         )
         |> List.reverse
 
@@ -67,7 +67,7 @@ makeRow transaction ( prevDate, accum ) =
                 )
 
         parts =
-            Ledger.amountParts transaction.amount
+            Ledger.getAmountParts transaction
 
         txt =
             el []
