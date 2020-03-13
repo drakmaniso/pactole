@@ -25,11 +25,11 @@ view model =
         [ column
             [ width (fillPortion 25), height fill, padding 16, alignTop ]
             [ Input.button
-                []
+                (Style.button shrink Style.fgTitle Style.bgWhite True)
                 { onPress = Just Msg.ToMainPage
                 , label =
                     el
-                        (Style.button shrink Style.fgTitle Style.bgWhite True)
+                        []
                         (text "Confirmer")
                 }
             , el

@@ -7,6 +7,13 @@ import Element.Font as Font
 import Html.Attributes
 
 
+fgFocus =
+    --rgb 0.98 0.62 0.05
+    --rgb 0.15 0.76 0.98
+    --rgba 0 0 0 0.4
+    rgb 1.0 0.7 0
+
+
 bgPage =
     --rgb 0.85 0.82 0.75
     --rgb 0.76 0.73 0.65
@@ -19,6 +26,14 @@ bgLight =
 
 bgWhite =
     rgb 1.0 1.0 1.0
+
+
+fgWhite =
+    rgb 1.0 1.0 1.0
+
+
+fgBlack =
+    rgb 0 0 0
 
 
 bgExpense =
@@ -153,13 +168,13 @@ dayCell =
     , Border.color (rgba 0 0 0 0)
     , Border.width 3
     , Border.rounded 2
-
-    -- , focused [ Border.color bgTitle, Border.shadow { offset = ( 0, 0 ), size = 0, blur = 0, color = rgba 0 0 0 0 } ]
+    , focused
+        [ Border.color fgFocus, Border.shadow { offset = ( 0, 0 ), size = 0, blur = 0, color = rgba 0 0 0 0 } ]
     ]
 
 
 dayCellSelected =
-    [ Background.color (rgb 1 1 1)
+    [ Background.color bgTitle
     , Border.color bgTitle
     , Border.rounded 7
     , Border.width 3

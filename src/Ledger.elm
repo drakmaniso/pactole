@@ -227,7 +227,7 @@ getAmountParts transaction =
         cents =
             abs (remainderBy 100 amount)
     in
-    if cents /= 0 then
+    if True || cents /= 0 then
         { units = mainPart
         , cents = Just ("," ++ String.padLeft 2 '0' (String.fromInt cents))
         }

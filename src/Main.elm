@@ -2,6 +2,7 @@ module Main exposing (..)
 
 import Array
 import Browser
+import Browser.Dom as Dom
 import Browser.Events
 import Browser.Navigation as Navigation
 import Date
@@ -84,7 +85,9 @@ update msg model =
             ( { model | mode = Model.Tabular }, Cmd.none )
 
         Msg.ToIncome ->
-            ( { model | dialog = Model.Dialog }, Cmd.none )
+            ( { model | dialog = Model.Dialog }
+            , Task.attempt (\_ -> Msg.NoOp) (Dom.focus "dialog-amount")
+            )
 
         Msg.DialogAmount string ->
             ( { model | dialogAmount = string }, Cmd.none )
@@ -177,6 +180,9 @@ update msg model =
                     , Cmd.none
                     )
 
+        Msg.NoOp ->
+            ( model, Cmd.none )
+
 
 
 -- SUBSCRIPTIONS
@@ -241,14 +247,14 @@ view model =
         [ E.layoutWith
             { options =
                 [ E.focusStyle
-                    { borderColor = Just View.Style.bgTitle
+                    { borderColor = Nothing -- Just View.Style.bgTitle
                     , backgroundColor = Nothing
                     , shadow =
                         Just
-                            { color = View.Style.bgTitle
+                            { color = View.Style.fgFocus
                             , offset = ( 0, 0 )
                             , blur = 0
-                            , size = 2
+                            , size = 4
                             }
                     }
                 ]

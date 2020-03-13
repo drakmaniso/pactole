@@ -1,6 +1,6 @@
 module View.Summary exposing (view)
 
-import Element
+import Element as Elem
 import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
@@ -15,47 +15,53 @@ import View.Style as Style
 
 
 view model =
-    Element.column
-        [ Element.width Element.fill
-        , Element.height Element.fill
+    Elem.column
+        [ Elem.width Elem.fill
+        , Elem.height Elem.fill
         ]
-        [ Element.row
-            [ Element.width Element.fill ]
+        [ Elem.row
+            [ Elem.width Elem.shrink
+            , Elem.alignLeft
+            ]
             [ if model.showAdvanced then
                 Input.button
-                    [ Style.fontIcons
-                    , Style.normalFont
-                    , Element.centerX
-                    , Element.paddingXY 16 0
-                    , Font.color Style.fgTitle
-                    ]
-                    { label = Element.text "\u{F013}", onPress = Just Msg.ToSettings }
+                    (Style.button Elem.shrink Style.fgTitle (Elem.rgba 0 0 0 0) False)
+                    { label =
+                        Elem.text "Configurer"
+                    , onPress = Just Msg.ToSettings
+                    }
 
               else
-                Element.el [] Element.none
-
-            --{ label = Element.text "\u{F0C9}", onPress = Just Msg.ToSettings }
-            , Input.radioRow
-                [ Element.width Element.fill ]
-                { onChange = Msg.ChooseAccount
-                , selected = model.account
-                , label = Input.labelHidden "Compte"
-                , options =
-                    List.map
-                        (\acc -> Input.optionWith acc (accountOption acc))
-                        model.accounts
-                }
-            , Element.el [ Element.width Element.fill ] Element.none
+                Input.radioRow
+                    [ Elem.width Elem.fill
+                    , Elem.focused
+                        [ Border.shadow
+                            { offset = ( 0, 0 )
+                            , size = 4
+                            , blur = 0
+                            , color = Style.fgFocus
+                            }
+                        ]
+                    ]
+                    { onChange = Msg.ChooseAccount
+                    , selected = model.account
+                    , label = Input.labelHidden "Compte"
+                    , options =
+                        List.map
+                            (\acc -> Input.optionWith acc (accountOption acc))
+                            model.accounts
+                    }
+            , Elem.el [ Elem.width Elem.fill ] Elem.none
             ]
-        , Element.row [ Element.width Element.fill, Element.height Element.fill ] [ Element.none ]
+        , Elem.row [ Elem.width Elem.fill, Elem.height Elem.fill ] [ Elem.none ]
         ]
 
 
-accountOption : String -> Input.OptionState -> Element.Element msg
+accountOption : String -> Input.OptionState -> Elem.Element msg
 accountOption value state =
-    Element.el
-        ([ Element.centerX
-         , Element.paddingXY 16 8
+    Elem.el
+        ([ Elem.centerX
+         , Elem.paddingXY 16 8
          , Border.rounded 3
          , Style.bigFont
          ]
@@ -67,7 +73,7 @@ accountOption value state =
                         []
 
                     Input.Selected ->
-                        [ Font.color (Element.rgb 1 1 1), Background.color Style.bgTitle ]
+                        [ Font.color (Elem.rgb 1 1 1), Background.color Style.bgTitle ]
                )
         )
-        (Element.text value)
+        (Elem.text value)

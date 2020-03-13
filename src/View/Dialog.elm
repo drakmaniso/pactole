@@ -35,14 +35,18 @@ view model =
             [ Input.text
                 [ Style.bigFont
                 , paddingXY 8 12
-                , Border.width 1
-                , width (shrink |> minimum 200)
+
+                --, Border.width 1
+                , width (shrink |> minimum 300)
+                , alignLeft
+                , htmlAttribute <| HtmlAttr.id "dialog-amount"
                 ]
                 { label =
                     Input.labelLeft
                         [ Input.focusedOnLoad
                         , Style.bigFont
                         , width shrink
+                        , alignLeft
                         , height fill
                         , Font.color Style.fgIncome
                         , paddingEach { top = 12, bottom = 12, left = 0, right = 24 }
@@ -58,21 +62,24 @@ view model =
                 [ Style.bigFont
                 , paddingXY 0 12
                 , width shrink
+                , alignLeft
                 , Border.width 1
                 , Border.color (rgba 0 0 0 0)
                 ]
                 (text "€")
-            , el [ width fill ] none
+            , el
+                [ width fill ]
+                none
             ]
         , Input.multiline
             [ Style.bigFont
             , paddingXY 8 12
             , Border.width 1
-            , width fill
+            , width (fillPortion 2)
             ]
             { label =
                 Input.labelLeft
-                    [ width shrink
+                    [ width (fillPortion 1)
                     , height fill
                     , Font.color Style.fgIncome
                     , paddingEach { top = 12, bottom = 12, left = 0, right = 24 }
@@ -81,7 +88,7 @@ view model =
                     ]
                     (text "Description:")
             , text = model.dialogDescription
-            , placeholder = Nothing
+            , placeholder = Just (Input.placeholder [] (text "Description"))
             , onChange = Msg.DialogDescription
             , spellcheck = True
             }

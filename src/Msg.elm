@@ -25,3 +25,4 @@ type Msg
     | KeyDown String
     | KeyUp String
     | Edit Int
+    | NoOp

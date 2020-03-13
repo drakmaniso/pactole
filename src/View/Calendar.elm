@@ -2,7 +2,7 @@ module View.Calendar exposing (view)
 
 import Date
 import Debug
-import Element exposing (..)
+import Element as E
 import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
@@ -16,138 +16,138 @@ import View.Style as Style
 import View.Summary as Summary
 
 
-view : Model.Model -> Element Msg.Msg
+view : Model.Model -> E.Element Msg.Msg
 view model =
-    row
-        [ width fill
-        , height fill
-        , clipX
-        , clipY
-        , htmlAttribute <| Html.Attributes.style "z-index" "-1"
+    E.row
+        [ E.width E.fill
+        , E.height E.fill
+        , E.clipX
+        , E.clipY
         , Background.color Style.bgPage
         , Style.fontFamily
         ]
-        [ column
-            [ width (fillPortion 25)
-            , height fill
-            , padding 16
-            , alignTop
+        [ E.column
+            [ E.width (E.fillPortion 25)
+            , E.height E.fill
+            , E.padding 16
+            , E.alignTop
             ]
-            [ el
-                [ width fill, height (fillPortion 33) ]
+            [ E.el
+                [ E.width E.fill, E.height (E.fillPortion 33) ]
                 (Summary.view model)
-            , el
-                [ width fill, height (fillPortion 66) ]
+            , E.el
+                [ E.width E.fill, E.height (E.fillPortion 66) ]
                 (dayView model)
             ]
-        , el
-            [ width (fillPortion 75), height fill ]
-            (monthView model)
+        , E.el
+            [ E.width (E.fillPortion 75), E.height E.fill ]
+            (calendar model)
         ]
 
 
 
--- MONTH VIEW
+-- THE CALENDAR
 
 
-monthView : Model.Model -> Element Msg.Msg
-monthView model =
-    column
-        [ width fill, height fill, spacing 4 ]
-        ([ row
-            [ width fill, alignTop, paddingXY 0 8 ]
-            [ Input.button
-                [ width (fillPortion 1), height fill ]
-                { label =
-                    el Style.icons (text "\u{F060}")
-                , onPress = Just (Msg.SelectDay (Date.decrementMonth model.date))
-                }
-            , el
-                [ width (fillPortion 3), height fill ]
-                (el Style.calendarMonthName (text (Date.getMonthFullName model.today model.date)))
-            , Input.button
-                [ width (fillPortion 1), height fill ]
-                { label =
-                    el Style.icons (text "\u{F061}")
-                , onPress = Just (Msg.SelectDay (Date.incrementMonth model.date))
-                }
-            ]
-         ]
-            ++ gridView model
-            ++ [ row
-                    [ width fill, alignBottom ]
-                    [ el [ width fill ] (el Style.weekDayName (text "Lundi"))
-                    , el [ width fill ] (el Style.weekDayName (text "Mardi"))
-                    , el [ width fill ] (el Style.weekDayName (text "Mercredi"))
-                    , el [ width fill ] (el Style.weekDayName (text "Jeudi"))
-                    , el [ width fill ] (el Style.weekDayName (text "Vendredi"))
-                    , el [ width fill ] (el Style.weekDayName (text "Samedi"))
-                    , el [ width fill ] (el Style.weekDayName (text "Dimanche"))
-                    ]
-               ]
+calendar : Model.Model -> E.Element Msg.Msg
+calendar model =
+    let
+        findTheFirst date =
+            if Date.getDay date == 1 then
+                date
+
+            else
+                findTheFirst (Date.decrementDay date)
+
+        findTheLast date =
+            if Date.getDay date == Date.lastDayOf date then
+                date
+
+            else
+                findTheLast (Date.incrementDay date)
+
+        findMonday date =
+            case Date.getWeekday date of
+                Time.Mon ->
+                    date
+
+                _ ->
+                    findMonday (Date.decrementDay date)
+
+        loopThroughMonth date =
+            let
+                theLast =
+                    findTheLast model.date
+            in
+            case ( Date.compare date theLast, Date.getWeekday date ) of
+                ( GT, Time.Mon ) ->
+                    [ calendarFooter model ]
+
+                _ ->
+                    E.row
+                        [ E.width E.fill, E.height E.fill, E.clipY, E.spacing 4 ]
+                        (loopThroughWeek date)
+                        :: loopThroughMonth (Date.incrementWeek date)
+
+        loopThroughWeek date =
+            case Date.getWeekday date of
+                Time.Sun ->
+                    [ calendarCell model date ]
+
+                _ ->
+                    calendarCell model date :: loopThroughWeek (Date.incrementDay date)
+    in
+    E.column
+        [ E.width E.fill, E.height E.fill, E.spacing 4 ]
+        (calendarHeader model
+            :: loopThroughMonth (findMonday (findTheFirst model.date))
         )
 
 
-gridView : Model.Model -> List (Element Msg.Msg)
-gridView model =
-    let
-        findTheFirst day =
-            if Date.getDay day == 1 then
-                day
-
-            else
-                findTheFirst (Date.decrementDay day)
-
-        findTheLast day =
-            if Date.getDay day == Date.lastDayOf day then
-                day
-
-            else
-                findTheLast (Date.incrementDay day)
-
-        lastDay =
-            findTheLast model.date
-
-        findMonday day =
-            case Date.getWeekday day of
-                Time.Mon ->
-                    day
-
-                _ ->
-                    findMonday (Date.decrementDay day)
-
-        walkWeeks day =
-            case ( Date.compare day lastDay, Date.getWeekday day ) of
-                ( GT, Time.Mon ) ->
-                    []
-
-                _ ->
-                    row
-                        [ width fill, height fill, clipY, spacing 4 ]
-                        (walkDays day)
-                        :: walkWeeks (Date.incrementWeek day)
-
-        walkDays day =
-            case Date.getWeekday day of
-                Time.Sun ->
-                    [ cellViewOf model day ]
-
-                _ ->
-                    cellViewOf model day :: walkDays (Date.incrementDay day)
-    in
-    walkWeeks (findMonday (findTheFirst model.date))
+calendarHeader model =
+    E.row
+        [ E.width E.fill, E.alignTop, E.paddingXY 0 8 ]
+        [ Input.button
+            [ E.width (E.fillPortion 1), E.height E.fill ]
+            { label =
+                E.el Style.icons (E.text "\u{F060}")
+            , onPress = Just (Msg.SelectDay (Date.decrementMonth model.date))
+            }
+        , E.el
+            [ E.width (E.fillPortion 3), E.height E.fill ]
+            (E.el Style.calendarMonthName (E.text (Date.getMonthFullName model.today model.date)))
+        , Input.button
+            [ E.width (E.fillPortion 1), E.height E.fill ]
+            { label =
+                E.el Style.icons (E.text "\u{F061}")
+            , onPress = Just (Msg.SelectDay (Date.incrementMonth model.date))
+            }
+        ]
 
 
-cellViewOf : Model.Model -> Date.Date -> Element Msg.Msg
-cellViewOf model day =
+calendarFooter model =
+    E.row
+        [ E.width E.fill, E.alignBottom ]
+        [ E.el [ E.width E.fill ] (E.el Style.weekDayName (E.text "Lundi"))
+        , E.el [ E.width E.fill ] (E.el Style.weekDayName (E.text "Mardi"))
+        , E.el [ E.width E.fill ] (E.el Style.weekDayName (E.text "Mercredi"))
+        , E.el [ E.width E.fill ] (E.el Style.weekDayName (E.text "Jeudi"))
+        , E.el [ E.width E.fill ] (E.el Style.weekDayName (E.text "Vendredi"))
+        , E.el [ E.width E.fill ] (E.el Style.weekDayName (E.text "Samedi"))
+        , E.el [ E.width E.fill ] (E.el Style.weekDayName (E.text "Dimanche"))
+        ]
+
+
+calendarCell : Model.Model -> Date.Date -> E.Element Msg.Msg
+calendarCell model day =
     let
         sel =
             model.selected && day == model.date
 
         style =
-            width fill
-                :: height fill
-                :: scrollbarY
+            E.width E.fill
+                :: E.height E.fill
+                :: E.scrollbarY
                 :: (if sel then
                         Style.dayCellSelected
 
@@ -156,58 +156,95 @@ cellViewOf model day =
                    )
     in
     if Date.getMonth day == Date.getMonth model.date then
-        Input.button
+        E.el
+            -- Need to wrap the button in E.el because of elm-ui E.focused bug
             style
-            { label =
-                Element.column
-                    [ width fill, height fill, scrollbarY ]
-                    [ el
-                        ([ width fill
-                         , paddingXY 4 4
-                         , Style.smallFont
-                         , Font.center
-                         ]
-                            ++ (if sel then
-                                    [ Font.color (rgb 1 1 1)
-                                    , Background.color Style.bgTitle
-                                    ]
-
-                                else
-                                    []
-                               )
-                        )
-                        (text
-                            (if day == model.today then
-                                "Aujourd'hui"
-
-                             else
-                                String.fromInt (Date.getDay day)
-                            )
-                        )
-                    , Element.paragraph
-                        [ width fill
-                        , height fill
-                        , clipX
-                        , scrollbarY
-                        , paddingXY 4 8
-                        , spacing 12
+            (Input.button
+                [ E.width E.fill, E.height E.fill ]
+                { label =
+                    E.column
+                        [ E.width E.fill
+                        , E.height E.fill
+                        , E.scrollbarY
                         ]
-                        (cellContentFor model day)
-                    ]
-            , onPress = Just (Msg.SelectDay day)
-            }
+                        [ E.el
+                            [ E.width E.fill
+                            , E.paddingXY 4 4
+                            , Style.smallFont
+                            , Font.bold
+                            , Font.center
+                            , Font.color
+                                (if sel then
+                                    Style.fgWhite
+
+                                 else
+                                    Style.fgBlack
+                                )
+                            ]
+                            (E.text
+                                (if day == model.today then
+                                    "Aujourd'hui"
+
+                                 else
+                                    String.fromInt (Date.getDay day)
+                                )
+                            )
+                        , E.paragraph
+                            [ E.width E.fill
+                            , E.height E.fill
+                            , E.clipX
+                            , E.scrollbarY
+                            , E.paddingXY 4 8
+                            , E.spacing 12
+                            , Background.color
+                                (if sel then
+                                    Style.bgWhite
+
+                                 else
+                                    E.rgba 0 0 0 0
+                                )
+                            ]
+                            {- E.el
+                               ([ E.width E.fill
+                                , E.paddingXY 4 4
+                                , Style.normalFont
+                                , Font.bold
+                                , Font.alignLeft
+                                ]
+                                   ++ (if sel then
+                                           [ Font.color Style.fgTitle ]
+
+                                       else
+                                           [ Font.color (E.rgb 0 0 0) ]
+                                      )
+                               )
+                               (E.text
+                                   (if day == model.today then
+                                       "Aujourd'hui "
+
+                                    else
+                                       String.fromInt (Date.getDay day) ++ " "
+                                   )
+                               )
+                               ::
+                            -}
+                            (cellContentFor model day)
+                        ]
+                , onPress = Just (Msg.SelectDay day)
+                }
+            )
 
     else
-        el
-            (width
-                fill
-                :: height fill
+        E.el
+            (E.width
+                E.fill
+                :: E.height E.fill
                 :: Style.dayCellNone
             )
-            none
+            E.none
 
 
-cellContentFor : Model.Model -> Date.Date -> List (Element Msg.Msg)
+cellContentFor : Model.Model -> Date.Date -> List (E.Element Msg.Msg)
 cellContentFor model day =
     let
         render transaction =
@@ -215,10 +252,10 @@ cellContentFor model day =
                 parts =
                     Ledger.getAmountParts transaction
             in
-            row
-                [ paddingEach { top = 4, bottom = 3, left = 6, right = 8 }
+            E.row
+                [ E.paddingEach { top = 4, bottom = 3, left = 6, right = 8 }
                 , Style.smallFont
-                , Font.color (rgb 1 1 1)
+                , Font.color (E.rgb 1 1 1)
                 , if Ledger.isExpense transaction then
                     Background.color Style.fgExpense
 
@@ -226,19 +263,20 @@ cellContentFor model day =
                     Background.color Style.fgIncome
                 , Border.rounded 16
                 , Border.width 0
+                , E.htmlAttribute <| Html.Attributes.style "display" "inline-flex"
                 ]
-                (el [ Style.smallFont ] (text parts.units)
+                (E.el [ Style.smallFont, Font.medium ] (E.text parts.units)
                     :: (case parts.cents of
                             Nothing ->
                                 []
 
                             Just cents ->
-                                [ el
+                                [ E.el
                                     [ Style.smallerFont
-                                    , alignBottom
-                                    , paddingXY 0 1
+                                    , E.alignBottom
+                                    , E.paddingXY 0 1
                                     ]
-                                    (text cents)
+                                    (E.text cents)
                                 ]
                        )
                 )
@@ -246,7 +284,7 @@ cellContentFor model day =
     List.map
         render
         (Ledger.getDateTransactions day model.ledger)
-        |> List.intersperse (text " ")
+        |> List.intersperse (E.text " ")
 
 
 
@@ -254,57 +292,57 @@ cellContentFor model day =
 
 
 dayView model =
-    column
-        [ width fill
-        , height fill
+    E.column
+        [ E.width E.fill
+        , E.height E.fill
         , Border.rounded 7
-        , clip
-        , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 8, color = rgba 0 0 0 0.2 }
+        , E.clip
+        , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 8, color = E.rgba 0 0 0 0.2 }
         , Background.color Style.bgWhite
         ]
-        [ el
-            [ width fill
-            , height shrink
-            , paddingXY 4 12
+        [ E.el
+            [ E.width E.fill
+            , E.height E.shrink
+            , E.paddingXY 4 12
             , Background.color Style.bgTitle
-            , Font.color (rgb 1 1 1)
+            , Font.color (E.rgb 1 1 1)
             , Font.center
             , Font.bold
             , Style.bigFont
             ]
             (if model.date == model.today then
-                text "Aujourd'hui"
+                E.text "Aujourd'hui"
 
              else
-                text (Date.getWeekdayName model.date ++ " " ++ String.fromInt (Date.getDay model.date))
+                E.text (Date.getWeekdayName model.date ++ " " ++ String.fromInt (Date.getDay model.date))
             )
-        , column
-            [ width fill
-            , height fill
+        , E.column
+            [ E.width E.fill
+            , E.height E.fill
             ]
             (dayContentFor model model.date)
-        , row
-            [ width fill
-            , height shrink
-            , spacing 24
-            , paddingXY 24 12
+        , E.row
+            [ E.width E.fill
+            , E.height E.shrink
+            , E.spacing 24
+            , E.paddingXY 24 12
             ]
-            [ --el [ width (fillPortion 1) ] none
+            [ --E.el [ E.width (E.fillPortion 1) ] E.none
               Input.button
-                (Style.iconButton (fillPortion 2) Style.fgIncome Style.bgWhite False)
-                { label = text "\u{F067}", onPress = Just Msg.ToIncome }
+                (Style.iconButton (E.fillPortion 2) Style.fgIncome Style.bgWhite False)
+                { label = E.text "\u{F067}", onPress = Just Msg.ToIncome }
 
-            --, el [ width (fillPortion 1) ] none
+            --, E.el [ E.width (E.fillPortion 1) ] E.none
             , Input.button
-                (Style.iconButton (fillPortion 2) Style.fgExpense Style.bgWhite False)
-                { label = text "\u{F068}", onPress = Nothing }
+                (Style.iconButton (E.fillPortion 2) Style.fgExpense Style.bgWhite False)
+                { label = E.text "\u{F068}", onPress = Nothing }
 
-            --, el [ width (fillPortion 1) ] none
+            --, E.el [ E.width (E.fillPortion 1) ] E.none
             ]
         ]
 
 
-dayContentFor : Model.Model -> Date.Date -> List (Element Msg.Msg)
+dayContentFor : Model.Model -> Date.Date -> List (E.Element Msg.Msg)
 dayContentFor model day =
     let
         render transaction =
@@ -312,70 +350,77 @@ dayContentFor model day =
                 parts =
                     Ledger.getAmountParts transaction
             in
-            Input.button
-                [ width fill
-                , paddingEach { top = 8, bottom = 8, left = 6, right = 6 }
+            E.el
+                [ E.width E.fill
                 ]
-                { onPress = Just (Msg.Edit transaction.id)
-                , label =
-                    row
-                        [ width fill
-                        ]
-                        [ el
-                            [ width (fillPortion 33)
-                            , height fill
+                (Input.button
+                    [ E.width E.fill
+                    , E.paddingEach { top = 8, bottom = 8, left = 6, right = 6 }
+                    , Border.width 4
+                    , Border.color (E.rgba 0 0 0 0)
+                    , E.focused [ Border.color Style.fgFocus ]
+                    ]
+                    { onPress = Just (Msg.Edit transaction.id)
+                    , label =
+                        E.row
+                            [ E.width E.fill
                             ]
-                            (column
-                                [ width fill ]
-                                [ row
-                                    [ width fill
-                                    , height shrink
-                                    , paddingEach { top = 0, bottom = 0, left = 0, right = 16 }
-                                    , if Ledger.isExpense transaction then
-                                        Font.color Style.fgExpense
-
-                                      else
-                                        Font.color Style.fgIncome
-                                    ]
-                                    [ el
-                                        [ width (fillPortion 75)
-                                        , Style.normalFont
-                                        , Font.alignRight
-                                        ]
-                                        (text parts.units)
-                                    , case parts.cents of
-                                        Nothing ->
-                                            el
-                                                [ width (fillPortion 25)
-                                                , Style.smallFont
-                                                , Font.alignLeft
-                                                , alignBottom
-                                                , paddingXY 0 1
-                                                ]
-                                                none
-
-                                        Just cents ->
-                                            el
-                                                [ width (fillPortion 25)
-                                                , Style.smallFont
-                                                , Font.alignLeft
-                                                , alignBottom
-                                                , paddingXY 0 1
-                                                ]
-                                                (text cents)
-                                    ]
-                                , el [ height fill ] none
+                            [ E.el
+                                [ E.width (E.fillPortion 33)
+                                , E.height E.fill
                                 ]
-                            )
-                        , el
-                            [ width (fillPortion 66)
-                            , alignTop
-                            , Style.normalFont
-                            , Font.color (rgb 0 0 0)
+                                (E.column
+                                    [ E.width E.fill ]
+                                    [ E.row
+                                        [ E.width E.fill
+                                        , E.height E.shrink
+                                        , E.paddingEach { top = 0, bottom = 0, left = 0, right = 16 }
+                                        , if Ledger.isExpense transaction then
+                                            Font.color Style.fgExpense
+
+                                          else
+                                            Font.color Style.fgIncome
+                                        ]
+                                        [ E.el
+                                            [ E.width (E.fillPortion 75)
+                                            , Style.normalFont
+                                            , Font.alignRight
+                                            ]
+                                            (E.text parts.units)
+                                        , case parts.cents of
+                                            Nothing ->
+                                                E.el
+                                                    [ E.width (E.fillPortion 25)
+                                                    , Style.smallFont
+                                                    , Font.alignLeft
+                                                    , E.alignBottom
+                                                    , E.paddingXY 0 1
+                                                    ]
+                                                    E.none
+
+                                            Just cents ->
+                                                E.el
+                                                    [ E.width (E.fillPortion 25)
+                                                    , Style.smallFont
+                                                    , Font.alignLeft
+                                                    , E.alignBottom
+                                                    , E.paddingXY 0 1
+                                                    ]
+                                                    (E.text cents)
+                                        ]
+                                    , E.el [ E.height E.fill ] E.none
+                                    ]
+                                )
+                            , E.el
+                                [ E.width (E.fillPortion 66)
+                                , E.alignTop
+                                , Style.normalFont
+                                , Font.color (E.rgb 0 0 0)
+                                ]
+                                (E.paragraph [] [ E.text (Ledger.getDescriptionDisplay transaction) ])
                             ]
-                            (paragraph [] [ text (Ledger.getDescriptionDisplay transaction) ])
-                        ]
-                }
+                    }
+                )
     in
     List.map
         render
