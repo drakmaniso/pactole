@@ -25,6 +25,7 @@ type alias Model =
     , account : Maybe String
     , showAdvanced : Bool
     , dialogAmount : String
+    , dialogAmountInfo : String
     , dialogDescription : String
     }
 
@@ -80,5 +81,6 @@ init flags =
     , account = account
     , showAdvanced = False
     , dialogAmount = ""
+    , dialogAmountInfo = ""
     , dialogDescription = ""
     }

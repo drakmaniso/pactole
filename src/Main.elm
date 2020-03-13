@@ -85,7 +85,12 @@ update msg model =
             ( { model | mode = Model.Tabular }, Cmd.none )
 
         Msg.DialogAmount string ->
-            ( { model | dialogAmount = string }, Cmd.none )
+            ( { model
+                | dialogAmount = string
+                , dialogAmountInfo = Ledger.validateAmountInput string
+              }
+            , Cmd.none
+            )
 
         Msg.DialogDescription string ->
             ( { model | dialogDescription = string }, Cmd.none )
@@ -149,6 +154,7 @@ update msg model =
             ( { model
                 | dialog = Just Model.NewIncome
                 , dialogAmount = ""
+                , dialogAmountInfo = ""
                 , dialogDescription = ""
               }
             , Task.attempt (\_ -> Msg.NoOp) (Dom.focus "dialog-amount")
@@ -158,6 +164,7 @@ update msg model =
             ( { model
                 | dialog = Just Model.NewExpense
                 , dialogAmount = ""
+                , dialogAmountInfo = ""
                 , dialogDescription = ""
               }
             , Task.attempt (\_ -> Msg.NoOp) (Dom.focus "dialog-amount")
@@ -172,6 +179,7 @@ update msg model =
                     ( { model
                         | dialogDescription = Ledger.getDescriptionInput t
                         , dialogAmount = Ledger.getAmountInput t
+                        , dialogAmountInfo = Ledger.validateAmountInput (Ledger.getAmountInput t)
                         , dialog =
                             if Ledger.isExpense t then
                                 Just (Model.EditExpense t.id)

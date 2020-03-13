@@ -1,8 +1,8 @@
 module Ledger exposing
-    ( Category
+    ( Amount(..)
+    , Category
     , Description
     , Ledger
-    , Money
     , Reconciliation
     , Transaction
     , decoder
@@ -15,6 +15,7 @@ module Ledger exposing
     , getDescriptionInput
     , getTransaction
     , isExpense
+    , validateAmountInput
     )
 
 import Date
@@ -98,7 +99,7 @@ decoder =
 type alias Transaction =
     { id : Int
     , date : Date.Date
-    , amount : Money
+    , amount : Amount
     , description : Description
     , category : Category
     , reconciliation : Reconciliation
@@ -107,16 +108,16 @@ type alias Transaction =
 
 isExpense transaction =
     let
-        (Money amount) =
+        (Amount units _) =
             transaction.amount
     in
-    amount < 0
+    units < 0
 
 
 encodeTransaction : Transaction -> Encode.Value
 encodeTransaction { date, amount, description, category, reconciliation } =
     let
-        (Money money) =
+        (Amount units cents) =
             amount
 
         withRec =
@@ -145,7 +146,7 @@ encodeTransaction { date, amount, description, category, reconciliation } =
     in
     Encode.object
         (( "date", Encode.int (Date.toInt date) )
-            :: ( "amount", Encode.int money )
+            :: ( "amount", Encode.int (100 * units + cents) )
             :: withDescCatRec
         )
 
@@ -188,70 +189,80 @@ dateDecoder =
 
 
 
--- MONEY
+-- AMOUNT
 
 
-type Money
-    = Money Int
+type Amount
+    = Amount Int Int -- Amount units cents
 
 
-amountDecoder : Decode.Decoder Money
+amountDecoder : Decode.Decoder Amount
 amountDecoder =
     let
-        toAmount a =
-            case a of
-                Ok aa ->
-                    Money aa
-
-                Err e ->
-                    Debug.log (Decode.errorToString e) (Money 0)
+        amount v =
+            Amount (v // 100) (abs (remainderBy 100 v))
     in
-    Decode.map Money (Decode.field "amount" Decode.int)
+    Decode.map amount (Decode.field "amount" Decode.int)
 
 
 getAmountParts transaction =
     let
-        (Money amount) =
+        (Amount units cents) =
             transaction.amount
-
-        units =
-            String.fromInt (amount // 100)
-
-        mainPart =
-            if amount < 0 then
-                units
-
-            else
-                "+" ++ units
-
-        cents =
-            abs (remainderBy 100 amount)
     in
     if True || cents /= 0 then
-        { units = mainPart
+        { units =
+            (if units >= 0 then
+                "+"
+
+             else
+                ""
+            )
+                ++ String.fromInt units
         , cents = Just ("," ++ String.padLeft 2 '0' (String.fromInt cents))
         }
 
     else
-        { units = mainPart, cents = Nothing }
+        { units = String.fromInt units, cents = Nothing }
 
 
 getAmountInput transaction =
     let
-        (Money amount) =
+        (Amount units cents) =
             transaction.amount
-
-        units =
-            String.fromInt (amount // 100)
-
-        cents =
-            abs (remainderBy 100 amount)
     in
     if cents == 0 then
-        units
+        String.fromInt (abs units)
 
     else
-        units ++ "," ++ String.padLeft 2 '0' (String.fromInt cents)
+        String.fromInt (abs units) ++ "," ++ String.padLeft 2 '0' (String.fromInt cents)
+
+
+validateAmountInput string =
+    let
+        str =
+            String.filter (\c -> c /= ' ') string
+
+        commas =
+            String.indices "," str
+    in
+    if String.any (\c -> not (Char.isDigit c || c == ',')) str then
+        "utiliser des chiffres et une virgule"
+
+    else
+        case commas of
+            [] ->
+                ""
+
+            [ i ] ->
+                if i /= (String.length str - 3) then
+                    "mettre deux chiffres après la virgule"
+
+                else
+                    ""
+
+            _ ->
+                "utiliser une seule virgule"
 
 
 

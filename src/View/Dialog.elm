@@ -20,7 +20,7 @@ view dialog model =
         , height shrink
         , Border.rounded 7
         , paddingXY 32 16
-        , spacing 16
+        , spacing 24
         , clip
         , Background.color (rgb 1 1 1)
         , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 16, color = rgba 0 0 0 0.5 }
@@ -57,9 +57,19 @@ amountRow dialog model =
         [ Input.text
             [ Style.bigFont
             , paddingXY 8 12
-            , width (shrink |> minimum 300)
+            , width (shrink |> minimum 320)
             , alignLeft
             , htmlAttribute <| HtmlAttr.id "dialog-amount"
+            , below
+                (el
+                    [ Style.smallFont
+                    , width fill
+                    , paddingEach { top = 8, bottom = 0, left = 0, right = 0 }
+                    , Font.center
+                    , Font.color (rgb 1 0 0)
+                    ]
+                    (text model.dialogAmountInfo)
+                )
             ]
             { label =
                 Input.labelLeft
