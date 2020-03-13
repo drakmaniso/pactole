@@ -108,7 +108,7 @@ calendarHeader model =
     E.row
         [ E.width E.fill, E.alignTop, E.paddingXY 0 8 ]
         [ Input.button
-            [ E.width (E.fillPortion 1), E.height E.fill ]
+            [ E.width (E.fillPortion 1), E.height E.fill, Border.rounded 16 ]
             { label =
                 E.el Style.icons (E.text "\u{F060}")
             , onPress = Just (Msg.SelectDay (Date.decrementMonth model.date))
@@ -117,7 +117,7 @@ calendarHeader model =
             [ E.width (E.fillPortion 3), E.height E.fill ]
             (E.el Style.calendarMonthName (E.text (Date.getMonthFullName model.today model.date)))
         , Input.button
-            [ E.width (E.fillPortion 1), E.height E.fill ]
+            [ E.width (E.fillPortion 1), E.height E.fill, Border.rounded 16 ]
             { label =
                 E.el Style.icons (E.text "\u{F061}")
             , onPress = Just (Msg.SelectDay (Date.incrementMonth model.date))
@@ -204,30 +204,6 @@ calendarCell model day =
                                     E.rgba 0 0 0 0
                                 )
                             ]
-                            {- E.el
-                               ([ E.width E.fill
-                                , E.paddingXY 4 4
-                                , Style.normalFont
-                                , Font.bold
-                                , Font.alignLeft
-                                ]
-                                   ++ (if sel then
-                                           [ Font.color Style.fgTitle ]
-
-                                       else
-                                           [ Font.color (E.rgb 0 0 0) ]
-                                      )
-                               )
-                               (E.text
-                                   (if day == model.today then
-                                       "Aujourd'hui "
-
-                                    else
-                                       String.fromInt (Date.getDay day) ++ " "
-                                   )
-                               )
-                               ::
-                            -}
                             (cellContentFor model day)
                         ]
                 , onPress = Just (Msg.SelectDay day)
@@ -330,12 +306,12 @@ dayView model =
             [ --E.el [ E.width (E.fillPortion 1) ] E.none
               Input.button
                 (Style.iconButton (E.fillPortion 2) Style.fgIncome Style.bgWhite False)
-                { label = E.text "\u{F067}", onPress = Just Msg.ToIncome }
+                { label = E.text "\u{F067}", onPress = Just Msg.NewIncome }
 
             --, E.el [ E.width (E.fillPortion 1) ] E.none
             , Input.button
                 (Style.iconButton (E.fillPortion 2) Style.fgExpense Style.bgWhite False)
-                { label = E.text "\u{F068}", onPress = Nothing }
+                { label = E.text "\u{F068}", onPress = Just Msg.NewExpense }
 
             --, E.el [ E.width (E.fillPortion 1) ] E.none
             ]

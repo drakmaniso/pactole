@@ -12,7 +12,6 @@ type Msg
     | UrlChanged Url.Url
     | ToCalendar
     | ToTabular
-    | ToIncome
     | DialogAmount String
     | DialogDescription String
     | ToMainPage
@@ -24,5 +23,7 @@ type Msg
     | SetLedger Decode.Value
     | KeyDown String
     | KeyUp String
+    | NewIncome
+    | NewExpense
     | Edit Int
     | NoOp

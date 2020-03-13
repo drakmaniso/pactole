@@ -23,7 +23,7 @@ import Task
 import Time
 import Url
 import View.Calendar
-import View.Income
+import View.Dialog
 import View.Settings
 import View.Style
 import View.Tabular
@@ -84,11 +84,6 @@ update msg model =
         Msg.ToTabular ->
             ( { model | mode = Model.Tabular }, Cmd.none )
 
-        Msg.ToIncome ->
-            ( { model | dialog = Model.Dialog }
-            , Task.attempt (\_ -> Msg.NoOp) (Dom.focus "dialog-amount")
-            )
-
         Msg.DialogAmount string ->
             ( { model | dialogAmount = string }, Cmd.none )
 
@@ -102,7 +97,7 @@ update msg model =
             ( { model | page = Model.Settings }, Cmd.none )
 
         Msg.Close ->
-            ( { model | dialog = Model.None }, Cmd.none )
+            ( { model | dialog = Nothing }, Cmd.none )
 
         Msg.SelectDay d ->
             ( { model | date = d, selected = True }, Cmd.none )
@@ -150,24 +145,26 @@ update msg model =
             , Cmd.none
             )
 
+        Msg.NewIncome ->
+            ( { model
+                | dialog = Just Model.NewIncome
+                , dialogAmount = ""
+                , dialogDescription = ""
+              }
+            , Task.attempt (\_ -> Msg.NoOp) (Dom.focus "dialog-amount")
+            )
+
+        Msg.NewExpense ->
+            ( { model
+                | dialog = Just Model.NewExpense
+                , dialogAmount = ""
+                , dialogDescription = ""
+              }
+            , Task.attempt (\_ -> Msg.NoOp) (Dom.focus "dialog-amount")
+            )
+
         Msg.Edit id ->
-            let
-                transac =
-                    Ledger.getTransaction id model.ledger
-
-                dialog =
-                    case transac of
-                        Nothing ->
-                            Model.None
-
-                        Just t ->
-                            if Ledger.isExpense t then
-                                Model.Dialog
-
-                            else
-                                Model.Dialog
-            in
-            case transac of
+            case Ledger.getTransaction id model.ledger of
                 Nothing ->
                     ( model, Debug.log "*** Unable to get transaction" Cmd.none )
 
@@ -175,7 +172,12 @@ update msg model =
                     ( { model
                         | dialogDescription = Ledger.getDescriptionInput t
                         , dialogAmount = Ledger.getAmountInput t
-                        , dialog = dialog
+                        , dialog =
+                            if Ledger.isExpense t then
+                                Just (Model.EditExpense t.id)
+
+                            else
+                                Just (Model.EditIncome t.id)
                       }
                     , Cmd.none
                     )
@@ -210,44 +212,12 @@ keyDecoder msg =
 
 view : Model.Model -> Browser.Document Msg.Msg
 view model =
-    let
-        root =
-            case model.page of
-                Model.Settings ->
-                    View.Settings.view
-
-                Model.MainPage ->
-                    case model.mode of
-                        Model.Calendar ->
-                            View.Calendar.view
-
-                        Model.Tabular ->
-                            View.Tabular.view
-
-        dialog contentView =
-            E.el
-                [ E.width E.fill
-                , E.height E.fill
-                , View.Style.fontFamily
-                , E.padding 16
-                , E.behindContent
-                    (Input.button
-                        [ E.width E.fill
-                        , E.height E.fill
-                        , Background.color (E.rgba 0 0 0 0.6)
-                        , E.htmlAttribute <| Html.Attributes.style "z-index" "1000"
-                        ]
-                        { label = E.none, onPress = Just Msg.Close }
-                    )
-                ]
-                contentView
-    in
     { title = "Pactole"
     , body =
         [ E.layoutWith
             { options =
                 [ E.focusStyle
-                    { borderColor = Nothing -- Just View.Style.bgTitle
+                    { borderColor = Nothing
                     , backgroundColor = Nothing
                     , shadow =
                         Just
@@ -260,13 +230,40 @@ view model =
                 ]
             }
             (case model.dialog of
-                Model.None ->
+                Nothing ->
                     []
 
-                Model.Dialog ->
-                    [ E.inFront (dialog (View.Income.view model))
+                Just d ->
+                    [ E.inFront
+                        (E.el
+                            [ E.width E.fill
+                            , E.height E.fill
+                            , View.Style.fontFamily
+                            , E.padding 16
+                            , E.behindContent
+                                (E.el
+                                    [ E.width E.fill
+                                    , E.height E.fill
+                                    , Background.color (E.rgba 0 0 0 0.6)
+                                    ]
+                                    E.none
+                                )
+                            ]
+                            (View.Dialog.view d model)
+                        )
                     ]
             )
-            (root model)
+            (case model.page of
+                Model.Settings ->
+                    View.Settings.view model
+
+                Model.MainPage ->
+                    case model.mode of
+                        Model.Calendar ->
+                            View.Calendar.view model
+
+                        Model.Tabular ->
+                            View.Tabular.view model
+            )
         ]
     }

@@ -16,7 +16,7 @@ import Time
 type alias Model =
     { page : Page
     , mode : Mode
-    , dialog : Dialog
+    , dialog : Maybe Dialog
     , today : Date.Date
     , date : Date.Date
     , selected : Bool
@@ -40,8 +40,10 @@ type Mode
 
 
 type Dialog
-    = None
-    | Dialog
+    = NewIncome
+    | NewExpense
+    | EditIncome Int
+    | EditExpense Int
 
 
 defaultDate =
@@ -69,7 +71,7 @@ init flags =
     in
     { page = MainPage
     , mode = Calendar
-    , dialog = None
+    , dialog = Nothing
     , today = Date.fromPosix (Time.millisToPosix 0)
     , date = Date.fromPosix (Time.millisToPosix 0)
     , selected = False

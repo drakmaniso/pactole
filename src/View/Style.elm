@@ -179,9 +179,6 @@ dayCellSelected =
     , Border.rounded 7
     , Border.width 3
     , focused [ Border.shadow { offset = ( 0, 0 ), size = 0, blur = 0, color = rgba 0 0 0 0 } ]
-
-    -- , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 8, color = rgba 0 0 0 0.2 }
-    , htmlAttribute <| Html.Attributes.style "z-index" "1000"
     ]
 
 
