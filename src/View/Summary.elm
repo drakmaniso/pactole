@@ -18,22 +18,37 @@ view model =
     Elem.column
         [ Elem.width Elem.fill
         , Elem.height Elem.fill
+        , Elem.centerX
         ]
-        [ Elem.row
-            [ Elem.width Elem.shrink
-            , Elem.alignLeft
+        [ Elem.el
+            [ Style.smallFont
+            , Elem.paddingEach { top = 0, bottom = 12, left = 0, right = 0 }
+            , Elem.width Elem.fill
+            , Font.center
+            , Font.color Style.fgDark
             ]
-            [ if model.showAdvanced then
-                Input.button
+            (Elem.text "Gestion des Comptes")
+        , if model.showAdvanced then
+            Elem.row
+                [ Elem.width Elem.fill
+                ]
+                [ Elem.el [ Elem.width Elem.fill ] Elem.none
+                , Input.button
                     (Style.button Elem.shrink Style.fgTitle (Elem.rgba 0 0 0 0) False)
                     { label =
                         Elem.text "Configurer"
                     , onPress = Just Msg.ToSettings
                     }
+                , Elem.el [ Elem.width Elem.fill ] Elem.none
+                ]
 
-              else
-                Input.radioRow
-                    [ Elem.width Elem.fill
+          else
+            Elem.row
+                [ Elem.width Elem.fill
+                ]
+                [ Elem.el [ Elem.width Elem.fill ] Elem.none
+                , Input.radioRow
+                    [ Elem.width Elem.shrink
                     , Elem.focused
                         [ Border.shadow
                             { offset = ( 0, 0 )
@@ -51,8 +66,8 @@ view model =
                             (\acc -> Input.optionWith acc (accountOption acc))
                             model.accounts
                     }
-            , Elem.el [ Elem.width Elem.fill ] Elem.none
-            ]
+                , Elem.el [ Elem.width Elem.fill ] Elem.none
+                ]
         , Elem.row [ Elem.width Elem.fill, Elem.height Elem.fill ] [ Elem.none ]
         ]
 

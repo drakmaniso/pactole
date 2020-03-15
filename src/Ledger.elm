@@ -246,8 +246,11 @@ validateAmountInput string =
         commas =
             String.indices "," str
     in
-    if String.any (\c -> not (Char.isDigit c || c == ',')) str then
-        "utiliser des chiffres et une virgule"
+    if str == "" then
+        "entrer un nombre"
+
+    else if String.any (\c -> not (Char.isDigit c || c == ',')) str then
+        "utiliser uniquement des chiffres et une virgule"
 
     else
         case commas of

@@ -40,7 +40,7 @@ view model =
                 (dayView model)
             ]
         , E.el
-            [ E.width (E.fillPortion 75), E.height E.fill ]
+            [ E.width (E.fillPortion 75), E.height E.fill, Background.color Style.bgWhite ]
             (calendar model)
         ]
 
@@ -81,11 +81,16 @@ calendar model =
             in
             case ( Date.compare date theLast, Date.getWeekday date ) of
                 ( GT, Time.Mon ) ->
-                    [ calendarFooter model ]
+                    --[ calendarFooter model ]
+                    []
 
                 _ ->
                     E.row
-                        [ E.width E.fill, E.height E.fill, E.clipY, E.spacing 4 ]
+                        [ E.width E.fill
+                        , E.height E.fill
+                        , E.clipY
+                        , E.spacing 3
+                        ]
                         (loopThroughWeek date)
                         :: loopThroughMonth (Date.incrementWeek date)
 
@@ -98,36 +103,82 @@ calendar model =
                     calendarCell model date :: loopThroughWeek (Date.incrementDay date)
     in
     E.column
-        [ E.width E.fill, E.height E.fill, E.spacing 4 ]
+        [ E.width E.fill
+        , E.height E.fill
+        , E.spacing 3
+        , E.padding 0
+        , Background.color Style.bgDark
+        , Border.widthEach { top = 0, bottom = 0, left = 3, right = 0 }
+        , Border.color Style.bgDark
+        ]
         (calendarHeader model
             :: loopThroughMonth (findMonday (findTheFirst model.date))
         )
 
 
 calendarHeader model =
-    E.row
-        [ E.width E.fill, E.alignTop, E.paddingXY 0 8 ]
-        [ Input.button
-            [ E.width (E.fillPortion 1), E.height E.fill, Border.rounded 16 ]
-            { label =
-                E.el Style.icons (E.text "\u{F060}")
-            , onPress = Just (Msg.SelectDay (Date.decrementMonth model.date))
-            }
-        , E.el
-            [ E.width (E.fillPortion 3), E.height E.fill ]
-            (E.el Style.calendarMonthName (E.text (Date.getMonthFullName model.today model.date)))
-        , Input.button
-            [ E.width (E.fillPortion 1), E.height E.fill, Border.rounded 16 ]
-            { label =
-                E.el Style.icons (E.text "\u{F061}")
-            , onPress = Just (Msg.SelectDay (Date.incrementMonth model.date))
-            }
+    E.column
+        [ E.width E.fill
+        , Background.color Style.bgWhite
+        ]
+        [ E.row
+            [ E.width E.fill
+            , E.alignTop
+            , E.paddingEach { top = 8, bottom = 16, left = 8, right = 8 }
+            , Background.color Style.bgWhite
+            ]
+            [ E.el [ E.width (E.fillPortion 1) ] E.none
+            , Input.button
+                [ E.width (E.fillPortion 2)
+                , E.height E.fill
+                , Border.rounded 24
+                , Font.color Style.fgTitle
+                , Border.width 3
+                , Border.color Style.fgTitle
+                ]
+                { label =
+                    E.el Style.icons (E.text "\u{F060}")
+                , onPress = Just (Msg.SelectDay (Date.decrementMonth model.date))
+                }
+            , E.el
+                [ E.width (E.fillPortion 6), E.height E.fill ]
+                (E.el Style.calendarMonthName (E.text (Date.getMonthFullName model.today model.date)))
+            , Input.button
+                [ E.width (E.fillPortion 2)
+                , E.height E.fill
+                , Border.rounded 24
+                , Font.color Style.fgTitle
+                , Border.width 3
+                , Border.color Style.fgTitle
+                ]
+                { label =
+                    E.el Style.icons (E.text "\u{F061}")
+                , onPress = Just (Msg.SelectDay (Date.incrementMonth model.date))
+                }
+            , E.el [ E.width (E.fillPortion 1) ] E.none
+            ]
+        , E.row
+            [ E.width E.fill
+            , E.alignBottom
+            , Background.color Style.bgWhite
+            ]
+            [ E.el [ E.width E.fill ] (E.el Style.weekDayName (E.text "Lundi"))
+            , E.el [ E.width E.fill ] (E.el Style.weekDayName (E.text "Mardi"))
+            , E.el [ E.width E.fill ] (E.el Style.weekDayName (E.text "Mercredi"))
+            , E.el [ E.width E.fill ] (E.el Style.weekDayName (E.text "Jeudi"))
+            , E.el [ E.width E.fill ] (E.el Style.weekDayName (E.text "Vendredi"))
+            , E.el [ E.width E.fill ] (E.el Style.weekDayName (E.text "Samedi"))
+            , E.el [ E.width E.fill ] (E.el Style.weekDayName (E.text "Dimanche"))
+            ]
         ]
 
 
 calendarFooter model =
     E.row
-        [ E.width E.fill, E.alignBottom ]
+        [ E.width E.fill
+        , E.alignBottom
+        , Background.color Style.bgWhite
+        ]
         [ E.el [ E.width E.fill ] (E.el Style.weekDayName (E.text "Lundi"))
         , E.el [ E.width E.fill ] (E.el Style.weekDayName (E.text "Mardi"))
         , E.el [ E.width E.fill ] (E.el Style.weekDayName (E.text "Mercredi"))
@@ -143,24 +194,26 @@ calendarCell model day =
     let
         sel =
             model.selected && day == model.date
-
-        style =
-            E.width E.fill
-                :: E.height E.fill
-                :: E.scrollbarY
-                :: (if sel then
+    in
+    if Date.getMonth day == Date.getMonth model.date then
+        E.el
+            -- Need to wrap the button in E.el because of elm-ui E.focused bug
+            ([ E.width E.fill
+             , E.height E.fill
+             , E.clipY
+             ]
+                ++ (if sel then
                         Style.dayCellSelected
 
                     else
                         Style.dayCell
                    )
-    in
-    if Date.getMonth day == Date.getMonth model.date then
-        E.el
-            -- Need to wrap the button in E.el because of elm-ui E.focused bug
-            style
+            )
             (Input.button
-                [ E.width E.fill, E.height E.fill ]
+                [ E.width E.fill
+                , E.height E.fill
+                , E.scrollbarY
+                ]
                 { label =
                     E.column
                         [ E.width E.fill
@@ -169,9 +222,8 @@ calendarCell model day =
                         ]
                         [ E.el
                             [ E.width E.fill
-                            , E.paddingXY 4 4
+                            , E.paddingEach { top = 0, bottom = 4, left = 0, right = 0 }
                             , Style.smallFont
-                            , Font.bold
                             , Font.center
                             , Font.color
                                 (if sel then
@@ -192,10 +244,9 @@ calendarCell model day =
                         , E.paragraph
                             [ E.width E.fill
                             , E.height E.fill
-                            , E.clipX
-                            , E.scrollbarY
-                            , E.paddingXY 4 8
+                            , E.paddingXY 2 8
                             , E.spacing 12
+                            , E.scrollbarY
                             , Background.color
                                 (if sel then
                                     Style.bgWhite
@@ -229,14 +280,14 @@ cellContentFor model day =
                     Ledger.getAmountParts transaction
             in
             E.row
-                [ E.paddingEach { top = 4, bottom = 3, left = 6, right = 8 }
+                [ E.paddingEach { top = 3, bottom = 4, left = 6, right = 8 }
                 , Style.smallFont
                 , Font.color (E.rgb 1 1 1)
                 , if Ledger.isExpense transaction then
-                    Background.color Style.fgExpense
+                    Background.color Style.bgExpense
 
                   else
-                    Background.color Style.fgIncome
+                    Background.color Style.bgIncome
                 , Border.rounded 16
                 , Border.width 0
                 , E.htmlAttribute <| Html.Attributes.style "display" "inline-flex"
@@ -271,20 +322,23 @@ dayView model =
     E.column
         [ E.width E.fill
         , E.height E.fill
-        , Border.rounded 7
+
+        -- , Border.rounded 7
         , E.clip
-        , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 8, color = E.rgba 0 0 0 0.2 }
+
+        --, Border.shadow { offset = ( 0, 0 ), size = 4, blur = 8, color = E.rgba 0 0 0 0.2 }
         , Background.color Style.bgWhite
         ]
         [ E.el
             [ E.width E.fill
             , E.height E.shrink
             , E.paddingXY 4 12
-            , Background.color Style.bgTitle
-            , Font.color (E.rgb 1 1 1)
+            , Font.color Style.fgBlack
             , Font.center
             , Font.bold
             , Style.bigFont
+            , Border.widthEach { top = 3, bottom = 3, left = 0, right = 0 }
+            , Border.color Style.bgDark
             ]
             (if model.date == model.today then
                 E.text "Aujourd'hui"

@@ -17,11 +17,18 @@ fgFocus =
 bgPage =
     --rgb 0.85 0.82 0.75
     --rgb 0.76 0.73 0.65
-    rgb 0.74 0.71 0.65
+    -- rgb 0.74 0.71 0.65
+    rgb 1 1 1
 
 
 bgLight =
-    rgb 0.94 0.92 0.87
+    -- rgb 0.94 0.92 0.87
+    rgb 0.9 0.9 0.9
+
+
+bgDark =
+    -- rgb 0.72 0.71 0.68
+    rgb 0.7 0.7 0.7
 
 
 bgWhite =
@@ -36,11 +43,17 @@ fgBlack =
     rgb 0 0 0
 
 
+fgDark =
+    rgb 0.6 0.6 0.6
+
+
 bgExpense =
-    rgb 0.8 0.25 0.2
+    -- rgb 0.8 0.25 0.2
+    rgb 0.64 0.12 0.0
 
 
 fgExpense =
+    -- rgb 0.6 0.125 0
     bgExpense
 
 
@@ -49,10 +62,13 @@ fgOnExpense =
 
 
 bgIncome =
-    rgb255 44 136 32
+    -- rgb255 44 136 32
+    -- rgb255 22 102 0
+    rgb 0.1 0.44 0
 
 
 fgIncome =
+    -- rgb255 22 68 0
     bgIncome
 
 
@@ -75,7 +91,7 @@ fgOnTitle =
 
 fontFamily =
     Font.family
-        [ Font.typeface "Nunito Sans"
+        [ Font.typeface "Work Sans"
         , Font.sansSerif
         ]
 
@@ -160,14 +176,14 @@ calendarMonthName =
 
 
 weekDayName =
-    [ centerX, Font.size 16 ]
+    [ centerX, smallFont, Font.color fgDark ]
 
 
 dayCell =
-    [ Background.color bgLight
+    [ Background.color bgWhite
     , Border.color (rgba 0 0 0 0)
-    , Border.width 3
-    , Border.rounded 2
+    , Border.width 4
+    , Border.rounded 0
     , focused
         [ Border.color fgFocus, Border.shadow { offset = ( 0, 0 ), size = 0, blur = 0, color = rgba 0 0 0 0 } ]
     ]
@@ -176,13 +192,14 @@ dayCell =
 dayCellSelected =
     [ Background.color bgTitle
     , Border.color bgTitle
-    , Border.rounded 7
-    , Border.width 3
+    , Border.rounded 0
+    , Border.width 4
     , focused [ Border.shadow { offset = ( 0, 0 ), size = 0, blur = 0, color = rgba 0 0 0 0 } ]
     ]
 
 
 dayCellNone =
     [ Border.color (rgba 0 0 0 0)
-    , Border.width 3
+    , Border.width 4
+    , Background.color bgLight
     ]

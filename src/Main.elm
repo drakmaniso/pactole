@@ -248,6 +248,7 @@ view model =
                             , E.height E.fill
                             , View.Style.fontFamily
                             , E.padding 16
+                            , E.scrollbarY
                             , E.behindContent
                                 (E.el
                                     [ E.width E.fill

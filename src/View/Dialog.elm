@@ -13,60 +13,106 @@ import View.Style as Style
 
 view : Model.Dialog -> Model.Model -> Element Msg.Msg
 view dialog model =
+    let
+        bg =
+            case dialog of
+                Model.NewExpense ->
+                    Style.bgExpense
+
+                Model.EditExpense _ ->
+                    Style.bgExpense
+
+                Model.NewIncome ->
+                    Style.bgIncome
+
+                Model.EditIncome _ ->
+                    Style.bgIncome
+    in
     column
         [ centerX
         , centerY
         , width (px 800)
         , height shrink
         , Border.rounded 7
-        , paddingXY 32 16
-        , spacing 24
-        , clip
-        , Background.color (rgb 1 1 1)
+        , padding 0
+        , spacing 0
+        , scrollbarY
+        , Background.color bg
         , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 16, color = rgba 0 0 0 0.5 }
         ]
-        [ amountRow dialog model
+        [ titleRow dialog model
+        , amountRow dialog model
         , descriptionRow dialog model
-        , el [ height fill ] none
+        , el [ height fill, Background.color Style.bgWhite ] none
         , buttonsRow dialog model
+        ]
+
+
+titleRow dialog model =
+    let
+        ( bg, label ) =
+            case dialog of
+                Model.NewExpense ->
+                    ( Style.bgExpense, "Nouvelle dépense" )
+
+                Model.EditExpense _ ->
+                    ( Style.bgExpense, "Dépense" )
+
+                Model.NewIncome ->
+                    ( Style.bgIncome, "Nouvelle entrée d'argent" )
+
+                Model.EditIncome _ ->
+                    ( Style.bgIncome, "Entrée d'argent" )
+    in
+    row
+        [ alignLeft
+        , width fill
+        , paddingEach { top = 24, bottom = 24, right = 48, left = 48 }
+        , spacing 12
+        , Background.color bg
+        ]
+        [ el
+            [ width fill, Font.center, Style.bigFont, Font.bold, Font.color Style.fgWhite ]
+            (text label)
         ]
 
 
 amountRow dialog model =
     let
-        ( fg, label ) =
+        fg =
             case dialog of
                 Model.NewExpense ->
-                    ( Style.fgExpense, "Nouvelle dépense:" )
+                    Style.fgExpense
 
                 Model.EditExpense _ ->
-                    ( Style.fgExpense, "Dépense:" )
+                    Style.fgExpense
 
                 Model.NewIncome ->
-                    ( Style.fgIncome, "Nouvelle entrée d'argent:" )
+                    Style.fgIncome
 
                 Model.EditIncome _ ->
-                    ( Style.fgIncome, "Entrée d'argent:" )
+                    Style.fgIncome
     in
     row
         [ alignLeft
-        , width shrink
-        , paddingXY 0 8
+        , width fill
+        , paddingEach { top = 64, bottom = 32, right = 48, left = 48 }
         , spacing 12
+        , Background.color Style.bgWhite
         ]
         [ Input.text
             [ Style.bigFont
             , paddingXY 8 12
-            , width (shrink |> minimum 320)
+            , width (shrink |> minimum 220)
             , alignLeft
             , htmlAttribute <| HtmlAttr.id "dialog-amount"
             , below
                 (el
                     [ Style.smallFont
                     , width fill
-                    , paddingEach { top = 8, bottom = 0, left = 0, right = 0 }
+                    , paddingEach { top = 8, bottom = 8, left = 0, right = 0 }
                     , Font.center
-                    , Font.color (rgb 1 0 0)
+                    , Font.color (rgb 0 0 0)
                     ]
                     (text model.dialogAmountInfo)
                 )
@@ -83,8 +129,9 @@ amountRow dialog model =
                     , paddingEach { top = 12, bottom = 12, left = 0, right = 24 }
                     , Border.width 1
                     , Border.color (rgba 0 0 0 0)
+                    , pointer
                     ]
-                    (text label)
+                    (text "Somme:")
             , text = model.dialogAmount
             , placeholder = Nothing
             , onChange = Msg.DialogAmount
@@ -123,17 +170,19 @@ descriptionRow dialog model =
     in
     row
         [ width fill
-        , paddingXY 0 8
+        , paddingEach { top = 12, bottom = 24, right = 48, left = 48 }
         , spacing 12
+        , Background.color Style.bgWhite
         ]
         [ Input.multiline
             [ Style.bigFont
             , paddingXY 8 12
             , Border.width 1
             , width fill
+            , scrollbarY
             ]
             { label =
-                Input.labelAbove
+                Input.labelLeft
                     [ width shrink
                     , height fill
                     , Font.color fg
@@ -141,6 +190,7 @@ descriptionRow dialog model =
                     , paddingEach { top = 12, bottom = 12, left = 0, right = 24 }
                     , Border.width 1
                     , Border.color (rgba 0 0 0 0)
+                    , pointer
                     ]
                     (text "Description:")
             , text = model.dialogDescription
@@ -168,16 +218,17 @@ buttonsRow dialog model =
                     ( Style.fgIncome, True )
     in
     row
-        [ alignRight
+        [ width fill
         , spacing 24
-        , paddingEach { top = 24, bottom = 0, left = 0, right = 0 }
+        , paddingEach { top = 64, bottom = 12, left = 24, right = 24 }
+        , Background.color Style.bgWhite
         ]
         [ Input.button
-            (Style.button shrink fg Style.bgWhite False)
+            (alignRight :: Style.button shrink fg (rgba 0 0 0 0) False)
             { label = text "Annuler", onPress = Just Msg.Close }
         , if isEdit then
             Input.button
-                (Style.button shrink fg Style.bgWhite False)
+                (Style.button shrink fg (rgba 0 0 0 0) False)
                 { label = text "Supprimer", onPress = Nothing }
 
           else
