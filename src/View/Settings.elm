@@ -39,9 +39,8 @@ view model =
         , column
             [ width (fillPortion 75)
             , height fill
-            , padding 24
-            , spacing 24
-            , Background.color Style.bgLight
+            , Border.widthEach { top = 0, bottom = 0, left = 3, right = 0 }
+            , Border.color Style.bgDark
             , Style.normalFont
             ]
             [ el

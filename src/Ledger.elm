@@ -10,6 +10,8 @@ module Ledger exposing
     , getAllTransactions
     , getAmountInput
     , getAmountParts
+    , getBalance
+    , getBalanceParts
     , getDateTransactions
     , getDescriptionDisplay
     , getDescriptionInput
@@ -42,6 +44,45 @@ empty =
 getAllTransactions : Ledger -> List Transaction
 getAllTransactions (Ledger ledger) =
     ledger.transactions
+
+
+getBalance : Ledger -> Amount
+getBalance (Ledger ledger) =
+    let
+        balance =
+            List.foldl
+                (\transaction accum ->
+                    let
+                        (Amount amount) =
+                            transaction.amount
+                    in
+                    accum + amount
+                )
+                0
+                ledger.transactions
+    in
+    Amount balance
+
+
+getBalanceParts ledger =
+    let
+        (Amount balance) =
+            getBalance ledger
+
+        units =
+            balance // 100
+
+        cents =
+            abs (remainderBy 100 balance)
+    in
+    if True || cents /= 0 then
+        { units =
+            String.fromInt units
+        , cents = "," ++ String.padLeft 2 '0' (String.fromInt cents)
+        }
+
+    else
+        { units = String.fromInt units, cents = "" }
 
 
 getDateTransactions : Date.Date -> Ledger -> List Transaction
@@ -108,16 +149,16 @@ type alias Transaction =
 
 isExpense transaction =
     let
-        (Amount units _) =
+        (Amount amount) =
             transaction.amount
     in
-    units < 0
+    amount < 0
 
 
 encodeTransaction : Transaction -> Encode.Value
 encodeTransaction { date, amount, description, category, reconciliation } =
     let
-        (Amount units cents) =
+        (Amount amountVal) =
             amount
 
         withRec =
@@ -146,7 +187,7 @@ encodeTransaction { date, amount, description, category, reconciliation } =
     in
     Encode.object
         (( "date", Encode.int (Date.toInt date) )
-            :: ( "amount", Encode.int (100 * units + cents) )
+            :: ( "amount", Encode.int amountVal )
             :: withDescCatRec
         )
 
@@ -193,22 +234,24 @@ dateDecoder =
 
 
 type Amount
-    = Amount Int Int -- Amount units cents
+    = Amount Int -- Amount (units*100 + cents)
 
 
 amountDecoder : Decode.Decoder Amount
 amountDecoder =
-    let
-        amount v =
-            Amount (v // 100) (abs (remainderBy 100 v))
-    in
-    Decode.map amount (Decode.field "amount" Decode.int)
+    Decode.map Amount (Decode.field "amount" Decode.int)
 
 
 getAmountParts transaction =
     let
-        (Amount units cents) =
+        (Amount amount) =
             transaction.amount
+
+        units =
+            amount // 100
+
+        cents =
+            abs (remainderBy 100 amount)
     in
     if True || cents /= 0 then
         { units =
@@ -228,8 +271,14 @@ getAmountParts transaction =
 
 getAmountInput transaction =
     let
-        (Amount units cents) =
+        (Amount amount) =
             transaction.amount
+
+        units =
+            amount // 100
+
+        cents =
+            abs (remainderBy 100 amount)
     in
     if cents == 0 then
         String.fromInt (abs units)

@@ -28,11 +28,18 @@ view model =
         [ column
             [ width (fillPortion 25), height fill, padding 16, alignTop ]
             [ el
-                [ width fill, height (fillPortion 33) ]
+                [ width fill, height (fillPortion 1) ]
                 (Summary.view model)
+            , el
+                [ width fill, height (fillPortion 2) ]
+                none
             ]
         , column
-            [ width (fillPortion 75), height fill, Background.color Style.bgLight ]
+            [ width (fillPortion 75)
+            , height fill
+            , Border.widthEach { top = 0, bottom = 0, left = 3, right = 0 }
+            , Border.color Style.bgDark
+            ]
             (transactionView model)
         ]
 

@@ -34,10 +34,10 @@ view dialog model =
         , width (px 800)
         , height shrink
         , Border.rounded 7
-        , padding 0
+        , paddingXY 24 0
         , spacing 0
         , scrollbarY
-        , Background.color bg
+        , Background.color Style.bgWhite
         , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 16, color = rgba 0 0 0 0.5 }
         ]
         [ titleRow dialog model
@@ -69,10 +69,12 @@ titleRow dialog model =
         , width fill
         , paddingEach { top = 24, bottom = 24, right = 48, left = 48 }
         , spacing 12
-        , Background.color bg
+        , Background.color Style.bgWhite
+        , Border.widthEach { top = 0, bottom = 3, left = 0, right = 0 }
+        , Border.color Style.bgDark
         ]
         [ el
-            [ width fill, Font.center, Style.bigFont, Font.bold, Font.color Style.fgWhite ]
+            [ width fill, Font.center, Style.bigFont, Font.bold, Font.color bg ]
             (text label)
         ]
 
@@ -105,6 +107,8 @@ amountRow dialog model =
             , paddingXY 8 12
             , width (shrink |> minimum 220)
             , alignLeft
+            , Border.width 1
+            , Border.color Style.bgDark
             , htmlAttribute <| HtmlAttr.id "dialog-amount"
             , below
                 (el
@@ -178,6 +182,7 @@ descriptionRow dialog model =
             [ Style.bigFont
             , paddingXY 8 12
             , Border.width 1
+            , Border.color Style.bgDark
             , width fill
             , scrollbarY
             ]

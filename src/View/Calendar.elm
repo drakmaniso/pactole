@@ -33,14 +33,18 @@ view model =
             , E.alignTop
             ]
             [ E.el
-                [ E.width E.fill, E.height (E.fillPortion 33) ]
+                [ E.width E.fill, E.height (E.fillPortion 1) ]
                 (Summary.view model)
             , E.el
-                [ E.width E.fill, E.height (E.fillPortion 66) ]
+                [ E.width E.fill, E.height (E.fillPortion 2) ]
                 (dayView model)
             ]
         , E.el
-            [ E.width (E.fillPortion 75), E.height E.fill, Background.color Style.bgWhite ]
+            [ E.width (E.fillPortion 75)
+            , E.height E.fill
+            , Border.widthEach { top = 0, bottom = 0, left = 3, right = 0 }
+            , Border.color Style.bgDark
+            ]
             (calendar model)
         ]
 
@@ -108,8 +112,6 @@ calendar model =
         , E.spacing 3
         , E.padding 0
         , Background.color Style.bgDark
-        , Border.widthEach { top = 0, bottom = 0, left = 3, right = 0 }
-        , Border.color Style.bgDark
         ]
         (calendarHeader model
             :: loopThroughMonth (findMonday (findTheFirst model.date))
@@ -452,6 +454,17 @@ dayContentFor model day =
                     }
                 )
     in
-    List.map
-        render
-        (Ledger.getDateTransactions day model.ledger)
+    case Ledger.getDateTransactions day model.ledger of
+        [] ->
+            [ E.el
+                [ E.width E.fill
+                , Font.center
+                , Font.color Style.fgDark
+                , Style.normalFont
+                , E.paddingXY 8 32
+                ]
+                (E.text "(Aucune dépense)")
+            ]
+
+        t ->
+            List.map render t

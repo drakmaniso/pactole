@@ -5,6 +5,7 @@ import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
 import Element.Input as Input
+import Ledger
 import Model
 import Msg
 import View.Style as Style
@@ -68,7 +69,19 @@ view model =
                     }
                 , Elem.el [ Elem.width Elem.fill ] Elem.none
                 ]
-        , Elem.row [ Elem.width Elem.fill, Elem.height Elem.fill ] [ Elem.none ]
+        , Elem.row [ Elem.height (Elem.fillPortion 1) ] [ Elem.none ]
+        , Elem.el
+            [ Style.smallFont
+            , Elem.paddingEach { top = 0, bottom = 6, left = 0, right = 0 }
+            , Elem.width Elem.fill
+            , Font.center
+            , Font.color Style.fgDark
+            ]
+            (Elem.text "Solde actuel:")
+        , balanceRow model
+        , Elem.row [ Elem.height (Elem.fillPortion 1) ] [ Elem.none ]
+        , buttonRow model
+        , Elem.row [ Elem.height (Elem.fillPortion 2) ] [ Elem.none ]
         ]
 
 
@@ -92,3 +105,49 @@ accountOption value state =
                )
         )
         (Elem.text value)
+
+
+balanceRow model =
+    let
+        { units, cents } =
+            Ledger.getBalanceParts model.ledger
+    in
+    Elem.row
+        [ Elem.width Elem.fill ]
+        [ Elem.el [ Elem.width Elem.fill ] Elem.none
+        , Elem.el
+            [ Style.biggestFont ]
+            (Elem.text units)
+        , Elem.el
+            [ Style.biggerFont
+            , Elem.alignBottom
+            , Elem.paddingEach { top = 0, bottom = 2, left = 0, right = 0 }
+            ]
+            (Elem.text cents)
+        , Elem.el
+            [ Style.bigFont
+            , Elem.alignTop
+            , Elem.paddingEach { top = 2, bottom = 0, left = 4, right = 0 }
+            ]
+            (Elem.text "€")
+        , Elem.el [ Elem.width Elem.fill ] Elem.none
+        ]
+
+
+buttonRow model =
+    Elem.row
+        [ Elem.width Elem.fill ]
+        [ Elem.el [ Elem.width Elem.fill ] Elem.none
+        , Input.button
+            (Style.button (Elem.fillPortion 3) Style.fgTitle Style.bgWhite False)
+            { onPress = Nothing
+            , label = Elem.text "Bilan"
+            }
+        , Elem.el [ Elem.width Elem.fill ] Elem.none
+        , Input.button
+            (Style.button (Elem.fillPortion 3) Style.fgTitle Style.bgWhite False)
+            { onPress = Nothing
+            , label = Elem.text "Pointer"
+            }
+        , Elem.el [ Elem.width Elem.fill ] Elem.none
+        ]

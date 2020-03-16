@@ -96,6 +96,14 @@ fontFamily =
         ]
 
 
+biggestFont =
+    Font.size 48
+
+
+biggerFont =
+    Font.size 36
+
+
 bigFont =
     Font.size 32
 
