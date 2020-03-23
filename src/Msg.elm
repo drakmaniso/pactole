@@ -3,6 +3,8 @@ module Msg exposing (Msg(..))
 import Browser
 import Date
 import Json.Decode as Decode
+import Ledger
+import Model
 import Url
 
 
@@ -26,4 +28,5 @@ type Msg
     | NewIncome
     | NewExpense
     | Edit Int
+    | Confirm Model.Dialog
     | NoOp

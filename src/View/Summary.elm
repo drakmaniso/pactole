@@ -116,10 +116,13 @@ balanceRow model =
         [ Elem.width Elem.fill ]
         [ Elem.el [ Elem.width Elem.fill ] Elem.none
         , Elem.el
-            [ Style.biggestFont ]
+            [ Style.biggestFont
+            , Font.bold
+            ]
             (Elem.text units)
         , Elem.el
             [ Style.biggerFont
+            , Font.bold
             , Elem.alignBottom
             , Elem.paddingEach { top = 0, bottom = 2, left = 0, right = 0 }
             ]

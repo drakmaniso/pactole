@@ -1,10 +1,10 @@
 module Ledger exposing
     ( Amount(..)
     , Category
-    , Description
     , Ledger
     , Reconciliation
     , Transaction
+    , addTransaction
     , decoder
     , empty
     , getAllTransactions
@@ -14,9 +14,10 @@ module Ledger exposing
     , getBalanceParts
     , getDateTransactions
     , getDescriptionDisplay
-    , getDescriptionInput
     , getTransaction
+    , inputToAmount
     , isExpense
+    , updateTransaction
     , validateAmountInput
     )
 
@@ -77,8 +78,8 @@ getBalanceParts ledger =
     in
     if True || cents /= 0 then
         { units =
-            String.fromInt units
-        , cents = "," ++ String.padLeft 2 '0' (String.fromInt cents)
+            String.fromInt units ++ ","
+        , cents = String.padLeft 2 '0' (String.fromInt cents)
         }
 
     else
@@ -111,6 +112,60 @@ getTransaction id (Ledger ledger) =
             Debug.log "INCONSISTENT LEDGER: MULTIPLE TRANSACIONTS WITH SAME ID" Nothing
 
 
+addTransaction : { date : Date.Date, sign : Int, amount : Amount, description : String } -> Ledger -> Ledger
+addTransaction { date, sign, amount, description } (Ledger ledger) =
+    let
+        (Amount a) =
+            amount
+
+        signedAmount =
+            Amount (sign * a)
+    in
+    Ledger
+        { transactions =
+            ledger.transactions
+                ++ [ { id = ledger.nextId
+                     , date = date
+                     , amount = signedAmount
+                     , description = description
+                     , category = NoCategory
+                     , reconciliation = NotReconciled
+                     }
+                   ]
+        , nextId = ledger.nextId + 1
+        }
+
+
+updateTransaction : { id : Int, date : Date.Date, sign : Int, amount : Amount, description : String } -> Ledger -> Ledger
+updateTransaction { id, date, sign, amount, description } (Ledger ledger) =
+    let
+        (Amount a) =
+            amount
+
+        signedAmount =
+            Amount (sign * a)
+    in
+    Ledger
+        { transactions =
+            List.map
+                (\t ->
+                    if t.id == id then
+                        { id = id
+                        , date = date
+                        , amount = signedAmount
+                        , description = description
+                        , category = NoCategory
+                        , reconciliation = NotReconciled
+                        }
+
+                    else
+                        t
+                )
+                ledger.transactions
+        , nextId = ledger.nextId + 1
+        }
+
+
 decoder =
     let
         toLedger t =
@@ -141,7 +196,7 @@ type alias Transaction =
     { id : Int
     , date : Date.Date
     , amount : Amount
-    , description : Description
+    , description : String
     , category : Category
     , reconciliation : Reconciliation
     }
@@ -176,19 +231,12 @@ encodeTransaction { date, amount, description, category, reconciliation } =
 
                 Category c ->
                     ( "category", Encode.string c ) :: withRec
-
-        withDescCatRec =
-            case description of
-                NoDescription ->
-                    withCatRec
-
-                Description d ->
-                    ( "description", Encode.string d ) :: withCatRec
     in
     Encode.object
         (( "date", Encode.int (Date.toInt date) )
             :: ( "amount", Encode.int amountVal )
-            :: withDescCatRec
+            :: ( "description", Encode.string description )
+            :: withCatRec
         )
 
 
@@ -262,7 +310,8 @@ getAmountParts transaction =
                 ""
             )
                 ++ String.fromInt units
-        , cents = Just ("," ++ String.padLeft 2 '0' (String.fromInt cents))
+                ++ ","
+        , cents = Just (String.padLeft 2 '0' (String.fromInt cents))
         }
 
     else
@@ -317,49 +366,53 @@ validateAmountInput string =
                 "utiliser une seule virgule"
 
 
+inputToAmount string =
+    let
+        str =
+            String.filter (\c -> c /= ' ') string
+    in
+    case String.split "," str of
+        [ s ] ->
+            Maybe.map
+                (\v -> Amount (v * 100))
+                (String.toInt s)
+
+        [ s1, s2 ] ->
+            let
+                units =
+                    Maybe.map
+                        (\v -> v * 100)
+                        (String.toInt s1)
+
+                cents =
+                    String.toInt s2
+            in
+            Maybe.map2 (+) units cents
+                |> Maybe.map Amount
+
+        _ ->
+            Nothing
+
+
 
 -- DESCRIPTION
 
 
-type Description
-    = Description String
-    | NoDescription
-
-
-descriptionDecoder : Decode.Decoder Description
+descriptionDecoder : Decode.Decoder String
 descriptionDecoder =
-    let
-        toDescription c =
-            case c of
-                Just s ->
-                    Description s
-
-                Nothing ->
-                    NoDescription
-    in
-    Decode.map toDescription (Decode.maybe (Decode.field "description" Decode.string))
-
-
-getDescriptionInput transaction =
-    case transaction.description of
-        Description d ->
-            d
-
-        NoDescription ->
-            ""
+    Decode.oneOf [ Decode.field "description" Decode.string, Decode.succeed "" ]
 
 
 getDescriptionDisplay transaction =
-    case transaction.description of
-        Description d ->
-            d
+    if transaction.description == "" then
+        if isExpense transaction then
+            "Dépense"
 
-        NoDescription ->
-            if isExpense transaction then
-                "Dépense"
+        else
+            "Entrée d'argent"
 
-            else
-                "Entrée d'argent"
+    else
+        transaction.description
 
 
 

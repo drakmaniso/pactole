@@ -416,6 +416,7 @@ dayContentFor model day =
                                         [ E.el
                                             [ E.width (E.fillPortion 75)
                                             , Style.normalFont
+                                            , Font.bold
                                             , Font.alignRight
                                             ]
                                             (E.text parts.units)
@@ -423,6 +424,7 @@ dayContentFor model day =
                                             Nothing ->
                                                 E.el
                                                     [ E.width (E.fillPortion 25)
+                                                    , Font.bold
                                                     , Style.smallFont
                                                     , Font.alignLeft
                                                     , E.alignBottom
@@ -433,6 +435,7 @@ dayContentFor model day =
                                             Just cents ->
                                                 E.el
                                                     [ E.width (E.fillPortion 25)
+                                                    , Font.bold
                                                     , Style.smallFont
                                                     , Font.alignLeft
                                                     , E.alignBottom

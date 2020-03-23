@@ -6,6 +6,7 @@ import Element.Border as Border
 import Element.Font as Font
 import Element.Input as Input
 import Html.Attributes as HtmlAttr
+import Ledger
 import Model
 import Msg
 import View.Style as Style
@@ -208,19 +209,19 @@ descriptionRow dialog model =
 
 buttonsRow dialog model =
     let
-        ( fg, isEdit ) =
+        ( fg, isExpense, isEdit ) =
             case dialog of
                 Model.NewExpense ->
-                    ( Style.fgExpense, False )
+                    ( Style.fgExpense, True, False )
 
-                Model.EditExpense _ ->
-                    ( Style.fgExpense, True )
+                Model.EditExpense id ->
+                    ( Style.fgExpense, True, True )
 
                 Model.NewIncome ->
-                    ( Style.fgIncome, False )
+                    ( Style.fgIncome, False, False )
 
-                Model.EditIncome _ ->
-                    ( Style.fgIncome, True )
+                Model.EditIncome id ->
+                    ( Style.fgIncome, False, True )
     in
     row
         [ width fill
@@ -240,5 +241,7 @@ buttonsRow dialog model =
             none
         , Input.button
             (Style.button shrink fg Style.bgWhite True)
-            { label = text "Confirmer", onPress = Nothing }
+            { label = text "Confirmer"
+            , onPress = Just (Msg.Confirm dialog)
+            }
         ]
