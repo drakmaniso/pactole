@@ -17,6 +17,7 @@ import Json.Decode as Decode
 import Json.Encode as Encode
 import Ledger
 import Model
+import Money
 import Msg
 import Ports
 import Task
@@ -87,7 +88,7 @@ update msg model =
         Msg.DialogAmount string ->
             ( { model
                 | dialogAmount = string
-                , dialogAmountInfo = Ledger.validateAmountInput string
+                , dialogAmountInfo = Money.validate string
               }
             , Cmd.none
             )
@@ -178,10 +179,10 @@ update msg model =
                 Just t ->
                     ( { model
                         | dialogDescription = t.description
-                        , dialogAmount = Ledger.getAmountInput t
-                        , dialogAmountInfo = Ledger.validateAmountInput (Ledger.getAmountInput t)
+                        , dialogAmount = Money.toInput t.amount
+                        , dialogAmountInfo = Money.validate (Money.toInput t.amount)
                         , dialog =
-                            if Ledger.isExpense t then
+                            if Money.isExpense t.amount then
                                 Just (Model.EditExpense t.id)
 
                             else
@@ -190,74 +191,44 @@ update msg model =
                     , Cmd.none
                     )
 
-        Msg.Confirm dialog ->
-            case Ledger.inputToAmount model.dialogAmount of
+        Msg.ConfirmNew input ->
+            case input of
                 Nothing ->
                     ( model, Cmd.none )
 
                 Just amount ->
-                    case dialog of
-                        Model.NewExpense ->
-                            ( { model
-                                | ledger =
-                                    Ledger.addTransaction
-                                        { date = model.date
-                                        , sign = -1
-                                        , amount = amount
-                                        , description = model.dialogDescription
-                                        }
-                                        model.ledger
-                                , dialog = Nothing
-                              }
-                            , Cmd.none
-                            )
+                    ( { model
+                        | ledger =
+                            Ledger.addTransaction
+                                { date = model.date
+                                , amount = amount
+                                , description = model.dialogDescription
+                                }
+                                model.ledger
+                        , dialog = Nothing
+                      }
+                    , Cmd.none
+                    )
 
-                        Model.NewIncome ->
-                            ( { model
-                                | ledger =
-                                    Ledger.addTransaction
-                                        { date = model.date
-                                        , sign = 1
-                                        , amount = amount
-                                        , description = model.dialogDescription
-                                        }
-                                        model.ledger
-                                , dialog = Nothing
-                              }
-                            , Cmd.none
-                            )
+        Msg.ConfirmEdit id input ->
+            case input of
+                Nothing ->
+                    ( model, Cmd.none )
 
-                        Model.EditExpense id ->
-                            ( { model
-                                | ledger =
-                                    Ledger.updateTransaction
-                                        { id = id
-                                        , date = model.date
-                                        , sign = -1
-                                        , amount = amount
-                                        , description = model.dialogDescription
-                                        }
-                                        model.ledger
-                                , dialog = Nothing
-                              }
-                            , Cmd.none
-                            )
-
-                        Model.EditIncome id ->
-                            ( { model
-                                | ledger =
-                                    Ledger.updateTransaction
-                                        { id = id
-                                        , date = model.date
-                                        , sign = 1
-                                        , amount = amount
-                                        , description = model.dialogDescription
-                                        }
-                                        model.ledger
-                                , dialog = Nothing
-                              }
-                            , Cmd.none
-                            )
+                Just amount ->
+                    ( { model
+                        | ledger =
+                            Ledger.updateTransaction
+                                { id = id
+                                , date = model.date
+                                , amount = amount
+                                , description = model.dialogDescription
+                                }
+                                model.ledger
+                        , dialog = Nothing
+                      }
+                    , Cmd.none
+                    )
 
         Msg.NoOp ->
             ( model, Cmd.none )

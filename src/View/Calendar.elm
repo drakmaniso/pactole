@@ -10,6 +10,7 @@ import Element.Input as Input
 import Html.Attributes
 import Ledger
 import Model
+import Money
 import Msg
 import Time
 import View.Style as Style
@@ -279,13 +280,13 @@ cellContentFor model day =
         render transaction =
             let
                 parts =
-                    Ledger.getAmountParts transaction
+                    Money.toStrings transaction.amount
             in
             E.row
                 [ E.paddingEach { top = 3, bottom = 4, left = 6, right = 8 }
                 , Style.smallFont
                 , Font.color (E.rgb 1 1 1)
-                , if Ledger.isExpense transaction then
+                , if Money.isExpense transaction.amount then
                     Background.color Style.bgExpense
 
                   else
@@ -294,21 +295,14 @@ cellContentFor model day =
                 , Border.width 0
                 , E.htmlAttribute <| Html.Attributes.style "display" "inline-flex"
                 ]
-                (E.el [ Style.smallFont, Font.medium ] (E.text parts.units)
-                    :: (case parts.cents of
-                            Nothing ->
-                                []
-
-                            Just cents ->
-                                [ E.el
-                                    [ Style.smallerFont
-                                    , E.alignBottom
-                                    , E.paddingXY 0 1
-                                    ]
-                                    (E.text cents)
-                                ]
-                       )
-                )
+                [ E.el [ Style.smallFont, Font.medium ] (E.text (parts.sign ++ parts.units))
+                , E.el
+                    [ Style.smallerFont
+                    , E.alignBottom
+                    , E.paddingXY 0 1
+                    ]
+                    (E.text ("," ++ parts.cents))
+                ]
     in
     List.map
         render
@@ -380,7 +374,7 @@ dayContentFor model day =
         render transaction =
             let
                 parts =
-                    Ledger.getAmountParts transaction
+                    Money.toStrings transaction.amount
             in
             E.el
                 [ E.width E.fill
@@ -407,7 +401,7 @@ dayContentFor model day =
                                         [ E.width E.fill
                                         , E.height E.shrink
                                         , E.paddingEach { top = 0, bottom = 0, left = 0, right = 16 }
-                                        , if Ledger.isExpense transaction then
+                                        , if Money.isExpense transaction.amount then
                                             Font.color Style.fgExpense
 
                                           else
@@ -419,29 +413,16 @@ dayContentFor model day =
                                             , Font.bold
                                             , Font.alignRight
                                             ]
-                                            (E.text parts.units)
-                                        , case parts.cents of
-                                            Nothing ->
-                                                E.el
-                                                    [ E.width (E.fillPortion 25)
-                                                    , Font.bold
-                                                    , Style.smallFont
-                                                    , Font.alignLeft
-                                                    , E.alignBottom
-                                                    , E.paddingXY 0 1
-                                                    ]
-                                                    E.none
-
-                                            Just cents ->
-                                                E.el
-                                                    [ E.width (E.fillPortion 25)
-                                                    , Font.bold
-                                                    , Style.smallFont
-                                                    , Font.alignLeft
-                                                    , E.alignBottom
-                                                    , E.paddingXY 0 1
-                                                    ]
-                                                    (E.text cents)
+                                            (E.text (parts.sign ++ parts.units))
+                                        , E.el
+                                            [ E.width (E.fillPortion 25)
+                                            , Font.bold
+                                            , Style.smallFont
+                                            , Font.alignLeft
+                                            , E.alignBottom
+                                            , E.paddingXY 0 1
+                                            ]
+                                            (E.text ("," ++ parts.cents))
                                         ]
                                     , E.el [ E.height E.fill ] E.none
                                     ]

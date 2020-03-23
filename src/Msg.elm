@@ -5,6 +5,7 @@ import Date
 import Json.Decode as Decode
 import Ledger
 import Model
+import Money
 import Url
 
 
@@ -28,5 +29,6 @@ type Msg
     | NewIncome
     | NewExpense
     | Edit Int
-    | Confirm Model.Dialog
+    | ConfirmNew (Maybe Money.Money)
+    | ConfirmEdit Int (Maybe Money.Money)
     | NoOp

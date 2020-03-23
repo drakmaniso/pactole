@@ -9,6 +9,7 @@ import Element.Input as Input
 import Html.Attributes
 import Ledger
 import Model
+import Money
 import Msg
 import View.Style as Style
 import View.Summary as Summary
@@ -74,7 +75,7 @@ makeRow transaction ( prevDate, accum ) =
                 )
 
         parts =
-            Ledger.getAmountParts transaction
+            Money.toStrings transaction.amount
 
         txt =
             el []

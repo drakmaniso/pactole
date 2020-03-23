@@ -7,6 +7,7 @@ import Element.Font as Font
 import Element.Input as Input
 import Ledger
 import Model
+import Money
 import Msg
 import View.Style as Style
 
@@ -109,8 +110,16 @@ accountOption value state =
 
 balanceRow model =
     let
-        { units, cents } =
-            Ledger.getBalanceParts model.ledger
+        parts =
+            Ledger.getBalance model.ledger
+                |> Money.toStrings
+
+        sign =
+            if parts.sign == "+" then
+                ""
+
+            else
+                "-"
     in
     Elem.row
         [ Elem.width Elem.fill ]
@@ -119,14 +128,14 @@ balanceRow model =
             [ Style.biggestFont
             , Font.bold
             ]
-            (Elem.text units)
+            (Elem.text (sign ++ parts.units))
         , Elem.el
             [ Style.biggerFont
             , Font.bold
             , Elem.alignBottom
             , Elem.paddingEach { top = 0, bottom = 2, left = 0, right = 0 }
             ]
-            (Elem.text cents)
+            (Elem.text ("," ++ parts.cents))
         , Elem.el
             [ Style.bigFont
             , Elem.alignTop

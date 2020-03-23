@@ -8,6 +8,7 @@ import Element.Input as Input
 import Html.Attributes as HtmlAttr
 import Ledger
 import Model
+import Money
 import Msg
 import View.Style as Style
 
@@ -209,19 +210,19 @@ descriptionRow dialog model =
 
 buttonsRow dialog model =
     let
-        ( fg, isExpense, isEdit ) =
+        ( fg, msg, isEdit ) =
             case dialog of
                 Model.NewExpense ->
-                    ( Style.fgExpense, True, False )
+                    ( Style.fgExpense, Msg.ConfirmNew (Money.fromInput True model.dialogAmount), False )
 
                 Model.EditExpense id ->
-                    ( Style.fgExpense, True, True )
+                    ( Style.fgExpense, Msg.ConfirmEdit id (Money.fromInput True model.dialogAmount), True )
 
                 Model.NewIncome ->
-                    ( Style.fgIncome, False, False )
+                    ( Style.fgIncome, Msg.ConfirmNew (Money.fromInput False model.dialogAmount), False )
 
                 Model.EditIncome id ->
-                    ( Style.fgIncome, False, True )
+                    ( Style.fgIncome, Msg.ConfirmEdit id (Money.fromInput False model.dialogAmount), True )
     in
     row
         [ width fill
@@ -242,6 +243,6 @@ buttonsRow dialog model =
         , Input.button
             (Style.button shrink fg Style.bgWhite True)
             { label = text "Confirmer"
-            , onPress = Just (Msg.Confirm dialog)
+            , onPress = Just msg
             }
         ]
