@@ -236,7 +236,7 @@ buttonsRow dialog model =
         , if isEdit then
             Input.button
                 (Style.button shrink fg (rgba 0 0 0 0) False)
-                { label = text "Supprimer", onPress = Nothing }
+                { label = text "Supprimer", onPress = Just Msg.Delete }
 
           else
             none

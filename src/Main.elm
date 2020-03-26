@@ -197,17 +197,18 @@ update msg model =
                     ( model, Cmd.none )
 
                 Just amount ->
-                    ( { model
-                        | ledger =
+                    let
+                        newLedger =
                             Ledger.addTransaction
                                 { date = model.date
                                 , amount = amount
                                 , description = model.dialogDescription
                                 }
                                 model.ledger
-                        , dialog = Nothing
-                      }
-                    , Cmd.none
+                    in
+                    ( { model | ledger = newLedger, dialog = Nothing }
+                    , Ports.setLedger
+                        ( Maybe.withDefault "ERROR" model.account, Ledger.encode newLedger )
                     )
 
         Msg.ConfirmEdit id input ->
@@ -216,8 +217,8 @@ update msg model =
                     ( model, Cmd.none )
 
                 Just amount ->
-                    ( { model
-                        | ledger =
+                    let
+                        newLedger =
                             Ledger.updateTransaction
                                 { id = id
                                 , date = model.date
@@ -225,10 +226,33 @@ update msg model =
                                 , description = model.dialogDescription
                                 }
                                 model.ledger
-                        , dialog = Nothing
-                      }
-                    , Cmd.none
+                    in
+                    ( { model | ledger = newLedger, dialog = Nothing }
+                    , Ports.setLedger
+                        ( Maybe.withDefault "ERROR" model.account, Ledger.encode newLedger )
                     )
+
+        Msg.Delete ->
+            let
+                delete id =
+                    let
+                        newLedger =
+                            Ledger.deleteTransaction id model.ledger
+                    in
+                    ( { model | ledger = newLedger, dialog = Nothing }
+                    , Ports.setLedger
+                        ( Maybe.withDefault "ERROR" model.account, Ledger.encode newLedger )
+                    )
+            in
+            case model.dialog of
+                Just (Model.EditExpense id) ->
+                    delete id
+
+                Just (Model.EditIncome id) ->
+                    delete id
+
+                _ ->
+                    Debug.log "IMPOSSIBLE DELETE MSG" ( model, Cmd.none )
 
         Msg.NoOp ->
             ( model, Cmd.none )

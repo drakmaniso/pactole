@@ -64,9 +64,16 @@
     var app = Elm.Main.init({flags: flags})
 
     app.ports.selectAccount.subscribe(function(name) {
-      console.log("Account " + name + " selected.")
+      console.log("selectAccount " + name)
       account = name
       app.ports.ledger.send (getLedger (account))
+    })
+
+    app.ports.setLedger.subscribe(function(args) {
+      [name, ledger] = args
+      console.log("setLedger " + name)
+      var key = "ledger." + name
+      localStorage.setItem(key, JSON.stringify(ledger))
     })
 
     // Whenever localStorage changes in another tab, report it if necessary.

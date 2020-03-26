@@ -202,12 +202,12 @@ toInt (Date date) =
             Calendar.getYear date
 
         m =
-            (Calendar.getMonth date |> Calendar.monthToInt) + 1
+            Calendar.getMonth date |> Calendar.monthToInt
 
         d =
             Calendar.getDay date
     in
-    d + 100 * m + 10000 + y
+    d + 100 * m + 10000 * y
 
 
 fromInt n =

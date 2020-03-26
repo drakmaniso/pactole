@@ -5,7 +5,9 @@ module Ledger exposing
     , Transaction
     , addTransaction
     , decoder
+    , deleteTransaction
     , empty
+    , encode
     , getAllTransactions
     , getBalance
     , getDateTransactions
@@ -115,6 +117,17 @@ updateTransaction { id, date, amount, description } (Ledger ledger) =
         }
 
 
+deleteTransaction : Int -> Ledger -> Ledger
+deleteTransaction id (Ledger ledger) =
+    Ledger
+        { transactions =
+            List.filter
+                (\t -> t.id /= id)
+                ledger.transactions
+        , nextId = ledger.nextId
+        }
+
+
 decoder =
     let
         toLedger t =
@@ -137,6 +150,12 @@ decoder =
     Decode.map toLedger (Decode.field "transactions" (Decode.list transactionDecoder))
 
 
+encode : Ledger -> Encode.Value
+encode (Ledger ledger) =
+    Encode.object
+        [ ( "transactions", Encode.list encodeTransaction ledger.transactions ) ]
+
+
 
 -- TRANSACTION
 
@@ -152,7 +171,7 @@ type alias Transaction =
 
 
 encodeTransaction : Transaction -> Encode.Value
-encodeTransaction { date, amount, description, category, reconciliation } =
+encodeTransaction { id, date, amount, description, category, reconciliation } =
     let
         withRec =
             case reconciliation of
@@ -171,7 +190,8 @@ encodeTransaction { date, amount, description, category, reconciliation } =
                     ( "category", Encode.string c ) :: withRec
     in
     Encode.object
-        (( "date", Encode.int (Date.toInt date) )
+        (( "id", Encode.int id )
+            :: ( "date", Encode.int (Date.toInt date) )
             :: ( "amount", Money.encoder amount )
             :: ( "description", Encode.string description )
             :: withCatRec

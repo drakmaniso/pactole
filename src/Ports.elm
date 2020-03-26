@@ -16,4 +16,4 @@ port selectAccount : String -> Cmd msg
 port ledger : (Decode.Value -> msg) -> Sub msg
 
 
-port setLedger : Encode.Value -> Cmd msg
+port setLedger : ( String, Encode.Value ) -> Cmd msg
