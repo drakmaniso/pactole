@@ -1,4 +1,4 @@
 all:
-	elm make src/Main.elm --output=www/app.js
+	elm make src/Main.elm --output=elm.js
 
 
