@@ -1,15 +1,15 @@
-module View.Summary exposing (view)
+module Page.Summary exposing (view)
 
+import Common
 import Element as Elem
 import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
 import Element.Input as Input
 import Ledger
-import Model
 import Money
 import Msg
-import View.Style as Style
+import Style
 
 
 

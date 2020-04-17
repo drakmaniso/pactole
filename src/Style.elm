@@ -1,4 +1,4 @@
-module View.Style exposing (..)
+module Style exposing (..)
 
 import Element exposing (..)
 import Element.Background as Background

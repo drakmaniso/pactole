@@ -4,7 +4,6 @@ import Browser
 import Date
 import Json.Decode as Decode
 import Ledger
-import Model
 import Money
 import Url
 
@@ -22,8 +21,8 @@ type Msg
     | Close
     | SelectDay Date.Date
     | ChooseAccount String
-    | SetAccounts Decode.Value
-    | SetLedger Decode.Value
+    | UpdateAccounts Decode.Value
+    | UpdateLedger Decode.Value
     | KeyDown String
     | KeyUp String
     | NewIncome

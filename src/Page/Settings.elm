@@ -1,17 +1,17 @@
-module View.Settings exposing (view)
+module Page.Settings exposing (view)
 
+import Common
 import Element exposing (..)
 import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
 import Element.Input as Input
 import Html.Attributes
-import Model
 import Msg
-import View.Style as Style
+import Style
 
 
-view : Model.Model -> Element Msg.Msg
+view : Common.Model -> Element Msg.Msg
 view model =
     row
         [ width fill
@@ -64,15 +64,15 @@ view model =
                 { onChange =
                     \o ->
                         case o of
-                            Model.Calendar ->
+                            Common.Calendar ->
                                 Msg.ToCalendar
 
-                            Model.Tabular ->
+                            Common.Tabular ->
                                 Msg.ToTabular
                 , label = Input.labelAbove [] (text "Mode d'affichage des opérations:")
                 , options =
-                    [ Input.option Model.Calendar (text "Calendrier")
-                    , Input.option Model.Tabular (text "Liste")
+                    [ Input.option Common.Calendar (text "Calendrier")
+                    , Input.option Common.Tabular (text "Liste")
                     ]
                 , selected = Just model.mode
                 }

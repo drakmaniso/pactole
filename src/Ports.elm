@@ -4,16 +4,16 @@ import Json.Decode as Decode
 import Json.Encode as Encode
 
 
-port accounts : (Decode.Value -> msg) -> Sub msg
+port updateAccounts : (Decode.Value -> msg) -> Sub msg
 
 
-port setAccounts : Encode.Value -> Cmd msg
+port storeAccounts : Encode.Value -> Cmd msg
 
 
-port selectAccount : String -> Cmd msg
+port requestLedger : String -> Cmd msg
 
 
-port ledger : (Decode.Value -> msg) -> Sub msg
+port updateLedger : (Decode.Value -> msg) -> Sub msg
 
 
-port setLedger : ( String, Encode.Value ) -> Cmd msg
+port storeLedger : ( String, Encode.Value ) -> Cmd msg

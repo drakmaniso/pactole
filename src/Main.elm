@@ -5,6 +5,7 @@ import Browser
 import Browser.Dom as Dom
 import Browser.Events
 import Browser.Navigation as Navigation
+import Common
 import Date
 import Element as E
 import Element.Background as Background
@@ -16,18 +17,17 @@ import Html.Attributes
 import Json.Decode as Decode
 import Json.Encode as Encode
 import Ledger
-import Model
 import Money
 import Msg
+import Page.Calendar
+import Page.Dialog
+import Page.Settings
+import Page.Tabular
 import Ports
+import Style
 import Task
 import Time
 import Url
-import View.Calendar
-import View.Dialog
-import View.Settings
-import View.Style
-import View.Tabular
 
 
 
@@ -47,11 +47,18 @@ main =
 
 
 -- MODEL
+{-
+   type Model
+       = Loading
+       | Calendar Common.Model Calendar.Model Dialog.Model
+       | Tabular Common.Model Tabular.Model Dialog.Model
+       | Settings Common.Model
+-}
 
 
-init : Decode.Value -> Url.Url -> Navigation.Key -> ( Model.Model, Cmd Msg.Msg )
+init : Decode.Value -> Url.Url -> Navigation.Key -> ( Common.Model, Cmd Msg.Msg )
 init flags _ _ =
-    ( Model.init flags
+    ( Common.init flags
     , Cmd.batch
         [ Task.perform Msg.Today (Task.map2 Date.fromZoneAndPosix Time.here Time.now)
         ]
@@ -62,7 +69,7 @@ init flags _ _ =
 -- UPDATE
 
 
-update : Msg.Msg -> Model.Model -> ( Model.Model, Cmd Msg.Msg )
+update : Msg.Msg -> Common.Model -> ( Common.Model, Cmd Msg.Msg )
 update msg model =
     case msg of
         Msg.Today d ->
@@ -80,10 +87,10 @@ update msg model =
             ( model, Cmd.none )
 
         Msg.ToCalendar ->
-            ( { model | mode = Model.Calendar }, Cmd.none )
+            ( { model | mode = Common.Calendar }, Cmd.none )
 
         Msg.ToTabular ->
-            ( { model | mode = Model.Tabular }, Cmd.none )
+            ( { model | mode = Common.Tabular }, Cmd.none )
 
         Msg.DialogAmount string ->
             ( { model
@@ -97,10 +104,10 @@ update msg model =
             ( { model | dialogDescription = string }, Cmd.none )
 
         Msg.ToMainPage ->
-            ( { model | page = Model.MainPage }, Cmd.none )
+            ( { model | page = Common.MainPage }, Cmd.none )
 
         Msg.ToSettings ->
-            ( { model | page = Model.Settings }, Cmd.none )
+            ( { model | page = Common.Settings }, Cmd.none )
 
         Msg.Close ->
             ( { model | dialog = Nothing }, Cmd.none )
@@ -109,9 +116,9 @@ update msg model =
             ( { model | date = d, selected = True }, Cmd.none )
 
         Msg.ChooseAccount name ->
-            ( { model | account = Just name }, Ports.selectAccount name )
+            ( { model | account = Just name }, Ports.requestLedger name )
 
-        Msg.SetAccounts json ->
+        Msg.UpdateAccounts json ->
             let
                 ( accounts, account ) =
                     case Decode.decodeValue (Decode.list Decode.string) json of
@@ -124,7 +131,7 @@ update msg model =
             in
             ( { model | accounts = accounts, account = account, ledger = Ledger.empty }, Cmd.none )
 
-        Msg.SetLedger json ->
+        Msg.UpdateLedger json ->
             let
                 ledger =
                     case Decode.decodeValue Ledger.decoder json of
@@ -153,7 +160,7 @@ update msg model =
 
         Msg.NewIncome ->
             ( { model
-                | dialog = Just Model.NewIncome
+                | dialog = Just Common.NewIncome
                 , dialogAmount = ""
                 , dialogAmountInfo = ""
                 , dialogDescription = ""
@@ -163,7 +170,7 @@ update msg model =
 
         Msg.NewExpense ->
             ( { model
-                | dialog = Just Model.NewExpense
+                | dialog = Just Common.NewExpense
                 , dialogAmount = ""
                 , dialogAmountInfo = ""
                 , dialogDescription = ""
@@ -183,10 +190,10 @@ update msg model =
                         , dialogAmountInfo = Money.validate (Money.toInput t.amount)
                         , dialog =
                             if Money.isExpense t.amount then
-                                Just (Model.EditExpense t.id)
+                                Just (Common.EditExpense t.id)
 
                             else
-                                Just (Model.EditIncome t.id)
+                                Just (Common.EditIncome t.id)
                       }
                     , Cmd.none
                     )
@@ -207,7 +214,7 @@ update msg model =
                                 model.ledger
                     in
                     ( { model | ledger = newLedger, dialog = Nothing }
-                    , Ports.setLedger
+                    , Ports.storeLedger
                         ( Maybe.withDefault "ERROR" model.account, Ledger.encode newLedger )
                     )
 
@@ -228,7 +235,7 @@ update msg model =
                                 model.ledger
                     in
                     ( { model | ledger = newLedger, dialog = Nothing }
-                    , Ports.setLedger
+                    , Ports.storeLedger
                         ( Maybe.withDefault "ERROR" model.account, Ledger.encode newLedger )
                     )
 
@@ -240,15 +247,15 @@ update msg model =
                             Ledger.deleteTransaction id model.ledger
                     in
                     ( { model | ledger = newLedger, dialog = Nothing }
-                    , Ports.setLedger
+                    , Ports.storeLedger
                         ( Maybe.withDefault "ERROR" model.account, Ledger.encode newLedger )
                     )
             in
             case model.dialog of
-                Just (Model.EditExpense id) ->
+                Just (Common.EditExpense id) ->
                     delete id
 
-                Just (Model.EditIncome id) ->
+                Just (Common.EditIncome id) ->
                     delete id
 
                 _ ->
@@ -262,11 +269,11 @@ update msg model =
 -- SUBSCRIPTIONS
 
 
-subscriptions : Model.Model -> Sub Msg.Msg
+subscriptions : Common.Model -> Sub Msg.Msg
 subscriptions _ =
     Sub.batch
-        [ Ports.accounts Msg.SetAccounts
-        , Ports.ledger Msg.SetLedger
+        [ Ports.updateAccounts Msg.UpdateAccounts
+        , Ports.updateLedger Msg.UpdateLedger
         , Browser.Events.onKeyDown (keyDecoder Msg.KeyDown)
         , Browser.Events.onKeyUp (keyDecoder Msg.KeyUp)
         ]
@@ -282,7 +289,7 @@ keyDecoder msg =
 -- VIEW
 
 
-view : Model.Model -> Browser.Document Msg.Msg
+view : Common.Model -> Browser.Document Msg.Msg
 view model =
     { title = "Pactole"
     , body =
@@ -293,7 +300,7 @@ view model =
                     , backgroundColor = Nothing
                     , shadow =
                         Just
-                            { color = View.Style.fgFocus
+                            { color = Style.fgFocus
                             , offset = ( 0, 0 )
                             , blur = 0
                             , size = 4
@@ -310,7 +317,7 @@ view model =
                         (E.el
                             [ E.width E.fill
                             , E.height E.fill
-                            , View.Style.fontFamily
+                            , Style.fontFamily
                             , E.padding 16
                             , E.scrollbarY
                             , E.behindContent
@@ -322,21 +329,21 @@ view model =
                                     E.none
                                 )
                             ]
-                            (View.Dialog.view d model)
+                            (Page.Dialog.view d model)
                         )
                     ]
             )
             (case model.page of
-                Model.Settings ->
-                    View.Settings.view model
+                Common.Settings ->
+                    Page.Settings.view model
 
-                Model.MainPage ->
+                Common.MainPage ->
                     case model.mode of
-                        Model.Calendar ->
-                            View.Calendar.view model
+                        Common.Calendar ->
+                            Page.Calendar.view model
 
-                        Model.Tabular ->
-                            View.Tabular.view model
+                        Common.Tabular ->
+                            Page.Tabular.view model
             )
         ]
     }

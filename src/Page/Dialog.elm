@@ -1,5 +1,6 @@
-module View.Dialog exposing (view)
+module Page.Dialog exposing (view)
 
+import Common
 import Element exposing (..)
 import Element.Background as Background
 import Element.Border as Border
@@ -7,27 +8,26 @@ import Element.Font as Font
 import Element.Input as Input
 import Html.Attributes as HtmlAttr
 import Ledger
-import Model
 import Money
 import Msg
-import View.Style as Style
+import Style
 
 
-view : Model.Dialog -> Model.Model -> Element Msg.Msg
+view : Common.Dialog -> Common.Model -> Element Msg.Msg
 view dialog model =
     let
         bg =
             case dialog of
-                Model.NewExpense ->
+                Common.NewExpense ->
                     Style.bgExpense
 
-                Model.EditExpense _ ->
+                Common.EditExpense _ ->
                     Style.bgExpense
 
-                Model.NewIncome ->
+                Common.NewIncome ->
                     Style.bgIncome
 
-                Model.EditIncome _ ->
+                Common.EditIncome _ ->
                     Style.bgIncome
     in
     column
@@ -54,16 +54,16 @@ titleRow dialog model =
     let
         ( bg, label ) =
             case dialog of
-                Model.NewExpense ->
+                Common.NewExpense ->
                     ( Style.bgExpense, "Nouvelle dépense" )
 
-                Model.EditExpense _ ->
+                Common.EditExpense _ ->
                     ( Style.bgExpense, "Dépense" )
 
-                Model.NewIncome ->
+                Common.NewIncome ->
                     ( Style.bgIncome, "Nouvelle entrée d'argent" )
 
-                Model.EditIncome _ ->
+                Common.EditIncome _ ->
                     ( Style.bgIncome, "Entrée d'argent" )
     in
     row
@@ -85,16 +85,16 @@ amountRow dialog model =
     let
         fg =
             case dialog of
-                Model.NewExpense ->
+                Common.NewExpense ->
                     Style.fgExpense
 
-                Model.EditExpense _ ->
+                Common.EditExpense _ ->
                     Style.fgExpense
 
-                Model.NewIncome ->
+                Common.NewIncome ->
                     Style.fgIncome
 
-                Model.EditIncome _ ->
+                Common.EditIncome _ ->
                     Style.fgIncome
     in
     row
@@ -162,16 +162,16 @@ descriptionRow dialog model =
     let
         fg =
             case dialog of
-                Model.NewExpense ->
+                Common.NewExpense ->
                     Style.fgExpense
 
-                Model.EditExpense _ ->
+                Common.EditExpense _ ->
                     Style.fgExpense
 
-                Model.NewIncome ->
+                Common.NewIncome ->
                     Style.fgIncome
 
-                Model.EditIncome _ ->
+                Common.EditIncome _ ->
                     Style.fgIncome
     in
     row
@@ -212,16 +212,16 @@ buttonsRow dialog model =
     let
         ( fg, msg, isEdit ) =
             case dialog of
-                Model.NewExpense ->
+                Common.NewExpense ->
                     ( Style.fgExpense, Msg.ConfirmNew (Money.fromInput True model.dialogAmount), False )
 
-                Model.EditExpense id ->
+                Common.EditExpense id ->
                     ( Style.fgExpense, Msg.ConfirmEdit id (Money.fromInput True model.dialogAmount), True )
 
-                Model.NewIncome ->
+                Common.NewIncome ->
                     ( Style.fgIncome, Msg.ConfirmNew (Money.fromInput False model.dialogAmount), False )
 
-                Model.EditIncome id ->
+                Common.EditIncome id ->
                     ( Style.fgIncome, Msg.ConfirmEdit id (Money.fromInput False model.dialogAmount), True )
     in
     row

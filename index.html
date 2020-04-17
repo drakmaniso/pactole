@@ -36,11 +36,6 @@
       accounts = []
     }
 
-    var account
-    if (accounts instanceof Array && accounts.length > 0 && typeof accounts[0] == "string") {
-      account = accounts[0]
-    }
-
     function getLedger (account) {
       var result
       if (account !== null) {
@@ -54,24 +49,30 @@
       }
       return result
     }
-    var ledger = getLedger (account)
 
 
-    var flags = {
-      accounts: accounts,
-      ledger: ledger
+    var app
+    {
+      var account
+      if (accounts instanceof Array && accounts.length > 0 && typeof accounts[0] == "string") {
+        account = accounts[0]
+      }
+      var ledger = getLedger (account)
+      var flags = {
+        accounts: accounts,
+        ledger: ledger
+      }
+      app = Elm.Main.init({flags: flags})
     }
-    var app = Elm.Main.init({flags: flags})
 
-    app.ports.selectAccount.subscribe(function(name) {
-      console.log("selectAccount " + name)
-      account = name
-      app.ports.ledger.send (getLedger (account))
+    app.ports.requestLedger.subscribe(function(name) {
+      console.log("requestLedger " + name)
+      app.ports.updateLedger.send (getLedger (name))
     })
 
-    app.ports.setLedger.subscribe(function(args) {
+    app.ports.storeLedger.subscribe(function(args) {
       [name, ledger] = args
-      console.log("setLedger " + name)
+      console.log("storeLedger " + name)
       var key = "ledger." + name
       localStorage.setItem(key, JSON.stringify(ledger))
     })
@@ -85,7 +86,7 @@
         //TODO: handle JSON.parse exceptions
         switch (event.key) {
           case "accounts":
-            app.ports.accounts.send(v)
+            app.ports.updateAccounts.send(v)
         }
         //TODO: propagate ledger-keys changes
       }

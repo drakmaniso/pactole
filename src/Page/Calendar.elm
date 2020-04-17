@@ -1,5 +1,6 @@
-module View.Calendar exposing (view)
+module Page.Calendar exposing (view)
 
+import Common
 import Date
 import Debug
 import Element as E
@@ -9,15 +10,14 @@ import Element.Font as Font
 import Element.Input as Input
 import Html.Attributes
 import Ledger
-import Model
 import Money
 import Msg
+import Page.Summary as Summary
+import Style
 import Time
-import View.Style as Style
-import View.Summary as Summary
 
 
-view : Model.Model -> E.Element Msg.Msg
+view : Common.Model -> E.Element Msg.Msg
 view model =
     E.row
         [ E.width E.fill
@@ -54,7 +54,7 @@ view model =
 -- THE CALENDAR
 
 
-calendar : Model.Model -> E.Element Msg.Msg
+calendar : Common.Model -> E.Element Msg.Msg
 calendar model =
     let
         findTheFirst date =
@@ -192,7 +192,7 @@ calendarFooter model =
         ]
 
 
-calendarCell : Model.Model -> Date.Date -> E.Element Msg.Msg
+calendarCell : Common.Model -> Date.Date -> E.Element Msg.Msg
 calendarCell model day =
     let
         sel =
@@ -274,7 +274,7 @@ calendarCell model day =
             E.none
 
 
-cellContentFor : Model.Model -> Date.Date -> List (E.Element Msg.Msg)
+cellContentFor : Common.Model -> Date.Date -> List (E.Element Msg.Msg)
 cellContentFor model day =
     let
         render transaction =
@@ -368,7 +368,7 @@ dayView model =
         ]
 
 
-dayContentFor : Model.Model -> Date.Date -> List (E.Element Msg.Msg)
+dayContentFor : Common.Model -> Date.Date -> List (E.Element Msg.Msg)
 dayContentFor model day =
     let
         render transaction =

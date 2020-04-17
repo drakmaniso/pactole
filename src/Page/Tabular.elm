@@ -1,5 +1,6 @@
-module View.Tabular exposing (view)
+module Page.Tabular exposing (view)
 
+import Common
 import Date
 import Element exposing (..)
 import Element.Background as Background
@@ -8,14 +9,13 @@ import Element.Font as Font
 import Element.Input as Input
 import Html.Attributes
 import Ledger
-import Model
 import Money
 import Msg
-import View.Style as Style
-import View.Summary as Summary
+import Page.Summary as Summary
+import Style
 
 
-view : Model.Model -> Element Msg.Msg
+view : Common.Model -> Element Msg.Msg
 view model =
     row
         [ width fill
@@ -45,7 +45,7 @@ view model =
         ]
 
 
-transactionView : Model.Model -> List (Element Msg.Msg)
+transactionView : Common.Model -> List (Element Msg.Msg)
 transactionView model =
     Tuple.second
         (List.foldl

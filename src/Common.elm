@@ -1,4 +1,4 @@
-module Model exposing
+module Common exposing
     ( Dialog(..)
     , Mode(..)
     , Model
