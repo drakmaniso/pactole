@@ -1,5 +1,5 @@
 module Common exposing
-    ( Dialog(..)
+    ( Dialog
     , Mode(..)
     , Model
     , Page(..)
@@ -19,14 +19,16 @@ type alias Model =
     , dialog : Maybe Dialog
     , today : Date.Date
     , date : Date.Date
-    , selected : Bool
     , ledger : Ledger.Ledger
     , accounts : List String
     , account : Maybe String
     , showAdvanced : Bool
-    , dialogAmount : String
-    , dialogAmountInfo : String
-    , dialogDescription : String
+
+    {-
+       , dialogAmount : String
+       , dialogAmountInfo : String
+       , dialogDescription : String
+    -}
     }
 
 
@@ -40,15 +42,23 @@ type Mode
     | Tabular
 
 
-type Dialog
-    = NewIncome
-    | NewExpense
-    | EditIncome Int
-    | EditExpense Int
+
+{-
+   type Dialog
+       = NewIncome
+       | NewExpense
+       | EditIncome Int
+       | EditExpense Int
+-}
 
 
-defaultDate =
-    Date.fromPosix (Time.millisToPosix 0)
+type alias Dialog =
+    { id : Maybe Int
+    , isExpense : Bool
+    , amount : String
+    , amountError : String
+    , description : String
+    }
 
 
 init : Decode.Value -> Model
@@ -62,6 +72,38 @@ init flags =
                 Err e ->
                     Debug.log ("init flags: " ++ Decode.errorToString e) ( [], Nothing )
 
+        day =
+            case Decode.decodeValue (Decode.at [ "today", "day" ] Decode.int) flags of
+                Ok v ->
+                    v
+
+                Err e ->
+                    Debug.log ("init flags: " ++ Decode.errorToString e) 0
+
+        month =
+            case Decode.decodeValue (Decode.at [ "today", "month" ] Decode.int) flags of
+                Ok v ->
+                    v
+
+                Err e ->
+                    Debug.log ("init flags: " ++ Decode.errorToString e) 0
+
+        year =
+            case Decode.decodeValue (Decode.at [ "today", "year" ] Decode.int) flags of
+                Ok v ->
+                    v
+
+                Err e ->
+                    Debug.log ("init flags: " ++ Decode.errorToString e) 0
+
+        today =
+            case Date.fromParts { day = day, month = month, year = year } of
+                Just d ->
+                    d
+
+                Nothing ->
+                    Debug.log "init flags: invalid date for today" Date.default
+
         ledger =
             case Decode.decodeValue (Decode.field "ledger" Ledger.decoder) flags of
                 Ok l ->
@@ -73,14 +115,16 @@ init flags =
     { page = MainPage
     , mode = Calendar
     , dialog = Nothing
-    , today = Date.fromPosix (Time.millisToPosix 0)
-    , date = Date.fromPosix (Time.millisToPosix 0)
-    , selected = False
+    , today = today -- Date.fromPosix (Time.millisToPosix 0)
+    , date = today --Date.fromPosix (Time.millisToPosix 0)
     , ledger = ledger
     , accounts = accounts
     , account = account
     , showAdvanced = False
-    , dialogAmount = ""
-    , dialogAmountInfo = ""
-    , dialogDescription = ""
+
+    {-
+       , dialogAmount = ""
+       , dialogAmountInfo = ""
+       , dialogDescription = ""
+    -}
     }

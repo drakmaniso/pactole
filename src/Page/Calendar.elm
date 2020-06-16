@@ -196,7 +196,7 @@ calendarCell : Common.Model -> Date.Date -> E.Element Msg.Msg
 calendarCell model day =
     let
         sel =
-            model.selected && day == model.date
+            day == model.date
     in
     if Date.getMonth day == Date.getMonth model.date then
         E.el

@@ -3,9 +3,9 @@ module Date exposing
     , compare
     , decrementDay
     , decrementMonth
+    , default
     , fromInt
-    , fromPosix
-    , fromZoneAndPosix
+    , fromParts
     , getDay
     , getMonth
     , getMonthFullName
@@ -29,12 +29,27 @@ type Date
     = Date Calendar.Date
 
 
+default =
+    Date (Calendar.fromPosix (Time.millisToPosix 0))
+
+
 toString (Date date) =
     String.padLeft 2 '0' (String.fromInt (Calendar.getDay date))
         ++ "/"
         ++ String.padLeft 2 '0' (String.fromInt (getMonthNumber (Calendar.getMonth date)))
         ++ "/"
         ++ String.fromInt (Calendar.getYear date)
+
+
+fromParts : { year : Int, month : Int, day : Int } -> Maybe Date
+fromParts { year, month, day } =
+    case Array.get month Calendar.months of
+        Nothing ->
+            Nothing
+
+        Just m ->
+            Maybe.map Date
+                (Calendar.fromRawParts { day = day, month = m, year = year })
 
 
 fromZoneAndPosix : Time.Zone -> Time.Posix -> Date

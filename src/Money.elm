@@ -96,38 +96,42 @@ validate input =
 
 
 fromInput expense input =
-    let
-        trimmed =
-            String.filter (\c -> c /= ' ') input
+    if validate input == "" then
+        let
+            trimmed =
+                String.filter (\c -> c /= ' ') input
 
-        sign =
-            if expense then
-                -1
+            sign =
+                if expense then
+                    -1
 
-            else
-                1
-    in
-    case String.split "," input of
-        [ unitsStr ] ->
-            Maybe.map
-                (\v -> Money (sign * v * 100))
-                (String.toInt unitsStr)
+                else
+                    1
+        in
+        case String.split "," input of
+            [ unitsStr ] ->
+                Maybe.map
+                    (\v -> Money (sign * v * 100))
+                    (String.toInt unitsStr)
 
-        [ unitsStr, centsStr ] ->
-            let
-                units =
-                    Maybe.map
-                        (\v -> v * 100)
-                        (String.toInt unitsStr)
+            [ unitsStr, centsStr ] ->
+                let
+                    units =
+                        Maybe.map
+                            (\v -> v * 100)
+                            (String.toInt unitsStr)
 
-                cents =
-                    String.toInt centsStr
-            in
-            Maybe.map2 (\a b -> sign * (a + b)) units cents
-                |> Maybe.map Money
+                    cents =
+                        String.toInt centsStr
+                in
+                Maybe.map2 (\a b -> sign * (a + b)) units cents
+                    |> Maybe.map Money
 
-        _ ->
-            Nothing
+            _ ->
+                Nothing
+
+    else
+        Nothing
 
 
 encoder : Money -> Encode.Value

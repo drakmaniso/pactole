@@ -53,12 +53,18 @@
 
     var app
     {
+      var today = new Date ()
       var account
       if (accounts instanceof Array && accounts.length > 0 && typeof accounts[0] == "string") {
         account = accounts[0]
       }
       var ledger = getLedger (account)
       var flags = {
+        today: {
+          year: today.getFullYear (),
+          month: today.getMonth (),
+          day: today.getDate ()
+        },
         accounts: accounts,
         ledger: ledger
       }

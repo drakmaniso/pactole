@@ -15,21 +15,6 @@ import Style
 
 view : Common.Dialog -> Common.Model -> Element Msg.Msg
 view dialog model =
-    let
-        bg =
-            case dialog of
-                Common.NewExpense ->
-                    Style.bgExpense
-
-                Common.EditExpense _ ->
-                    Style.bgExpense
-
-                Common.NewIncome ->
-                    Style.bgIncome
-
-                Common.EditIncome _ ->
-                    Style.bgIncome
-    in
     column
         [ centerX
         , centerY
@@ -53,18 +38,18 @@ view dialog model =
 titleRow dialog model =
     let
         ( bg, label ) =
-            case dialog of
-                Common.NewExpense ->
-                    ( Style.bgExpense, "Nouvelle dépense" )
-
-                Common.EditExpense _ ->
-                    ( Style.bgExpense, "Dépense" )
-
-                Common.NewIncome ->
+            case ( dialog.id, dialog.isExpense ) of
+                ( Nothing, False ) ->
                     ( Style.bgIncome, "Nouvelle entrée d'argent" )
 
-                Common.EditIncome _ ->
+                ( Nothing, True ) ->
+                    ( Style.bgExpense, "Nouvelle dépense" )
+
+                ( Just _, False ) ->
                     ( Style.bgIncome, "Entrée d'argent" )
+
+                ( Just _, True ) ->
+                    ( Style.bgExpense, "Dépense" )
     in
     row
         [ alignLeft
@@ -84,18 +69,11 @@ titleRow dialog model =
 amountRow dialog model =
     let
         fg =
-            case dialog of
-                Common.NewExpense ->
-                    Style.fgExpense
+            if dialog.isExpense then
+                Style.fgExpense
 
-                Common.EditExpense _ ->
-                    Style.fgExpense
-
-                Common.NewIncome ->
-                    Style.fgIncome
-
-                Common.EditIncome _ ->
-                    Style.fgIncome
+            else
+                Style.fgIncome
     in
     row
         [ alignLeft
@@ -120,7 +98,7 @@ amountRow dialog model =
                     , Font.center
                     , Font.color (rgb 0 0 0)
                     ]
-                    (text model.dialogAmountInfo)
+                    (text dialog.amountError)
                 )
             ]
             { label =
@@ -138,7 +116,7 @@ amountRow dialog model =
                     , pointer
                     ]
                     (text "Somme:")
-            , text = model.dialogAmount
+            , text = dialog.amount
             , placeholder = Nothing
             , onChange = Msg.DialogAmount
             }
@@ -161,18 +139,11 @@ amountRow dialog model =
 descriptionRow dialog model =
     let
         fg =
-            case dialog of
-                Common.NewExpense ->
-                    Style.fgExpense
+            if dialog.isExpense then
+                Style.fgExpense
 
-                Common.EditExpense _ ->
-                    Style.fgExpense
-
-                Common.NewIncome ->
-                    Style.fgIncome
-
-                Common.EditIncome _ ->
-                    Style.fgIncome
+            else
+                Style.fgIncome
     in
     row
         [ width fill
@@ -200,7 +171,7 @@ descriptionRow dialog model =
                     , pointer
                     ]
                     (text "Description:")
-            , text = model.dialogDescription
+            , text = dialog.description
             , placeholder = Nothing
             , onChange = Msg.DialogDescription
             , spellcheck = True
@@ -210,19 +181,12 @@ descriptionRow dialog model =
 
 buttonsRow dialog model =
     let
-        ( fg, msg, isEdit ) =
-            case dialog of
-                Common.NewExpense ->
-                    ( Style.fgExpense, Msg.ConfirmNew (Money.fromInput True model.dialogAmount), False )
+        fg =
+            if dialog.isExpense then
+                Style.fgExpense
 
-                Common.EditExpense id ->
-                    ( Style.fgExpense, Msg.ConfirmEdit id (Money.fromInput True model.dialogAmount), True )
-
-                Common.NewIncome ->
-                    ( Style.fgIncome, Msg.ConfirmNew (Money.fromInput False model.dialogAmount), False )
-
-                Common.EditIncome id ->
-                    ( Style.fgIncome, Msg.ConfirmEdit id (Money.fromInput False model.dialogAmount), True )
+            else
+                Style.fgIncome
     in
     row
         [ width fill
@@ -233,16 +197,17 @@ buttonsRow dialog model =
         [ Input.button
             (alignRight :: Style.button shrink fg (rgba 0 0 0 0) False)
             { label = text "Annuler", onPress = Just Msg.Close }
-        , if isEdit then
-            Input.button
-                (Style.button shrink fg (rgba 0 0 0 0) False)
-                { label = text "Supprimer", onPress = Just Msg.Delete }
+        , case dialog.id of
+            Just _ ->
+                Input.button
+                    (Style.button shrink fg (rgba 0 0 0 0) False)
+                    { label = text "Supprimer", onPress = Just Msg.Delete }
 
-          else
-            none
+            Nothing ->
+                none
         , Input.button
             (Style.button shrink fg Style.bgWhite True)
             { label = text "Confirmer"
-            , onPress = Just msg
+            , onPress = Just Msg.DialogConfirm
             }
         ]

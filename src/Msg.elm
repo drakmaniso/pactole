@@ -29,6 +29,5 @@ type Msg
     | NewExpense
     | Edit Int
     | Delete
-    | ConfirmNew (Maybe Money.Money)
-    | ConfirmEdit Int (Maybe Money.Money)
+    | DialogConfirm
     | NoOp
