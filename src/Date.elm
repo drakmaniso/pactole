@@ -203,11 +203,13 @@ getMonthFullName (Date today) (Date d) =
         n =
             getMonthName (Date d)
     in
-    if Calendar.getYear d == Calendar.getYear today then
-        n
+    {-
+       if Calendar.getYear d == Calendar.getYear today then
+           n
 
-    else
-        n ++ " " ++ String.fromInt (Calendar.getYear d)
+       else
+    -}
+    n ++ " " ++ String.fromInt (Calendar.getYear d)
 
 
 toInt : Date -> Int

@@ -90,7 +90,6 @@ calendar model =
             in
             case ( Date.compare date theLast, Date.getWeekday date ) of
                 ( GT, Time.Mon ) ->
-                    --[ calendarFooter model ]
                     []
 
                 _ ->
@@ -134,8 +133,7 @@ calendarHeader model =
             , E.paddingEach { top = 8, bottom = 8, left = 0, right = 0 }
             , Background.color Style.bgWhite
             ]
-            [ --E.el [ E.width (E.fillPortion 1) ] E.none
-              Input.button
+            [ Input.button
                 [ E.width (E.fillPortion 2)
                 , E.height E.fill
                 , Border.roundEach { topLeft = 0, bottomLeft = 0, topRight = 24, bottomRight = 24 }
@@ -174,8 +172,6 @@ calendarHeader model =
                         ]
                 , onPress = Just (Msg.SelectDate (Date.incrementMonth model.date))
                 }
-
-            --, E.el [ E.width (E.fillPortion 1) ] E.none
             ]
         , E.row
             [ E.width E.fill
@@ -335,11 +331,7 @@ dayView model =
     E.column
         [ E.width E.fill
         , E.height E.fill
-
-        -- , Border.rounded 7
         , E.clip
-
-        --, Border.shadow { offset = ( 0, 0 ), size = 4, blur = 8, color = E.rgba 0 0 0 0.2 }
         , Background.color Style.bgWhite
         ]
         [ E.el
@@ -357,7 +349,13 @@ dayView model =
                 E.text "Aujourd'hui"
 
              else
-                E.text (Date.getWeekdayName model.date ++ " " ++ String.fromInt (Date.getDay model.date))
+                E.text
+                    (Date.getWeekdayName model.date
+                        ++ " "
+                        ++ String.fromInt (Date.getDay model.date)
+                        ++ " "
+                        ++ Date.getMonthName model.date
+                    )
             )
         , E.column
             [ E.width E.fill
@@ -370,17 +368,12 @@ dayView model =
             , E.spacing 24
             , E.paddingXY 24 12
             ]
-            [ --E.el [ E.width (E.fillPortion 1) ] E.none
-              Input.button
+            [ Input.button
                 (Style.iconButton (E.fillPortion 2) Style.fgIncome Style.bgWhite Style.fgIncome)
                 { label = E.text "\u{F067}", onPress = Just (Msg.NewDialog False model.date) }
-
-            --, E.el [ E.width (E.fillPortion 1) ] E.none
             , Input.button
                 (Style.iconButton (E.fillPortion 2) Style.fgExpense Style.bgWhite Style.fgExpense)
                 { label = E.text "\u{F068}", onPress = Just (Msg.NewDialog True model.date) }
-
-            --, E.el [ E.width (E.fillPortion 1) ] E.none
             ]
         ]
 

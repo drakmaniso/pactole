@@ -44,9 +44,10 @@ type alias Model =
 -- UPDATE
 
 
-msgNewDialog : Bool -> Date.Date -> ( Maybe Model, Cmd Msg.Msg )
-msgNewDialog isExpense date =
-    ( Just
+msgNewDialog : Bool -> Date.Date -> Common.Model -> Maybe Model -> ( Common.Model, Maybe Model, Cmd Msg.Msg )
+msgNewDialog isExpense date common _ =
+    ( common
+    , Just
         { id = Nothing
         , isExpense = isExpense
         , date = date
@@ -58,14 +59,15 @@ msgNewDialog isExpense date =
     )
 
 
-msgEditDialog : Int -> Common.Model -> ( Maybe Model, Cmd Msg.Msg )
-msgEditDialog id common =
+msgEditDialog : Int -> Common.Model -> Maybe Model -> ( Common.Model, Maybe Model, Cmd Msg.Msg )
+msgEditDialog id common _ =
     case Ledger.getTransaction id common.ledger of
         Nothing ->
-            ( Nothing, Debug.log "*** Unable to get transaction" Cmd.none )
+            ( common, Nothing, Debug.log "*** Unable to get transaction" Cmd.none )
 
         Just t ->
-            ( Just
+            ( common
+            , Just
                 { id = Just t.id
                 , isExpense = Money.isExpense t.amount
                 , date = t.date
@@ -77,11 +79,12 @@ msgEditDialog id common =
             )
 
 
-msgAmount : String -> Maybe Model -> ( Maybe Model, Cmd Msg.Msg )
-msgAmount amount model =
+msgAmount : String -> Common.Model -> Maybe Model -> ( Common.Model, Maybe Model, Cmd Msg.Msg )
+msgAmount amount common model =
     case model of
         Just dialog ->
-            ( Just
+            ( common
+            , Just
                 { dialog
                     | amount = amount
                     , amountError = Money.validate amount
@@ -90,14 +93,15 @@ msgAmount amount model =
             )
 
         Nothing ->
-            ( Nothing, Cmd.none )
+            ( common, Nothing, Cmd.none )
 
 
-msgDescription : String -> Maybe Model -> ( Maybe Model, Cmd Msg.Msg )
-msgDescription string model =
+msgDescription : String -> Common.Model -> Maybe Model -> ( Common.Model, Maybe Model, Cmd Msg.Msg )
+msgDescription string common model =
     case model of
         Just dialog ->
-            ( Just
+            ( common
+            , Just
                 { dialog
                     | description = string
                 }
@@ -105,10 +109,10 @@ msgDescription string model =
             )
 
         Nothing ->
-            ( model, Cmd.none )
+            ( common, model, Cmd.none )
 
 
-msgConfirm : Common.Model -> Maybe Model -> ( Maybe Model, Common.Model, Cmd Msg.Msg )
+msgConfirm : Common.Model -> Maybe Model -> ( Common.Model, Maybe Model, Cmd Msg.Msg )
 msgConfirm common model =
     case model of
         Just dialog ->
@@ -124,8 +128,8 @@ msgConfirm common model =
                                 }
                                 common.ledger
                     in
-                    ( Nothing
-                    , { common | ledger = newLedger }
+                    ( { common | ledger = newLedger }
+                    , Nothing
                     , Ports.storeLedger
                         ( Maybe.withDefault "ERROR" common.account, Ledger.encode newLedger )
                     )
@@ -140,20 +144,20 @@ msgConfirm common model =
                                 }
                                 common.ledger
                     in
-                    ( Nothing
-                    , { common | ledger = newLedger }
+                    ( { common | ledger = newLedger }
+                    , Nothing
                     , Ports.storeLedger
                         ( Maybe.withDefault "ERROR" common.account, Ledger.encode newLedger )
                     )
 
                 ( _, _ ) ->
-                    ( model, common, Cmd.none )
+                    ( common, model, Cmd.none )
 
         _ ->
-            ( model, common, Cmd.none )
+            ( common, model, Cmd.none )
 
 
-msgDelete : Common.Model -> Maybe Model -> ( Maybe Model, Common.Model, Cmd Msg.Msg )
+msgDelete : Common.Model -> Maybe Model -> ( Common.Model, Maybe Model, Cmd Msg.Msg )
 msgDelete common model =
     case model of
         Just dialog ->
@@ -163,17 +167,17 @@ msgDelete common model =
                         newLedger =
                             Ledger.deleteTransaction id common.ledger
                     in
-                    ( Nothing
-                    , { common | ledger = newLedger }
+                    ( { common | ledger = newLedger }
+                    , Nothing
                     , Ports.storeLedger
                         ( Maybe.withDefault "ERROR" common.account, Ledger.encode newLedger )
                     )
 
                 Nothing ->
-                    Debug.log "IMPOSSIBLE DELETE MSG" ( model, common, Cmd.none )
+                    Debug.log "IMPOSSIBLE DELETE MSG" ( common, model, Cmd.none )
 
         Nothing ->
-            Debug.log "IMPOSSIBLE DELETE MSG" ( model, common, Cmd.none )
+            Debug.log "IMPOSSIBLE DELETE MSG" ( common, model, Cmd.none )
 
 
 
@@ -203,36 +207,23 @@ view dialog =
 
 
 titleRow dialog =
-    let
-        ( bg, label ) =
-            case ( dialog.id, dialog.isExpense ) of
-                ( Nothing, False ) ->
-                    ( Style.bgIncome, "Nouvelle entrée d'argent" )
-
-                ( Nothing, True ) ->
-                    ( Style.bgExpense, "Nouvelle dépense" )
-
-                ( Just _, False ) ->
-                    ( Style.bgIncome, "Entrée d'argent" )
-
-                ( Just _, True ) ->
-                    ( Style.bgExpense, "Dépense" )
-    in
     row
         [ alignLeft
         , width fill
         , paddingEach { top = 24, bottom = 24, right = 48, left = 48 }
         , spacing 12
-        , Background.color bg
-
-        {-
-           , Border.widthEach { top = 0, bottom = 3, left = 0, right = 0 }
-           , Border.color Style.bgDark
-        -}
+        , Background.color (Style.bgTransaction dialog.isExpense)
         ]
         [ el
             [ width fill, Font.center, Style.bigFont, Font.bold, Font.color Style.bgWhite ]
-            (text label)
+            (text
+                (if dialog.isExpense then
+                    "Dépense"
+
+                 else
+                    "Entrée d'argent"
+                )
+            )
         ]
 
 
@@ -252,20 +243,6 @@ amountRow dialog =
             , Border.width 1
             , Border.color Style.bgDark
             , htmlAttribute <| HtmlAttr.id "dialog-amount"
-
-            {-
-               , onRight
-                   (paragraph
-                       [ Style.smallFont
-                       , width fill
-                       , height fill
-                       , paddingEach { top = 8, bottom = 8, left = 64, right = 0 }
-                       , Font.center
-                       , Font.color (rgb 0 0 0)
-                       ]
-                       [ text dialog.amountError ]
-                   )
-            -}
             ]
             { label =
                 Input.labelAbove
@@ -273,7 +250,7 @@ amountRow dialog =
                     , width shrink
                     , alignLeft
                     , height fill
-                    , Font.color Style.fgTitle -- (Style.fgTransaction dialog.isExpense)
+                    , Font.color Style.fgTitle
                     , Style.normalFont
                     , Font.bold
                     , paddingEach { top = 0, bottom = 0, left = 12, right = 0 }
@@ -318,12 +295,6 @@ amountRow dialog =
             , Font.color (rgb 0 0 0)
             ]
             [ text dialog.amountError ]
-
-        {-
-           , el
-               [ width fill ]
-               none
-        -}
         ]
 
 
@@ -346,7 +317,7 @@ descriptionRow dialog =
                 Input.labelAbove
                     [ width shrink
                     , height fill
-                    , Font.color Style.fgTitle -- (Style.fgTransaction dialog.isExpense)
+                    , Font.color Style.fgTitle
                     , Style.normalFont
                     , Font.bold
                     , paddingEach { top = 0, bottom = 0, left = 12, right = 0 }
@@ -384,10 +355,6 @@ buttonsRow dialog =
                 Style.fgWhite
                 Style.bgTitle
                 Style.bgTitle
-             {-
-                (Style.bgTransaction dialog.isExpense)
-                (Style.bgTransaction dialog.isExpense)
-             -}
             )
             { label = text "OK"
             , onPress = Just Msg.DialogConfirm

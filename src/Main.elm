@@ -82,13 +82,24 @@ init flags _ _ =
 
 update : Msg.Msg -> Model -> ( Model, Cmd Msg.Msg )
 update msg model =
-    case msg of
-        Msg.Today d ->
+    let
+        commonMsg handler =
             let
                 ( common, cmd ) =
-                    Common.msgToday d model.common
+                    handler model.common
             in
             ( { model | common = common }, cmd )
+
+        dialogMsg handler =
+            let
+                ( common, dialog, cmd ) =
+                    handler model.common model.dialog
+            in
+            ( { model | common = common, dialog = dialog }, cmd )
+    in
+    case msg of
+        Msg.Today d ->
+            commonMsg (Common.msgToday d)
 
         Msg.LinkClicked req ->
             case req of
@@ -102,18 +113,10 @@ update msg model =
             ( model, Cmd.none )
 
         Msg.ToCalendar ->
-            let
-                ( common, cmd ) =
-                    Common.msgToCalendar model.common
-            in
-            ( { model | common = common }, cmd )
+            commonMsg Common.msgToCalendar
 
         Msg.ToTabular ->
-            let
-                ( common, cmd ) =
-                    Common.msgToTabular model.common
-            in
-            ( { model | common = common }, cmd )
+            commonMsg Common.msgToTabular
 
         Msg.ToMainPage ->
             ( { model | page = MainPage }, Cmd.none )
@@ -126,92 +129,44 @@ update msg model =
             ( { model | dialog = Nothing }, Cmd.none )
 
         Msg.SelectDate date ->
-            let
-                ( common, cmd ) =
-                    Common.msgSelectDate date model.common
-            in
-            ( { model | common = common }, cmd )
+            commonMsg (Common.msgSelectDate date)
 
         Msg.SelectAccount account ->
-            let
-                ( common, cmd ) =
-                    Common.msgSelectAccount account model.common
-            in
-            ( { model | common = common }, cmd )
+            commonMsg (Common.msgSelectAccount account)
 
         Msg.UpdateAccountList json ->
-            let
-                ( common, cmd ) =
-                    Common.msgUpdateAccountList json model.common
-            in
-            ( { model | common = common }, cmd )
+            commonMsg (Common.msgUpdateAccountList json)
 
         Msg.UpdateLedger json ->
-            let
-                ( common, cmd ) =
-                    Common.msgUpdateLedger json model.common
-            in
-            ( { model | common = common }, cmd )
+            commonMsg (Common.msgUpdateLedger json)
 
         Msg.KeyDown string ->
             if string == "Alt" || string == "Control" then
-                let
-                    ( common, cmd ) =
-                        Common.msgShowAdvanced True model.common
-                in
-                ( { model | common = common }, cmd )
+                commonMsg (Common.msgShowAdvanced True)
 
             else
                 ( model, Cmd.none )
 
         Msg.KeyUp string ->
-            let
-                ( common, cmd ) =
-                    Common.msgShowAdvanced False model.common
-            in
-            ( { model | common = common }, cmd )
+            commonMsg (Common.msgShowAdvanced False)
 
         Msg.NewDialog isExpense date ->
-            let
-                ( dialog, cmd ) =
-                    Dialog.msgNewDialog isExpense date
-            in
-            ( { model | dialog = dialog }, cmd )
+            dialogMsg (Dialog.msgNewDialog isExpense date)
 
         Msg.EditDialog id ->
-            let
-                ( dialog, cmd ) =
-                    Dialog.msgEditDialog id model.common
-            in
-            ( { model | dialog = dialog }, cmd )
+            dialogMsg (Dialog.msgEditDialog id)
 
         Msg.DialogAmount amount ->
-            let
-                ( dialog, cmd ) =
-                    Dialog.msgAmount amount model.dialog
-            in
-            ( { model | dialog = dialog }, cmd )
+            dialogMsg (Dialog.msgAmount amount)
 
         Msg.DialogDescription string ->
-            let
-                ( dialog, cmd ) =
-                    Dialog.msgDescription string model.dialog
-            in
-            ( { model | dialog = dialog }, cmd )
+            dialogMsg (Dialog.msgDescription string)
 
         Msg.DialogConfirm ->
-            let
-                ( dialog, common, cmd ) =
-                    Dialog.msgConfirm model.common model.dialog
-            in
-            ( { model | common = common, dialog = dialog }, cmd )
+            dialogMsg Dialog.msgConfirm
 
         Msg.DialogDelete ->
-            let
-                ( dialog, common, cmd ) =
-                    Dialog.msgDelete model.common model.dialog
-            in
-            ( { model | common = common, dialog = dialog }, cmd )
+            dialogMsg Dialog.msgDelete
 
         Msg.NoOp ->
             ( model, Cmd.none )
