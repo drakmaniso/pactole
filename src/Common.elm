@@ -55,6 +55,7 @@ type Mode
 type alias Dialog =
     { id : Maybe Int
     , isExpense : Bool
+    , date : Date.Date
     , amount : String
     , amountError : String
     , description : String

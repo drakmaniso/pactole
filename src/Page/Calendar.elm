@@ -17,6 +17,10 @@ import Style
 import Time
 
 
+
+-- VIEW
+
+
 view : Common.Model -> E.Element Msg.Msg
 view model =
     E.row
@@ -127,38 +131,51 @@ calendarHeader model =
         [ E.row
             [ E.width E.fill
             , E.alignTop
-            , E.paddingEach { top = 8, bottom = 16, left = 8, right = 8 }
+            , E.paddingEach { top = 8, bottom = 8, left = 0, right = 0 }
             , Background.color Style.bgWhite
             ]
-            [ E.el [ E.width (E.fillPortion 1) ] E.none
-            , Input.button
+            [ --E.el [ E.width (E.fillPortion 1) ] E.none
+              Input.button
                 [ E.width (E.fillPortion 2)
                 , E.height E.fill
-                , Border.rounded 24
+                , Border.roundEach { topLeft = 0, bottomLeft = 0, topRight = 24, bottomRight = 24 }
                 , Font.color Style.fgTitle
-                , Border.width 3
-                , Border.color Style.fgTitle
+                , Border.widthEach { top = 2, bottom = 2, left = 0, right = 2 }
+                , Background.color Style.bgWhite
+                , Border.color Style.bgDark
                 ]
                 { label =
-                    E.el Style.icons (E.text "\u{F060}")
+                    E.row
+                        [ E.width E.fill ]
+                        [ E.el [ Style.bigFont, Font.color Style.fgTitle, E.centerX ]
+                            (E.text (Date.getMonthName (Date.decrementMonth model.date)))
+                        , E.el [ E.centerX, Style.fontIcons, Style.normalFont ] (E.text "  \u{F060}  ")
+                        ]
                 , onPress = Just (Msg.SelectDay (Date.decrementMonth model.date))
                 }
             , E.el
-                [ E.width (E.fillPortion 6), E.height E.fill ]
+                [ E.width (E.fillPortion 3), E.height E.fill ]
                 (E.el Style.calendarMonthName (E.text (Date.getMonthFullName model.today model.date)))
             , Input.button
                 [ E.width (E.fillPortion 2)
                 , E.height E.fill
-                , Border.rounded 24
+                , Border.roundEach { topLeft = 24, bottomLeft = 24, topRight = 0, bottomRight = 0 }
                 , Font.color Style.fgTitle
-                , Border.width 3
-                , Border.color Style.fgTitle
+                , Border.widthEach { top = 2, bottom = 2, left = 2, right = 0 }
+                , Background.color Style.bgWhite
+                , Border.color Style.bgDark
                 ]
                 { label =
-                    E.el Style.icons (E.text "\u{F061}")
+                    E.row
+                        [ E.width E.fill ]
+                        [ E.el [ E.centerX, Style.fontIcons, Style.normalFont ] (E.text "  \u{F061}  ")
+                        , E.el [ Style.bigFont, Font.color Style.fgTitle, E.centerX ]
+                            (E.text (Date.getMonthName (Date.incrementMonth model.date)))
+                        ]
                 , onPress = Just (Msg.SelectDay (Date.incrementMonth model.date))
                 }
-            , E.el [ E.width (E.fillPortion 1) ] E.none
+
+            --, E.el [ E.width (E.fillPortion 1) ] E.none
             ]
         , E.row
             [ E.width E.fill
@@ -333,7 +350,7 @@ dayView model =
             , Font.center
             , Font.bold
             , Style.bigFont
-            , Border.widthEach { top = 3, bottom = 3, left = 0, right = 0 }
+            , Border.widthEach { top = 3, bottom = 0, left = 0, right = 0 }
             , Border.color Style.bgDark
             ]
             (if model.date == model.today then
@@ -355,13 +372,13 @@ dayView model =
             ]
             [ --E.el [ E.width (E.fillPortion 1) ] E.none
               Input.button
-                (Style.iconButton (E.fillPortion 2) Style.fgIncome Style.bgWhite False)
-                { label = E.text "\u{F067}", onPress = Just Msg.NewIncome }
+                (Style.iconButton (E.fillPortion 2) Style.fgIncome Style.bgWhite Style.fgIncome)
+                { label = E.text "\u{F067}", onPress = Just (Msg.NewDialog False model.date) }
 
             --, E.el [ E.width (E.fillPortion 1) ] E.none
             , Input.button
-                (Style.iconButton (E.fillPortion 2) Style.fgExpense Style.bgWhite False)
-                { label = E.text "\u{F068}", onPress = Just Msg.NewExpense }
+                (Style.iconButton (E.fillPortion 2) Style.fgExpense Style.bgWhite Style.fgExpense)
+                { label = E.text "\u{F068}", onPress = Just (Msg.NewDialog True model.date) }
 
             --, E.el [ E.width (E.fillPortion 1) ] E.none
             ]
@@ -386,7 +403,7 @@ dayContentFor model day =
                     , Border.color (E.rgba 0 0 0 0)
                     , E.focused [ Border.color Style.fgFocus ]
                     ]
-                    { onPress = Just (Msg.Edit transaction.id)
+                    { onPress = Just (Msg.EditDialog transaction.id)
                     , label =
                         E.row
                             [ E.width E.fill

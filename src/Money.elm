@@ -74,10 +74,10 @@ validate input =
             String.filter (\c -> c /= ' ') input
     in
     if trimmed == "" then
-        "entrer un nombre"
+        "Entrer un nombre."
 
     else if String.any (\c -> not (Char.isDigit c || c == ',')) trimmed then
-        "utiliser uniquement des chiffres et une virgule"
+        "Utiliser uniquement des chiffres et une virgule."
 
     else
         case String.indices "," trimmed of
@@ -86,13 +86,13 @@ validate input =
 
             [ i ] ->
                 if i /= (String.length trimmed - 3) then
-                    "mettre deux chiffres après la virgule"
+                    "Mettre deux chiffres après la virgule."
 
                 else
                     ""
 
             _ ->
-                "utiliser une seule virgule"
+                "Utiliser une seule virgule."
 
 
 fromInput expense input =

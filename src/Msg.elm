@@ -14,8 +14,6 @@ type Msg
     | UrlChanged Url.Url
     | ToCalendar
     | ToTabular
-    | DialogAmount String
-    | DialogDescription String
     | ToMainPage
     | ToSettings
     | Close
@@ -25,9 +23,10 @@ type Msg
     | UpdateLedger Decode.Value
     | KeyDown String
     | KeyUp String
-    | NewIncome
-    | NewExpense
-    | Edit Int
-    | Delete
+    | NewDialog Bool Date.Date -- NewDialog isExpense date
+    | EditDialog Int
+    | DialogAmount String
+    | DialogDescription String
+    | DialogDelete
     | DialogConfirm
     | NoOp

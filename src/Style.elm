@@ -23,7 +23,7 @@ bgPage =
 
 bgLight =
     -- rgb 0.94 0.92 0.87
-    rgb 0.9 0.9 0.9
+    rgb 0.86 0.86 0.86
 
 
 bgDark =
@@ -45,6 +45,22 @@ fgBlack =
 
 fgDark =
     rgb 0.6 0.6 0.6
+
+
+fgTransaction isExpense =
+    if isExpense then
+        fgExpense
+
+    else
+        fgIncome
+
+
+bgTransaction isExpense =
+    if isExpense then
+        bgExpense
+
+    else
+        bgIncome
 
 
 bgExpense =
@@ -78,7 +94,9 @@ fgOnIncome =
 
 bgTitle =
     --rgb 0.3 0.6 0.7
-    rgb 0.12 0.51 0.65
+    --rgb 0.12 0.51 0.65
+    --rgb 0.06 0.25 0.32
+    rgb 0.09 0.31 0.4
 
 
 fgTitle =
@@ -143,37 +161,25 @@ iconsSettings =
     ]
 
 
-customButton w fg bg filled =
-    [ Background.color
-        (if filled then
-            fg
-
-         else
-            bg
-        )
-    , Font.color
-        (if filled then
-            bg
-
-         else
-            fg
-        )
-    , Border.color fg
+customButton w fg bg border =
+    [ Background.color bg
+    , Font.color fg
+    , Border.color border
     , width w
     , Font.center
-    , Border.width 3
+    , Border.width 2
     , Border.rounded 24
 
     --, Border.shadow { offset = ( 0, 0 ), size = 2, blur = 4, color = rgba 0 0 0 0.2 }
     ]
 
 
-button w fg bg inverted =
-    normalFont :: paddingXY 24 8 :: customButton w fg bg inverted
+button w fg bg border =
+    normalFont :: paddingXY 24 8 :: customButton w fg bg border
 
 
-iconButton w fg bg inverted =
-    fontIcons :: bigFont :: paddingXY 12 6 :: customButton w fg bg inverted
+iconButton w fg bg border =
+    fontIcons :: bigFont :: paddingXY 12 6 :: customButton w fg bg border
 
 
 calendarMonthName =

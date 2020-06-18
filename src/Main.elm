@@ -19,10 +19,10 @@ import Json.Encode as Encode
 import Ledger
 import Money
 import Msg
-import Page.Calendar
-import Page.Dialog
-import Page.Settings
-import Page.Tabular
+import Page.Calendar as Calendar
+import Page.Dialog as Dialog
+import Page.Settings as Settings
+import Page.Tabular as Tabular
 import Ports
 import Style
 import Task
@@ -47,13 +47,12 @@ main =
 
 
 -- MODEL
-{-
-   type Model
-       = Loading
-       | Calendar Common.Model Calendar.Model Dialog.Model
-       | Tabular Common.Model Tabular.Model Dialog.Model
-       | Settings Common.Model
--}
+
+
+type alias Model =
+    { common : Common.Model
+    , dialog : Maybe Common.Dialog
+    }
 
 
 init : Decode.Value -> Url.Url -> Navigation.Key -> ( Common.Model, Cmd Msg.Msg )
@@ -94,39 +93,6 @@ update msg model =
 
         Msg.ToTabular ->
             ( { model | mode = Common.Tabular }, Cmd.none )
-
-        Msg.DialogAmount string ->
-            case model.dialog of
-                Just dialog ->
-                    let
-                        newDialog =
-                            { dialog
-                                | amount = string
-                                , amountError = Money.validate string
-                            }
-                    in
-                    ( { model | dialog = Just newDialog }
-                    , Cmd.none
-                    )
-
-                Nothing ->
-                    ( model, Cmd.none )
-
-        Msg.DialogDescription string ->
-            case model.dialog of
-                Just dialog ->
-                    let
-                        newDialog =
-                            { dialog
-                                | description = string
-                            }
-                    in
-                    ( { model | dialog = Just newDialog }
-                    , Cmd.none
-                    )
-
-                Nothing ->
-                    ( model, Cmd.none )
 
         Msg.ToMainPage ->
             ( { model | page = Common.MainPage }, Cmd.none )
@@ -183,113 +149,47 @@ update msg model =
             , Cmd.none
             )
 
-        Msg.NewIncome ->
-            ( { model
-                | dialog =
-                    Just
-                        { id = Nothing
-                        , isExpense = False
-                        , amount = ""
-                        , amountError = ""
-                        , description = ""
-                        }
-              }
-            , Task.attempt (\_ -> Msg.NoOp) (Dom.focus "dialog-amount")
-            )
+        Msg.NewDialog isExpense date ->
+            let
+                ( dialog, cmd ) =
+                    Dialog.msgNewDialog isExpense date
+            in
+            ( { model | dialog = dialog }, cmd )
 
-        Msg.NewExpense ->
-            ( { model
-                | dialog =
-                    Just
-                        { id = Nothing
-                        , isExpense = True
-                        , amount = ""
-                        , amountError = ""
-                        , description = ""
-                        }
-              }
-            , Task.attempt (\_ -> Msg.NoOp) (Dom.focus "dialog-amount")
-            )
+        Msg.EditDialog id ->
+            let
+                ( dialog, cmd ) =
+                    Dialog.msgEditDialog id model.ledger
+            in
+            ( { model | dialog = dialog }, cmd )
 
-        Msg.Edit id ->
-            case Ledger.getTransaction id model.ledger of
-                Nothing ->
-                    ( model, Debug.log "*** Unable to get transaction" Cmd.none )
+        Msg.DialogAmount amount ->
+            let
+                ( dialog, cmd ) =
+                    Dialog.msgAmount amount model.dialog
+            in
+            ( { model | dialog = dialog }, cmd )
 
-                Just t ->
-                    ( { model
-                        | dialog =
-                            Just
-                                { id = Just t.id
-                                , isExpense = Money.isExpense t.amount
-                                , amount = Money.toInput t.amount
-                                , amountError = Money.validate (Money.toInput t.amount)
-                                , description = t.description
-                                }
-                      }
-                    , Cmd.none
-                    )
+        Msg.DialogDescription string ->
+            let
+                ( dialog, cmd ) =
+                    Dialog.msgDescription string model.dialog
+            in
+            ( { model | dialog = dialog }, cmd )
 
         Msg.DialogConfirm ->
-            case model.dialog of
-                Just dialog ->
-                    case ( dialog.id, Money.fromInput dialog.isExpense dialog.amount ) of
-                        ( Just id, Just amount ) ->
-                            let
-                                newLedger =
-                                    Ledger.updateTransaction
-                                        { id = id
-                                        , date = model.date
-                                        , amount = amount
-                                        , description = dialog.description
-                                        }
-                                        model.ledger
-                            in
-                            ( { model | ledger = newLedger, dialog = Nothing }
-                            , Ports.storeLedger
-                                ( Maybe.withDefault "ERROR" model.account, Ledger.encode newLedger )
-                            )
+            let
+                ( dialog, ledger, cmd ) =
+                    Dialog.msgConfirm model.account model.ledger model.dialog
+            in
+            ( { model | ledger = ledger, dialog = dialog }, cmd )
 
-                        ( Nothing, Just amount ) ->
-                            let
-                                newLedger =
-                                    Ledger.addTransaction
-                                        { date = model.date
-                                        , amount = amount
-                                        , description = dialog.description
-                                        }
-                                        model.ledger
-                            in
-                            ( { model | ledger = newLedger, dialog = Nothing }
-                            , Ports.storeLedger
-                                ( Maybe.withDefault "ERROR" model.account, Ledger.encode newLedger )
-                            )
-
-                        ( _, _ ) ->
-                            ( model, Cmd.none )
-
-                _ ->
-                    ( model, Cmd.none )
-
-        Msg.Delete ->
-            case model.dialog of
-                Just dialog ->
-                    case dialog.id of
-                        Just id ->
-                            let
-                                newLedger =
-                                    Ledger.deleteTransaction id model.ledger
-                            in
-                            ( { model | ledger = newLedger, dialog = Nothing }
-                            , Ports.storeLedger
-                                ( Maybe.withDefault "ERROR" model.account, Ledger.encode newLedger )
-                            )
-
-                        Nothing ->
-                            Debug.log "IMPOSSIBLE DELETE MSG" ( model, Cmd.none )
-
-                Nothing ->
-                    Debug.log "IMPOSSIBLE DELETE MSG" ( model, Cmd.none )
+        Msg.DialogDelete ->
+            let
+                ( dialog, ledger, cmd ) =
+                    Dialog.msgDelete model.account model.ledger model.dialog
+            in
+            ( { model | ledger = ledger, dialog = dialog }, cmd )
 
         Msg.NoOp ->
             ( model, Cmd.none )
@@ -342,7 +242,7 @@ view model =
                 Nothing ->
                     []
 
-                Just d ->
+                Just dialog ->
                     [ E.inFront
                         (E.el
                             [ E.width E.fill
@@ -359,21 +259,21 @@ view model =
                                     E.none
                                 )
                             ]
-                            (Page.Dialog.view d model)
+                            (Dialog.view dialog)
                         )
                     ]
             )
             (case model.page of
                 Common.Settings ->
-                    Page.Settings.view model
+                    Settings.view model
 
                 Common.MainPage ->
                     case model.mode of
                         Common.Calendar ->
-                            Page.Calendar.view model
+                            Calendar.view model
 
                         Common.Tabular ->
-                            Page.Tabular.view model
+                            Tabular.view model
             )
         ]
     }

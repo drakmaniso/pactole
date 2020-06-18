@@ -36,7 +36,7 @@ view model =
                 ]
                 [ Elem.el [ Elem.width Elem.fill ] Elem.none
                 , Input.button
-                    (Style.button Elem.shrink Style.fgTitle (Elem.rgba 0 0 0 0) False)
+                    (Style.button Elem.shrink Style.fgTitle Style.bgWhite Style.bgDark)
                     { label =
                         Elem.text "Configurer"
                     , onPress = Just Msg.ToSettings
@@ -151,13 +151,13 @@ buttonRow model =
         [ Elem.width Elem.fill ]
         [ Elem.el [ Elem.width Elem.fill ] Elem.none
         , Input.button
-            (Style.button (Elem.fillPortion 3) Style.fgTitle Style.bgWhite False)
+            (Style.button (Elem.fillPortion 3) Style.fgTitle Style.bgWhite Style.bgDark)
             { onPress = Nothing
             , label = Elem.text "Bilan"
             }
         , Elem.el [ Elem.width Elem.fill ] Elem.none
         , Input.button
-            (Style.button (Elem.fillPortion 3) Style.fgTitle Style.bgWhite False)
+            (Style.button (Elem.fillPortion 3) Style.fgTitle Style.bgWhite Style.bgDark)
             { onPress = Nothing
             , label = Elem.text "Pointer"
             }

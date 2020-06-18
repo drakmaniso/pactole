@@ -1,6 +1,16 @@
-module Page.Dialog exposing (view)
+module Page.Dialog exposing
+    ( msgAmount
+    , msgConfirm
+    , msgDelete
+    , msgDescription
+    , msgEditDialog
+    , msgNewDialog
+    , view
+    )
 
+import Browser.Dom as Dom
 import Common
+import Date
 import Element exposing (..)
 import Element.Background as Background
 import Element.Border as Border
@@ -10,32 +20,174 @@ import Html.Attributes as HtmlAttr
 import Ledger
 import Money
 import Msg
+import Ports
 import Style
+import Task
 
 
-view : Common.Dialog -> Common.Model -> Element Msg.Msg
-view dialog model =
+
+-- UPDATE
+
+
+msgNewDialog : Bool -> Date.Date -> ( Maybe Common.Dialog, Cmd Msg.Msg )
+msgNewDialog isExpense date =
+    ( Just
+        { id = Nothing
+        , isExpense = isExpense
+        , date = date
+        , amount = ""
+        , amountError = ""
+        , description = ""
+        }
+    , Task.attempt (\_ -> Msg.NoOp) (Dom.focus "dialog-amount")
+    )
+
+
+msgEditDialog : Int -> Ledger.Ledger -> ( Maybe Common.Dialog, Cmd Msg.Msg )
+msgEditDialog id ledger =
+    case Ledger.getTransaction id ledger of
+        Nothing ->
+            ( Nothing, Debug.log "*** Unable to get transaction" Cmd.none )
+
+        Just t ->
+            ( Just
+                { id = Just t.id
+                , isExpense = Money.isExpense t.amount
+                , date = t.date
+                , amount = Money.toInput t.amount
+                , amountError = Money.validate (Money.toInput t.amount)
+                , description = t.description
+                }
+            , Cmd.none
+            )
+
+
+msgAmount : String -> Maybe Common.Dialog -> ( Maybe Common.Dialog, Cmd Msg.Msg )
+msgAmount amount model =
+    case model of
+        Just dialog ->
+            ( Just
+                { dialog
+                    | amount = amount
+                    , amountError = Money.validate amount
+                }
+            , Cmd.none
+            )
+
+        Nothing ->
+            ( Nothing, Cmd.none )
+
+
+msgDescription : String -> Maybe Common.Dialog -> ( Maybe Common.Dialog, Cmd Msg.Msg )
+msgDescription string model =
+    case model of
+        Just dialog ->
+            ( Just
+                { dialog
+                    | description = string
+                }
+            , Cmd.none
+            )
+
+        Nothing ->
+            ( model, Cmd.none )
+
+
+msgConfirm : Maybe String -> Ledger.Ledger -> Maybe Common.Dialog -> ( Maybe Common.Dialog, Ledger.Ledger, Cmd Msg.Msg )
+msgConfirm account ledger model =
+    case model of
+        Just dialog ->
+            case ( dialog.id, Money.fromInput dialog.isExpense dialog.amount ) of
+                ( Just id, Just amount ) ->
+                    let
+                        newLedger =
+                            Ledger.updateTransaction
+                                { id = id
+                                , date = dialog.date
+                                , amount = amount
+                                , description = dialog.description
+                                }
+                                ledger
+                    in
+                    ( Nothing
+                    , newLedger
+                    , Ports.storeLedger
+                        ( Maybe.withDefault "ERROR" account, Ledger.encode newLedger )
+                    )
+
+                ( Nothing, Just amount ) ->
+                    let
+                        newLedger =
+                            Ledger.addTransaction
+                                { date = dialog.date
+                                , amount = amount
+                                , description = dialog.description
+                                }
+                                ledger
+                    in
+                    ( Nothing
+                    , newLedger
+                    , Ports.storeLedger
+                        ( Maybe.withDefault "ERROR" account, Ledger.encode newLedger )
+                    )
+
+                ( _, _ ) ->
+                    ( model, ledger, Cmd.none )
+
+        _ ->
+            ( model, ledger, Cmd.none )
+
+
+msgDelete : Maybe String -> Ledger.Ledger -> Maybe Common.Dialog -> ( Maybe Common.Dialog, Ledger.Ledger, Cmd Msg.Msg )
+msgDelete account ledger model =
+    case model of
+        Just dialog ->
+            case dialog.id of
+                Just id ->
+                    let
+                        newLedger =
+                            Ledger.deleteTransaction id ledger
+                    in
+                    ( Nothing
+                    , newLedger
+                    , Ports.storeLedger
+                        ( Maybe.withDefault "ERROR" account, Ledger.encode newLedger )
+                    )
+
+                Nothing ->
+                    Debug.log "IMPOSSIBLE DELETE MSG" ( model, ledger, Cmd.none )
+
+        Nothing ->
+            Debug.log "IMPOSSIBLE DELETE MSG" ( model, ledger, Cmd.none )
+
+
+
+-- VIEW
+
+
+view : Common.Dialog -> Element Msg.Msg
+view dialog =
     column
         [ centerX
         , centerY
         , width (px 800)
         , height shrink
         , Border.rounded 7
-        , paddingXY 24 0
+        , paddingXY 0 0
         , spacing 0
         , scrollbarY
         , Background.color Style.bgWhite
         , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 16, color = rgba 0 0 0 0.5 }
         ]
-        [ titleRow dialog model
-        , amountRow dialog model
-        , descriptionRow dialog model
+        [ titleRow dialog
+        , amountRow dialog
+        , descriptionRow dialog
         , el [ height fill, Background.color Style.bgWhite ] none
-        , buttonsRow dialog model
+        , buttonsRow dialog
         ]
 
 
-titleRow dialog model =
+titleRow dialog =
     let
         ( bg, label ) =
             case ( dialog.id, dialog.isExpense ) of
@@ -56,29 +208,24 @@ titleRow dialog model =
         , width fill
         , paddingEach { top = 24, bottom = 24, right = 48, left = 48 }
         , spacing 12
-        , Background.color Style.bgWhite
-        , Border.widthEach { top = 0, bottom = 3, left = 0, right = 0 }
-        , Border.color Style.bgDark
+        , Background.color bg
+
+        {-
+           , Border.widthEach { top = 0, bottom = 3, left = 0, right = 0 }
+           , Border.color Style.bgDark
+        -}
         ]
         [ el
-            [ width fill, Font.center, Style.bigFont, Font.bold, Font.color bg ]
+            [ width fill, Font.center, Style.bigFont, Font.bold, Font.color Style.bgWhite ]
             (text label)
         ]
 
 
-amountRow dialog model =
-    let
-        fg =
-            if dialog.isExpense then
-                Style.fgExpense
-
-            else
-                Style.fgIncome
-    in
+amountRow dialog =
     row
         [ alignLeft
         , width fill
-        , paddingEach { top = 64, bottom = 32, right = 48, left = 48 }
+        , paddingEach { top = 24, bottom = 24, right = 48, left = 48 }
         , spacing 12
         , Background.color Style.bgWhite
         ]
@@ -90,29 +237,31 @@ amountRow dialog model =
             , Border.width 1
             , Border.color Style.bgDark
             , htmlAttribute <| HtmlAttr.id "dialog-amount"
-            , below
-                (el
-                    [ Style.smallFont
-                    , width fill
-                    , paddingEach { top = 8, bottom = 8, left = 0, right = 0 }
-                    , Font.center
-                    , Font.color (rgb 0 0 0)
-                    ]
-                    (text dialog.amountError)
-                )
+
+            {-
+               , onRight
+                   (paragraph
+                       [ Style.smallFont
+                       , width fill
+                       , height fill
+                       , paddingEach { top = 8, bottom = 8, left = 64, right = 0 }
+                       , Font.center
+                       , Font.color (rgb 0 0 0)
+                       ]
+                       [ text dialog.amountError ]
+                   )
+            -}
             ]
             { label =
-                Input.labelLeft
+                Input.labelAbove
                     [ Input.focusedOnLoad
-                    , Style.bigFont
                     , width shrink
                     , alignLeft
                     , height fill
-                    , Font.color fg
-                    , Font.alignRight
-                    , paddingEach { top = 12, bottom = 12, left = 0, right = 24 }
-                    , Border.width 1
-                    , Border.color (rgba 0 0 0 0)
+                    , Font.color Style.fgTitle -- (Style.fgTransaction dialog.isExpense)
+                    , Style.normalFont
+                    , Font.bold
+                    , paddingEach { top = 0, bottom = 0, left = 12, right = 0 }
                     , pointer
                     ]
                     (text "Somme:")
@@ -122,32 +271,51 @@ amountRow dialog model =
             }
         , el
             [ Style.bigFont
-            , Font.color fg
+            , Font.color Style.fgBlack
             , paddingXY 0 12
             , width shrink
             , alignLeft
+            , alignBottom
             , Border.width 1
             , Border.color (rgba 0 0 0 0)
             ]
             (text "€")
         , el
-            [ width fill ]
-            none
+            [ Style.fontIcons
+            , alignBottom
+            , paddingEach { top = 0, bottom = 4, left = 12, right = 0 }
+            , Font.size 48
+            , Font.color Style.bgDark
+            ]
+            (if dialog.amountError /= "" then
+                text "\u{F071}"
+
+             else
+                text ""
+            )
+        , paragraph
+            [ Style.smallFont
+            , width fill
+            , height shrink
+            , alignBottom
+            , paddingEach { top = 8, bottom = 8, left = 0, right = 0 }
+            , Font.alignLeft
+            , Font.color (rgb 0 0 0)
+            ]
+            [ text dialog.amountError ]
+
+        {-
+           , el
+               [ width fill ]
+               none
+        -}
         ]
 
 
-descriptionRow dialog model =
-    let
-        fg =
-            if dialog.isExpense then
-                Style.fgExpense
-
-            else
-                Style.fgIncome
-    in
+descriptionRow dialog =
     row
         [ width fill
-        , paddingEach { top = 12, bottom = 24, right = 48, left = 48 }
+        , paddingEach { top = 24, bottom = 24, right = 48, left = 48 }
         , spacing 12
         , Background.color Style.bgWhite
         ]
@@ -160,14 +328,13 @@ descriptionRow dialog model =
             , scrollbarY
             ]
             { label =
-                Input.labelLeft
+                Input.labelAbove
                     [ width shrink
                     , height fill
-                    , Font.color fg
-                    , Font.alignRight
-                    , paddingEach { top = 12, bottom = 12, left = 0, right = 24 }
-                    , Border.width 1
-                    , Border.color (rgba 0 0 0 0)
+                    , Font.color Style.fgTitle -- (Style.fgTransaction dialog.isExpense)
+                    , Style.normalFont
+                    , Font.bold
+                    , paddingEach { top = 0, bottom = 0, left = 12, right = 0 }
                     , pointer
                     ]
                     (text "Description:")
@@ -179,35 +346,35 @@ descriptionRow dialog model =
         ]
 
 
-buttonsRow dialog model =
-    let
-        fg =
-            if dialog.isExpense then
-                Style.fgExpense
-
-            else
-                Style.fgIncome
-    in
+buttonsRow dialog =
     row
         [ width fill
         , spacing 24
-        , paddingEach { top = 64, bottom = 12, left = 24, right = 24 }
+        , paddingEach { top = 48, bottom = 24, left = 48, right = 48 }
         , Background.color Style.bgWhite
         ]
         [ Input.button
-            (alignRight :: Style.button shrink fg (rgba 0 0 0 0) False)
+            (alignRight :: Style.button shrink Style.fgTitle Style.bgWhite Style.bgDark)
             { label = text "Annuler", onPress = Just Msg.Close }
         , case dialog.id of
             Just _ ->
                 Input.button
-                    (Style.button shrink fg (rgba 0 0 0 0) False)
-                    { label = text "Supprimer", onPress = Just Msg.Delete }
+                    (Style.button shrink Style.fgTitle Style.bgWhite Style.bgDark)
+                    { label = text "Supprimer", onPress = Just Msg.DialogDelete }
 
             Nothing ->
                 none
         , Input.button
-            (Style.button shrink fg Style.bgWhite True)
-            { label = text "Confirmer"
+            (Style.button shrink
+                Style.fgWhite
+                Style.bgTitle
+                Style.bgTitle
+             {-
+                (Style.bgTransaction dialog.isExpense)
+                (Style.bgTransaction dialog.isExpense)
+             -}
+            )
+            { label = text "OK"
             , onPress = Just Msg.DialogConfirm
             }
         ]
