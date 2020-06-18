@@ -4,7 +4,7 @@ import Json.Decode as Decode
 import Json.Encode as Encode
 
 
-port updateAccounts : (Decode.Value -> msg) -> Sub msg
+port updateAccountList : (Decode.Value -> msg) -> Sub msg
 
 
 port storeAccounts : Encode.Value -> Cmd msg

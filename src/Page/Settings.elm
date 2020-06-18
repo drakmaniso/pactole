@@ -72,15 +72,15 @@ view model =
                 { onChange =
                     \o ->
                         case o of
-                            Common.Calendar ->
+                            Common.InCalendar ->
                                 Msg.ToCalendar
 
-                            Common.Tabular ->
+                            Common.InTabular ->
                                 Msg.ToTabular
                 , label = Input.labelAbove [] (text "Mode d'affichage des opérations:")
                 , options =
-                    [ Input.option Common.Calendar (text "Calendrier")
-                    , Input.option Common.Tabular (text "Liste")
+                    [ Input.option Common.InCalendar (text "Calendrier")
+                    , Input.option Common.InTabular (text "Liste")
                     ]
                 , selected = Just model.mode
                 }

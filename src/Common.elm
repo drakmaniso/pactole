@@ -1,65 +1,40 @@
 module Common exposing
-    ( Dialog
-    , Mode(..)
+    ( Mode(..)
     , Model
-    , Page(..)
     , init
+    , msgSelectAccount
+    , msgSelectDate
+    , msgShowAdvanced
+    , msgToCalendar
+    , msgToTabular
+    , msgToday
+    , msgUpdateAccountList
+    , msgUpdateLedger
     )
 
 import Array as Array
 import Date
 import Json.Decode as Decode
 import Ledger
+import Msg
+import Ports
 import Time
 
 
 type alias Model =
-    { page : Page
-    , mode : Mode
-    , dialog : Maybe Dialog
+    { mode : Mode
     , today : Date.Date
     , date : Date.Date
     , ledger : Ledger.Ledger
     , accounts : List String
     , account : Maybe String
     , showAdvanced : Bool
-
-    {-
-       , dialogAmount : String
-       , dialogAmountInfo : String
-       , dialogDescription : String
-    -}
     }
-
-
-type Page
-    = MainPage
-    | Settings
 
 
 type Mode
-    = Calendar
-    | Tabular
-
-
-
-{-
-   type Dialog
-       = NewIncome
-       | NewExpense
-       | EditIncome Int
-       | EditExpense Int
--}
-
-
-type alias Dialog =
-    { id : Maybe Int
-    , isExpense : Bool
-    , date : Date.Date
-    , amount : String
-    , amountError : String
-    , description : String
-    }
+    = InCalendar
+    | InTabular
 
 
 init : Decode.Value -> Model
@@ -113,19 +88,83 @@ init flags =
                 Err e ->
                     Debug.log ("init flags ledger: " ++ Decode.errorToString e) Ledger.empty
     in
-    { page = MainPage
-    , mode = Calendar
-    , dialog = Nothing
+    { mode = InCalendar
     , today = today -- Date.fromPosix (Time.millisToPosix 0)
     , date = today --Date.fromPosix (Time.millisToPosix 0)
     , ledger = ledger
     , accounts = accounts
     , account = account
     , showAdvanced = False
-
-    {-
-       , dialogAmount = ""
-       , dialogAmountInfo = ""
-       , dialogDescription = ""
-    -}
     }
+
+
+
+-- UPDATE MESSAGES
+
+
+msgToday : Date.Date -> Model -> ( Model, Cmd Msg.Msg )
+msgToday d model =
+    ( { model | today = d, date = d }, Cmd.none )
+
+
+msgToCalendar : Model -> ( Model, Cmd Msg.Msg )
+msgToCalendar model =
+    ( { model | mode = InCalendar }
+    , Cmd.none
+    )
+
+
+msgToTabular : Model -> ( Model, Cmd Msg.Msg )
+msgToTabular model =
+    ( { model | mode = InTabular }
+    , Cmd.none
+    )
+
+
+msgSelectDate : Date.Date -> Model -> ( Model, Cmd Msg.Msg )
+msgSelectDate date model =
+    ( { model | date = date }, Cmd.none )
+
+
+msgSelectAccount : String -> Model -> ( Model, Cmd Msg.Msg )
+msgSelectAccount account model =
+    ( { model | account = Just account }, Ports.requestLedger account )
+
+
+msgUpdateAccountList : Decode.Value -> Model -> ( Model, Cmd Msg.Msg )
+msgUpdateAccountList json model =
+    let
+        ( accounts, account ) =
+            case Decode.decodeValue (Decode.list Decode.string) json of
+                Ok a ->
+                    ( a, List.head a )
+
+                Err e ->
+                    Debug.log ("Msg.SetAccounts: " ++ Decode.errorToString e)
+                        ( [], Nothing )
+    in
+    ( { model | accounts = accounts, account = account, ledger = Ledger.empty }, Cmd.none )
+
+
+msgUpdateLedger : Decode.Value -> Model -> ( Model, Cmd Msg.Msg )
+msgUpdateLedger json model =
+    let
+        ledger =
+            case Decode.decodeValue Ledger.decoder json of
+                Ok l ->
+                    l
+
+                Err e ->
+                    Debug.log ("Msg.SetLedger: " ++ Decode.errorToString e)
+                        Ledger.empty
+    in
+    ( { model | ledger = ledger }, Cmd.none )
+
+
+msgShowAdvanced : Bool -> Model -> ( Model, Cmd Msg.Msg )
+msgShowAdvanced show model =
+    ( { model | showAdvanced = show }, Cmd.none )
+
+
+
+--

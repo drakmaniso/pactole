@@ -60,7 +60,7 @@ view model =
                             }
                         ]
                     ]
-                    { onChange = Msg.ChooseAccount
+                    { onChange = Msg.SelectAccount
                     , selected = model.account
                     , label = Input.labelHidden "Compte"
                     , options =

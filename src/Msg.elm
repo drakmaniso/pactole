@@ -17,9 +17,9 @@ type Msg
     | ToMainPage
     | ToSettings
     | Close
-    | SelectDay Date.Date
-    | ChooseAccount String
-    | UpdateAccounts Decode.Value
+    | SelectDate Date.Date
+    | SelectAccount String
+    | UpdateAccountList Decode.Value
     | UpdateLedger Decode.Value
     | KeyDown String
     | KeyUp String

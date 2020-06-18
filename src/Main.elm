@@ -51,13 +51,22 @@ main =
 
 type alias Model =
     { common : Common.Model
-    , dialog : Maybe Common.Dialog
+    , dialog : Maybe Dialog.Model
+    , page : Page
     }
 
 
-init : Decode.Value -> Url.Url -> Navigation.Key -> ( Common.Model, Cmd Msg.Msg )
+type Page
+    = MainPage
+    | Settings
+
+
+init : Decode.Value -> Url.Url -> Navigation.Key -> ( Model, Cmd Msg.Msg )
 init flags _ _ =
-    ( Common.init flags
+    ( { common = Common.init flags
+      , dialog = Nothing
+      , page = MainPage
+      }
     , Cmd.none
       {-
          , Cmd.batch
@@ -71,11 +80,15 @@ init flags _ _ =
 -- UPDATE
 
 
-update : Msg.Msg -> Common.Model -> ( Common.Model, Cmd Msg.Msg )
+update : Msg.Msg -> Model -> ( Model, Cmd Msg.Msg )
 update msg model =
     case msg of
         Msg.Today d ->
-            ( { model | today = d, date = d }, Cmd.none )
+            let
+                ( common, cmd ) =
+                    Common.msgToday d model.common
+            in
+            ( { model | common = common }, cmd )
 
         Msg.LinkClicked req ->
             case req of
@@ -89,65 +102,74 @@ update msg model =
             ( model, Cmd.none )
 
         Msg.ToCalendar ->
-            ( { model | mode = Common.Calendar }, Cmd.none )
+            let
+                ( common, cmd ) =
+                    Common.msgToCalendar model.common
+            in
+            ( { model | common = common }, cmd )
 
         Msg.ToTabular ->
-            ( { model | mode = Common.Tabular }, Cmd.none )
+            let
+                ( common, cmd ) =
+                    Common.msgToTabular model.common
+            in
+            ( { model | common = common }, cmd )
 
         Msg.ToMainPage ->
-            ( { model | page = Common.MainPage }, Cmd.none )
+            ( { model | page = MainPage }, Cmd.none )
 
         Msg.ToSettings ->
-            ( { model | page = Common.Settings }, Cmd.none )
+            ( { model | page = Settings }, Cmd.none )
 
         Msg.Close ->
+            --TODO: delegate to Dialog?
             ( { model | dialog = Nothing }, Cmd.none )
 
-        Msg.SelectDay d ->
-            ( { model | date = d }, Cmd.none )
-
-        Msg.ChooseAccount name ->
-            ( { model | account = Just name }, Ports.requestLedger name )
-
-        Msg.UpdateAccounts json ->
+        Msg.SelectDate date ->
             let
-                ( accounts, account ) =
-                    case Decode.decodeValue (Decode.list Decode.string) json of
-                        Ok a ->
-                            ( a, List.head a )
-
-                        Err e ->
-                            Debug.log ("Msg.SetAccounts: " ++ Decode.errorToString e)
-                                ( [], Nothing )
+                ( common, cmd ) =
+                    Common.msgSelectDate date model.common
             in
-            ( { model | accounts = accounts, account = account, ledger = Ledger.empty }, Cmd.none )
+            ( { model | common = common }, cmd )
+
+        Msg.SelectAccount account ->
+            let
+                ( common, cmd ) =
+                    Common.msgSelectAccount account model.common
+            in
+            ( { model | common = common }, cmd )
+
+        Msg.UpdateAccountList json ->
+            let
+                ( common, cmd ) =
+                    Common.msgUpdateAccountList json model.common
+            in
+            ( { model | common = common }, cmd )
 
         Msg.UpdateLedger json ->
             let
-                ledger =
-                    case Decode.decodeValue Ledger.decoder json of
-                        Ok l ->
-                            l
-
-                        Err e ->
-                            Debug.log ("Msg.SetLedger: " ++ Decode.errorToString e)
-                                Ledger.empty
+                ( common, cmd ) =
+                    Common.msgUpdateLedger json model.common
             in
-            ( { model | ledger = ledger }, Cmd.none )
+            ( { model | common = common }, cmd )
 
         Msg.KeyDown string ->
-            ( if string == "Alt" || string == "Control" then
-                { model | showAdvanced = True }
+            if string == "Alt" || string == "Control" then
+                let
+                    ( common, cmd ) =
+                        Common.msgShowAdvanced True model.common
+                in
+                ( { model | common = common }, cmd )
 
-              else
-                model
-            , Cmd.none
-            )
+            else
+                ( model, Cmd.none )
 
         Msg.KeyUp string ->
-            ( { model | showAdvanced = False }
-            , Cmd.none
-            )
+            let
+                ( common, cmd ) =
+                    Common.msgShowAdvanced False model.common
+            in
+            ( { model | common = common }, cmd )
 
         Msg.NewDialog isExpense date ->
             let
@@ -159,7 +181,7 @@ update msg model =
         Msg.EditDialog id ->
             let
                 ( dialog, cmd ) =
-                    Dialog.msgEditDialog id model.ledger
+                    Dialog.msgEditDialog id model.common
             in
             ( { model | dialog = dialog }, cmd )
 
@@ -179,17 +201,17 @@ update msg model =
 
         Msg.DialogConfirm ->
             let
-                ( dialog, ledger, cmd ) =
-                    Dialog.msgConfirm model.account model.ledger model.dialog
+                ( dialog, common, cmd ) =
+                    Dialog.msgConfirm model.common model.dialog
             in
-            ( { model | ledger = ledger, dialog = dialog }, cmd )
+            ( { model | common = common, dialog = dialog }, cmd )
 
         Msg.DialogDelete ->
             let
-                ( dialog, ledger, cmd ) =
-                    Dialog.msgDelete model.account model.ledger model.dialog
+                ( dialog, common, cmd ) =
+                    Dialog.msgDelete model.common model.dialog
             in
-            ( { model | ledger = ledger, dialog = dialog }, cmd )
+            ( { model | common = common, dialog = dialog }, cmd )
 
         Msg.NoOp ->
             ( model, Cmd.none )
@@ -199,10 +221,10 @@ update msg model =
 -- SUBSCRIPTIONS
 
 
-subscriptions : Common.Model -> Sub Msg.Msg
+subscriptions : Model -> Sub Msg.Msg
 subscriptions _ =
     Sub.batch
-        [ Ports.updateAccounts Msg.UpdateAccounts
+        [ Ports.updateAccountList Msg.UpdateAccountList
         , Ports.updateLedger Msg.UpdateLedger
         , Browser.Events.onKeyDown (keyDecoder Msg.KeyDown)
         , Browser.Events.onKeyUp (keyDecoder Msg.KeyUp)
@@ -219,7 +241,7 @@ keyDecoder msg =
 -- VIEW
 
 
-view : Common.Model -> Browser.Document Msg.Msg
+view : Model -> Browser.Document Msg.Msg
 view model =
     { title = "Pactole"
     , body =
@@ -264,16 +286,16 @@ view model =
                     ]
             )
             (case model.page of
-                Common.Settings ->
-                    Settings.view model
+                Settings ->
+                    Settings.view model.common
 
-                Common.MainPage ->
-                    case model.mode of
-                        Common.Calendar ->
-                            Calendar.view model
+                MainPage ->
+                    case model.common.mode of
+                        Common.InCalendar ->
+                            Calendar.view model.common
 
-                        Common.Tabular ->
-                            Tabular.view model
+                        Common.InTabular ->
+                            Tabular.view model.common
             )
         ]
     }

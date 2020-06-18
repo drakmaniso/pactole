@@ -151,7 +151,7 @@ calendarHeader model =
                             (E.text (Date.getMonthName (Date.decrementMonth model.date)))
                         , E.el [ E.centerX, Style.fontIcons, Style.normalFont ] (E.text "  \u{F060}  ")
                         ]
-                , onPress = Just (Msg.SelectDay (Date.decrementMonth model.date))
+                , onPress = Just (Msg.SelectDate (Date.decrementMonth model.date))
                 }
             , E.el
                 [ E.width (E.fillPortion 3), E.height E.fill ]
@@ -172,7 +172,7 @@ calendarHeader model =
                         , E.el [ Style.bigFont, Font.color Style.fgTitle, E.centerX ]
                             (E.text (Date.getMonthName (Date.incrementMonth model.date)))
                         ]
-                , onPress = Just (Msg.SelectDay (Date.incrementMonth model.date))
+                , onPress = Just (Msg.SelectDate (Date.incrementMonth model.date))
                 }
 
             --, E.el [ E.width (E.fillPortion 1) ] E.none
@@ -277,7 +277,7 @@ calendarCell model day =
                             ]
                             (cellContentFor model day)
                         ]
-                , onPress = Just (Msg.SelectDay day)
+                , onPress = Just (Msg.SelectDate day)
                 }
             )
 

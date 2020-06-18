@@ -1,5 +1,6 @@
 module Page.Dialog exposing
-    ( msgAmount
+    ( Model
+    , msgAmount
     , msgConfirm
     , msgDelete
     , msgDescription
@@ -26,10 +27,24 @@ import Task
 
 
 
+-- MODEL
+
+
+type alias Model =
+    { id : Maybe Int
+    , isExpense : Bool
+    , date : Date.Date
+    , amount : String
+    , amountError : String
+    , description : String
+    }
+
+
+
 -- UPDATE
 
 
-msgNewDialog : Bool -> Date.Date -> ( Maybe Common.Dialog, Cmd Msg.Msg )
+msgNewDialog : Bool -> Date.Date -> ( Maybe Model, Cmd Msg.Msg )
 msgNewDialog isExpense date =
     ( Just
         { id = Nothing
@@ -43,9 +58,9 @@ msgNewDialog isExpense date =
     )
 
 
-msgEditDialog : Int -> Ledger.Ledger -> ( Maybe Common.Dialog, Cmd Msg.Msg )
-msgEditDialog id ledger =
-    case Ledger.getTransaction id ledger of
+msgEditDialog : Int -> Common.Model -> ( Maybe Model, Cmd Msg.Msg )
+msgEditDialog id common =
+    case Ledger.getTransaction id common.ledger of
         Nothing ->
             ( Nothing, Debug.log "*** Unable to get transaction" Cmd.none )
 
@@ -62,7 +77,7 @@ msgEditDialog id ledger =
             )
 
 
-msgAmount : String -> Maybe Common.Dialog -> ( Maybe Common.Dialog, Cmd Msg.Msg )
+msgAmount : String -> Maybe Model -> ( Maybe Model, Cmd Msg.Msg )
 msgAmount amount model =
     case model of
         Just dialog ->
@@ -78,7 +93,7 @@ msgAmount amount model =
             ( Nothing, Cmd.none )
 
 
-msgDescription : String -> Maybe Common.Dialog -> ( Maybe Common.Dialog, Cmd Msg.Msg )
+msgDescription : String -> Maybe Model -> ( Maybe Model, Cmd Msg.Msg )
 msgDescription string model =
     case model of
         Just dialog ->
@@ -93,8 +108,8 @@ msgDescription string model =
             ( model, Cmd.none )
 
 
-msgConfirm : Maybe String -> Ledger.Ledger -> Maybe Common.Dialog -> ( Maybe Common.Dialog, Ledger.Ledger, Cmd Msg.Msg )
-msgConfirm account ledger model =
+msgConfirm : Common.Model -> Maybe Model -> ( Maybe Model, Common.Model, Cmd Msg.Msg )
+msgConfirm common model =
     case model of
         Just dialog ->
             case ( dialog.id, Money.fromInput dialog.isExpense dialog.amount ) of
@@ -107,12 +122,12 @@ msgConfirm account ledger model =
                                 , amount = amount
                                 , description = dialog.description
                                 }
-                                ledger
+                                common.ledger
                     in
                     ( Nothing
-                    , newLedger
+                    , { common | ledger = newLedger }
                     , Ports.storeLedger
-                        ( Maybe.withDefault "ERROR" account, Ledger.encode newLedger )
+                        ( Maybe.withDefault "ERROR" common.account, Ledger.encode newLedger )
                     )
 
                 ( Nothing, Just amount ) ->
@@ -123,49 +138,49 @@ msgConfirm account ledger model =
                                 , amount = amount
                                 , description = dialog.description
                                 }
-                                ledger
+                                common.ledger
                     in
                     ( Nothing
-                    , newLedger
+                    , { common | ledger = newLedger }
                     , Ports.storeLedger
-                        ( Maybe.withDefault "ERROR" account, Ledger.encode newLedger )
+                        ( Maybe.withDefault "ERROR" common.account, Ledger.encode newLedger )
                     )
 
                 ( _, _ ) ->
-                    ( model, ledger, Cmd.none )
+                    ( model, common, Cmd.none )
 
         _ ->
-            ( model, ledger, Cmd.none )
+            ( model, common, Cmd.none )
 
 
-msgDelete : Maybe String -> Ledger.Ledger -> Maybe Common.Dialog -> ( Maybe Common.Dialog, Ledger.Ledger, Cmd Msg.Msg )
-msgDelete account ledger model =
+msgDelete : Common.Model -> Maybe Model -> ( Maybe Model, Common.Model, Cmd Msg.Msg )
+msgDelete common model =
     case model of
         Just dialog ->
             case dialog.id of
                 Just id ->
                     let
                         newLedger =
-                            Ledger.deleteTransaction id ledger
+                            Ledger.deleteTransaction id common.ledger
                     in
                     ( Nothing
-                    , newLedger
+                    , { common | ledger = newLedger }
                     , Ports.storeLedger
-                        ( Maybe.withDefault "ERROR" account, Ledger.encode newLedger )
+                        ( Maybe.withDefault "ERROR" common.account, Ledger.encode newLedger )
                     )
 
                 Nothing ->
-                    Debug.log "IMPOSSIBLE DELETE MSG" ( model, ledger, Cmd.none )
+                    Debug.log "IMPOSSIBLE DELETE MSG" ( model, common, Cmd.none )
 
         Nothing ->
-            Debug.log "IMPOSSIBLE DELETE MSG" ( model, ledger, Cmd.none )
+            Debug.log "IMPOSSIBLE DELETE MSG" ( model, common, Cmd.none )
 
 
 
 -- VIEW
 
 
-view : Common.Dialog -> Element Msg.Msg
+view : Model -> Element Msg.Msg
 view dialog =
     column
         [ centerX

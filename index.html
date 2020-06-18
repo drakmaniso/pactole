@@ -92,7 +92,7 @@
         //TODO: handle JSON.parse exceptions
         switch (event.key) {
           case "accounts":
-            app.ports.updateAccounts.send(v)
+            app.ports.updateAccountList.send(v)
         }
         //TODO: propagate ledger-keys changes
       }
