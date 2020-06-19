@@ -130,48 +130,72 @@ calendarHeader model =
         [ E.row
             [ E.width E.fill
             , E.alignTop
-            , E.paddingEach { top = 8, bottom = 8, left = 0, right = 0 }
+            , E.paddingEach { top = 0, bottom = 8, left = 0, right = 0 }
             , Background.color Style.bgWhite
             ]
-            [ Input.button
+            [ E.el
                 [ E.width (E.fillPortion 2)
                 , E.height E.fill
-                , Border.roundEach { topLeft = 0, bottomLeft = 0, topRight = 24, bottomRight = 24 }
-                , Font.color Style.fgTitle
-                , Border.widthEach { top = 2, bottom = 2, left = 0, right = 2 }
-                , Background.color Style.bgWhite
-                , Border.color Style.bgDark
                 ]
-                { label =
-                    E.row
-                        [ E.width E.fill ]
-                        [ E.el [ Style.bigFont, Font.color Style.fgTitle, E.centerX ]
-                            (E.text (Date.getMonthName (Date.decrementMonth model.date)))
-                        , E.el [ E.centerX, Style.fontIcons, Style.normalFont ] (E.text "  \u{F060}  ")
+                (Input.button
+                    [ E.width E.fill
+                    , E.height E.fill
+                    , Border.roundEach { topLeft = 0, bottomLeft = 0, topRight = 0, bottomRight = 32 }
+                    , Font.color Style.fgTitle
+                    , Border.widthEach { top = 0, bottom = 3, left = 0, right = 3 }
+                    , Background.color Style.bgWhite
+                    , Border.color Style.bgDark
+                    , E.paddingEach { top = 4, bottom = 8, left = 0, right = 0 }
+                    , E.focused
+                        [ Border.color Style.fgFocus
+                        , Border.shadow { offset = ( 0, 0 ), size = 0, blur = 0, color = E.rgba 0 0 0 0 }
                         ]
-                , onPress = Just (Msg.SelectDate (Date.decrementMonth model.date))
-                }
+                    ]
+                    { label =
+                        E.row
+                            [ E.width E.fill ]
+                            [ E.el [ Style.bigFont, Font.color Style.fgTitle, E.centerX ]
+                                (E.text (Date.getMonthName (Date.decrementMonth model.date)))
+                            , E.el [ E.centerX, Style.fontIcons, Style.normalFont ] (E.text "  \u{F060}  ")
+                            ]
+                    , onPress = Just (Msg.SelectDate (Date.decrementMonth model.date))
+                    }
+                )
             , E.el
-                [ E.width (E.fillPortion 3), E.height E.fill ]
+                [ E.width (E.fillPortion 3)
+                , E.height E.fill
+                , E.paddingEach { top = 4, bottom = 8, left = 0, right = 0 }
+                ]
                 (E.el Style.calendarMonthName (E.text (Date.getMonthFullName model.today model.date)))
-            , Input.button
+            , E.el
+                -- needed to circumvent focus bug in elm-ui
                 [ E.width (E.fillPortion 2)
                 , E.height E.fill
-                , Border.roundEach { topLeft = 24, bottomLeft = 24, topRight = 0, bottomRight = 0 }
-                , Font.color Style.fgTitle
-                , Border.widthEach { top = 2, bottom = 2, left = 2, right = 0 }
-                , Background.color Style.bgWhite
-                , Border.color Style.bgDark
                 ]
-                { label =
-                    E.row
-                        [ E.width E.fill ]
-                        [ E.el [ E.centerX, Style.fontIcons, Style.normalFont ] (E.text "  \u{F061}  ")
-                        , E.el [ Style.bigFont, Font.color Style.fgTitle, E.centerX ]
-                            (E.text (Date.getMonthName (Date.incrementMonth model.date)))
+                (Input.button
+                    [ E.width E.fill
+                    , E.height E.fill
+                    , Border.roundEach { topLeft = 0, bottomLeft = 32, topRight = 0, bottomRight = 0 }
+                    , Font.color Style.fgTitle
+                    , Border.widthEach { top = 0, bottom = 3, left = 3, right = 0 }
+                    , Background.color Style.bgWhite
+                    , Border.color Style.bgDark
+                    , E.paddingEach { top = 4, bottom = 8, left = 0, right = 0 }
+                    , E.focused
+                        [ Border.color Style.fgFocus
+                        , Border.shadow { offset = ( 0, 0 ), size = 0, blur = 0, color = E.rgba 0 0 0 0 }
                         ]
-                , onPress = Just (Msg.SelectDate (Date.incrementMonth model.date))
-                }
+                    ]
+                    { label =
+                        E.row
+                            [ E.width E.fill ]
+                            [ E.el [ E.centerX, Style.fontIcons, Style.normalFont ] (E.text "  \u{F061}  ")
+                            , E.el [ Style.bigFont, Font.color Style.fgTitle, E.centerX ]
+                                (E.text (Date.getMonthName (Date.incrementMonth model.date)))
+                            ]
+                    , onPress = Just (Msg.SelectDate (Date.incrementMonth model.date))
+                    }
+                )
             ]
         , E.row
             [ E.width E.fill

@@ -191,12 +191,11 @@ view dialog =
         , centerY
         , width (px 800)
         , height shrink
-        , Border.rounded 7
         , paddingXY 0 0
         , spacing 0
         , scrollbarY
         , Background.color Style.bgWhite
-        , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 16, color = rgba 0 0 0 0.5 }
+        , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 32, color = rgba 0 0 0 0.75 }
         ]
         [ titleRow dialog
         , amountRow dialog
@@ -231,7 +230,7 @@ amountRow dialog =
     row
         [ alignLeft
         , width fill
-        , paddingEach { top = 24, bottom = 24, right = 48, left = 48 }
+        , paddingEach { top = 48, bottom = 24, right = 64, left = 64 }
         , spacing 12
         , Background.color Style.bgWhite
         ]
@@ -301,7 +300,7 @@ amountRow dialog =
 descriptionRow dialog =
     row
         [ width fill
-        , paddingEach { top = 24, bottom = 24, right = 48, left = 48 }
+        , paddingEach { top = 24, bottom = 24, right = 64, left = 64 }
         , spacing 12
         , Background.color Style.bgWhite
         ]
@@ -336,7 +335,7 @@ buttonsRow dialog =
     row
         [ width fill
         , spacing 24
-        , paddingEach { top = 48, bottom = 24, left = 48, right = 48 }
+        , paddingEach { top = 64, bottom = 24, left = 64, right = 64 }
         , Background.color Style.bgWhite
         ]
         [ Input.button
