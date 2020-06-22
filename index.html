@@ -3,38 +3,126 @@
 
 <head>
   <meta charset="utf-8">
-  <title>Conduit</title>
+  <title>Pactole</title>
+
+  <!-- meta http-equiv="Content-Security-Policy" content="style-src 'self'; script-src 'self'; default-src 'self'"-->
+  <link rel="manifest" href="manifest.json">
 
   <meta name="theme-color" content="#ffffff">
-  <link rel="stylesheet" href="fonts/fa-solid.css">
 
-  <!--
-  <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;700&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Signika:wght@400;700&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Signika+Negative:wght@400;700&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;700&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400;700&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;700&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;700&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Open Sans:wght@400;700&display=swap" rel="stylesheet">
-  -->
+  <!--link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;700&display=swap" rel="stylesheet"-->
 
-  <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;700&display=swap" rel="stylesheet">
-
+  <style>
+  @font-face {
+    font-family: 'Font Awesome 5 Free';
+    font-style: normal;
+    font-weight: 900;
+    font-display: swap;
+    src: url("fonts/fa-solid-900.woff2");
+  }
+  @font-face {
+    font-family: 'Work Sans';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("fonts/work-sans-v7-latin-regular.woff2");
+  }
+  @font-face {
+    font-family: 'Work Sans';
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url("fonts/work-sans-v7-latin-700.woff2");
+  }
+  </style>
   <script src="elm.js"></script>
 </head>
 
 <body>
   <script>
-    var accounts
-    try {
-      accounts = JSON.parse (localStorage.getItem ("accounts"))
-    } catch (e) {
-      console.error (e)
-      accounts = []
+
+    // PROGRESSIVE WEB APP ////////////////////////////////////////////////////
+
+    if (!('serviceWorker' in navigator)) {
+      console.error('FATAL: Service workers are not supported by the navigator.')
+      throw new Error('FATAL: Service workers are not supported by the navigator.')
     }
+
+    navigator.storage.persist().then(persisted => {
+      if (persisted) {
+        navigator.storage.estimate().then(info => {
+          console.log(
+            `Persistent storage: usage = ${Math.round(
+              info.usage / 1024,
+            )}kb, (quota = ${Math.round(info.quota / 1024)}kb).`,
+          )
+        })
+      } else {
+        console.error('*** NOT Persisted! ***')
+        //TODO
+      }
+    })
+
+    onload = () => {
+      navigator.serviceWorker
+        .register('./service.js')
+        .then(registration => {
+          if (registration.installing) {
+            console.log(
+              `Service registration: installing (scope: ${registration.scope})`,
+            )
+          } else if (registration.waiting) {
+            console.log(
+              `Service registration: waiting (scope: ${registration.scope})`,
+            )
+          } else if (registration.active) {
+            console.log(
+              `Service registration: active (scope: ${registration.scope})`,
+            )
+          }
+          registration.onupdatefound = () => {
+            let w = registration.installing
+            console.log(`A new service is being installed...`)
+            w.onstatechange = event => {
+              if (event.target.state === 'installed') {
+                console.log(`The new service has been installed.`)
+              }
+            }
+          }
+        })
+        .catch(err => {
+          console.error(`Service registration failed: ${err}`)
+        })
+    }
+
+    //navigator.serviceWorker.startMessages()
+
+    navigator.serviceWorker.ready
+      .then(registration => {
+        console.log(`Starting Pactole application`)
+        setupService(registration.active)
+      })
+      .catch(err => {
+        console.error(`Service worker not ready: ${err}`)
+      })
+
+
+    let service = null
+
+    function setupService(s) {
+      service = s
+      navigator.serviceWorker.onmessage = event => {
+        console.log(`Received ${event.data}.`)
+        //TODO: communication between tabs?
+      }
+    }
+
+    function send(title, content) {
+      console.log(`Sending ${title} to service...`)
+      return service.postMessage({ title: title, content: content })
+    }
+
+    // ELM STUFF //////////////////////////////////////////////////////////////
 
     function getLedger (account) {
       var result
@@ -54,10 +142,20 @@
     var app
     {
       var today = new Date ()
-      var account
-      if (accounts instanceof Array && accounts.length > 0 && typeof accounts[0] == "string") {
-        account = accounts[0]
+
+      var accounts
+      try {
+        accounts = JSON.parse (localStorage.getItem ("accounts"))
+      } catch (e) {
+        console.error (e)
+        accounts = []
       }
+
+      if (! (accounts instanceof Array && accounts.length > 0 && typeof accounts[0] == "string")) {
+        accounts = ["Mon Compte"]
+        localStorage.setItem("accounts", JSON.stringify(accounts))
+      }
+      var account = accounts[0]
       var ledger = getLedger (account)
       var flags = {
         today: {

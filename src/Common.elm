@@ -86,7 +86,7 @@ init flags =
                     l
 
                 Err e ->
-                    Debug.log ("init flags ledger: " ++ Decode.errorToString e) Ledger.empty
+                    Ledger.empty
     in
     { mode = InCalendar
     , today = today -- Date.fromPosix (Time.millisToPosix 0)

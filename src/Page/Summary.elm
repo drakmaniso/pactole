@@ -90,7 +90,7 @@ accountOption : String -> Input.OptionState -> Elem.Element msg
 accountOption value state =
     Elem.el
         ([ Elem.centerX
-         , Elem.paddingXY 16 8
+         , Elem.paddingXY 16 7
          , Border.rounded 3
          , Style.bigFont
          ]
