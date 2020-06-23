@@ -12,7 +12,11 @@ const files = [
 ]
 
 function log(msg) {
-  console.log(`* ${msg}`)
+  console.log(`[SW] ${msg}`)
+}
+
+function error(msg) {
+  console.error(`[SW] ${msg}`)
 }
 
 oninstall = event => {
@@ -30,9 +34,10 @@ oninstall = event => {
       })
       .then(() => {
         log('...service installed.')
+        return self.skipWaiting()
       })
       .catch(err => {
-        console.error(err)
+        error(err)
       }),
   )
 }
@@ -62,58 +67,56 @@ onactivate = event => {
 }
 
 onfetch = event => {
-  //log(`fetch: ${event.request.url}...`)
+  log(`fetch: ${event.request.url}...`)
   event.respondWith(
     caches.match(event.request).then(response => {
       if (response) {
-        //log(`cached: ${event.request.url}`)
+        //log(`Fetch cached: ${event.request.url}`)
         return response
       }
-      console.error(`* CACHE FAIL: ${event.request.url}`)
+      error(`CACHE FAIL: ${event.request.url}`)
       //return
       return fetch(event.request, { cache: 'no-store' })
     }),
+  )
+
+  event.waitUntil(
+    caches
+      .open('pactole')
+      .then(cache => {
+        return fetch(event.request).then(response => {
+          log(`updating cache for ${event.request.url}`)
+          return cache.put(event.request, response)
+        })
+      })
   )
 }
 
 onmessage = event => {
   const msg = event.data
-  log(`Received ${msg.title}.`)
+
+  log(`Received "${msg.title}" from client ${event.source} ${event.origin}`)
   switch (msg.title) {
-    case 'new transaction':
-      send('transactions', null)
+    case 'get account list':
+      respond(event, 'set account list', ["Fool", "Babar"])
       break
-    case 'update application':
-      log('Updating application...')
-      event.waitUntil(
-        caches
-          .open('pactole')
-          .then(cache => {
-            log('...updating cache...')
-            //return cache.addAll(files)
-            return cache.addAll(
-              files.map(f => {
-                return new Request(f, { cache: 'reload' })
-              }),
-            )
-          })
-          .then(() => {
-            return send('reload')
-          })
-          .then(() => {
-            log('...application updated.')
-          })
-          .catch(err => {
-            console.error(err)
-          }),
-      )
+    case 'storeLedger':
+      respond(event, 'BOOYA!', null)
+      broadcast('updateLedger', null)
       break
   }
 }
 
-function send(title, content) {
+
+function respond(event, title, content) {
+  log(`Responding "${title}" to client ${event.source}...`)
+  event.source.postMessage({ title: title, content: content })
+}
+
+
+function broadcast(title, content) {
   return clients.matchAll({ includeUnctonrolled: true }).then(clients => {
-    log(`Sending ${title} to ${clients.length} client(s).`)
+    log(`Broadcasting "${title}" to ${clients.length} client(s)...`)
     for (const c of clients) {
       c.postMessage({ title: title, content: content })
     }

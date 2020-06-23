@@ -67,7 +67,8 @@ init flags _ _ =
       , dialog = Nothing
       , page = MainPage
       }
-    , Cmd.none
+    , Cmd.batch
+        []
       {-
          , Cmd.batch
              [ Task.perform Msg.Today (Task.map2 Date.fromZoneAndPosix Time.here Time.now)
@@ -112,6 +113,9 @@ update msg model =
         Msg.UrlChanged url ->
             ( model, Cmd.none )
 
+        Msg.Receive ( title, json ) ->
+            commonMsg (Common.msgReceive ( title, json ))
+
         Msg.ToCalendar ->
             commonMsg Common.msgToCalendar
 
@@ -133,12 +137,6 @@ update msg model =
 
         Msg.SelectAccount account ->
             commonMsg (Common.msgSelectAccount account)
-
-        Msg.UpdateAccountList json ->
-            commonMsg (Common.msgUpdateAccountList json)
-
-        Msg.UpdateLedger json ->
-            commonMsg (Common.msgUpdateLedger json)
 
         Msg.KeyDown string ->
             if string == "Alt" || string == "Control" then
@@ -179,8 +177,7 @@ update msg model =
 subscriptions : Model -> Sub Msg.Msg
 subscriptions _ =
     Sub.batch
-        [ Ports.updateAccountList Msg.UpdateAccountList
-        , Ports.updateLedger Msg.UpdateLedger
+        [ Ports.receive Msg.Receive
         , Browser.Events.onKeyDown (keyDecoder Msg.KeyDown)
         , Browser.Events.onKeyUp (keyDecoder Msg.KeyUp)
         ]

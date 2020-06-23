@@ -18,6 +18,7 @@ import Element.Border as Border
 import Element.Font as Font
 import Element.Input as Input
 import Html.Attributes as HtmlAttr
+import Json.Encode as Encode
 import Ledger
 import Money
 import Msg
@@ -130,8 +131,13 @@ msgConfirm common model =
                     in
                     ( { common | ledger = newLedger }
                     , Nothing
-                    , Ports.storeLedger
-                        ( Maybe.withDefault "ERROR" common.account, Ledger.encode newLedger )
+                    , Ports.updateTransaction
+                        { account = common.account
+                        , id = id
+                        , date = dialog.date
+                        , amount = amount
+                        , description = dialog.description
+                        }
                     )
 
                 ( Nothing, Just amount ) ->
@@ -146,8 +152,12 @@ msgConfirm common model =
                     in
                     ( { common | ledger = newLedger }
                     , Nothing
-                    , Ports.storeLedger
-                        ( Maybe.withDefault "ERROR" common.account, Ledger.encode newLedger )
+                    , Ports.newTransaction
+                        { account = common.account
+                        , date = dialog.date
+                        , amount = amount
+                        , description = dialog.description
+                        }
                     )
 
                 ( _, _ ) ->
@@ -169,8 +179,8 @@ msgDelete common model =
                     in
                     ( { common | ledger = newLedger }
                     , Nothing
-                    , Ports.storeLedger
-                        ( Maybe.withDefault "ERROR" common.account, Ledger.encode newLedger )
+                    , Ports.send ( "storeLedger", Encode.object [] )
+                      --  ( Maybe.withDefault "ERROR" common.account, Ledger.encode newLedger )
                     )
 
                 Nothing ->

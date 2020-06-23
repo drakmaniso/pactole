@@ -12,6 +12,7 @@ type Msg
     = Today Date.Date
     | LinkClicked Browser.UrlRequest
     | UrlChanged Url.Url
+    | Receive ( String, Decode.Value )
     | ToCalendar
     | ToTabular
     | ToMainPage
@@ -19,8 +20,6 @@ type Msg
     | Close
     | SelectDate Date.Date
     | SelectAccount String
-    | UpdateAccountList Decode.Value
-    | UpdateLedger Decode.Value
     | KeyDown String
     | KeyUp String
     | NewDialog Bool Date.Date -- NewDialog isExpense date

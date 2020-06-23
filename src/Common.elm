@@ -2,6 +2,7 @@ module Common exposing
     ( Mode(..)
     , Model
     , init
+    , msgReceive
     , msgSelectAccount
     , msgSelectDate
     , msgShowAdvanced
@@ -40,14 +41,15 @@ type Mode
 init : Decode.Value -> Model
 init flags =
     let
-        ( accounts, account ) =
-            case Decode.decodeValue (Decode.field "accounts" (Decode.list Decode.string)) flags of
-                Ok a ->
-                    ( a, List.head a )
+        {- ( accounts, account ) =
+           case Decode.decodeValue (Decode.field "accounts" (Decode.list Decode.string)) flags of
+               Ok a ->
+                   ( [], Nothing )
 
-                Err e ->
-                    Debug.log ("init flags: " ++ Decode.errorToString e) ( [], Nothing )
-
+               --( a, List.head a )
+               Err e ->
+               Debug.log ("init flags: " ++ Decode.errorToString e) ( [], Nothing )
+        -}
         day =
             case Decode.decodeValue (Decode.at [ "today", "day" ] Decode.int) flags of
                 Ok v ->
@@ -80,20 +82,22 @@ init flags =
                 Nothing ->
                     Debug.log "init flags: invalid date for today" Date.default
 
-        ledger =
-            case Decode.decodeValue (Decode.field "ledger" Ledger.decoder) flags of
-                Ok l ->
-                    l
+        {- ledger =
+           case Decode.decodeValue (Decode.field "ledger" Ledger.decoder) flags of
+               Ok l ->
+                   Ledger.empty
 
-                Err e ->
-                    Ledger.empty
+               --l
+               Err e ->
+               Ledger.empty
+        -}
     in
     { mode = InCalendar
     , today = today -- Date.fromPosix (Time.millisToPosix 0)
     , date = today --Date.fromPosix (Time.millisToPosix 0)
-    , ledger = ledger
-    , accounts = accounts
-    , account = account
+    , ledger = Ledger.empty --ledger
+    , accounts = [] --accounts
+    , account = Nothing --account
     , showAdvanced = False
     }
 
@@ -105,6 +109,32 @@ init flags =
 msgToday : Date.Date -> Model -> ( Model, Cmd Msg.Msg )
 msgToday d model =
     ( { model | today = d, date = d }, Cmd.none )
+
+
+msgReceive : ( String, Decode.Value ) -> Model -> ( Model, Cmd Msg.Msg )
+msgReceive ( title, content ) model =
+    case title of
+        "set account list" ->
+            case Decode.decodeValue (Decode.list Decode.string) content of
+                Ok (account :: others) ->
+                    ( { model | accounts = account :: others, account = Just account }
+                    , Cmd.none
+                    )
+
+                Err e ->
+                    --TODO: error
+                    ( model, Ports.error ("while decoding account list: " ++ Decode.errorToString e) )
+
+                _ ->
+                    --TODO: error
+                    ( model, Ports.error "received account list is empty" )
+
+        "service worker ready" ->
+            ( model, Ports.getAccountList )
+
+        _ ->
+            --TODO: error
+            ( model, Ports.error ("in message from service worker: unknown title \"" ++ title ++ "\"") )
 
 
 msgToCalendar : Model -> ( Model, Cmd Msg.Msg )
@@ -128,7 +158,7 @@ msgSelectDate date model =
 
 msgSelectAccount : String -> Model -> ( Model, Cmd Msg.Msg )
 msgSelectAccount account model =
-    ( { model | account = Just account }, Ports.requestLedger account )
+    ( { model | account = Just account }, Ports.openAccount account )
 
 
 msgUpdateAccountList : Decode.Value -> Model -> ( Model, Cmd Msg.Msg )

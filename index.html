@@ -43,173 +43,117 @@
 
     // PROGRESSIVE WEB APP ////////////////////////////////////////////////////
 
-    if (!('serviceWorker' in navigator)) {
-      console.error('FATAL: Service workers are not supported by the navigator.')
-      throw new Error('FATAL: Service workers are not supported by the navigator.')
+    function log(msg) {
+      console.log(`[JS] ${msg}`)
+    }
+
+    function error(msg) {
+      console.error(`[JS] ${msg}`)
     }
 
     navigator.storage.persist().then(persisted => {
       if (persisted) {
         navigator.storage.estimate().then(info => {
-          console.log(
+          log(
             `Persistent storage: usage = ${Math.round(
               info.usage / 1024,
             )}kb, (quota = ${Math.round(info.quota / 1024)}kb).`,
           )
         })
       } else {
-        console.error('*** NOT Persisted! ***')
-        //TODO
+        error('FATAL: This application requires persistent storage')
+        throw new Error('FATAL: This application requires persistent storage')
       }
     })
+
+    if (!('serviceWorker' in navigator)) {
+      error('FATAL: Service workers are not supported by the navigator.')
+      throw new Error('FATAL: Service workers are not supported by the navigator.')
+    }
 
     onload = () => {
       navigator.serviceWorker
         .register('./service.js')
         .then(registration => {
           if (registration.installing) {
-            console.log(
+            log(
               `Service registration: installing (scope: ${registration.scope})`,
             )
           } else if (registration.waiting) {
-            console.log(
+            log(
               `Service registration: waiting (scope: ${registration.scope})`,
             )
           } else if (registration.active) {
-            console.log(
+            log(
               `Service registration: active (scope: ${registration.scope})`,
             )
           }
           registration.onupdatefound = () => {
             let w = registration.installing
-            console.log(`A new service is being installed...`)
+            log(`A new service is being installed...`)
             w.onstatechange = event => {
               if (event.target.state === 'installed') {
-                console.log(`The new service has been installed.`)
+                log(`The new service has been installed.`)
               }
             }
           }
         })
         .catch(err => {
-          console.error(`Service registration failed: ${err}`)
+          error(`Service registration failed: ${err}`)
         })
     }
 
     //navigator.serviceWorker.startMessages()
 
+
+    let service
+
     navigator.serviceWorker.ready
       .then(registration => {
-        console.log(`Starting Pactole application`)
-        setupService(registration.active)
+        log(`Starting application`)
+        service = registration.active
+        navigator.serviceWorker.onmessage = event => {
+          log(`Received "${event.data.title}"`)
+          app.ports.receive.send([event.data.title, event.data.content])
+        }
+        app.ports.receive.send(["service worker ready", null])
       })
       .catch(err => {
-        console.error(`Service worker not ready: ${err}`)
+        error(`Service worker not ready: ${err}`)
       })
 
 
-    let service = null
-
-    function setupService(s) {
-      service = s
-      navigator.serviceWorker.onmessage = event => {
-        console.log(`Received ${event.data}.`)
-        //TODO: communication between tabs?
-      }
-    }
-
     function send(title, content) {
-      console.log(`Sending ${title} to service...`)
+      if (title == "error") {
+        console.error (`[ELM] ${content}`)
+        return
+      }
+      log(`Sending "${title}"...`)
       return service.postMessage({ title: title, content: content })
     }
 
     // ELM STUFF //////////////////////////////////////////////////////////////
 
-    function getLedger (account) {
-      var result
-      if (account !== null) {
-        var key = "ledger." + account
-        try {
-          result = JSON.parse (localStorage.getItem (key))
-        } catch (e) {
-          console.error (e)
-          result = null
-        }
-      }
-      return result
-    }
 
-
-    var app
+    let app
     {
-      var today = new Date ()
+      let today = new Date ()
 
-      var accounts
-      try {
-        accounts = JSON.parse (localStorage.getItem ("accounts"))
-      } catch (e) {
-        console.error (e)
-        accounts = []
-      }
-
-      if (! (accounts instanceof Array && accounts.length > 0 && typeof accounts[0] == "string")) {
-        accounts = ["Mon Compte"]
-        localStorage.setItem("accounts", JSON.stringify(accounts))
-      }
-      var account = accounts[0]
-      var ledger = getLedger (account)
-      var flags = {
+      let flags = {
         today: {
           year: today.getFullYear (),
           month: today.getMonth (),
           day: today.getDate ()
-        },
-        accounts: accounts,
-        ledger: ledger
+        }
       }
       app = Elm.Main.init({flags: flags})
     }
 
-    app.ports.requestLedger.subscribe(function(name) {
-      console.log("requestLedger " + name)
-      app.ports.updateLedger.send (getLedger (name))
+    app.ports.send.subscribe(function(args) {
+      [title, content] = args
+      send (title, content)
     })
 
-    app.ports.storeLedger.subscribe(function(args) {
-      [name, ledger] = args
-      console.log("storeLedger " + name)
-      var key = "ledger." + name
-      localStorage.setItem(key, JSON.stringify(ledger))
-    })
-
-    // Whenever localStorage changes in another tab, report it if necessary.
-    window.addEventListener("storage", function(event) {
-      console.log ("Storage event!")
-      if (event.storageArea === localStorage) {
-        console.log ("LOCAL storage event!")
-        let v = JSON.parse(event.newValue)
-        //TODO: handle JSON.parse exceptions
-        switch (event.key) {
-          case "accounts":
-            app.ports.updateAccountList.send(v)
-        }
-        //TODO: propagate ledger-keys changes
-      }
-    })
-
-
-    /*
-    app.ports.storeCache.subscribe(function(val) {
-
-      if (val === null) {
-        localStorage.removeItem(storageKey);
-      } else {
-        localStorage.setItem(storageKey, JSON.stringify(val));
-      }
-
-      // Report that the new session was stored successfully.
-      setTimeout(function() { app.ports.onStoreChange.send(val); }, 0);
-    });
-    */
 
   </script>
 </body>
