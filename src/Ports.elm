@@ -26,17 +26,35 @@ getAccountList =
     send ( "get account list", Encode.object [] )
 
 
-openAccount : String -> Cmd Msg.Msg
-openAccount account =
-    send ( "open account", Encode.string account )
+getLedger : String -> Cmd Msg.Msg
+getLedger account =
+    send ( "get ledger", Encode.string account )
 
 
-updateTransaction : { account : Maybe String, id : Int, date : Date.Date, amount : Money.Money, description : String } -> Cmd Msg.Msg
-updateTransaction { account, id, date, amount, description } =
+addTransaction : { account : Maybe String, date : Date.Date, amount : Money.Money, description : String } -> Cmd Msg.Msg
+addTransaction { account, date, amount, description } =
     case account of
         Just acc ->
             send
-                ( "update transaction"
+                ( "add transaction"
+                , Encode.object
+                    [ ( "account", Encode.string acc )
+                    , ( "date", Encode.int (Date.toInt date) )
+                    , ( "amount", Money.encoder amount )
+                    , ( "description", Encode.string description )
+                    ]
+                )
+
+        Nothing ->
+            error "add transaction: no current account"
+
+
+putTransaction : { account : Maybe String, id : Int, date : Date.Date, amount : Money.Money, description : String } -> Cmd Msg.Msg
+putTransaction { account, id, date, amount, description } =
+    case account of
+        Just acc ->
+            send
+                ( "put transaction"
                 , Encode.object
                     [ ( "account", Encode.string acc )
                     , ( "id", Encode.int id )
@@ -47,22 +65,20 @@ updateTransaction { account, id, date, amount, description } =
                 )
 
         Nothing ->
-            error "update transaction: no current account"
+            error "put transaction: no current account"
 
 
-newTransaction : { account : Maybe String, date : Date.Date, amount : Money.Money, description : String } -> Cmd Msg.Msg
-newTransaction { account, date, amount, description } =
+deleteTransaction : { account : Maybe String, id : Int } -> Cmd Msg.Msg
+deleteTransaction { account, id } =
     case account of
         Just acc ->
             send
-                ( "new transaction"
+                ( "delete transaction"
                 , Encode.object
                     [ ( "account", Encode.string acc )
-                    , ( "date", Encode.int (Date.toInt date) )
-                    , ( "amount", Money.encoder amount )
-                    , ( "description", Encode.string description )
+                    , ( "id", Encode.int id )
                     ]
                 )
 
         Nothing ->
-            error "new transaction: no current account"
+            error "delete transaction: no current account"

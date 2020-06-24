@@ -2,7 +2,6 @@ module Page.Calendar exposing (view)
 
 import Common
 import Date
-import Debug
 import Element as E
 import Element.Background as Background
 import Element.Border as Border
@@ -47,7 +46,7 @@ view model =
         , E.el
             [ E.width (E.fillPortion 75)
             , E.height E.fill
-            , Border.widthEach { top = 0, bottom = 0, left = 3, right = 0 }
+            , Border.widthEach { top = 0, bottom = 0, left = 2, right = 0 }
             , Border.color Style.bgDark
             ]
             (calendar model)
@@ -97,7 +96,7 @@ calendar model =
                         [ E.width E.fill
                         , E.height E.fill
                         , E.clipY
-                        , E.spacing 3
+                        , E.spacing 2
                         ]
                         (loopThroughWeek date)
                         :: loopThroughMonth (Date.incrementWeek date)
@@ -113,7 +112,7 @@ calendar model =
     E.column
         [ E.width E.fill
         , E.height E.fill
-        , E.spacing 3
+        , E.spacing 2
         , E.padding 0
         , Background.color Style.bgDark
         ]
@@ -142,7 +141,7 @@ calendarHeader model =
                     , E.height E.fill
                     , Border.roundEach { topLeft = 0, bottomLeft = 0, topRight = 0, bottomRight = 32 }
                     , Font.color Style.fgTitle
-                    , Border.widthEach { top = 0, bottom = 3, left = 0, right = 3 }
+                    , Border.widthEach { top = 0, bottom = 2, left = 0, right = 2 }
                     , Background.color Style.bgWhite
                     , Border.color Style.bgDark
                     , E.paddingEach { top = 4, bottom = 8, left = 0, right = 0 }
@@ -177,7 +176,7 @@ calendarHeader model =
                     , E.height E.fill
                     , Border.roundEach { topLeft = 0, bottomLeft = 32, topRight = 0, bottomRight = 0 }
                     , Font.color Style.fgTitle
-                    , Border.widthEach { top = 0, bottom = 3, left = 3, right = 0 }
+                    , Border.widthEach { top = 0, bottom = 2, left = 2, right = 0 }
                     , Background.color Style.bgWhite
                     , Border.color Style.bgDark
                     , E.paddingEach { top = 4, bottom = 8, left = 0, right = 0 }
@@ -366,7 +365,7 @@ dayView model =
             , Font.center
             , Font.bold
             , Style.bigFont
-            , Border.widthEach { top = 3, bottom = 0, left = 0, right = 0 }
+            , Border.widthEach { top = 2, bottom = 0, left = 0, right = 0 }
             , Border.color Style.bgDark
             ]
             (if model.date == model.today then

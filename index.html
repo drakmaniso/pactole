@@ -67,8 +67,13 @@
     })
 
     if (!('serviceWorker' in navigator)) {
-      error('FATAL: Service workers are not supported by the navigator.')
-      throw new Error('FATAL: Service workers are not supported by the navigator.')
+      error('Service workers are not supported by the navigator.')
+      throw new Error('Service workers are not supported by the navigator.')
+    }
+
+    if (!('indexedDB' in window)) {
+      error('IndexedDB not supported by browser.')
+      throw new Error('IndexedDB not supported by browser.')
     }
 
     onload = () => {
@@ -110,10 +115,10 @@
 
     navigator.serviceWorker.ready
       .then(registration => {
-        log(`Starting application`)
+        log(`Application started.`)
         service = registration.active
         navigator.serviceWorker.onmessage = event => {
-          log(`Received "${event.data.title}"`)
+          log(`Received "${event.data.title}" from service.`)
           app.ports.receive.send([event.data.title, event.data.content])
         }
         app.ports.receive.send(["service worker ready", null])
@@ -128,7 +133,7 @@
         console.error (`[ELM] ${content}`)
         return
       }
-      log(`Sending "${title}"...`)
+      log(`Sending "${title}" to service...`)
       return service.postMessage({ title: title, content: content })
     }
 

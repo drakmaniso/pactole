@@ -17,6 +17,7 @@ import Array as Array
 import Date
 import Json.Decode as Decode
 import Ledger
+import Money
 import Msg
 import Ports
 import Time
@@ -114,11 +115,14 @@ msgToday d model =
 msgReceive : ( String, Decode.Value ) -> Model -> ( Model, Cmd Msg.Msg )
 msgReceive ( title, content ) model =
     case title of
+        "service worker ready" ->
+            ( model, Ports.getAccountList )
+
         "set account list" ->
             case Decode.decodeValue (Decode.list Decode.string) content of
                 Ok (account :: others) ->
                     ( { model | accounts = account :: others, account = Just account }
-                    , Cmd.none
+                    , Ports.getLedger account
                     )
 
                 Err e ->
@@ -129,12 +133,63 @@ msgReceive ( title, content ) model =
                     --TODO: error
                     ( model, Ports.error "received account list is empty" )
 
-        "service worker ready" ->
-            ( model, Ports.getAccountList )
+        "ledger updated" ->
+            case Decode.decodeValue Decode.string content of
+                Ok account ->
+                    ( model, Ports.getLedger account )
 
+                Err e ->
+                    ( model, Ports.error (Decode.errorToString e) )
+
+        "set ledger" ->
+            case Decode.decodeValue Ledger.decoder content of
+                Ok ledger ->
+                    ( { model | ledger = ledger }
+                    , Cmd.none
+                    )
+
+                Err e ->
+                    ( model, Ports.error (Decode.errorToString e) )
+
+        {-
+           "add transaction" ->
+               case Decode.decodeValue (Decode.field "account" Decode.string) content of
+                   Ok account ->
+                       if Just account == model.account then
+                           let
+                               transaction =
+                                   content
+                                       |> Decode.decodeValue
+                                           (Decode.map3
+                                               (\date amount desc ->
+                                                   { date = Date.fromInt date
+                                                   , amount = amount
+                                                   , description = desc
+                                                   }
+                                               )
+                                               (Decode.field "date" Decode.int)
+                                               (Decode.field "amount" Money.decoder)
+                                               (Decode.field "description" Decode.string)
+                                           )
+                           in
+                           case transaction of
+                               Ok tr ->
+                                   ( { model | ledger = Ledger.addTransaction tr model.ledger }
+                                   , Cmd.none
+                                   )
+
+                               Err e ->
+                                   ( model, Ports.error (Decode.errorToString e) )
+
+                       else
+                           ( model, Cmd.none )
+
+                   Err e ->
+                       ( model, Ports.error (Decode.errorToString e) )
+        -}
         _ ->
             --TODO: error
-            ( model, Ports.error ("in message from service worker: unknown title \"" ++ title ++ "\"") )
+            ( model, Ports.error ("in message from service: unknown title \"" ++ title ++ "\"") )
 
 
 msgToCalendar : Model -> ( Model, Cmd Msg.Msg )
@@ -158,7 +213,7 @@ msgSelectDate date model =
 
 msgSelectAccount : String -> Model -> ( Model, Cmd Msg.Msg )
 msgSelectAccount account model =
-    ( { model | account = Just account }, Ports.openAccount account )
+    ( { model | account = Just account }, Ports.getLedger account )
 
 
 msgUpdateAccountList : Decode.Value -> Model -> ( Model, Cmd Msg.Msg )

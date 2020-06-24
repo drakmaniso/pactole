@@ -64,7 +64,7 @@ msgEditDialog : Int -> Common.Model -> Maybe Model -> ( Common.Model, Maybe Mode
 msgEditDialog id common _ =
     case Ledger.getTransaction id common.ledger of
         Nothing ->
-            ( common, Nothing, Debug.log "*** Unable to get transaction" Cmd.none )
+            ( common, Nothing, Ports.error "msgEditDialog: unable to get transaction" )
 
         Just t ->
             ( common
@@ -119,19 +119,9 @@ msgConfirm common model =
         Just dialog ->
             case ( dialog.id, Money.fromInput dialog.isExpense dialog.amount ) of
                 ( Just id, Just amount ) ->
-                    let
-                        newLedger =
-                            Ledger.updateTransaction
-                                { id = id
-                                , date = dialog.date
-                                , amount = amount
-                                , description = dialog.description
-                                }
-                                common.ledger
-                    in
-                    ( { common | ledger = newLedger }
+                    ( common
                     , Nothing
-                    , Ports.updateTransaction
+                    , Ports.putTransaction
                         { account = common.account
                         , id = id
                         , date = dialog.date
@@ -141,18 +131,9 @@ msgConfirm common model =
                     )
 
                 ( Nothing, Just amount ) ->
-                    let
-                        newLedger =
-                            Ledger.addTransaction
-                                { date = dialog.date
-                                , amount = amount
-                                , description = dialog.description
-                                }
-                                common.ledger
-                    in
-                    ( { common | ledger = newLedger }
+                    ( common
                     , Nothing
-                    , Ports.newTransaction
+                    , Ports.addTransaction
                         { account = common.account
                         , date = dialog.date
                         , amount = amount
@@ -161,10 +142,10 @@ msgConfirm common model =
                     )
 
                 ( _, _ ) ->
-                    ( common, model, Cmd.none )
+                    ( common, model, Ports.error "impossible Confirm message" )
 
         _ ->
-            ( common, model, Cmd.none )
+            ( common, model, Ports.error "impossible Confirm message" )
 
 
 msgDelete : Common.Model -> Maybe Model -> ( Common.Model, Maybe Model, Cmd Msg.Msg )
@@ -173,21 +154,19 @@ msgDelete common model =
         Just dialog ->
             case dialog.id of
                 Just id ->
-                    let
-                        newLedger =
-                            Ledger.deleteTransaction id common.ledger
-                    in
-                    ( { common | ledger = newLedger }
+                    ( common
                     , Nothing
-                    , Ports.send ( "storeLedger", Encode.object [] )
-                      --  ( Maybe.withDefault "ERROR" common.account, Ledger.encode newLedger )
+                    , Ports.deleteTransaction
+                        { account = common.account
+                        , id = id
+                        }
                     )
 
                 Nothing ->
-                    Debug.log "IMPOSSIBLE DELETE MSG" ( common, model, Cmd.none )
+                    ( common, model, Ports.error "impossible Delete message" )
 
         Nothing ->
-            Debug.log "IMPOSSIBLE DELETE MSG" ( common, model, Cmd.none )
+            ( common, model, Ports.error "impossible Delete message" )
 
 
 

@@ -3,9 +3,7 @@ module Ledger exposing
     , Ledger
     , Reconciliation
     , Transaction
-    , addTransaction
     , decoder
-    , deleteTransaction
     , empty
     , encode
     , getAllTransactions
@@ -13,7 +11,6 @@ module Ledger exposing
     , getDateTransactions
     , getDescriptionDisplay
     , getTransaction
-    , updateTransaction
     )
 
 import Date
@@ -30,12 +27,11 @@ import Time
 type Ledger
     = Ledger
         { transactions : List Transaction
-        , nextId : Int
         }
 
 
 empty =
-    Ledger { transactions = [], nextId = 0 }
+    Ledger { transactions = [] }
 
 
 getAllTransactions : Ledger -> List Transaction
@@ -77,55 +73,58 @@ getTransaction id (Ledger ledger) =
             Debug.log "INCONSISTENT LEDGER: MULTIPLE TRANSACIONTS WITH SAME ID" Nothing
 
 
-addTransaction : { date : Date.Date, amount : Money.Money, description : String } -> Ledger -> Ledger
-addTransaction { date, amount, description } (Ledger ledger) =
-    Ledger
-        { transactions =
-            ledger.transactions
-                ++ [ { id = ledger.nextId
-                     , date = date
-                     , amount = amount
-                     , description = description
-                     , category = NoCategory
-                     , reconciliation = NotReconciled
-                     }
-                   ]
-        , nextId = ledger.nextId + 1
-        }
 
-
-updateTransaction : { id : Int, date : Date.Date, amount : Money.Money, description : String } -> Ledger -> Ledger
-updateTransaction { id, date, amount, description } (Ledger ledger) =
-    Ledger
-        { transactions =
-            List.map
-                (\t ->
-                    if t.id == id then
-                        { id = id
+{-
+   addTransaction : { date : Date.Date, amount : Money.Money, description : String } -> Ledger -> Ledger
+   addTransaction { date, amount, description } (Ledger ledger) =
+       Ledger
+           { transactions =
+               ledger.transactions
+                   ++ [ { id = ledger.nextId
                         , date = date
                         , amount = amount
                         , description = description
                         , category = NoCategory
                         , reconciliation = NotReconciled
                         }
-
-                    else
-                        t
-                )
-                ledger.transactions
-        , nextId = ledger.nextId + 1
-        }
+                      ]
+           , nextId = ledger.nextId + 1
+           }
 
 
-deleteTransaction : Int -> Ledger -> Ledger
-deleteTransaction id (Ledger ledger) =
-    Ledger
-        { transactions =
-            List.filter
-                (\t -> t.id /= id)
-                ledger.transactions
-        , nextId = ledger.nextId
-        }
+   updateTransaction : { id : Int, date : Date.Date, amount : Money.Money, description : String } -> Ledger -> Ledger
+   updateTransaction { id, date, amount, description } (Ledger ledger) =
+       Ledger
+           { transactions =
+               List.map
+                   (\t ->
+                       if t.id == id then
+                           { id = id
+                           , date = date
+                           , amount = amount
+                           , description = description
+                           , category = NoCategory
+                           , reconciliation = NotReconciled
+                           }
+
+                       else
+                           t
+                   )
+                   ledger.transactions
+           , nextId = ledger.nextId + 1
+           }
+
+
+   deleteTransaction : Int -> Ledger -> Ledger
+   deleteTransaction id (Ledger ledger) =
+       Ledger
+           { transactions =
+               List.filter
+                   (\t -> t.id /= id)
+                   ledger.transactions
+           , nextId = ledger.nextId
+           }
+-}
 
 
 decoder =
@@ -134,17 +133,6 @@ decoder =
             Ledger
                 { transactions =
                     List.sortWith (\a b -> Date.compare a.date b.date) t
-                , nextId =
-                    List.map .id t
-                        |> List.maximum
-                        |> (\v ->
-                                case v of
-                                    Nothing ->
-                                        0
-
-                                    Just vv ->
-                                        vv + 1
-                           )
                 }
     in
     Decode.map toLedger (Decode.field "transactions" (Decode.list transactionDecoder))
