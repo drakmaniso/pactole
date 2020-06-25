@@ -43,16 +43,9 @@
 
     // PROGRESSIVE WEB APP ////////////////////////////////////////////////////
 
-    function log(msg) {
-      console.log(`[JS] ${msg}`)
-    }
 
-    function error(msg) {
-      console.error(`[JS] ${msg}`)
-    }
-
-    navigator.storage.persist().then(persisted => {
-      if (persisted) {
+    navigator.storage.persist().then(persistent => {
+      if (persistent) {
         navigator.storage.estimate().then(info => {
           log(
             `Persistent storage: usage = ${Math.round(
@@ -61,25 +54,34 @@
           )
         })
       } else {
+        //TODO: what?
         error('FATAL: This application requires persistent storage')
         throw new Error('FATAL: This application requires persistent storage')
       }
     })
 
-    if (!('serviceWorker' in navigator)) {
-      error('Service workers are not supported by the navigator.')
-      throw new Error('Service workers are not supported by the navigator.')
-    }
 
     if (!('indexedDB' in window)) {
       error('IndexedDB not supported by browser.')
       throw new Error('IndexedDB not supported by browser.')
     }
 
+
+    if (!('serviceWorker' in navigator)) {
+      error('Service workers are not supported by the navigator.')
+      throw new Error('Service workers are not supported by the navigator.')
+    }
+
+
+    //TODO: add a settings button to call this?
+    let updateService
+
+
     onload = () => {
       navigator.serviceWorker
         .register('./service.js')
         .then(registration => {
+          updateService = () => registration.update()
           if (registration.installing) {
             log(
               `Service registration: installing (scope: ${registration.scope})`,
@@ -95,17 +97,15 @@
           }
           registration.onupdatefound = () => {
             let w = registration.installing
-            log(`A new service is being installed...`)
+            log(`Update found: installation in progress...`)
             w.onstatechange = event => {
               if (event.target.state === 'installed') {
-                log(`The new service has been installed.`)
+                log(`The update has been installed.`)
               }
             }
           }
         })
-        .catch(err => {
-          error(`Service registration failed: ${err}`)
-        })
+        .catch(err => error(`Service registration failed: ${err}`))
     }
 
     //navigator.serviceWorker.startMessages()
@@ -113,7 +113,9 @@
 
     let service
 
-    navigator.serviceWorker.ready
+
+    navigator.serviceWorker
+      .ready
       .then(registration => {
         log(`Application started.`)
         service = registration.active
@@ -123,19 +125,8 @@
         }
         app.ports.receive.send(["service worker ready", null])
       })
-      .catch(err => {
-        error(`Service worker not ready: ${err}`)
-      })
+      .catch(err => error(`Service worker not ready: ${err}`))
 
-
-    function send(title, content) {
-      if (title == "error") {
-        console.error (`[ELM] ${content}`)
-        return
-      }
-      log(`Sending "${title}" to service...`)
-      return service.postMessage({ title: title, content: content })
-    }
 
     // ELM STUFF //////////////////////////////////////////////////////////////
 
@@ -153,11 +144,30 @@
       }
       app = Elm.Main.init({flags: flags})
     }
+ 
 
     app.ports.send.subscribe(function(args) {
       [title, content] = args
-      send (title, content)
+      if (title == "error") {
+        console.error (`[ELM] ${content}`)
+        return
+      }
+      log(`Sending "${title}" to service...`)
+      return service.postMessage({ title: title, content: content })
     })
+
+
+    // UTILITIES //////////////////////////////////////////////////////////////
+
+
+    function log(msg) {
+      console.log(`[JS] ${msg}`)
+    }
+
+
+    function error(msg) {
+      console.error(`[JS] ${msg}`)
+    }
 
 
   </script>

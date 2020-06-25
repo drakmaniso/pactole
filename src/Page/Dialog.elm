@@ -25,6 +25,7 @@ import Msg
 import Ports
 import Style
 import Task
+import Ui
 
 
 
@@ -104,7 +105,8 @@ msgDescription string common model =
             ( common
             , Just
                 { dialog
-                    | description = string
+                    | description =
+                        String.filter (\c -> c /= Char.fromCode 13 && c /= Char.fromCode 10) string
                 }
             , Cmd.none
             )
@@ -141,8 +143,8 @@ msgConfirm common model =
                         }
                     )
 
-                ( _, _ ) ->
-                    ( common, model, Ports.error "impossible Confirm message" )
+                ( _, Nothing ) ->
+                    ( common, model, Ports.error "invalid amount input" )
 
         _ ->
             ( common, model, Ports.error "impossible Confirm message" )
@@ -224,7 +226,8 @@ amountRow dialog =
         , Background.color Style.bgWhite
         ]
         [ Input.text
-            [ Style.bigFont
+            [ Ui.onEnter Msg.DialogConfirm
+            , Style.bigFont
             , paddingXY 8 12
             , width (shrink |> minimum 220)
             , alignLeft
@@ -234,8 +237,7 @@ amountRow dialog =
             ]
             { label =
                 Input.labelAbove
-                    [ Input.focusedOnLoad
-                    , width shrink
+                    [ width shrink
                     , alignLeft
                     , height fill
                     , Font.color Style.fgTitle
@@ -294,7 +296,8 @@ descriptionRow dialog =
         , Background.color Style.bgWhite
         ]
         [ Input.multiline
-            [ Style.bigFont
+            [ Ui.onEnter Msg.DialogConfirm
+            , Style.bigFont
             , paddingXY 8 12
             , Border.width 1
             , Border.color Style.bgDark

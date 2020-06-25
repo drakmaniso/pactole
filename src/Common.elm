@@ -23,6 +23,10 @@ import Ports
 import Time
 
 
+
+-- MODEL
+
+
 type alias Model =
     { mode : Mode
     , today : Date.Date
@@ -39,25 +43,16 @@ type Mode
     | InTabular
 
 
-init : Decode.Value -> Model
+init : Decode.Value -> ( Model, Cmd Msg.Msg )
 init flags =
     let
-        {- ( accounts, account ) =
-           case Decode.decodeValue (Decode.field "accounts" (Decode.list Decode.string)) flags of
-               Ok a ->
-                   ( [], Nothing )
-
-               --( a, List.head a )
-               Err e ->
-               Debug.log ("init flags: " ++ Decode.errorToString e) ( [], Nothing )
-        -}
         day =
             case Decode.decodeValue (Decode.at [ "today", "day" ] Decode.int) flags of
                 Ok v ->
                     v
 
                 Err e ->
-                    Debug.log ("init flags: " ++ Decode.errorToString e) 0
+                    0
 
         month =
             case Decode.decodeValue (Decode.at [ "today", "month" ] Decode.int) flags of
@@ -65,7 +60,7 @@ init flags =
                     v
 
                 Err e ->
-                    Debug.log ("init flags: " ++ Decode.errorToString e) 0
+                    0
 
         year =
             case Decode.decodeValue (Decode.at [ "today", "year" ] Decode.int) flags of
@@ -73,34 +68,26 @@ init flags =
                     v
 
                 Err e ->
-                    Debug.log ("init flags: " ++ Decode.errorToString e) 0
+                    0
 
-        today =
+        ( today, cmd ) =
             case Date.fromParts { day = day, month = month, year = year } of
                 Just d ->
-                    d
+                    ( d, Cmd.none )
 
                 Nothing ->
-                    Debug.log "init flags: invalid date for today" Date.default
-
-        {- ledger =
-           case Decode.decodeValue (Decode.field "ledger" Ledger.decoder) flags of
-               Ok l ->
-                   Ledger.empty
-
-               --l
-               Err e ->
-               Ledger.empty
-        -}
+                    ( Date.default, Ports.error "init flags: invalid date for today" )
     in
-    { mode = InCalendar
-    , today = today -- Date.fromPosix (Time.millisToPosix 0)
-    , date = today --Date.fromPosix (Time.millisToPosix 0)
-    , ledger = Ledger.empty --ledger
-    , accounts = [] --accounts
-    , account = Nothing --account
-    , showAdvanced = False
-    }
+    ( { mode = InCalendar
+      , today = today
+      , date = today
+      , ledger = Ledger.empty
+      , accounts = []
+      , account = Nothing
+      , showAdvanced = False
+      }
+    , cmd
+    )
 
 
 
@@ -110,6 +97,67 @@ init flags =
 msgToday : Date.Date -> Model -> ( Model, Cmd Msg.Msg )
 msgToday d model =
     ( { model | today = d, date = d }, Cmd.none )
+
+
+msgToCalendar : Model -> ( Model, Cmd Msg.Msg )
+msgToCalendar model =
+    ( { model | mode = InCalendar }
+    , Cmd.none
+    )
+
+
+msgToTabular : Model -> ( Model, Cmd Msg.Msg )
+msgToTabular model =
+    ( { model | mode = InTabular }
+    , Cmd.none
+    )
+
+
+msgSelectDate : Date.Date -> Model -> ( Model, Cmd Msg.Msg )
+msgSelectDate date model =
+    ( { model | date = date }, Cmd.none )
+
+
+msgSelectAccount : String -> Model -> ( Model, Cmd Msg.Msg )
+msgSelectAccount account model =
+    ( { model | account = Just account }, Ports.getLedger account )
+
+
+msgUpdateAccountList : Decode.Value -> Model -> ( Model, Cmd Msg.Msg )
+msgUpdateAccountList json model =
+    let
+        ( accounts, account, cmd ) =
+            case Decode.decodeValue (Decode.list Decode.string) json of
+                Ok a ->
+                    ( a, List.head a, Cmd.none )
+
+                Err e ->
+                    ( [], Nothing, Ports.error ("Msg.SetAccounts: " ++ Decode.errorToString e) )
+    in
+    ( { model | accounts = accounts, account = account, ledger = Ledger.empty }, cmd )
+
+
+msgUpdateLedger : Decode.Value -> Model -> ( Model, Cmd Msg.Msg )
+msgUpdateLedger json model =
+    let
+        ( ledger, cmd ) =
+            case Decode.decodeValue Ledger.decoder json of
+                Ok l ->
+                    ( l, Cmd.none )
+
+                Err e ->
+                    ( Ledger.empty, Ports.error ("Msg.SetLedger: " ++ Decode.errorToString e) )
+    in
+    ( { model | ledger = ledger }, cmd )
+
+
+msgShowAdvanced : Bool -> Model -> ( Model, Cmd Msg.Msg )
+msgShowAdvanced show model =
+    ( { model | showAdvanced = show }, Cmd.none )
+
+
+
+-- SERVICE WORKER MESSAGES
 
 
 msgReceive : ( String, Decode.Value ) -> Model -> ( Model, Cmd Msg.Msg )
@@ -190,66 +238,3 @@ msgReceive ( title, content ) model =
         _ ->
             --TODO: error
             ( model, Ports.error ("in message from service: unknown title \"" ++ title ++ "\"") )
-
-
-msgToCalendar : Model -> ( Model, Cmd Msg.Msg )
-msgToCalendar model =
-    ( { model | mode = InCalendar }
-    , Cmd.none
-    )
-
-
-msgToTabular : Model -> ( Model, Cmd Msg.Msg )
-msgToTabular model =
-    ( { model | mode = InTabular }
-    , Cmd.none
-    )
-
-
-msgSelectDate : Date.Date -> Model -> ( Model, Cmd Msg.Msg )
-msgSelectDate date model =
-    ( { model | date = date }, Cmd.none )
-
-
-msgSelectAccount : String -> Model -> ( Model, Cmd Msg.Msg )
-msgSelectAccount account model =
-    ( { model | account = Just account }, Ports.getLedger account )
-
-
-msgUpdateAccountList : Decode.Value -> Model -> ( Model, Cmd Msg.Msg )
-msgUpdateAccountList json model =
-    let
-        ( accounts, account ) =
-            case Decode.decodeValue (Decode.list Decode.string) json of
-                Ok a ->
-                    ( a, List.head a )
-
-                Err e ->
-                    Debug.log ("Msg.SetAccounts: " ++ Decode.errorToString e)
-                        ( [], Nothing )
-    in
-    ( { model | accounts = accounts, account = account, ledger = Ledger.empty }, Cmd.none )
-
-
-msgUpdateLedger : Decode.Value -> Model -> ( Model, Cmd Msg.Msg )
-msgUpdateLedger json model =
-    let
-        ledger =
-            case Decode.decodeValue Ledger.decoder json of
-                Ok l ->
-                    l
-
-                Err e ->
-                    Debug.log ("Msg.SetLedger: " ++ Decode.errorToString e)
-                        Ledger.empty
-    in
-    ( { model | ledger = ledger }, Cmd.none )
-
-
-msgShowAdvanced : Bool -> Model -> ( Model, Cmd Msg.Msg )
-msgShowAdvanced show model =
-    ( { model | showAdvanced = show }, Cmd.none )
-
-
-
---

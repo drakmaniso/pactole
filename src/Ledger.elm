@@ -70,7 +70,8 @@ getTransaction id (Ledger ledger) =
             Just t
 
         _ ->
-            Debug.log "INCONSISTENT LEDGER: MULTIPLE TRANSACIONTS WITH SAME ID" Nothing
+            --TODO: error: multiple transactions with the same ID
+            Nothing
 
 
 
@@ -211,15 +212,6 @@ idDecoder =
 
 dateDecoder : Decode.Decoder Date.Date
 dateDecoder =
-    let
-        toDate a =
-            case a of
-                Ok aa ->
-                    Date.fromInt aa
-
-                Err e ->
-                    Debug.log (Decode.errorToString e) (Date.fromInt 0)
-    in
     Decode.map Date.fromInt (Decode.field "date" Decode.int)
 
 

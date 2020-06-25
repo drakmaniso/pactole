@@ -242,21 +242,21 @@ fromInt n =
             Array.get (m - 1) Calendar.months
 
         raw =
-            Calendar.fromRawParts
-                { year = y
-                , month =
-                    case mm of
-                        Nothing ->
-                            Debug.log "Ledger.intToDate failed" Time.Jan
+            case mm of
+                Nothing ->
+                    Nothing
 
-                        Just mmm ->
-                            mmm
-                , day = d
-                }
+                Just mmm ->
+                    Calendar.fromRawParts
+                        { year = y
+                        , month = mmm
+                        , day = d
+                        }
     in
     case raw of
         Nothing ->
-            Debug.log "Ledger.intToDate failed" (fromPosix (Time.millisToPosix 0))
+            --TODO: propagate error?
+            fromPosix (Time.millisToPosix 0)
 
         Just date ->
             Date date

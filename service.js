@@ -72,10 +72,7 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   //log(`fetch: ${event.request.url}...`)
   event.respondWith(
-    caches.open(cacheVersion)
-      .then(cache => {
-        return cache.match(event.request)
-      })
+    caches.match(event.request)
   )
 })
 
@@ -190,10 +187,26 @@ function openSettings() {
       const db = req.result
       const os = db.createObjectStore('settings')
       os.transaction.oncomplete = () => {
-        const os = db
-          .transaction('settings', 'readwrite')
-          .objectStore('settings')
-          .add(["Florence","Nathalie"], 'accounts')
+        const tr = db.transaction('settings', 'readwrite')
+        tr.onerror = () => reject(tr.error)
+        const os = tr.objectStore('settings')
+        os.add(['Mon Compte'], 'accounts')
+        os.add('calendar', 'defaultMode')
+        os.add(false, 'categoriesEnabled')
+        os.add(
+          [
+            {name: 'Autre', icon: ''},
+            {name: 'Maison', icon: ''},
+            {name: 'Santé', icon: ''},
+            {name: 'Nourriture', icon: ''},
+            {name: 'Habillement', icon: ''},
+            {name: 'Transports', icon: ''},
+            {name: 'Loisirs', icon: ''},
+          ],
+          'categories'
+        )
+        os.add(false, 'reconciliationEnabled')
+        os.add(false, 'summaryEnabled')
         }
       log(`...settings database upgraded.`)
     }
@@ -250,18 +263,18 @@ function openLedger(account) {
       return
     }
 
-    log(`Opening Pactole database...`)
+    log(`Opening ledger database for "${account}"...`)
     let req = indexedDB.open(name, 1)
-    req.onerror = () => reject(new Error(`failed to open ledger database: ${req.error}`))
-    req.onblocked = () => log('ledger database blocked...')
+    req.onerror = () => reject(new Error(`failed to open ledger database for "${account}": ${req.error}`))
+    req.onblocked = () => log(`ledger database for "${account}" blocked...`)
 
     req.onupgradeneeded = () => {
-      log(`Upgrading ledger database...`)
+      log(`Upgrading ledger database for "${account}"...`)
       const db = req.result
       const os = db.createObjectStore('transactions', {keyPath: 'id', autoIncrement: true})
       os.createIndex('date', 'date')
       os.createIndex('category', 'category')
-      log(`...ledger database upgraded.`)
+      log(`...ledger database for "${account}" upgraded.`)
     }
 
     req.onsuccess = () => {
@@ -271,7 +284,7 @@ function openLedger(account) {
         //TODO
         error(`database error: ${event.target.errorCode}`)
       }
-      log(`...ledger database opened.`)
+      log(`...ledger database for "${account}" opened.`)
       resolve(db)
     }
   })

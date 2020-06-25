@@ -63,12 +63,17 @@ type Page
 
 init : Decode.Value -> Url.Url -> Navigation.Key -> ( Model, Cmd Msg.Msg )
 init flags _ _ =
-    ( { common = Common.init flags
+    let
+        ( common, commonCmd ) =
+            Common.init flags
+    in
+    ( { common = common
       , dialog = Nothing
       , page = MainPage
       }
     , Cmd.batch
-        []
+        [ commonCmd
+        ]
       {-
          , Cmd.batch
              [ Task.perform Msg.Today (Task.map2 Date.fromZoneAndPosix Time.here Time.now)
