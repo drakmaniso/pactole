@@ -26,6 +26,10 @@ getAccountList =
     send ( "get account list", Encode.object [] )
 
 
+createAccount name =
+    send ( "create account", Encode.string name )
+
+
 getLedger : String -> Cmd Msg.Msg
 getLedger account =
     send ( "get ledger", Encode.string account )
@@ -82,3 +86,18 @@ deleteTransaction { account, id } =
 
         Nothing ->
             error "delete transaction: no current account"
+
+
+
+-- Settings
+
+
+renameAccount : String -> String -> Cmd Msg.Msg
+renameAccount account newName =
+    send
+        ( "rename account"
+        , Encode.object
+            [ ( "account", Encode.string account )
+            , ( "newName", Encode.string newName )
+            ]
+        )

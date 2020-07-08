@@ -10,6 +10,7 @@ import Ledger
 import Money
 import Msg
 import Style
+import Ui
 
 
 
@@ -46,8 +47,8 @@ view model =
                         [ Elem.width Elem.fill
                         ]
                         [ Elem.el [ Elem.width Elem.fill ] Elem.none
-                        , Input.button
-                            (Style.button Elem.shrink Style.fgTitle Style.bgWhite Style.bgDark)
+                        , Ui.simpleButton
+                            []
                             { label =
                                 Elem.text "Configurer"
                             , onPress = Just Msg.ToSettings
@@ -161,14 +162,14 @@ buttonRow model =
     Elem.row
         [ Elem.width Elem.fill ]
         [ Elem.el [ Elem.width Elem.fill ] Elem.none
-        , Input.button
-            (Style.button (Elem.fillPortion 3) Style.fgTitle Style.bgWhite Style.bgDark)
+        , Ui.simpleButton
+            [ Elem.width (Elem.fillPortion 3) ]
             { onPress = Nothing
             , label = Elem.text "Bilan"
             }
         , Elem.el [ Elem.width Elem.fill ] Elem.none
-        , Input.button
-            (Style.button (Elem.fillPortion 3) Style.fgTitle Style.bgWhite Style.bgDark)
+        , Ui.simpleButton
+            [ Elem.width (Elem.fillPortion 3) ]
             { onPress = Nothing
             , label = Elem.text "Pointer"
             }

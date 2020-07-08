@@ -7,7 +7,7 @@
 const files = [
   './',
   'favicon.ico',
-  'manifest.json',
+  'manifest.webmanifest',
   'elm.js',
   'fonts/fa-solid-900.woff2',
   'fonts/work-sans-v7-latin-regular.woff2',
@@ -71,6 +71,7 @@ self.addEventListener('activate', event => {
 
 self.addEventListener('fetch', event => {
   //log(`fetch: ${event.request.url}...`)
+  //TODO: handle favicon?
   event.respondWith(
     caches.match(event.request)
   )
@@ -83,12 +84,20 @@ self.addEventListener('message', event => {
   log(`Received "${msg.title}" from client.`)
   switch (msg.title) {
     case 'get account list':
-      getSetting('accounts')
+      getAccountList()
         .then(accounts => {
           log (`accounts = ${accounts}`)
           respond(event, 'set account list', accounts)
         })
         .catch(err => error(`get account list: ${err}`))
+      break
+
+    case 'create account':
+      createAccount(msg.content) 
+        .then(() => log('FOOOOOOOOO'))
+        .then(() => getAccountList())
+        .then(accounts => respond(event, 'set account list', accounts))
+        .catch(err => error(`create account "${msg.content}": ${err}`))
       break
 
     case 'get ledger':
@@ -141,6 +150,21 @@ self.addEventListener('message', event => {
       }
       catch(err) {
         error(`delete transaction: ${err}`)
+      }
+      break
+
+    case 'rename account':
+      try {
+        const {
+          account, newName
+        } = msg.content
+        renameAccount(account, newName)
+          .then(() => getAccountList())
+          .then(accounts => respond(event, 'set account list', accounts))
+          .catch(err => error(`rename account "${account}" to "${newName}": ${err}`))
+      }
+      catch(err) {
+        error(`rename account: ${err}`)
       }
       break
   }
@@ -246,12 +270,50 @@ function getSetting(key) {
 // LEDGERS DATABASES //////////////////////////////////////////////////////////
 
 
+let _ledgersDB = new Map()
+
+
 function ledgerName(account) {
   return `ledger:${account}`
 }
 
 
-let _ledgersDB = new Map()
+function getAccountList() {
+  return new Promise((resolve, reject) => {
+    indexedDB.databases()
+      .then(databases => {
+        let dblist = databases.map(d => d.name)
+        dblist =
+          dblist
+            .filter(n => n.startsWith("ledger:"))
+            .map(n => n.substring(7, n.length+1))
+        if (dblist.length == 0) {
+          log('getAccountList: no existing accounts')
+          dblist = ["Compte"]
+        }
+        resolve (dblist)
+      })
+      .catch(err => reject(err))
+  })
+}
+
+
+function createAccount(account) {
+  return new Promise((resolve, reject) => {
+    openLedger(account)
+      .then(db => resolve())
+      .catch(err => reject(err))
+  })
+}
+
+
+function renameAccount(account, newName) {
+  return new Promise((resolve, reject) => {
+    openLedger(account)
+      .then(db => {db.name = 'ledger:' + newName})
+      .catch(err => reject(err))
+  })
+}
 
 
 function openLedger(account) {

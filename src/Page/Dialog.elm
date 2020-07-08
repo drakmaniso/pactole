@@ -330,13 +330,13 @@ buttonsRow dialog =
         , paddingEach { top = 64, bottom = 24, left = 64, right = 64 }
         , Background.color Style.bgWhite
         ]
-        [ Input.button
-            (alignRight :: Style.button shrink Style.fgTitle Style.bgWhite Style.bgDark)
+        [ Ui.simpleButton
+            [ alignRight ]
             { label = text "Annuler", onPress = Just Msg.Close }
         , case dialog.id of
             Just _ ->
-                Input.button
-                    (Style.button shrink Style.fgTitle Style.bgWhite Style.bgDark)
+                Ui.simpleButton
+                    []
                     { label = text "Supprimer", onPress = Just Msg.DialogDelete }
 
             Nothing ->

@@ -20,6 +20,7 @@ type Msg
     | Close
     | SelectDate Date.Date
     | SelectAccount String
+    | CreateAccount String
     | KeyDown String
     | KeyUp String
     | NewDialog Bool Date.Date -- NewDialog isExpense date
@@ -28,4 +29,7 @@ type Msg
     | DialogDescription String
     | DialogDelete
     | DialogConfirm
+    | OpenRenameAccount String
+    | SettingsName String
+    | RenameAccount String String -- Rename account newName
     | NoOp

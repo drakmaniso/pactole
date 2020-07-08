@@ -52,6 +52,7 @@ main =
 type alias Model =
     { common : Common.Model
     , dialog : Maybe Dialog.Model
+    , settingsDialog : Maybe Settings.Dialog
     , page : Page
     }
 
@@ -69,7 +70,8 @@ init flags _ _ =
     in
     ( { common = common
       , dialog = Nothing
-      , page = MainPage
+      , settingsDialog = Nothing
+      , page = MainPage -- Settings -- MainPage
       }
     , Cmd.batch
         [ commonCmd
@@ -102,6 +104,13 @@ update msg model =
                     handler model.common model.dialog
             in
             ( { model | common = common, dialog = dialog }, cmd )
+
+        settingsMsg handler =
+            let
+                ( settings, cmd ) =
+                    handler model.settingsDialog
+            in
+            ( { model | settingsDialog = settings }, cmd )
     in
     case msg of
         Msg.Today d ->
@@ -135,13 +144,16 @@ update msg model =
 
         Msg.Close ->
             --TODO: delegate to Dialog?
-            ( { model | dialog = Nothing }, Cmd.none )
+            ( { model | dialog = Nothing, settingsDialog = Nothing }, Cmd.none )
 
         Msg.SelectDate date ->
             commonMsg (Common.msgSelectDate date)
 
         Msg.SelectAccount account ->
             commonMsg (Common.msgSelectAccount account)
+
+        Msg.CreateAccount account ->
+            commonMsg (Common.msgCreateAccount account)
 
         Msg.KeyDown string ->
             if string == "Alt" || string == "Control" then
@@ -170,6 +182,15 @@ update msg model =
 
         Msg.DialogDelete ->
             dialogMsg Dialog.msgDelete
+
+        Msg.OpenRenameAccount account ->
+            ( { model | settingsDialog = Just (Settings.openRenameAccount account) }, Cmd.none )
+
+        Msg.SettingsName name ->
+            settingsMsg (Settings.updateName name)
+
+        Msg.RenameAccount account name ->
+            ( model, Ports.renameAccount account name )
 
         Msg.NoOp ->
             ( model, Cmd.none )
@@ -218,9 +239,6 @@ view model =
                 ]
             }
             (case model.dialog of
-                Nothing ->
-                    []
-
                 Just dialog ->
                     [ E.inFront
                         (E.el
@@ -241,6 +259,34 @@ view model =
                             (Dialog.view dialog)
                         )
                     ]
+
+                Nothing ->
+                    case model.settingsDialog of
+                        Just dialog ->
+                            [ E.inFront
+                                (E.el
+                                    [ E.width E.fill
+                                    , E.height E.fill
+                                    , Style.fontFamily
+                                    , E.padding 16
+                                    , E.scrollbarY
+                                    , E.behindContent
+                                        (Input.button
+                                            [ E.width E.fill
+                                            , E.height E.fill
+                                            , Background.color (E.rgba 0 0 0 0.6)
+                                            ]
+                                            { label = E.none
+                                            , onPress = Just Msg.Close
+                                            }
+                                        )
+                                    ]
+                                    (Settings.viewDialog dialog)
+                                )
+                            ]
+
+                        Nothing ->
+                            []
             )
             (case model.page of
                 Settings ->

@@ -2,6 +2,7 @@ module Common exposing
     ( Mode(..)
     , Model
     , init
+    , msgCreateAccount
     , msgReceive
     , msgSelectAccount
     , msgSelectDate
@@ -121,6 +122,11 @@ msgSelectDate date model =
 msgSelectAccount : String -> Model -> ( Model, Cmd Msg.Msg )
 msgSelectAccount account model =
     ( { model | account = Just account }, Ports.getLedger account )
+
+
+msgCreateAccount : String -> Model -> ( Model, Cmd Msg.Msg )
+msgCreateAccount account model =
+    ( model, Ports.createAccount account )
 
 
 msgUpdateAccountList : Decode.Value -> Model -> ( Model, Cmd Msg.Msg )

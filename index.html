@@ -6,9 +6,11 @@
   <title>Pactole</title>
 
   <!-- meta http-equiv="Content-Security-Policy" content="style-src 'self'; script-src 'self'; default-src 'self'"-->
-  <link rel="manifest" href="manifest.json">
 
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="application-name" content="Pactole">
   <meta name="theme-color" content="#ffffff">
+  <link rel="icon" sizes="512x512" href="images/icon-512x512.png">
 
   <!--link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;700&display=swap" rel="stylesheet"-->
 
@@ -50,13 +52,12 @@
           log(
             `Persistent storage: usage = ${Math.round(
               info.usage / 1024,
-            )}kb, (quota = ${Math.round(info.quota / 1024)}kb).`,
+            )} kb, (quota = ${Math.round(info.quota / (1024*1024))} Mb).`,
           )
         })
       } else {
         //TODO: what?
         error('FATAL: This application requires persistent storage')
-        throw new Error('FATAL: This application requires persistent storage')
       }
     })
 

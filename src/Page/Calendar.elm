@@ -14,6 +14,7 @@ import Msg
 import Page.Summary as Summary
 import Style
 import Time
+import Ui
 
 
 
@@ -22,20 +23,8 @@ import Time
 
 view : Common.Model -> E.Element Msg.Msg
 view model =
-    E.row
-        [ E.width E.fill
-        , E.height E.fill
-        , E.clipX
-        , E.clipY
-        , Background.color Style.bgPage
-        , Style.fontFamily
-        ]
-        [ E.column
-            [ E.width (E.fillPortion 25)
-            , E.height E.fill
-            , E.padding 16
-            , E.alignTop
-            ]
+    Ui.pageWithSidePanel []
+        { panel =
             [ E.el
                 [ E.width E.fill, E.height (E.fillPortion 1) ]
                 (Summary.view model)
@@ -43,14 +32,10 @@ view model =
                 [ E.width E.fill, E.height (E.fillPortion 2) ]
                 (dayView model)
             ]
-        , E.el
-            [ E.width (E.fillPortion 75)
-            , E.height E.fill
-            , Border.widthEach { top = 0, bottom = 0, left = 2, right = 0 }
-            , Border.color Style.bgDark
+        , page =
+            [ calendar model
             ]
-            (calendar model)
-        ]
+        }
 
 
 
