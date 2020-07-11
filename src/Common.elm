@@ -1,6 +1,9 @@
 module Common exposing
     ( Mode(..)
     , Model
+    ,  accountName
+       --, msgUpdateAccountList
+
     , init
     , msgCreateAccount
     , msgReceive
@@ -10,17 +13,18 @@ module Common exposing
     , msgToCalendar
     , msgToTabular
     , msgToday
-    , msgUpdateAccountList
     )
 
 import Array as Array
 import Date
+import Dict
 import Json.Decode as Decode
 import Ledger
 import Money
 import Msg
 import Ports
 import Time
+import Tuple
 
 
 
@@ -32,10 +36,25 @@ type alias Model =
     , today : Date.Date
     , date : Date.Date
     , ledger : Ledger.Ledger
-    , accounts : List String
-    , account : Maybe String
+    , accounts : Dict.Dict Int String
+    , account : Maybe Int
     , showAdvanced : Bool
     }
+
+
+accountName id model =
+    case Dict.get id model.accounts of
+        Just name ->
+            name
+
+        Nothing ->
+            "ERROR"
+
+
+decodeAccount =
+    Decode.map2 Tuple.pair
+        (Decode.field "id" Decode.int)
+        (Decode.field "name" Decode.string)
 
 
 type Mode
@@ -82,7 +101,7 @@ init flags =
       , today = today
       , date = today
       , ledger = Ledger.empty
-      , accounts = []
+      , accounts = Dict.empty
       , account = Nothing
       , showAdvanced = False
       }
@@ -118,9 +137,9 @@ msgSelectDate date model =
     ( { model | date = date }, Cmd.none )
 
 
-msgSelectAccount : String -> Model -> ( Model, Cmd Msg.Msg )
-msgSelectAccount account model =
-    ( { model | account = Just account }, Ports.getLedger account )
+msgSelectAccount : Int -> Model -> ( Model, Cmd Msg.Msg )
+msgSelectAccount accountID model =
+    ( { model | account = Just accountID }, Ports.getLedger accountID )
 
 
 msgCreateAccount : String -> Model -> ( Model, Cmd Msg.Msg )
@@ -128,18 +147,21 @@ msgCreateAccount account model =
     ( model, Ports.createAccount account )
 
 
-msgUpdateAccountList : Decode.Value -> Model -> ( Model, Cmd Msg.Msg )
-msgUpdateAccountList json model =
-    let
-        ( accounts, account, cmd ) =
-            case Decode.decodeValue (Decode.list Decode.string) json of
-                Ok a ->
-                    ( a, List.head a, Cmd.none )
 
-                Err e ->
-                    ( [], Nothing, Ports.error ("Msg.SetAccounts: " ++ Decode.errorToString e) )
-    in
-    ( { model | accounts = accounts, account = account, ledger = Ledger.empty }, cmd )
+{-
+   msgUpdateAccountList : Decode.Value -> Model -> ( Model, Cmd Msg.Msg )
+   msgUpdateAccountList json model =
+       let
+           ( accounts, account, cmd ) =
+               case Decode.decodeValue (Decode.list decodeAccount) json of
+                   Ok a ->
+                       ( Dict.fromList a, List.head a, Cmd.none )
+
+                   Err e ->
+                       ( Dict.empty, Nothing, Ports.error ("Msg.SetAccounts: " ++ Decode.errorToString e) )
+       in
+       ( { model | accounts = accounts, account = account, ledger = Ledger.empty }, cmd )
+-}
 
 
 msgShowAdvanced : Bool -> Model -> ( Model, Cmd Msg.Msg )
@@ -158,10 +180,17 @@ msgReceive ( title, content ) model =
             ( model, Ports.getAccountList )
 
         "set account list" ->
-            case Decode.decodeValue (Decode.list (Decode.field "name" Decode.string)) content of
-                Ok (account :: others) ->
-                    ( { model | accounts = account :: others, account = Just account }
-                    , Ports.getLedger account
+            case Decode.decodeValue (Decode.list decodeAccount) content of
+                Ok (head :: tail) ->
+                    let
+                        accounts =
+                            head :: tail
+
+                        accountID =
+                            Tuple.first head
+                    in
+                    ( { model | accounts = Dict.fromList accounts, account = Just accountID }
+                    , Ports.getLedger accountID
                     )
 
                 Err e ->
@@ -173,9 +202,9 @@ msgReceive ( title, content ) model =
                     ( model, Ports.error "received account list is empty" )
 
         "ledger updated" ->
-            case Decode.decodeValue Decode.string content of
-                Ok account ->
-                    ( model, Ports.getLedger account )
+            case Decode.decodeValue Decode.int content of
+                Ok accountID ->
+                    ( model, Ports.getLedger accountID )
 
                 Err e ->
                     ( model, Ports.error (Decode.errorToString e) )

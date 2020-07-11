@@ -1,7 +1,6 @@
 'use strict'
 
 
-
 // SERVICE WORKER CALLBACKS ///////////////////////////////////////////////////
 
 
@@ -168,6 +167,18 @@ self.addEventListener('message', event => {
         error(`rename account: ${err}`)
       }
       break
+
+    case 'delete account':
+      try {
+        deleteAccount(msg.content)
+          .then(() => getAccountList())
+          .then(accounts => respond(event, 'set account list', accounts))
+          .catch(err => error(`delete account "${msg.content}": ${err}`))
+      }
+      catch(err) {
+        error(`delete account: ${err}`)
+      }
+      break
   }
 })
 
@@ -222,13 +233,13 @@ function openDB() {
 
       // Accounts Store
       {
-        const os = db.createObjectStore('accounts', {keyPath: 'name'})
+        const os = db.createObjectStore('accounts', {keyPath: 'id', autoIncrement: true})
         os.add({name: 'Mon Compte'})
       }
 
       // Categories Store
       {
-        const os = db.createObjectStore('categories', {keyPath: 'name'})
+        const os = db.createObjectStore('categories', {keyPath: 'id', autoIncrement: true})
         os.add({name: '', icon: ''})
         os.add({name: 'Maison', icon: ''})
         os.add({name: 'Santé', icon: ''})
@@ -319,19 +330,47 @@ function createAccount(name) {
 }
 
 
-function renameAccount(oldName, newName) {
+function renameAccount(id, newName) {
   return new Promise((resolve, reject) => {
     openDB()
       .then(db => {
         const tr = db.transaction(['accounts'], 'readwrite')
         tr.onerror = () => reject(tr.error)
         const os = tr.objectStore('accounts')
-        const req = os.delete(oldName)
+        const req = os.put({id: id, name: newName})
+        req.onerror = () => reject(req.error)
+        req.onsuccess = () => resolve(req.result)
+      })
+      .catch(err => reject(err))
+  })
+}
+
+
+function deleteAccount(id) {
+  return new Promise((resolve, reject) => {
+    openDB()
+      .then(db => {
+        log(`deleting account "${id}"`)
+        const tr = db.transaction(['accounts', 'ledger'], 'readwrite')
+        tr.onerror = () => reject(tr.error)
+        const os = tr.objectStore('ledger')
+        const idx = os.index('account')
+        const req = idx.openCursor(IDBKeyRange.only(id))
         req.onerror = () => reject(req.error)
         req.onsuccess = () => {
-          const req = os.put({name: newName})
-          req.onerror = () => reject(req.error)
-          req.onsuccess = () => resolve(req.result)
+          const cursor = req.result
+          if(cursor) {
+            log(`deleting key "${cursor.key}"`)
+            cursor.delete()
+            cursor.continue()
+          }
+          else {
+            log("FINISHED?")
+            const os = tr.objectStore('accounts')
+            const req = os.delete(id)
+            req.onerror = () => reject(req.error)
+            req.onsuccess = () => resolve(req.result)
+          }
         }
       })
       .catch(err => reject(err))
@@ -345,7 +384,7 @@ function renameAccount(oldName, newName) {
 // LEDGER /////////////////////////////////////////////////////////////////////
 
 
-function getLedger(accountName) {
+function getLedger(accountID) {
   return new Promise((resolve, reject) => {
     openDB()
       .then(db => {
@@ -353,7 +392,7 @@ function getLedger(accountName) {
         tr.onerror = () => reject(tr.error)
         const os = tr.objectStore('ledger')
         const idx = os.index('account')
-        const req = idx.getAll(accountName)
+        const req = idx.getAll(accountID)
         req.onerror = () => reject(req.error)
         req.onsuccess = () => resolve(req.result)
       })

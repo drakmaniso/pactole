@@ -1,12 +1,15 @@
 module Page.Settings exposing
     ( Dialog
+    , msgChangeName
+    , msgConfirm
+    , openDeleteAccount
     , openRenameAccount
-    , updateName
     , view
     , viewDialog
     )
 
 import Common
+import Dict
 import Element exposing (..)
 import Element.Background as Background
 import Element.Border as Border
@@ -24,21 +27,44 @@ import Ui
 
 
 type Dialog
-    = RenameAccount { account : String, name : String }
+    = RenameAccount { account : Int, name : String }
+    | DeleteAccount { account : Int, name : String }
 
 
-openRenameAccount : String -> Dialog
-openRenameAccount account =
-    RenameAccount { account = account, name = account }
+openRenameAccount : Int -> String -> Dialog
+openRenameAccount id name =
+    RenameAccount { account = id, name = name }
 
 
-updateName : String -> Maybe Dialog -> ( Maybe Dialog, Cmd Msg.Msg )
-updateName name variant =
+openDeleteAccount : Int -> String -> Dialog
+openDeleteAccount id name =
+    DeleteAccount { account = id, name = name }
+
+
+msgChangeName : String -> Maybe Dialog -> ( Maybe Dialog, Cmd Msg.Msg )
+msgChangeName name variant =
     case variant of
         Just (RenameAccount model) ->
             ( Just (RenameAccount { model | name = name })
             , Cmd.none
             )
+
+        Just other ->
+            ( Just other
+            , Ports.error "updateName: not in Rename Dialog"
+            )
+
+        Nothing ->
+            ( Nothing, Cmd.none )
+
+
+msgConfirm variant =
+    case variant of
+        Just (RenameAccount model) ->
+            ( Nothing, Ports.renameAccount model.account model.name )
+
+        Just (DeleteAccount model) ->
+            ( Nothing, Ports.deleteAccount model.account )
 
         Nothing ->
             ( Nothing, Cmd.none )
@@ -70,11 +96,11 @@ view common =
                 , content =
                     column [ spacing 24 ]
                         [ table [ spacing 6 ]
-                            { data = common.accounts
+                            { data = Dict.toList common.accounts
                             , columns =
                                 [ { header = none
                                   , width = fill
-                                  , view = \a -> el [ centerY ] (text a)
+                                  , view = \a -> el [ centerY ] (text (Tuple.second a))
                                   }
                                 , { header = none
                                   , width = shrink
@@ -82,7 +108,7 @@ view common =
                                         \a ->
                                             Ui.iconButton []
                                                 { icon = Ui.editIcon []
-                                                , onPress = Just (Msg.OpenRenameAccount a)
+                                                , onPress = Just (Msg.OpenRenameAccount (Tuple.first a))
                                                 }
                                   }
                                 , { header = none
@@ -91,13 +117,13 @@ view common =
                                         \a ->
                                             Ui.iconButton []
                                                 { icon = Ui.deleteIcon []
-                                                , onPress = Nothing
+                                                , onPress = Just (Msg.OpenDeleteAccount (Tuple.first a))
                                                 }
                                   }
                                 ]
                             }
                         , Ui.simpleButton []
-                            { onPress = Just (Msg.CreateAccount (newAccountName common.accounts 1))
+                            { onPress = Just (Msg.CreateAccount (newAccountName (Dict.values common.accounts) 1))
                             , label = text "Nouveau compte"
                             }
                         ]
@@ -167,9 +193,10 @@ viewDialog variant =
                     [ paddingEach { top = 24, bottom = 24, right = 48, left = 48 }
                     , Style.bigFont
                     ]
-                    (text ("Renommer \"" ++ model.account ++ "\""))
+                    (text ("Renommer \"" ++ String.fromInt model.account ++ "\""))
                 , Input.text
-                    []
+                    [ Ui.onEnter Msg.SettingsConfirm
+                    ]
                     { label =
                         Input.labelAbove
                             [ width shrink
@@ -182,7 +209,7 @@ viewDialog variant =
                             ]
                             (text "Nouveau nom:")
                     , text = model.name
-                    , onChange = \n -> Msg.SettingsName n
+                    , onChange = \n -> Msg.SettingsChangeName n
                     , placeholder = Nothing
                     }
                 , Ui.row
@@ -197,7 +224,41 @@ viewDialog variant =
                         }
                     , Ui.simpleButton []
                         { label = text "Confirmer"
-                        , onPress = Just (Msg.RenameAccount model.account model.name)
+                        , onPress = Just Msg.SettingsConfirm
+                        }
+                    ]
+                ]
+
+        DeleteAccount model ->
+            column
+                [ centerX
+                , centerY
+                , width (px 800)
+                , height shrink
+                , paddingXY 0 0
+                , spacing 0
+                , scrollbarY
+                , Background.color Style.bgWhite
+                , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 32, color = rgba 0 0 0 0.75 }
+                ]
+                [ el
+                    [ paddingEach { top = 24, bottom = 24, right = 48, left = 48 }
+                    , Style.bigFont
+                    ]
+                    (text ("Supprimer \"" ++ model.name ++ "\" ?"))
+                , Ui.row
+                    [ width fill
+                    , spacing 24
+                    , paddingEach { top = 64, bottom = 24, right = 64, left = 64 }
+                    ]
+                    [ Ui.simpleButton
+                        [ alignRight ]
+                        { label = text "Annuler"
+                        , onPress = Just Msg.Close
+                        }
+                    , Ui.simpleButton []
+                        { label = text "SUPPRIMER"
+                        , onPress = Just Msg.SettingsConfirm
                         }
                     ]
                 ]

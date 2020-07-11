@@ -184,13 +184,26 @@ update msg model =
             dialogMsg Dialog.msgDelete
 
         Msg.OpenRenameAccount account ->
-            ( { model | settingsDialog = Just (Settings.openRenameAccount account) }, Cmd.none )
+            ( { model
+                | settingsDialog =
+                    Just (Settings.openRenameAccount account (Common.accountName account model.common))
+              }
+            , Cmd.none
+            )
 
-        Msg.SettingsName name ->
-            settingsMsg (Settings.updateName name)
+        Msg.OpenDeleteAccount account ->
+            ( { model
+                | settingsDialog =
+                    Just (Settings.openDeleteAccount account (Common.accountName account model.common))
+              }
+            , Cmd.none
+            )
 
-        Msg.RenameAccount account name ->
-            ( model, Ports.renameAccount account name )
+        Msg.SettingsChangeName name ->
+            settingsMsg (Settings.msgChangeName name)
+
+        Msg.SettingsConfirm ->
+            settingsMsg Settings.msgConfirm
 
         Msg.NoOp ->
             ( model, Cmd.none )

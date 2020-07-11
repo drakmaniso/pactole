@@ -1,6 +1,7 @@
 module Page.Summary exposing (view)
 
 import Common
+import Dict
 import Element as Elem
 import Element.Background as Background
 import Element.Border as Border
@@ -77,8 +78,8 @@ view model =
                             , label = Input.labelHidden "Compte"
                             , options =
                                 List.map
-                                    (\acc -> Input.optionWith acc (accountOption acc))
-                                    model.accounts
+                                    (\account -> Input.optionWith account (accountOption account model))
+                                    (Dict.keys model.accounts)
                             }
                         , Elem.el [ Elem.width Elem.fill ] Elem.none
                         ]
@@ -98,8 +99,8 @@ view model =
                 ]
 
 
-accountOption : String -> Input.OptionState -> Elem.Element msg
-accountOption value state =
+accountOption : Int -> Common.Model -> Input.OptionState -> Elem.Element msg
+accountOption accountID common state =
     Elem.el
         ([ Elem.centerX
          , Elem.paddingXY 16 7
@@ -117,7 +118,7 @@ accountOption value state =
                         [ Font.color (Elem.rgb 1 1 1), Background.color Style.bgTitle ]
                )
         )
-        (Elem.text value)
+        (Elem.text (Common.accountName accountID common))
 
 
 balanceRow model =

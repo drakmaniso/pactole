@@ -19,7 +19,7 @@ type Msg
     | ToSettings
     | Close
     | SelectDate Date.Date
-    | SelectAccount String
+    | SelectAccount Int
     | CreateAccount String
     | KeyDown String
     | KeyUp String
@@ -29,7 +29,8 @@ type Msg
     | DialogDescription String
     | DialogDelete
     | DialogConfirm
-    | OpenRenameAccount String
-    | SettingsName String
-    | RenameAccount String String -- Rename account newName
+    | OpenRenameAccount Int
+    | OpenDeleteAccount Int
+    | SettingsChangeName String
+    | SettingsConfirm
     | NoOp
