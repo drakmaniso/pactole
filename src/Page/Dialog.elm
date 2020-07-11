@@ -129,6 +129,8 @@ msgConfirm common model =
                         , date = dialog.date
                         , amount = amount
                         , description = dialog.description
+                        , category = ""
+                        , checked = False
                         }
                     )
 
@@ -140,6 +142,8 @@ msgConfirm common model =
                         , date = dialog.date
                         , amount = amount
                         , description = dialog.description
+                        , category = ""
+                        , checked = False
                         }
                     )
 

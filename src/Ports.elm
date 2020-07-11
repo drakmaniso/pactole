@@ -35,8 +35,8 @@ getLedger account =
     send ( "get ledger", Encode.string account )
 
 
-addTransaction : { account : Maybe String, date : Date.Date, amount : Money.Money, description : String } -> Cmd Msg.Msg
-addTransaction { account, date, amount, description } =
+addTransaction : { account : Maybe String, date : Date.Date, amount : Money.Money, description : String, category : String, checked : Bool } -> Cmd Msg.Msg
+addTransaction { account, date, amount, description, category, checked } =
     case account of
         Just acc ->
             send
@@ -46,6 +46,8 @@ addTransaction { account, date, amount, description } =
                     , ( "date", Encode.int (Date.toInt date) )
                     , ( "amount", Money.encoder amount )
                     , ( "description", Encode.string description )
+                    , ( "category", Encode.string category )
+                    , ( "checked", Encode.bool checked )
                     ]
                 )
 
@@ -53,8 +55,8 @@ addTransaction { account, date, amount, description } =
             error "add transaction: no current account"
 
 
-putTransaction : { account : Maybe String, id : Int, date : Date.Date, amount : Money.Money, description : String } -> Cmd Msg.Msg
-putTransaction { account, id, date, amount, description } =
+putTransaction : { account : Maybe String, id : Int, date : Date.Date, amount : Money.Money, description : String, category : String, checked : Bool } -> Cmd Msg.Msg
+putTransaction { account, id, date, amount, description, category, checked } =
     case account of
         Just acc ->
             send
@@ -65,6 +67,8 @@ putTransaction { account, id, date, amount, description } =
                     , ( "date", Encode.int (Date.toInt date) )
                     , ( "amount", Money.encoder amount )
                     , ( "description", Encode.string description )
+                    , ( "category", Encode.string category )
+                    , ( "checked", Encode.bool checked )
                     ]
                 )
 

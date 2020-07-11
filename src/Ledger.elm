@@ -1,11 +1,8 @@
 module Ledger exposing
-    ( Category
-    , Ledger
-    , Reconciliation
+    ( Ledger
     , Transaction
-    , decoder
+    , decode
     , empty
-    , encode
     , getAllTransactions
     , getBalance
     , getDateTransactions
@@ -128,7 +125,7 @@ getTransaction id (Ledger ledger) =
 -}
 
 
-decoder =
+decode =
     let
         toLedger t =
             Ledger
@@ -136,13 +133,7 @@ decoder =
                     List.sortWith (\a b -> Date.compare a.date b.date) t
                 }
     in
-    Decode.map toLedger (Decode.field "transactions" (Decode.list transactionDecoder))
-
-
-encode : Ledger -> Encode.Value
-encode (Ledger ledger) =
-    Encode.object
-        [ ( "transactions", Encode.list encodeTransaction ledger.transactions ) ]
+    Decode.map toLedger (Decode.field "transactions" (Decode.list decodeTransaction))
 
 
 
@@ -154,83 +145,44 @@ type alias Transaction =
     , date : Date.Date
     , amount : Money.Money
     , description : String
-    , category : Category
-    , reconciliation : Reconciliation
+    , category : String
+    , checked : Bool
+    }
+
+
+type alias NewTransaction =
+    { date : Date.Date
+    , amount : Money.Money
+    , description : String
+    , category : String
+    , checked : Bool
     }
 
 
 encodeTransaction : Transaction -> Encode.Value
-encodeTransaction { id, date, amount, description, category, reconciliation } =
-    let
-        withRec =
-            case reconciliation of
-                NotReconciled ->
-                    []
-
-                Reconciled ->
-                    [ ( "reconciled", Encode.bool True ) ]
-
-        withCatRec =
-            case category of
-                NoCategory ->
-                    withRec
-
-                Category c ->
-                    ( "category", Encode.string c ) :: withRec
-    in
+encodeTransaction { id, date, amount, description, category, checked } =
     Encode.object
-        (( "id", Encode.int id )
-            :: ( "date", Encode.int (Date.toInt date) )
-            :: ( "amount", Money.encoder amount )
-            :: ( "description", Encode.string description )
-            :: withCatRec
-        )
+        [ ( "id", Encode.int id )
+        , ( "date", Encode.int (Date.toInt date) )
+        , ( "amount", Money.encoder amount )
+        , ( "description", Encode.string description )
+        , ( "category", Encode.string category )
+        , ( "checked", Encode.bool checked )
+        ]
 
 
-transactionDecoder =
+decodeTransaction =
     Decode.map6 Transaction
-        idDecoder
-        dateDecoder
-        amountDecoder
-        descriptionDecoder
-        categoryDecoder
-        reconciliationDecoder
-
-
-
--- ID
-
-
-idDecoder : Decode.Decoder Int
-idDecoder =
-    Decode.field "id" Decode.int
-
-
-
--- DATE
-
-
-dateDecoder : Decode.Decoder Date.Date
-dateDecoder =
-    Decode.map Date.fromInt (Decode.field "date" Decode.int)
-
-
-
--- AMOUNT
-
-
-amountDecoder : Decode.Decoder Money.Money
-amountDecoder =
-    Decode.field "amount" Money.decoder
+        (Decode.field "id" Decode.int)
+        (Decode.map Date.fromInt (Decode.field "date" Decode.int))
+        (Decode.field "amount" Money.decoder)
+        (Decode.field "description" Decode.string)
+        (Decode.field "category" Decode.string)
+        (Decode.field "checked" Decode.bool)
 
 
 
 -- DESCRIPTION
-
-
-descriptionDecoder : Decode.Decoder String
-descriptionDecoder =
-    Decode.oneOf [ Decode.field "description" Decode.string, Decode.succeed "" ]
 
 
 getDescriptionDisplay transaction =
@@ -243,53 +195,3 @@ getDescriptionDisplay transaction =
 
     else
         transaction.description
-
-
-
--- CATEGORY
-
-
-type Category
-    = Category String
-    | NoCategory
-
-
-categoryDecoder : Decode.Decoder Category
-categoryDecoder =
-    let
-        toCategory c =
-            case c of
-                Just s ->
-                    Category s
-
-                Nothing ->
-                    NoCategory
-    in
-    Decode.map toCategory (Decode.maybe (Decode.field "category" Decode.string))
-
-
-
--- RECONCILIATION
-
-
-type Reconciliation
-    = Reconciled
-    | NotReconciled
-
-
-reconciliationDecoder : Decode.Decoder Reconciliation
-reconciliationDecoder =
-    let
-        toReconciliation r =
-            case r of
-                Just b ->
-                    if b then
-                        Reconciled
-
-                    else
-                        NotReconciled
-
-                Nothing ->
-                    NotReconciled
-    in
-    Decode.map toReconciliation (Decode.maybe (Decode.field "reconciled" Decode.bool))

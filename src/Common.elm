@@ -11,7 +11,6 @@ module Common exposing
     , msgToTabular
     , msgToday
     , msgUpdateAccountList
-    , msgUpdateLedger
     )
 
 import Array as Array
@@ -143,20 +142,6 @@ msgUpdateAccountList json model =
     ( { model | accounts = accounts, account = account, ledger = Ledger.empty }, cmd )
 
 
-msgUpdateLedger : Decode.Value -> Model -> ( Model, Cmd Msg.Msg )
-msgUpdateLedger json model =
-    let
-        ( ledger, cmd ) =
-            case Decode.decodeValue Ledger.decoder json of
-                Ok l ->
-                    ( l, Cmd.none )
-
-                Err e ->
-                    ( Ledger.empty, Ports.error ("Msg.SetLedger: " ++ Decode.errorToString e) )
-    in
-    ( { model | ledger = ledger }, cmd )
-
-
 msgShowAdvanced : Bool -> Model -> ( Model, Cmd Msg.Msg )
 msgShowAdvanced show model =
     ( { model | showAdvanced = show }, Cmd.none )
@@ -173,7 +158,7 @@ msgReceive ( title, content ) model =
             ( model, Ports.getAccountList )
 
         "set account list" ->
-            case Decode.decodeValue (Decode.list Decode.string) content of
+            case Decode.decodeValue (Decode.list (Decode.field "name" Decode.string)) content of
                 Ok (account :: others) ->
                     ( { model | accounts = account :: others, account = Just account }
                     , Ports.getLedger account
@@ -196,7 +181,7 @@ msgReceive ( title, content ) model =
                     ( model, Ports.error (Decode.errorToString e) )
 
         "set ledger" ->
-            case Decode.decodeValue Ledger.decoder content of
+            case Decode.decodeValue Ledger.decode content of
                 Ok ledger ->
                     ( { model | ledger = ledger }
                     , Cmd.none
