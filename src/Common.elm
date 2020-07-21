@@ -147,23 +147,6 @@ msgCreateAccount account model =
     ( model, Ports.createAccount account )
 
 
-
-{-
-   msgUpdateAccountList : Decode.Value -> Model -> ( Model, Cmd Msg.Msg )
-   msgUpdateAccountList json model =
-       let
-           ( accounts, account, cmd ) =
-               case Decode.decodeValue (Decode.list decodeAccount) json of
-                   Ok a ->
-                       ( Dict.fromList a, List.head a, Cmd.none )
-
-                   Err e ->
-                       ( Dict.empty, Nothing, Ports.error ("Msg.SetAccounts: " ++ Decode.errorToString e) )
-       in
-       ( { model | accounts = accounts, account = account, ledger = Ledger.empty }, cmd )
--}
-
-
 msgShowAdvanced : Bool -> Model -> ( Model, Cmd Msg.Msg )
 msgShowAdvanced show model =
     ( { model | showAdvanced = show }, Cmd.none )
@@ -187,6 +170,7 @@ msgReceive ( title, content ) model =
                             head :: tail
 
                         accountID =
+                            --TODO: use current account if set
                             Tuple.first head
                     in
                     ( { model | accounts = Dict.fromList accounts, account = Just accountID }
@@ -202,11 +186,18 @@ msgReceive ( title, content ) model =
                     ( model, Ports.error "received account list is empty" )
 
         "ledger updated" ->
-            case Decode.decodeValue Decode.int content of
-                Ok accountID ->
-                    ( model, Ports.getLedger accountID )
+            case ( model.account, Decode.decodeValue Decode.int content ) of
+                ( Just currentID, Ok updatedID ) ->
+                    if updatedID == currentID then
+                        ( model, Ports.getLedger updatedID )
 
-                Err e ->
+                    else
+                        ( model, Cmd.none )
+
+                ( Nothing, _ ) ->
+                    ( model, Cmd.none )
+
+                ( _, Err e ) ->
                     ( model, Ports.error (Decode.errorToString e) )
 
         "set ledger" ->
