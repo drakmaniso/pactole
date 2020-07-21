@@ -6,11 +6,13 @@ module Ui exposing
     , deleteIcon
     , editIcon
     , iconButton
+    , mainButton
     , onEnter
     , pageTitle
     , pageWithSidePanel
     , row
     , simpleButton
+    , warningParagraph
     )
 
 import Element as El
@@ -22,6 +24,14 @@ import Html.Attributes
 import Html.Events as Events
 import Json.Decode as Decode
 import Style
+
+
+
+-- COLORS
+
+
+warningColor =
+    El.rgb 0.82 0.47 0.0
 
 
 
@@ -90,7 +100,7 @@ configRadio attributes { label, options, selected, onChange } =
         ]
         { label =
             Input.labelAbove
-                [ El.paddingEach { bottom = 0, top = 0, left = 12, right = 12 } ]
+                [ El.paddingEach { bottom = 0, top = 48, left = 12, right = 12 } ]
                 (El.text label)
         , options = options
         , selected = selected
@@ -106,7 +116,10 @@ configCustom :
         }
     -> El.Element msg
 configCustom attributes { label, content } =
-    El.column [ El.padding 12, El.width El.fill ]
+    El.column
+        [ El.paddingEach { top = 48, bottom = 24, left = 12, right = 12 }
+        , El.width El.fill
+        ]
         [ El.el
             [ El.width El.fill
             , El.paddingEach { top = 0, bottom = 24, right = 0, left = 0 }
@@ -135,6 +148,19 @@ deleteIcon attributes =
         (El.text "\u{F2ED}")
 
 
+warningIcon attributes =
+    El.el ([ Style.fontIcons, Style.normalFont, El.centerX ] ++ attributes)
+        (El.text "\u{F071}")
+
+
+bigWarningIcon attributes =
+    El.el
+        ([ Style.fontIcons, Font.size 48, El.alignLeft, El.padding 12, Font.color warningColor ]
+            ++ attributes
+        )
+        (El.text "\u{F071}")
+
+
 
 -- ELEMENTS
 
@@ -151,6 +177,22 @@ pageTitle attributes element =
             ++ attributes
         )
         element
+
+
+warningParagraph : List (El.Attribute msg) -> List (El.Element msg) -> El.Element msg
+warningParagraph attributes elements =
+    El.row
+        ([ Font.color warningColor
+         , Style.smallFont
+         , Font.color Style.fgBlack
+         , El.centerY
+         , El.spacing 12
+         ]
+            ++ attributes
+        )
+        [ bigWarningIcon []
+        , El.paragraph [] elements
+        ]
 
 
 
@@ -170,6 +212,28 @@ simpleButton attributes { onPress, label } =
          , roundCorners
          , Border.width borderWidth
          , Border.color Style.fgDark
+         , El.paddingXY 24 8
+         ]
+            ++ attributes
+        )
+        { onPress = onPress
+        , label = label
+        }
+
+
+mainButton :
+    List (El.Attribute msg)
+    -> { onPress : Maybe msg, label : El.Element msg }
+    -> El.Element msg
+mainButton attributes { onPress, label } =
+    Input.button
+        ([ Background.color Style.bgTitle
+         , Style.normalFont
+         , Font.color Style.fgWhite
+         , Font.center
+         , roundCorners
+         , Border.width borderWidth
+         , Border.color Style.bgTitle
          , El.paddingXY 24 8
          ]
             ++ attributes

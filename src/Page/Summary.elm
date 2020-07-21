@@ -19,84 +19,65 @@ import Ui
 
 
 view model =
-    case model.account of
-        Nothing ->
-            Elem.column
-                [ Elem.width Elem.fill
-                , Elem.height Elem.fill
-                , Elem.centerX
-                , Elem.centerY
-                ]
-                [ Elem.el [] (Elem.text "Pactole") ]
-
-        _ ->
-            Elem.column
-                [ Elem.width Elem.fill
-                , Elem.height Elem.fill
-                , Elem.centerX
-                ]
-                [ Elem.el
-                    [ Style.smallFont
-                    , Elem.paddingEach { top = 0, bottom = 12, left = 0, right = 0 }
-                    , Elem.width Elem.fill
-                    , Font.center
-                    , Font.color Style.fgDark
+    Elem.column
+        [ Elem.width Elem.fill
+        , Elem.height Elem.fill
+        , Elem.centerX
+        ]
+        [ Elem.row
+            [ Elem.width Elem.fill
+            ]
+            [ Elem.el [ Elem.width Elem.fill ] Elem.none
+            , Input.radioRow
+                [ Elem.width Elem.shrink
+                , Elem.focused
+                    [ Border.shadow
+                        { offset = ( 0, 0 )
+                        , size = 4
+                        , blur = 0
+                        , color = Style.fgFocus
+                        }
                     ]
-                    (Elem.text "Gestion des Comptes")
-                , if model.showAdvanced then
-                    Elem.row
-                        [ Elem.width Elem.fill
-                        ]
-                        [ Elem.el [ Elem.width Elem.fill ] Elem.none
-                        , Ui.simpleButton
-                            []
-                            { label =
-                                Elem.text "Configurer"
-                            , onPress = Just Msg.ToSettings
-                            }
-                        , Elem.el [ Elem.width Elem.fill ] Elem.none
-                        ]
-
-                  else
-                    Elem.row
-                        [ Elem.width Elem.fill
-                        ]
-                        [ Elem.el [ Elem.width Elem.fill ] Elem.none
-                        , Input.radioRow
-                            [ Elem.width Elem.shrink
-                            , Elem.focused
-                                [ Border.shadow
-                                    { offset = ( 0, 0 )
-                                    , size = 4
-                                    , blur = 0
-                                    , color = Style.fgFocus
-                                    }
-                                ]
-                            ]
-                            { onChange = Msg.SelectAccount
-                            , selected = model.account
-                            , label = Input.labelHidden "Compte"
-                            , options =
-                                List.map
-                                    (\account -> Input.optionWith account (accountOption account model))
-                                    (Dict.keys model.accounts)
-                            }
-                        , Elem.el [ Elem.width Elem.fill ] Elem.none
-                        ]
-                , Elem.row [ Elem.height (Elem.fillPortion 1) ] [ Elem.none ]
-                , Elem.el
-                    [ Style.smallFont
-                    , Elem.paddingEach { top = 0, bottom = 6, left = 0, right = 0 }
-                    , Elem.width Elem.fill
-                    , Font.center
-                    , Font.color Style.fgDark
-                    ]
-                    (Elem.text "Solde actuel:")
-                , balanceRow model
-                , Elem.row [ Elem.height (Elem.fillPortion 1) ] [ Elem.none ]
-                , buttonRow model
-                , Elem.row [ Elem.height (Elem.fillPortion 2) ] [ Elem.none ]
                 ]
+                { onChange = Msg.SelectAccount
+                , selected = model.account
+                , label = Input.labelHidden "Compte"
+                , options =
+                    List.map
+                        (\account -> Input.optionWith account (accountOption account model))
+                        (Dict.keys model.accounts)
+                }
+            , Elem.el [ Elem.width Elem.fill ] Elem.none
+            ]
+        , Elem.row [ Elem.height (Elem.fillPortion 1) ] [ Elem.none ]
+        , Elem.el
+            [ Style.smallFont
+            , Elem.paddingEach { top = 0, bottom = 6, left = 0, right = 0 }
+            , Elem.width Elem.fill
+            , Font.center
+            , Font.color Style.fgDark
+            ]
+            (Elem.text "Solde actuel:")
+        , balanceRow model
+        , Elem.row [ Elem.height (Elem.fillPortion 1) ] [ Elem.none ]
+        , if model.showAdvanced then
+            Elem.row
+                [ Elem.width Elem.fill
+                ]
+                [ Elem.el [ Elem.width Elem.fill ] Elem.none
+                , Ui.simpleButton
+                    []
+                    { label =
+                        Elem.text "Configurer"
+                    , onPress = Just Msg.ToSettings
+                    }
+                , Elem.el [ Elem.width Elem.fill ] Elem.none
+                ]
+
+          else
+            buttonRow model
+        , Elem.row [ Elem.height (Elem.fillPortion 2) ] [ Elem.none ]
+        ]
 
 
 accountOption : Int -> Common.Model -> Input.OptionState -> Elem.Element msg

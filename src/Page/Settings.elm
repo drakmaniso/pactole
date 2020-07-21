@@ -190,28 +190,26 @@ viewDialog variant =
                 , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 32, color = rgba 0 0 0 0.75 }
                 ]
                 [ el
-                    [ paddingEach { top = 24, bottom = 24, right = 48, left = 48 }
-                    , Style.bigFont
-                    ]
-                    (text ("Renommer \"" ++ String.fromInt model.account ++ "\""))
-                , Input.text
-                    [ Ui.onEnter Msg.SettingsConfirm
-                    ]
-                    { label =
-                        Input.labelAbove
-                            [ width shrink
-                            , height fill
-                            , Font.color Style.fgTitle
-                            , Style.normalFont
-                            , Font.bold
-                            , paddingEach { top = 0, bottom = 0, left = 12, right = 0 }
-                            , pointer
-                            ]
-                            (text "Nouveau nom:")
-                    , text = model.name
-                    , onChange = \n -> Msg.SettingsChangeName n
-                    , placeholder = Nothing
-                    }
+                    [ paddingEach { top = 24, bottom = 24, right = 48, left = 48 } ]
+                    (Input.text
+                        [ Ui.onEnter Msg.SettingsConfirm
+                        , Style.bigFont
+                        ]
+                        { label =
+                            Input.labelAbove
+                                [ width shrink
+                                , Font.color Style.fgTitle
+                                , Style.normalFont
+                                , Font.bold
+                                , paddingEach { top = 12, bottom = 0, left = 12, right = 0 }
+                                , pointer
+                                ]
+                                (text ("Renommer le compte \"" ++ model.name ++ "\":"))
+                        , text = model.name
+                        , onChange = \n -> Msg.SettingsChangeName n
+                        , placeholder = Nothing
+                        }
+                    )
                 , Ui.row
                     [ width fill
                     , spacing 24
@@ -222,7 +220,7 @@ viewDialog variant =
                         { label = text "Annuler"
                         , onPress = Just Msg.Close
                         }
-                    , Ui.simpleButton []
+                    , Ui.mainButton []
                         { label = text "Confirmer"
                         , onPress = Just Msg.SettingsConfirm
                         }
@@ -245,7 +243,12 @@ viewDialog variant =
                     [ paddingEach { top = 24, bottom = 24, right = 48, left = 48 }
                     , Style.bigFont
                     ]
-                    (text ("Supprimer \"" ++ model.name ++ "\" ?"))
+                    (text ("Supprimer le compte \"" ++ model.name ++ "\" ?"))
+                , Ui.warningParagraph
+                    [ paddingEach { top = 24, bottom = 24, right = 96, left = 96 }
+                    ]
+                    [ text "  Note: toutes les opérations associées à ce compte seront définitivement supprimées."
+                    ]
                 , Ui.row
                     [ width fill
                     , spacing 24
@@ -256,8 +259,8 @@ viewDialog variant =
                         { label = text "Annuler"
                         , onPress = Just Msg.Close
                         }
-                    , Ui.simpleButton []
-                        { label = text "SUPPRIMER"
+                    , Ui.mainButton []
+                        { label = text "Supprimer"
                         , onPress = Just Msg.SettingsConfirm
                         }
                     ]

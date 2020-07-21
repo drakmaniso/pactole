@@ -228,6 +228,7 @@ amountRow dialog =
         , paddingEach { top = 48, bottom = 24, right = 64, left = 64 }
         , spacing 12
         , Background.color Style.bgWhite
+        , centerY
         ]
         [ Input.text
             [ Ui.onEnter Msg.DialogConfirm
@@ -266,29 +267,37 @@ amountRow dialog =
             , Border.color (rgba 0 0 0 0)
             ]
             (text "€")
-        , el
-            [ Style.fontIcons
-            , alignBottom
-            , paddingEach { top = 0, bottom = 4, left = 12, right = 0 }
-            , Font.size 48
-            , Font.color Style.bgDark
-            ]
-            (if dialog.amountError /= "" then
-                text "\u{F071}"
 
-             else
-                text ""
-            )
-        , paragraph
-            [ Style.smallFont
-            , width fill
-            , height shrink
-            , alignBottom
-            , paddingEach { top = 8, bottom = 8, left = 0, right = 0 }
-            , Font.alignLeft
-            , Font.color (rgb 0 0 0)
-            ]
-            [ text dialog.amountError ]
+        {-
+           , el
+               [ Style.fontIcons
+               , alignBottom
+               , paddingEach { top = 0, bottom = 4, left = 12, right = 0 }
+               , Font.size 48
+               , Font.color Style.bgDark
+               ]
+               (if dialog.amountError /= "" then
+                   text "\u{F071}"
+
+                else
+                   text ""
+               )
+           , paragraph
+               [ Style.smallFont
+               , width fill
+               , height shrink
+               , alignBottom
+               , paddingEach { top = 8, bottom = 8, left = 0, right = 0 }
+               , Font.alignLeft
+               , Font.color (rgb 0 0 0)
+               ]
+               [ text dialog.amountError ]
+        -}
+        , if dialog.amountError /= "" then
+            Ui.warningParagraph [ width fill ] [ text dialog.amountError ]
+
+          else
+            none
         ]
 
 

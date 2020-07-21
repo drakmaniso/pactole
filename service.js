@@ -16,14 +16,14 @@ const files = [
 ]
 
 
-const cacheVersion = 'pactole-v0'
+const version = 1
 
 
 self.addEventListener('install', event => {
   log('Installing service worker...')
   event.waitUntil(
     caches
-      .open(cacheVersion)
+      .open('Pactole-v' + version)
       .then(cache => {
         log('...installing cache...')
         return cache.addAll(
@@ -41,7 +41,7 @@ self.addEventListener('install', event => {
       })
   )
 })
- 
+
 
 self.addEventListener('activate', event => {
   log('Service worker activated.')
@@ -54,7 +54,7 @@ self.addEventListener('activate', event => {
               names
                 .filter(n => {
                   // Return true to remove n from the cache
-                  return n != cacheVersion
+                  return n != 'Pactole-v' + version
                 })
                 .map(n => {
                   return caches.delete(n)
@@ -85,26 +85,47 @@ self.addEventListener('message', event => {
   switch (msg.title) {
     case 'get account list':
       getAccountList()
-        .then(accounts => {
-          log (`accounts = `, accounts)
-          respond(event, 'set account list', accounts)
-        })
+        .then(accounts => respond(event, 'set account list', accounts))
         .catch(err => error(`get account list: ${err}`))
       break
 
     case 'create account':
       createAccount(msg.content) 
         .then(() => getAccountList())
-        .then(accounts => respond(event, 'set account list', accounts))
+        .then(accounts => broadcast('set account list', accounts))
         .catch(err => error(`create account "${msg.content}": ${err}`))
+      break
+
+    case 'rename account':
+      try {
+        const {
+          account, newName
+        } = msg.content
+        renameAccount(account, newName)
+          .then(() => getAccountList())
+          .then(accounts => broadcast('set account list', accounts))
+          .catch(err => error(`rename account "${account}" to "${newName}": ${err}`))
+      }
+      catch(err) {
+        error(`rename account: ${err}`)
+      }
+      break
+
+    case 'delete account':
+      try {
+        deleteAccount(msg.content)
+          .then(() => getAccountList())
+          .then(accounts => broadcast('set account list', accounts))
+          .catch(err => error(`delete account "${msg.content}": ${err}`))
+      }
+      catch(err) {
+        error(`delete account: ${err}`)
+      }
       break
 
     case 'get ledger':
       getLedger(msg.content)
-        .then(transactions => {
-          //log(`responding set ledger for "${msg.content}" with `, transactions)
-          respond(event, 'set ledger', {transactions: transactions})
-        })
+        .then(transactions => respond(event, 'set ledger', {transactions: transactions}))
         .catch(err => error(`get ledger: ${err}`))
       break
 
@@ -152,33 +173,6 @@ self.addEventListener('message', event => {
         error(`delete transaction: ${err}`)
       }
       break
-
-    case 'rename account':
-      try {
-        const {
-          account, newName
-        } = msg.content
-        renameAccount(account, newName)
-          .then(() => getAccountList())
-          .then(accounts => respond(event, 'set account list', accounts))
-          .catch(err => error(`rename account "${account}" to "${newName}": ${err}`))
-      }
-      catch(err) {
-        error(`rename account: ${err}`)
-      }
-      break
-
-    case 'delete account':
-      try {
-        deleteAccount(msg.content)
-          .then(() => getAccountList())
-          .then(accounts => respond(event, 'set account list', accounts))
-          .catch(err => error(`delete account "${msg.content}": ${err}`))
-      }
-      catch(err) {
-        error(`delete account: ${err}`)
-      }
-      break
   }
 })
 
@@ -214,7 +208,7 @@ function openDB() {
     }
 
     log(`Opening database...`)
-    let req = indexedDB.open("Pactole", 1)
+    let req = indexedDB.open("Pactole", version)
     req.onerror = () => reject(new Error(`failed to open database: ${req.error}`))
     req.onblocked = () => log('database blocked...')
 
@@ -234,7 +228,6 @@ function openDB() {
       // Accounts Store
       {
         const os = db.createObjectStore('accounts', {keyPath: 'id', autoIncrement: true})
-        os.add({name: 'Mon Compte'})
       }
 
       // Categories Store
@@ -307,7 +300,18 @@ function getAccountList() {
         const os = tr.objectStore('accounts')
         const req = os.getAll()
         req.onerror = () => reject(req.error)
-        req.onsuccess = () => resolve(req.result)
+        req.onsuccess = () => {
+          if(req.result.length == 0) {
+            const tr = db.transaction(['accounts'], 'readwrite')
+            tr.onerror = () => reject(tr.error)
+            const os = tr.objectStore('accounts')
+            const req = os.put({name: 'Compte'})
+            req.onerror = () => reject(req.error)
+            req.onsuccess = () => resolve([{id: req.result, name: 'Compte'}])
+          } else {
+            resolve(req.result)
+          }
+        }
       })
       .catch(err => reject(err))
   })

@@ -112,14 +112,11 @@
     //navigator.serviceWorker.startMessages()
 
 
-    let service
-
-
     navigator.serviceWorker
       .ready
       .then(registration => {
         log(`Application started.`)
-        service = registration.active
+        //service = registration.active
         navigator.serviceWorker.onmessage = event => {
           log(`Received "${event.data.title}" from service.`)
           app.ports.receive.send([event.data.title, event.data.content])
@@ -154,7 +151,8 @@
         return
       }
       log(`Sending "${title}" to service...`)
-      return service.postMessage({ title: title, content: content })
+      const sw = navigator.serviceWorker.controller
+      return sw.postMessage({ title: title, content: content })
     })
 
 
