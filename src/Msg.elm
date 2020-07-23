@@ -12,7 +12,7 @@ type Msg
     = Today Date.Date
     | LinkClicked Browser.UrlRequest
     | UrlChanged Url.Url
-    | Receive ( String, Decode.Value )
+    | FromService ( String, Decode.Value )
     | ToCalendar
     | ToTabular
     | ToMainPage
@@ -27,6 +27,7 @@ type Msg
     | EditDialog Int
     | DialogAmount String
     | DialogDescription String
+    | DialogCategory Int
     | DialogDelete
     | DialogConfirm
     | OpenRenameAccount Int

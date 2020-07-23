@@ -52,13 +52,8 @@ self.addEventListener('activate', event => {
           .then(names => {
             return Promise.all(
               names
-                .filter(n => {
-                  // Return true to remove n from the cache
-                  return n != 'Pactole-v' + version
-                })
-                .map(n => {
-                  return caches.delete(n)
-                })
+                .filter(n =>  n != 'Pactole-v' + version)
+                .map(n => caches.delete(n))
             )
           })
       )
@@ -121,6 +116,12 @@ self.addEventListener('message', event => {
       catch(err) {
         error(`delete account: ${err}`)
       }
+      break
+
+    case 'get category list':
+      getCategoryList()
+        .then(accounts => respond(event, 'set category list', accounts))
+        .catch(err => error(`get category list: ${err}`))
       break
 
     case 'get ledger':
@@ -233,13 +234,13 @@ function openDB() {
       // Categories Store
       {
         const os = db.createObjectStore('categories', {keyPath: 'id', autoIncrement: true})
-        os.add({name: '', icon: ''})
         os.add({name: 'Maison', icon: ''})
         os.add({name: 'Santé', icon: ''})
         os.add({name: 'Nourriture', icon: ''})
-        os.add({name: 'Habillement', icon: ''})
+        os.add({name: 'Vêtements', icon: ''})
         os.add({name: 'Transports', icon: ''})
         os.add({name: 'Loisirs', icon: ''})
+        os.add({name: 'Banque', icon: ''})
       }
 
       // Ledger Store
@@ -383,6 +384,22 @@ function deleteAccount(id) {
 
 
 // CATEGORIES /////////////////////////////////////////////////////////////////
+
+
+function getCategoryList() {
+  return new Promise((resolve, reject) => {
+    openDB()
+      .then(db => {
+        const tr = db.transaction(['categories'], 'readonly')
+        tr.onerror = () => reject(tr.error)
+        const os = tr.objectStore('categories')
+        const req = os.getAll()
+        req.onerror = () => reject(req.error)
+        req.onsuccess = () => resolve(req.result)
+      })
+      .catch(err => reject(err))
+  })
+}
 
 
 // LEDGER /////////////////////////////////////////////////////////////////////

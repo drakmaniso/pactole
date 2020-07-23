@@ -5,7 +5,6 @@ import Browser
 import Browser.Dom as Dom
 import Browser.Events
 import Browser.Navigation as Navigation
-import Common
 import Date
 import Element as E
 import Element.Background as Background
@@ -24,6 +23,7 @@ import Page.Dialog as Dialog
 import Page.Settings as Settings
 import Page.Tabular as Tabular
 import Ports
+import Shared
 import Style
 import Task
 import Time
@@ -50,7 +50,7 @@ main =
 
 
 type alias Model =
-    { common : Common.Model
+    { shared : Shared.Model
     , dialog : Maybe Dialog.Model
     , settingsDialog : Maybe Settings.Dialog
     , page : Page
@@ -65,10 +65,10 @@ type Page
 init : Decode.Value -> Url.Url -> Navigation.Key -> ( Model, Cmd Msg.Msg )
 init flags _ _ =
     let
-        ( common, commonCmd ) =
-            Common.init flags
+        ( shared, commonCmd ) =
+            Shared.init flags
     in
-    ( { common = common
+    ( { shared = shared
       , dialog = Nothing
       , settingsDialog = Nothing
       , page = MainPage -- Settings -- MainPage
@@ -91,19 +91,19 @@ init flags _ _ =
 update : Msg.Msg -> Model -> ( Model, Cmd Msg.Msg )
 update msg model =
     let
-        commonMsg handler =
+        sharedMsg handler =
             let
-                ( common, cmd ) =
-                    handler model.common
+                ( shared, cmd ) =
+                    handler model.shared
             in
-            ( { model | common = common }, cmd )
+            ( { model | shared = shared }, cmd )
 
         dialogMsg handler =
             let
-                ( common, dialog, cmd ) =
-                    handler model.common model.dialog
+                ( shared, dialog, cmd ) =
+                    handler model.shared model.dialog
             in
-            ( { model | common = common, dialog = dialog }, cmd )
+            ( { model | shared = shared, dialog = dialog }, cmd )
 
         settingsMsg handler =
             let
@@ -114,7 +114,7 @@ update msg model =
     in
     case msg of
         Msg.Today d ->
-            commonMsg (Common.msgToday d)
+            sharedMsg (Shared.msgToday d)
 
         Msg.LinkClicked req ->
             case req of
@@ -127,14 +127,14 @@ update msg model =
         Msg.UrlChanged url ->
             ( model, Cmd.none )
 
-        Msg.Receive ( title, json ) ->
-            commonMsg (Common.msgReceive ( title, json ))
+        Msg.FromService ( title, json ) ->
+            sharedMsg (Shared.msgFromService ( title, json ))
 
         Msg.ToCalendar ->
-            commonMsg Common.msgToCalendar
+            sharedMsg Shared.msgToCalendar
 
         Msg.ToTabular ->
-            commonMsg Common.msgToTabular
+            sharedMsg Shared.msgToTabular
 
         Msg.ToMainPage ->
             ( { model | page = MainPage }, Cmd.none )
@@ -147,23 +147,23 @@ update msg model =
             ( { model | dialog = Nothing, settingsDialog = Nothing }, Cmd.none )
 
         Msg.SelectDate date ->
-            commonMsg (Common.msgSelectDate date)
+            sharedMsg (Shared.msgSelectDate date)
 
         Msg.SelectAccount account ->
-            commonMsg (Common.msgSelectAccount account)
+            sharedMsg (Shared.msgSelectAccount account)
 
         Msg.CreateAccount account ->
-            commonMsg (Common.msgCreateAccount account)
+            sharedMsg (Shared.msgCreateAccount account)
 
         Msg.KeyDown string ->
             if string == "Alt" || string == "Control" then
-                commonMsg (Common.msgShowAdvanced True)
+                sharedMsg (Shared.msgShowAdvanced True)
 
             else
                 ( model, Cmd.none )
 
         Msg.KeyUp string ->
-            commonMsg (Common.msgShowAdvanced False)
+            sharedMsg (Shared.msgShowAdvanced False)
 
         Msg.NewDialog isExpense date ->
             dialogMsg (Dialog.msgNewDialog isExpense date)
@@ -177,6 +177,9 @@ update msg model =
         Msg.DialogDescription string ->
             dialogMsg (Dialog.msgDescription string)
 
+        Msg.DialogCategory id ->
+            dialogMsg (Dialog.msgCategory id)
+
         Msg.DialogConfirm ->
             dialogMsg Dialog.msgConfirm
 
@@ -186,7 +189,7 @@ update msg model =
         Msg.OpenRenameAccount account ->
             ( { model
                 | settingsDialog =
-                    Just (Settings.openRenameAccount account (Common.accountName account model.common))
+                    Just (Settings.openRenameAccount account (Shared.accountName account model.shared))
               }
             , Cmd.none
             )
@@ -194,7 +197,7 @@ update msg model =
         Msg.OpenDeleteAccount account ->
             ( { model
                 | settingsDialog =
-                    Just (Settings.openDeleteAccount account (Common.accountName account model.common))
+                    Just (Settings.openDeleteAccount account (Shared.accountName account model.shared))
               }
             , Cmd.none
             )
@@ -216,7 +219,7 @@ update msg model =
 subscriptions : Model -> Sub Msg.Msg
 subscriptions _ =
     Sub.batch
-        [ Ports.receive Msg.Receive
+        [ Ports.receive Msg.FromService
         , Browser.Events.onKeyDown (keyDecoder Msg.KeyDown)
         , Browser.Events.onKeyUp (keyDecoder Msg.KeyUp)
         ]
@@ -269,7 +272,7 @@ view model =
                                     E.none
                                 )
                             ]
-                            (Dialog.view dialog)
+                            (Dialog.view model.shared dialog)
                         )
                     ]
 
@@ -303,15 +306,15 @@ view model =
             )
             (case model.page of
                 Settings ->
-                    Settings.view model.common
+                    Settings.view model.shared
 
                 MainPage ->
-                    case model.common.mode of
-                        Common.InCalendar ->
-                            Calendar.view model.common
+                    case model.shared.mode of
+                        Shared.InCalendar ->
+                            Calendar.view model.shared
 
-                        Common.InTabular ->
-                            Tabular.view model.common
+                        Shared.InTabular ->
+                            Tabular.view model.shared
             )
         ]
     }

@@ -8,7 +8,6 @@ module Page.Settings exposing
     , viewDialog
     )
 
-import Common
 import Dict
 import Element exposing (..)
 import Element.Background as Background
@@ -18,6 +17,7 @@ import Element.Input as Input
 import Html.Attributes
 import Msg
 import Ports
+import Shared
 import Style
 import Ui
 
@@ -74,8 +74,8 @@ msgConfirm variant =
 -- VIEW
 
 
-view : Common.Model -> Element Msg.Msg
-view common =
+view : Shared.Model -> Element Msg.Msg
+view shared =
     Ui.pageWithSidePanel []
         { panel =
             [ Ui.simpleButton []
@@ -96,7 +96,7 @@ view common =
                 , content =
                     column [ spacing 24 ]
                         [ table [ spacing 6 ]
-                            { data = Dict.toList common.accounts
+                            { data = Dict.toList shared.accounts
                             , columns =
                                 [ { header = none
                                   , width = fill
@@ -123,7 +123,7 @@ view common =
                                 ]
                             }
                         , Ui.simpleButton []
-                            { onPress = Just (Msg.CreateAccount (newAccountName (Dict.values common.accounts) 1))
+                            { onPress = Just (Msg.CreateAccount (newAccountName (Dict.values shared.accounts) 1))
                             , label = text "Nouveau compte"
                             }
                         ]
@@ -132,23 +132,23 @@ view common =
                 { onChange =
                     \o ->
                         case o of
-                            Common.InCalendar ->
+                            Shared.InCalendar ->
                                 Msg.ToCalendar
 
-                            Common.InTabular ->
+                            Shared.InTabular ->
                                 Msg.ToTabular
                 , label = "Mode d'affichage des opérations:"
                 , options =
-                    [ Input.option Common.InCalendar (text "Calendrier")
-                    , Input.option Common.InTabular (text "Liste")
+                    [ Input.option Shared.InCalendar (text "Calendrier")
+                    , Input.option Shared.InTabular (text "Liste")
                     ]
-                , selected = Just common.mode
+                , selected = Just shared.mode
                 }
             ]
         }
 
 
-accountRow common account =
+accountRow shared account =
     row [ spacing 48 ]
         [ el [] (text account)
         , Ui.iconButton []
@@ -166,8 +166,8 @@ accountRow common account =
 -- CALLBACKS
 
 
-createNewAccount common =
-    Ports.createAccount (newAccountName common.accounts 1)
+createNewAccount shared =
+    Ports.createAccount (newAccountName shared.accounts 1)
 
 
 

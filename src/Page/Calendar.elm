@@ -1,6 +1,5 @@
 module Page.Calendar exposing (view)
 
-import Common
 import Date
 import Element as E
 import Element.Background as Background
@@ -12,6 +11,7 @@ import Ledger
 import Money
 import Msg
 import Page.Summary as Summary
+import Shared
 import Style
 import Time
 import Ui
@@ -21,7 +21,7 @@ import Ui
 -- VIEW
 
 
-view : Common.Model -> E.Element Msg.Msg
+view : Shared.Model -> E.Element Msg.Msg
 view model =
     Ui.pageWithSidePanel []
         { panel =
@@ -42,7 +42,7 @@ view model =
 -- THE CALENDAR
 
 
-calendar : Common.Model -> E.Element Msg.Msg
+calendar : Shared.Model -> E.Element Msg.Msg
 calendar model =
     let
         findTheFirst date =
@@ -213,7 +213,7 @@ calendarFooter model =
         ]
 
 
-calendarCell : Common.Model -> Date.Date -> E.Element Msg.Msg
+calendarCell : Shared.Model -> Date.Date -> E.Element Msg.Msg
 calendarCell model day =
     let
         sel =
@@ -295,7 +295,7 @@ calendarCell model day =
             E.none
 
 
-cellContentFor : Common.Model -> Date.Date -> List (E.Element Msg.Msg)
+cellContentFor : Shared.Model -> Date.Date -> List (E.Element Msg.Msg)
 cellContentFor model day =
     let
         render transaction =
@@ -386,7 +386,7 @@ dayView model =
         ]
 
 
-dayContentFor : Common.Model -> Date.Date -> List (E.Element Msg.Msg)
+dayContentFor : Shared.Model -> Date.Date -> List (E.Element Msg.Msg)
 dayContentFor model day =
     let
         render transaction =

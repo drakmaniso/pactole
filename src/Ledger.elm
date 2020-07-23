@@ -145,7 +145,7 @@ type alias Transaction =
     , date : Date.Date
     , amount : Money.Money
     , description : String
-    , category : String
+    , category : Int
     , checked : Bool
     }
 
@@ -154,7 +154,7 @@ type alias NewTransaction =
     { date : Date.Date
     , amount : Money.Money
     , description : String
-    , category : String
+    , category : Int
     , checked : Bool
     }
 
@@ -166,7 +166,7 @@ encodeTransaction { id, date, amount, description, category, checked } =
         , ( "date", Encode.int (Date.toInt date) )
         , ( "amount", Money.encoder amount )
         , ( "description", Encode.string description )
-        , ( "category", Encode.string category )
+        , ( "category", Encode.int category )
         , ( "checked", Encode.bool checked )
         ]
 
@@ -177,7 +177,7 @@ decodeTransaction =
         (Decode.map Date.fromInt (Decode.field "date" Decode.int))
         (Decode.field "amount" Money.decoder)
         (Decode.field "description" Decode.string)
-        (Decode.field "category" Decode.string)
+        (Decode.field "category" Decode.int)
         (Decode.field "checked" Decode.bool)
 
 

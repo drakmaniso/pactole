@@ -26,6 +26,10 @@ getAccountList =
     send ( "get account list", Encode.object [] )
 
 
+getCategoryList =
+    send ( "get category list", Encode.object [] )
+
+
 createAccount name =
     send ( "create account", Encode.string name )
 
@@ -35,7 +39,7 @@ getLedger account =
     send ( "get ledger", Encode.int account )
 
 
-addTransaction : { account : Maybe Int, date : Date.Date, amount : Money.Money, description : String, category : String, checked : Bool } -> Cmd Msg.Msg
+addTransaction : { account : Maybe Int, date : Date.Date, amount : Money.Money, description : String, category : Int, checked : Bool } -> Cmd Msg.Msg
 addTransaction { account, date, amount, description, category, checked } =
     case account of
         Just acc ->
@@ -46,7 +50,7 @@ addTransaction { account, date, amount, description, category, checked } =
                     , ( "date", Encode.int (Date.toInt date) )
                     , ( "amount", Money.encoder amount )
                     , ( "description", Encode.string description )
-                    , ( "category", Encode.string category )
+                    , ( "category", Encode.int category )
                     , ( "checked", Encode.bool checked )
                     ]
                 )
@@ -55,7 +59,7 @@ addTransaction { account, date, amount, description, category, checked } =
             error "add transaction: no current account"
 
 
-putTransaction : { account : Maybe Int, id : Int, date : Date.Date, amount : Money.Money, description : String, category : String, checked : Bool } -> Cmd Msg.Msg
+putTransaction : { account : Maybe Int, id : Int, date : Date.Date, amount : Money.Money, description : String, category : Int, checked : Bool } -> Cmd Msg.Msg
 putTransaction { account, id, date, amount, description, category, checked } =
     case account of
         Just acc ->
@@ -67,7 +71,7 @@ putTransaction { account, id, date, amount, description, category, checked } =
                     , ( "date", Encode.int (Date.toInt date) )
                     , ( "amount", Money.encoder amount )
                     , ( "description", Encode.string description )
-                    , ( "category", Encode.string category )
+                    , ( "category", Encode.int category )
                     , ( "checked", Encode.bool checked )
                     ]
                 )

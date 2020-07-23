@@ -1,4 +1,4 @@
-module Common exposing
+module Shared exposing
     ( Mode(..)
     , Model
     ,  accountName
@@ -6,7 +6,7 @@ module Common exposing
 
     , init
     , msgCreateAccount
-    , msgReceive
+    , msgFromService
     , msgSelectAccount
     , msgSelectDate
     , msgShowAdvanced
@@ -38,7 +38,14 @@ type alias Model =
     , ledger : Ledger.Ledger
     , accounts : Dict.Dict Int String
     , account : Maybe Int
+    , categories : Dict.Dict Int Category
     , showAdvanced : Bool
+    }
+
+
+type alias Category =
+    { name : String
+    , icon : String
     }
 
 
@@ -55,6 +62,13 @@ decodeAccount =
     Decode.map2 Tuple.pair
         (Decode.field "id" Decode.int)
         (Decode.field "name" Decode.string)
+
+
+decodeCategory =
+    Decode.map3 (\id name icon -> ( id, { name = name, icon = icon } ))
+        (Decode.field "id" Decode.int)
+        (Decode.field "name" Decode.string)
+        (Decode.field "icon" Decode.string)
 
 
 type Mode
@@ -103,6 +117,7 @@ init flags =
       , ledger = Ledger.empty
       , accounts = Dict.empty
       , account = Nothing
+      , categories = Dict.empty
       , showAdvanced = False
       }
     , cmd
@@ -156,11 +171,16 @@ msgShowAdvanced show model =
 -- SERVICE WORKER MESSAGES
 
 
-msgReceive : ( String, Decode.Value ) -> Model -> ( Model, Cmd Msg.Msg )
-msgReceive ( title, content ) model =
+msgFromService : ( String, Decode.Value ) -> Model -> ( Model, Cmd Msg.Msg )
+msgFromService ( title, content ) model =
     case title of
         "service worker ready" ->
-            ( model, Ports.getAccountList )
+            ( model
+            , Cmd.batch
+                [ Ports.getAccountList
+                , Ports.getCategoryList
+                ]
+            )
 
         "set account list" ->
             case Decode.decodeValue (Decode.list decodeAccount) content of
@@ -184,6 +204,15 @@ msgReceive ( title, content ) model =
                 _ ->
                     --TODO: error
                     ( model, Ports.error "received account list is empty" )
+
+        "set category list" ->
+            case Decode.decodeValue (Decode.list decodeCategory) content of
+                Ok categories ->
+                    ( { model | categories = Dict.fromList categories }, Cmd.none )
+
+                Err e ->
+                    --TODO: error
+                    ( model, Ports.error ("while decoding category list: " ++ Decode.errorToString e) )
 
         "ledger updated" ->
             case ( model.account, Decode.decodeValue Decode.int content ) of

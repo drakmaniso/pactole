@@ -1,6 +1,5 @@
 module Page.Summary exposing (view)
 
-import Common
 import Dict
 import Element as Elem
 import Element.Background as Background
@@ -10,6 +9,7 @@ import Element.Input as Input
 import Ledger
 import Money
 import Msg
+import Shared
 import Style
 import Ui
 
@@ -80,8 +80,8 @@ view model =
         ]
 
 
-accountOption : Int -> Common.Model -> Input.OptionState -> Elem.Element msg
-accountOption accountID common state =
+accountOption : Int -> Shared.Model -> Input.OptionState -> Elem.Element msg
+accountOption accountID shared state =
     Elem.el
         ([ Elem.centerX
          , Elem.paddingXY 16 7
@@ -99,7 +99,7 @@ accountOption accountID common state =
                         [ Font.color (Elem.rgb 1 1 1), Background.color Style.bgTitle ]
                )
         )
-        (Elem.text (Common.accountName accountID common))
+        (Elem.text (Shared.accountName accountID shared))
 
 
 balanceRow model =

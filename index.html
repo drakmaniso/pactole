@@ -152,7 +152,12 @@
       }
       log(`Sending "${title}" to service...`)
       const sw = navigator.serviceWorker.controller
-      return sw.postMessage({ title: title, content: content })
+      if (sw) {
+        sw.postMessage({ title: title, content: content })
+      } else {
+        error(`Unable to send message "${title}" to service: the page has no controller`)
+        //TODO: what?
+      }
     })
 
 

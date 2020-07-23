@@ -1,6 +1,5 @@
 module Page.Tabular exposing (view)
 
-import Common
 import Date
 import Element exposing (..)
 import Element.Background as Background
@@ -12,11 +11,12 @@ import Ledger
 import Money
 import Msg
 import Page.Summary as Summary
+import Shared
 import Style
 import Ui
 
 
-view : Common.Model -> Element Msg.Msg
+view : Shared.Model -> Element Msg.Msg
 view model =
     Ui.pageWithSidePanel []
         { panel =
@@ -32,7 +32,7 @@ view model =
         }
 
 
-transactionView : Common.Model -> List (Element Msg.Msg)
+transactionView : Shared.Model -> List (Element Msg.Msg)
 transactionView model =
     Tuple.second
         (List.foldl
