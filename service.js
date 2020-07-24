@@ -93,13 +93,11 @@ self.addEventListener('message', event => {
 
     case 'rename account':
       try {
-        const {
-          account, newName
-        } = msg.content
-        renameAccount(account, newName)
+        const {id, name} = msg.content
+        renameAccount(id, name)
           .then(() => getAccountList())
           .then(accounts => broadcast('set account list', accounts))
-          .catch(err => error(`rename account "${account}" to "${newName}": ${err}`))
+          .catch(err => error(`rename account "${id}" to "${name}": ${err}`))
       }
       catch(err) {
         error(`rename account: ${err}`)
@@ -122,6 +120,44 @@ self.addEventListener('message', event => {
       getCategoryList()
         .then(accounts => respond(event, 'set category list', accounts))
         .catch(err => error(`get category list: ${err}`))
+      break
+
+    case 'create category':
+      try {
+        const {name, icon} = msg.content
+        createCategory(name, icon)
+          .then(() => getCategoryList())
+          .then(categories => broadcast('set category list', categories))
+          .catch(err => error(`create category "${name}": ${err}`))
+      }
+      catch(err) {
+        error(`create category: ${err}`)
+      }
+      break
+
+    case 'rename category':
+      try {
+        const {id, name, icon} = msg.content
+        renameCategory(id, name, icon)
+          .then(() => getCategoryList())
+          .then(categories => broadcast('set category list', categories))
+          .catch(err => error(`rename category "${id}" to "${name}": ${err}`))
+      }
+      catch(err) {
+        error(`rename category: ${err}`)
+      }
+      break
+
+    case 'delete category':
+      try {
+        deleteCategory(msg.content)
+          .then(() => getCategoryList())
+          .then(categories => broadcast('set category list', categories))
+          .catch(err => error(`delete category "${msg.content}": ${err}`))
+      }
+      catch(err) {
+        error(`delete category: ${err}`)
+      }
       break
 
     case 'get ledger':
@@ -335,14 +371,14 @@ function createAccount(name) {
 }
 
 
-function renameAccount(id, newName) {
+function renameAccount(id, name) {
   return new Promise((resolve, reject) => {
     openDB()
       .then(db => {
         const tr = db.transaction(['accounts'], 'readwrite')
         tr.onerror = () => reject(tr.error)
         const os = tr.objectStore('accounts')
-        const req = os.put({id: id, name: newName})
+        const req = os.put({id: id, name: name})
         req.onerror = () => reject(req.error)
         req.onsuccess = () => resolve(req.result)
       })
@@ -394,6 +430,54 @@ function getCategoryList() {
         tr.onerror = () => reject(tr.error)
         const os = tr.objectStore('categories')
         const req = os.getAll()
+        req.onerror = () => reject(req.error)
+        req.onsuccess = () => resolve(req.result)
+      })
+      .catch(err => reject(err))
+  })
+}
+
+
+function createCategory(name, icon) {
+  return new Promise((resolve, reject) => {
+    openDB()
+      .then(db => {
+        const tr = db.transaction(['categories'], 'readwrite')
+        tr.onerror = () => reject(tr.error)
+        const os = tr.objectStore('categories')
+        const req = os.add({name: name, icon: icon})
+        req.onerror = () => reject(req.error)
+        req.onsuccess = () => resolve(req.result)
+      })
+      .catch(err => reject(err))
+  })
+}
+
+
+function renameCategory(id, name, icon) {
+  return new Promise((resolve, reject) => {
+    openDB()
+      .then(db => {
+        const tr = db.transaction(['categories'], 'readwrite')
+        tr.onerror = () => reject(tr.error)
+        const os = tr.objectStore('categories')
+        const req = os.put({id: id, name: name, icon: icon})
+        req.onerror = () => reject(req.error)
+        req.onsuccess = () => resolve(req.result)
+      })
+      .catch(err => reject(err))
+  })
+}
+
+
+function deleteCategory(id) {
+  return new Promise((resolve, reject) => {
+    openDB()
+      .then(db => {
+        const tr = db.transaction(['categories'], 'readwrite')
+        tr.onerror = () => reject(tr.error)
+        const os = tr.objectStore('categories')
+        const req = os.delete(id)
         req.onerror = () => reject(req.error)
         req.onsuccess = () => resolve(req.result)
       })

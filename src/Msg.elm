@@ -20,7 +20,6 @@ type Msg
     | Close
     | SelectDate Date.Date
     | SelectAccount Int
-    | CreateAccount String
     | KeyDown String
     | KeyUp String
     | NewDialog Bool Date.Date -- NewDialog isExpense date
@@ -30,8 +29,12 @@ type Msg
     | DialogCategory Int
     | DialogDelete
     | DialogConfirm
+    | CreateAccount String
     | OpenRenameAccount Int
     | OpenDeleteAccount Int
+    | CreateCategory String String
+    | OpenRenameCategory Int
+    | OpenDeleteCategory Int
     | SettingsChangeName String
     | SettingsConfirm
     | NoOp

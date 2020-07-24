@@ -1,11 +1,9 @@
 module Shared exposing
     ( Mode(..)
     , Model
-    ,  accountName
-       --, msgUpdateAccountList
-
     , init
     , msgCreateAccount
+    , msgCreateCategory
     , msgFromService
     , msgSelectAccount
     , msgSelectDate
@@ -47,15 +45,6 @@ type alias Category =
     { name : String
     , icon : String
     }
-
-
-accountName id model =
-    case Dict.get id model.accounts of
-        Just name ->
-            name
-
-        Nothing ->
-            "ERROR"
 
 
 decodeAccount =
@@ -158,8 +147,13 @@ msgSelectAccount accountID model =
 
 
 msgCreateAccount : String -> Model -> ( Model, Cmd Msg.Msg )
-msgCreateAccount account model =
-    ( model, Ports.createAccount account )
+msgCreateAccount name model =
+    ( model, Ports.createAccount name )
+
+
+msgCreateCategory : String -> String -> Model -> ( Model, Cmd Msg.Msg )
+msgCreateCategory name icon model =
+    ( model, Ports.createCategory name icon )
 
 
 msgShowAdvanced : Bool -> Model -> ( Model, Cmd Msg.Msg )

@@ -26,12 +26,61 @@ getAccountList =
     send ( "get account list", Encode.object [] )
 
 
+createAccount name =
+    send ( "create account", Encode.string name )
+
+
+renameAccount : Int -> String -> Cmd Msg.Msg
+renameAccount account newName =
+    send
+        ( "rename account"
+        , Encode.object
+            [ ( "id", Encode.int account )
+            , ( "name", Encode.string newName )
+            ]
+        )
+
+
+deleteAccount : Int -> Cmd Msg.Msg
+deleteAccount account =
+    send
+        ( "delete account"
+        , Encode.int account
+        )
+
+
 getCategoryList =
     send ( "get category list", Encode.object [] )
 
 
-createAccount name =
-    send ( "create account", Encode.string name )
+createCategory name icon =
+    send
+        ( "create category"
+        , Encode.object
+            [ ( "name", Encode.string name )
+            , ( "icon", Encode.string icon )
+            ]
+        )
+
+
+renameCategory : Int -> String -> String -> Cmd Msg.Msg
+renameCategory id name icon =
+    send
+        ( "rename category"
+        , Encode.object
+            [ ( "id", Encode.int id )
+            , ( "name", Encode.string name )
+            , ( "icon", Encode.string icon )
+            ]
+        )
+
+
+deleteCategory : Int -> Cmd Msg.Msg
+deleteCategory id =
+    send
+        ( "delete category"
+        , Encode.int id
+        )
 
 
 getLedger : Int -> Cmd Msg.Msg
@@ -94,26 +143,3 @@ deleteTransaction { account, id } =
 
         Nothing ->
             error "delete transaction: no current account"
-
-
-
--- Settings
-
-
-renameAccount : Int -> String -> Cmd Msg.Msg
-renameAccount account newName =
-    send
-        ( "rename account"
-        , Encode.object
-            [ ( "account", Encode.int account )
-            , ( "newName", Encode.string newName )
-            ]
-        )
-
-
-deleteAccount : Int -> Cmd Msg.Msg
-deleteAccount account =
-    send
-        ( "delete account"
-        , Encode.int account
-        )

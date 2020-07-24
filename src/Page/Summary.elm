@@ -99,7 +99,7 @@ accountOption accountID shared state =
                         [ Font.color (Elem.rgb 1 1 1), Background.color Style.bgTitle ]
                )
         )
-        (Elem.text (Shared.accountName accountID shared))
+        (Elem.text (Maybe.withDefault "ERROR" (Dict.get accountID shared.accounts)))
 
 
 balanceRow model =

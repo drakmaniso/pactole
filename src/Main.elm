@@ -152,9 +152,6 @@ update msg model =
         Msg.SelectAccount account ->
             sharedMsg (Shared.msgSelectAccount account)
 
-        Msg.CreateAccount account ->
-            sharedMsg (Shared.msgCreateAccount account)
-
         Msg.KeyDown string ->
             if string == "Alt" || string == "Control" then
                 sharedMsg (Shared.msgShowAdvanced True)
@@ -186,18 +183,40 @@ update msg model =
         Msg.DialogDelete ->
             dialogMsg Dialog.msgDelete
 
-        Msg.OpenRenameAccount account ->
+        Msg.CreateAccount name ->
+            sharedMsg (Shared.msgCreateAccount name)
+
+        Msg.OpenRenameAccount id ->
             ( { model
                 | settingsDialog =
-                    Just (Settings.openRenameAccount account (Shared.accountName account model.shared))
+                    Just (Settings.openRenameAccount id model.shared)
               }
             , Cmd.none
             )
 
-        Msg.OpenDeleteAccount account ->
+        Msg.OpenDeleteAccount id ->
             ( { model
                 | settingsDialog =
-                    Just (Settings.openDeleteAccount account (Shared.accountName account model.shared))
+                    Just (Settings.openDeleteAccount id model.shared)
+              }
+            , Cmd.none
+            )
+
+        Msg.CreateCategory name icon ->
+            sharedMsg (Shared.msgCreateCategory name icon)
+
+        Msg.OpenRenameCategory id ->
+            ( { model
+                | settingsDialog =
+                    Just (Settings.openRenameCategory id model.shared)
+              }
+            , Cmd.none
+            )
+
+        Msg.OpenDeleteCategory id ->
+            ( { model
+                | settingsDialog =
+                    Just (Settings.openDeleteCategory id model.shared)
               }
             , Cmd.none
             )
