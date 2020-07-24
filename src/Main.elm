@@ -321,7 +321,7 @@ view model =
                             ]
 
                         Nothing ->
-                            []
+                            [ E.width E.fill, E.height E.fill, E.scrollbarY ]
             )
             (case model.page of
                 Settings ->

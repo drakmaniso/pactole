@@ -10,6 +10,7 @@ module Ui exposing
     , onEnter
     , pageTitle
     , pageWithSidePanel
+    , plusIcon
     , row
     , simpleButton
     , warningParagraph
@@ -148,6 +149,11 @@ deleteIcon attributes =
         (El.text "\u{F2ED}")
 
 
+plusIcon attributes =
+    El.el ([ Style.fontIcons, Style.normalFont, El.centerX ] ++ attributes)
+        (El.text "\u{F067}")
+
+
 warningIcon attributes =
     El.el ([ Style.fontIcons, Style.normalFont, El.centerX ] ++ attributes)
         (El.text "\u{F071}")
@@ -171,7 +177,7 @@ pageTitle attributes element =
         ([ Style.bigFont
          , Font.center
          , Font.bold
-         , El.paddingEach { top = 12, bottom = 48, left = 12, right = 12 }
+         , El.paddingEach { top = 12, bottom = 12, left = 12, right = 12 }
          , El.width El.fill
          ]
             ++ attributes

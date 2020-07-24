@@ -121,8 +121,23 @@ msgConfirm variant =
 
 view : Shared.Model -> Element Msg.Msg
 view shared =
-    Ui.pageWithSidePanel []
-        { panel =
+    column
+        [ width fill
+        , height fill
+        , Background.color Style.bgPage
+        , Style.fontFamily
+        , Style.normalFont
+        , scrollbarY
+        ]
+        [ row
+            [ width fill
+
+            {- , Border.widthEach { top = 0, left = 0, bottom = 2, right = 0 }
+               , Border.color Style.bgDark
+            -}
+            , Background.color Style.bgTitle
+            , padding 12
+            ]
             [ Ui.simpleButton []
                 { onPress = Just Msg.ToMainPage
                 , label =
@@ -132,102 +147,112 @@ view shared =
                         ]
                 }
             , el [ width fill, height fill ] none
-            ]
-        , page =
-            [ Ui.pageTitle []
+            , Ui.pageTitle [ centerY, Font.color Style.fgWhite ]
                 (text "Configuration")
-            , Ui.configCustom []
-                { label = "Comptes enregistrés sur cet ordinateur:"
-                , content =
-                    column [ spacing 24 ]
-                        [ table [ spacing 6 ]
-                            { data = Dict.toList shared.accounts
-                            , columns =
-                                [ { header = none
-                                  , width = fill
-                                  , view = \a -> el [ centerY ] (text (Tuple.second a))
-                                  }
-                                , { header = none
-                                  , width = shrink
-                                  , view =
-                                        \a ->
-                                            Ui.iconButton []
-                                                { icon = Ui.editIcon []
-                                                , onPress = Just (Msg.OpenRenameAccount (Tuple.first a))
-                                                }
-                                  }
-                                , { header = none
-                                  , width = shrink
-                                  , view =
-                                        \a ->
-                                            Ui.iconButton []
-                                                { icon = Ui.deleteIcon []
-                                                , onPress = Just (Msg.OpenDeleteAccount (Tuple.first a))
-                                                }
-                                  }
-                                ]
-                            }
-                        , Ui.simpleButton []
-                            { onPress = Just (Msg.CreateAccount (newAccountName (Dict.values shared.accounts) 1))
-                            , label = text "Nouveau compte"
-                            }
-                        ]
-                }
-            , Ui.configCustom []
-                { label = "Catégories:"
-                , content =
-                    column [ spacing 24 ]
-                        [ table [ spacing 6 ]
-                            { data = Dict.toList shared.categories
-                            , columns =
-                                [ { header = none
-                                  , width = fill
-                                  , view = \a -> el [ centerY ] (text (Tuple.second a).name)
-                                  }
-                                , { header = none
-                                  , width = shrink
-                                  , view =
-                                        \a ->
-                                            Ui.iconButton []
-                                                { icon = Ui.editIcon []
-                                                , onPress = Just (Msg.OpenRenameCategory (Tuple.first a))
-                                                }
-                                  }
-                                , { header = none
-                                  , width = shrink
-                                  , view =
-                                        \a ->
-                                            Ui.iconButton []
-                                                { icon = Ui.deleteIcon []
-                                                , onPress = Just (Msg.OpenDeleteCategory (Tuple.first a))
-                                                }
-                                  }
-                                ]
-                            }
-                        , Ui.simpleButton []
-                            { onPress = Just (Msg.CreateCategory "Nouvelle catégorie" "")
-                            , label = text "Nouvelle catégorie"
-                            }
-                        ]
-                }
-            , Ui.configRadio []
-                { onChange =
-                    \o ->
-                        case o of
-                            Shared.InCalendar ->
-                                Msg.ToCalendar
-
-                            Shared.InTabular ->
-                                Msg.ToTabular
-                , label = "Mode d'affichage des opérations:"
-                , options =
-                    [ Input.option Shared.InCalendar (text "Calendrier")
-                    , Input.option Shared.InTabular (text "Liste")
-                    ]
-                , selected = Just shared.mode
-                }
+            , el [ width fill, height fill ] none
             ]
-        }
+        , row
+            [ width fill, height fill, scrollbarY ]
+            [ el [ width (fillPortion 1) ] none
+            , column
+                [ width (fillPortion 6)
+                , height fill
+                , centerX
+                ]
+                [ Ui.configCustom []
+                    { label = "Comptes enregistrés sur cet ordinateur:"
+                    , content =
+                        column [ spacing 24 ]
+                            [ table [ spacing 6 ]
+                                { data = Dict.toList shared.accounts
+                                , columns =
+                                    [ { header = none
+                                      , width = fill
+                                      , view = \a -> el [ centerY ] (text (Tuple.second a))
+                                      }
+                                    , { header = none
+                                      , width = shrink
+                                      , view =
+                                            \a ->
+                                                Ui.iconButton []
+                                                    { icon = Ui.editIcon []
+                                                    , onPress = Just (Msg.OpenRenameAccount (Tuple.first a))
+                                                    }
+                                      }
+                                    , { header = none
+                                      , width = shrink
+                                      , view =
+                                            \a ->
+                                                Ui.iconButton []
+                                                    { icon = Ui.deleteIcon []
+                                                    , onPress = Just (Msg.OpenDeleteAccount (Tuple.first a))
+                                                    }
+                                      }
+                                    ]
+                                }
+                            , Ui.simpleButton []
+                                { onPress = Just (Msg.CreateAccount (newAccountName (Dict.values shared.accounts) 1))
+                                , label = Ui.row [] [ Ui.plusIcon [], text "  Ajouter" ]
+                                }
+                            ]
+                    }
+                , Ui.configCustom []
+                    { label = "Catégories:"
+                    , content =
+                        column [ spacing 24 ]
+                            [ table [ spacing 6 ]
+                                { data = Dict.toList shared.categories
+                                , columns =
+                                    [ { header = none
+                                      , width = fill
+                                      , view = \a -> el [ centerY ] (text (Tuple.second a).name)
+                                      }
+                                    , { header = none
+                                      , width = shrink
+                                      , view =
+                                            \a ->
+                                                Ui.iconButton []
+                                                    { icon = Ui.editIcon []
+                                                    , onPress = Just (Msg.OpenRenameCategory (Tuple.first a))
+                                                    }
+                                      }
+                                    , { header = none
+                                      , width = shrink
+                                      , view =
+                                            \a ->
+                                                Ui.iconButton []
+                                                    { icon = Ui.deleteIcon []
+                                                    , onPress = Just (Msg.OpenDeleteCategory (Tuple.first a))
+                                                    }
+                                      }
+                                    ]
+                                }
+                            , Ui.simpleButton []
+                                { onPress = Just (Msg.CreateCategory "Nouvelle catégorie" "")
+                                , label = Ui.row [] [ Ui.plusIcon [], text "  Ajouter" ]
+                                }
+                            ]
+                    }
+                , Ui.configRadio []
+                    { onChange =
+                        \o ->
+                            case o of
+                                Shared.InCalendar ->
+                                    Msg.ToCalendar
+
+                                Shared.InTabular ->
+                                    Msg.ToTabular
+                    , label = "Mode d'affichage des opérations:"
+                    , options =
+                        [ Input.option Shared.InCalendar (text "Calendrier")
+                        , Input.option Shared.InTabular (text "Liste")
+                        ]
+                    , selected = Just shared.mode
+                    }
+                ]
+            , el [ width (fillPortion 1) ] none
+            ]
+        ]
 
 
 accountRow shared account =
