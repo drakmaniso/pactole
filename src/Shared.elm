@@ -1,26 +1,28 @@
-module Common exposing
+module Shared exposing
     ( Mode(..)
     , Model
     , init
-    , msgReceive
+    , msgCreateAccount
+    , msgCreateCategory
+    , msgFromService
     , msgSelectAccount
     , msgSelectDate
     , msgShowAdvanced
     , msgToCalendar
     , msgToTabular
     , msgToday
-    , msgUpdateAccountList
-    , msgUpdateLedger
     )
 
 import Array as Array
 import Date
+import Dict
 import Json.Decode as Decode
 import Ledger
 import Money
 import Msg
 import Ports
 import Time
+import Tuple
 
 
 
@@ -32,10 +34,30 @@ type alias Model =
     , today : Date.Date
     , date : Date.Date
     , ledger : Ledger.Ledger
-    , accounts : List String
-    , account : Maybe String
+    , accounts : Dict.Dict Int String
+    , account : Maybe Int
+    , categories : Dict.Dict Int Category
     , showAdvanced : Bool
     }
+
+
+type alias Category =
+    { name : String
+    , icon : String
+    }
+
+
+decodeAccount =
+    Decode.map2 Tuple.pair
+        (Decode.field "id" Decode.int)
+        (Decode.field "name" Decode.string)
+
+
+decodeCategory =
+    Decode.map3 (\id name icon -> ( id, { name = name, icon = icon } ))
+        (Decode.field "id" Decode.int)
+        (Decode.field "name" Decode.string)
+        (Decode.field "icon" Decode.string)
 
 
 type Mode
@@ -82,8 +104,9 @@ init flags =
       , today = today
       , date = today
       , ledger = Ledger.empty
-      , accounts = []
+      , accounts = Dict.empty
       , account = Nothing
+      , categories = Dict.empty
       , showAdvanced = False
       }
     , cmd
@@ -118,37 +141,19 @@ msgSelectDate date model =
     ( { model | date = date }, Cmd.none )
 
 
-msgSelectAccount : String -> Model -> ( Model, Cmd Msg.Msg )
-msgSelectAccount account model =
-    ( { model | account = Just account }, Ports.getLedger account )
+msgSelectAccount : Int -> Model -> ( Model, Cmd Msg.Msg )
+msgSelectAccount accountID model =
+    ( { model | account = Just accountID }, Ports.getLedger accountID )
 
 
-msgUpdateAccountList : Decode.Value -> Model -> ( Model, Cmd Msg.Msg )
-msgUpdateAccountList json model =
-    let
-        ( accounts, account, cmd ) =
-            case Decode.decodeValue (Decode.list Decode.string) json of
-                Ok a ->
-                    ( a, List.head a, Cmd.none )
-
-                Err e ->
-                    ( [], Nothing, Ports.error ("Msg.SetAccounts: " ++ Decode.errorToString e) )
-    in
-    ( { model | accounts = accounts, account = account, ledger = Ledger.empty }, cmd )
+msgCreateAccount : String -> Model -> ( Model, Cmd Msg.Msg )
+msgCreateAccount name model =
+    ( model, Ports.createAccount name )
 
 
-msgUpdateLedger : Decode.Value -> Model -> ( Model, Cmd Msg.Msg )
-msgUpdateLedger json model =
-    let
-        ( ledger, cmd ) =
-            case Decode.decodeValue Ledger.decoder json of
-                Ok l ->
-                    ( l, Cmd.none )
-
-                Err e ->
-                    ( Ledger.empty, Ports.error ("Msg.SetLedger: " ++ Decode.errorToString e) )
-    in
-    ( { model | ledger = ledger }, cmd )
+msgCreateCategory : String -> String -> Model -> ( Model, Cmd Msg.Msg )
+msgCreateCategory name icon model =
+    ( model, Ports.createCategory name icon )
 
 
 msgShowAdvanced : Bool -> Model -> ( Model, Cmd Msg.Msg )
@@ -160,17 +165,30 @@ msgShowAdvanced show model =
 -- SERVICE WORKER MESSAGES
 
 
-msgReceive : ( String, Decode.Value ) -> Model -> ( Model, Cmd Msg.Msg )
-msgReceive ( title, content ) model =
+msgFromService : ( String, Decode.Value ) -> Model -> ( Model, Cmd Msg.Msg )
+msgFromService ( title, content ) model =
     case title of
         "service worker ready" ->
-            ( model, Ports.getAccountList )
+            ( model
+            , Cmd.batch
+                [ Ports.getAccountList
+                , Ports.getCategoryList
+                ]
+            )
 
         "set account list" ->
-            case Decode.decodeValue (Decode.list Decode.string) content of
-                Ok (account :: others) ->
-                    ( { model | accounts = account :: others, account = Just account }
-                    , Ports.getLedger account
+            case Decode.decodeValue (Decode.list decodeAccount) content of
+                Ok (head :: tail) ->
+                    let
+                        accounts =
+                            head :: tail
+
+                        accountID =
+                            --TODO: use current account if set
+                            Tuple.first head
+                    in
+                    ( { model | accounts = Dict.fromList accounts, account = Just accountID }
+                    , Ports.getLedger accountID
                     )
 
                 Err e ->
@@ -181,16 +199,32 @@ msgReceive ( title, content ) model =
                     --TODO: error
                     ( model, Ports.error "received account list is empty" )
 
-        "ledger updated" ->
-            case Decode.decodeValue Decode.string content of
-                Ok account ->
-                    ( model, Ports.getLedger account )
+        "set category list" ->
+            case Decode.decodeValue (Decode.list decodeCategory) content of
+                Ok categories ->
+                    ( { model | categories = Dict.fromList categories }, Cmd.none )
 
                 Err e ->
+                    --TODO: error
+                    ( model, Ports.error ("while decoding category list: " ++ Decode.errorToString e) )
+
+        "ledger updated" ->
+            case ( model.account, Decode.decodeValue Decode.int content ) of
+                ( Just currentID, Ok updatedID ) ->
+                    if updatedID == currentID then
+                        ( model, Ports.getLedger updatedID )
+
+                    else
+                        ( model, Cmd.none )
+
+                ( Nothing, _ ) ->
+                    ( model, Cmd.none )
+
+                ( _, Err e ) ->
                     ( model, Ports.error (Decode.errorToString e) )
 
         "set ledger" ->
-            case Decode.decodeValue Ledger.decoder content of
+            case Decode.decodeValue Ledger.decode content of
                 Ok ledger ->
                     ( { model | ledger = ledger }
                     , Cmd.none

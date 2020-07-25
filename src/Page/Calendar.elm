@@ -1,6 +1,5 @@
 module Page.Calendar exposing (view)
 
-import Common
 import Date
 import Element as E
 import Element.Background as Background
@@ -12,30 +11,20 @@ import Ledger
 import Money
 import Msg
 import Page.Summary as Summary
+import Shared
 import Style
 import Time
+import Ui
 
 
 
 -- VIEW
 
 
-view : Common.Model -> E.Element Msg.Msg
+view : Shared.Model -> E.Element Msg.Msg
 view model =
-    E.row
-        [ E.width E.fill
-        , E.height E.fill
-        , E.clipX
-        , E.clipY
-        , Background.color Style.bgPage
-        , Style.fontFamily
-        ]
-        [ E.column
-            [ E.width (E.fillPortion 25)
-            , E.height E.fill
-            , E.padding 16
-            , E.alignTop
-            ]
+    Ui.pageWithSidePanel []
+        { panel =
             [ E.el
                 [ E.width E.fill, E.height (E.fillPortion 1) ]
                 (Summary.view model)
@@ -43,21 +32,17 @@ view model =
                 [ E.width E.fill, E.height (E.fillPortion 2) ]
                 (dayView model)
             ]
-        , E.el
-            [ E.width (E.fillPortion 75)
-            , E.height E.fill
-            , Border.widthEach { top = 0, bottom = 0, left = 2, right = 0 }
-            , Border.color Style.bgDark
+        , page =
+            [ calendar model
             ]
-            (calendar model)
-        ]
+        }
 
 
 
 -- THE CALENDAR
 
 
-calendar : Common.Model -> E.Element Msg.Msg
+calendar : Shared.Model -> E.Element Msg.Msg
 calendar model =
     let
         findTheFirst date =
@@ -228,7 +213,7 @@ calendarFooter model =
         ]
 
 
-calendarCell : Common.Model -> Date.Date -> E.Element Msg.Msg
+calendarCell : Shared.Model -> Date.Date -> E.Element Msg.Msg
 calendarCell model day =
     let
         sel =
@@ -310,7 +295,7 @@ calendarCell model day =
             E.none
 
 
-cellContentFor : Common.Model -> Date.Date -> List (E.Element Msg.Msg)
+cellContentFor : Shared.Model -> Date.Date -> List (E.Element Msg.Msg)
 cellContentFor model day =
     let
         render transaction =
@@ -401,7 +386,7 @@ dayView model =
         ]
 
 
-dayContentFor : Common.Model -> Date.Date -> List (E.Element Msg.Msg)
+dayContentFor : Shared.Model -> Date.Date -> List (E.Element Msg.Msg)
 dayContentFor model day =
     let
         render transaction =

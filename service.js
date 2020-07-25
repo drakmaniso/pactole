@@ -7,7 +7,7 @@
 const files = [
   './',
   'favicon.ico',
-  'manifest.json',
+  'manifest.webmanifest',
   'elm.js',
   'fonts/fa-solid-900.woff2',
   'fonts/work-sans-v7-latin-regular.woff2',
@@ -16,14 +16,14 @@ const files = [
 ]
 
 
-const cacheVersion = 'pactole-v0'
+const version = 1
 
 
 self.addEventListener('install', event => {
   log('Installing service worker...')
   event.waitUntil(
     caches
-      .open(cacheVersion)
+      .open('Pactole-v' + version)
       .then(cache => {
         log('...installing cache...')
         return cache.addAll(
@@ -41,7 +41,7 @@ self.addEventListener('install', event => {
       })
   )
 })
- 
+
 
 self.addEventListener('activate', event => {
   log('Service worker activated.')
@@ -52,13 +52,8 @@ self.addEventListener('activate', event => {
           .then(names => {
             return Promise.all(
               names
-                .filter(n => {
-                  // Return true to remove n from the cache
-                  return n != cacheVersion
-                })
-                .map(n => {
-                  return caches.delete(n)
-                })
+                .filter(n =>  n != 'Pactole-v' + version)
+                .map(n => caches.delete(n))
             )
           })
       )
@@ -71,6 +66,7 @@ self.addEventListener('activate', event => {
 
 self.addEventListener('fetch', event => {
   //log(`fetch: ${event.request.url}...`)
+  //TODO: handle favicon?
   event.respondWith(
     caches.match(event.request)
   )
@@ -83,28 +79,99 @@ self.addEventListener('message', event => {
   log(`Received "${msg.title}" from client.`)
   switch (msg.title) {
     case 'get account list':
-      getSetting('accounts')
-        .then(accounts => {
-          log (`accounts = ${accounts}`)
-          respond(event, 'set account list', accounts)
-        })
+      getAccountList()
+        .then(accounts => respond(event, 'set account list', accounts))
         .catch(err => error(`get account list: ${err}`))
+      break
+
+    case 'create account':
+      createAccount(msg.content) 
+        .then(() => getAccountList())
+        .then(accounts => broadcast('set account list', accounts))
+        .catch(err => error(`create account "${msg.content}": ${err}`))
+      break
+
+    case 'rename account':
+      try {
+        const {id, name} = msg.content
+        renameAccount(id, name)
+          .then(() => getAccountList())
+          .then(accounts => broadcast('set account list', accounts))
+          .catch(err => error(`rename account "${id}" to "${name}": ${err}`))
+      }
+      catch(err) {
+        error(`rename account: ${err}`)
+      }
+      break
+
+    case 'delete account':
+      try {
+        deleteAccount(msg.content)
+          .then(() => getAccountList())
+          .then(accounts => broadcast('set account list', accounts))
+          .catch(err => error(`delete account "${msg.content}": ${err}`))
+      }
+      catch(err) {
+        error(`delete account: ${err}`)
+      }
+      break
+
+    case 'get category list':
+      getCategoryList()
+        .then(accounts => respond(event, 'set category list', accounts))
+        .catch(err => error(`get category list: ${err}`))
+      break
+
+    case 'create category':
+      try {
+        const {name, icon} = msg.content
+        createCategory(name, icon)
+          .then(() => getCategoryList())
+          .then(categories => broadcast('set category list', categories))
+          .catch(err => error(`create category "${name}": ${err}`))
+      }
+      catch(err) {
+        error(`create category: ${err}`)
+      }
+      break
+
+    case 'rename category':
+      try {
+        const {id, name, icon} = msg.content
+        renameCategory(id, name, icon)
+          .then(() => getCategoryList())
+          .then(categories => broadcast('set category list', categories))
+          .catch(err => error(`rename category "${id}" to "${name}": ${err}`))
+      }
+      catch(err) {
+        error(`rename category: ${err}`)
+      }
+      break
+
+    case 'delete category':
+      try {
+        deleteCategory(msg.content)
+          .then(() => getCategoryList())
+          .then(categories => broadcast('set category list', categories))
+          .catch(err => error(`delete category "${msg.content}": ${err}`))
+      }
+      catch(err) {
+        error(`delete category: ${err}`)
+      }
       break
 
     case 'get ledger':
       getLedger(msg.content)
-        .then(transactions => {
-          respond(event, 'set ledger', {transactions: transactions})
-        })
+        .then(transactions => respond(event, 'set ledger', {transactions: transactions}))
         .catch(err => error(`get ledger: ${err}`))
       break
 
     case 'add transaction':
       try {
         const {
-          account, date, amount, description
+          account, date, amount, description, category, checked
         } = msg.content
-        addTransaction(account, {date: date, amount: amount, description: description, reconciled: false})
+        addTransaction(msg.content)
           .then(() => {
             broadcast('ledger updated', account)
           })
@@ -117,9 +184,9 @@ self.addEventListener('message', event => {
     case 'put transaction':
       try {
         const {
-          account, id, date, amount, description
+          account, id, date, amount, description, category, checked
         } = msg.content
-        putTransaction(account, {id: id, date: date, amount: amount, description: description, reconciled: false})
+        putTransaction(msg.content)
           .then(() => {
             broadcast('ledger updated', account)
           })
@@ -134,7 +201,7 @@ self.addEventListener('message', event => {
         const {
           account, id
         } = msg.content
-        deleteTransaction(account, id)
+        deleteTransaction(id)
           .then(() => {
             broadcast('ledger updated', account)
           })
@@ -163,73 +230,88 @@ function broadcast(title, content) {
 }
 
 
-// SETTINGS DATABASE ////////////////////////////////////////////////////////////////////
+// DATABASE /////////////////////////////////////////////////////////////////////////////
 
 
-let _settingsDB
+let database
 
 
-function openSettings() {
+function openDB() {
   return new Promise((resolve, reject) => {
 
-    if (_settingsDB != null) {
-      resolve(_settingsDB)
+    if (database != null) {
+      resolve(database)
       return
     }
 
-    log(`Opening settings database...`)
-    let req = indexedDB.open("settings", 1)
-    req.onerror = () => reject(new Error(`failed to open settings database: ${req.error}`))
-    req.onblocked = () => log('settings database blocked...')
+    log(`Opening database...`)
+    let req = indexedDB.open("Pactole", version)
+    req.onerror = () => reject(new Error(`failed to open database: ${req.error}`))
+    req.onblocked = () => log('database blocked...')
 
     req.onupgradeneeded = () => {
-      log(`Upgrading settings database...`)
+      log(`Upgrading database...`)
       const db = req.result
-      const os = db.createObjectStore('settings')
-      os.transaction.oncomplete = () => {
-        const tr = db.transaction('settings', 'readwrite')
-        tr.onerror = () => reject(tr.error)
-        const os = tr.objectStore('settings')
-        os.add(['Mon Compte'], 'accounts')
+
+      // Settings Store
+      {
+        const os = db.createObjectStore('settings')
         os.add('calendar', 'defaultMode')
         os.add(false, 'categoriesEnabled')
-        os.add(
-          [
-            {name: 'Autre', icon: ''},
-            {name: 'Maison', icon: ''},
-            {name: 'Santé', icon: ''},
-            {name: 'Nourriture', icon: ''},
-            {name: 'Habillement', icon: ''},
-            {name: 'Transports', icon: ''},
-            {name: 'Loisirs', icon: ''},
-          ],
-          'categories'
-        )
         os.add(false, 'reconciliationEnabled')
         os.add(false, 'summaryEnabled')
-        }
-      log(`...settings database upgraded.`)
+      }
+
+      // Accounts Store
+      {
+        const os = db.createObjectStore('accounts', {keyPath: 'id', autoIncrement: true})
+      }
+
+      // Categories Store
+      {
+        const os = db.createObjectStore('categories', {keyPath: 'id', autoIncrement: true})
+        os.add({name: 'Maison', icon: ''})
+        os.add({name: 'Santé', icon: ''})
+        os.add({name: 'Nourriture', icon: ''})
+        os.add({name: 'Vêtements', icon: ''})
+        os.add({name: 'Transports', icon: ''})
+        os.add({name: 'Loisirs', icon: ''})
+        os.add({name: 'Banque', icon: ''})
+      }
+
+      // Ledger Store
+      {
+        const os = db.createObjectStore('ledger', {keyPath: 'id', autoIncrement: true})
+        os.createIndex('account', 'account') //TODO: remove?
+        os.createIndex('account date', ['account', 'date'])
+        os.createIndex('account category', ['account', 'category'])
+      }
+
+      log(`...database upgraded.`)
     }
 
     req.onsuccess = () => {
       const db = req.result
-      _settingsDB = db
+      database = db
       db.onerror = event => {
         //TODO
-        error(`settings database error: ${event.target.errorCode}`)
+        error(`database error: ${event.target.errorCode}`)
       }
-      log(`...settings database opened.`)
+      log(`...database opened.`)
       resolve(db)
     }
   })
 }
 
 
+// SETTINGS /////////////////////////////////////////////////////////////////////////////
+
+
 function getSetting(key) {
   return new Promise((resolve, reject) => {
-    openSettings()
+    openDB()
       .then(db => {
-        const tr = db.transaction('settings', 'readonly')
+        const tr = db.transaction(['settings'], 'readonly')
         tr.onerror = () => reject(tr.error)
         const os = tr.objectStore('settings')
         const req = os.get(key)
@@ -243,61 +325,110 @@ function getSetting(key) {
 }
 
 
-// LEDGERS DATABASES //////////////////////////////////////////////////////////
+// ACCOUNTS ///////////////////////////////////////////////////////////////////
 
 
-function ledgerName(account) {
-  return `ledger:${account}`
-}
-
-
-let _ledgersDB = new Map()
-
-
-function openLedger(account) {
-  const name = ledgerName(account)
+function getAccountList() {
   return new Promise((resolve, reject) => {
-
-    if (_ledgersDB.has(name)) {
-      resolve(_ledgersDB.get(name))
-      return
-    }
-
-    log(`Opening ledger database for "${account}"...`)
-    let req = indexedDB.open(name, 1)
-    req.onerror = () => reject(new Error(`failed to open ledger database for "${account}": ${req.error}`))
-    req.onblocked = () => log(`ledger database for "${account}" blocked...`)
-
-    req.onupgradeneeded = () => {
-      log(`Upgrading ledger database for "${account}"...`)
-      const db = req.result
-      const os = db.createObjectStore('transactions', {keyPath: 'id', autoIncrement: true})
-      os.createIndex('date', 'date')
-      os.createIndex('category', 'category')
-      log(`...ledger database for "${account}" upgraded.`)
-    }
-
-    req.onsuccess = () => {
-      const db = req.result
-      _ledgersDB.set(name, db)
-      db.onerror = event => {
-        //TODO
-        error(`database error: ${event.target.errorCode}`)
-      }
-      log(`...ledger database for "${account}" opened.`)
-      resolve(db)
-    }
+    openDB()
+      .then(db => {
+        const tr = db.transaction(['accounts'], 'readonly')
+        tr.onerror = () => reject(tr.error)
+        const os = tr.objectStore('accounts')
+        const req = os.getAll()
+        req.onerror = () => reject(req.error)
+        req.onsuccess = () => {
+          if(req.result.length == 0) {
+            const tr = db.transaction(['accounts'], 'readwrite')
+            tr.onerror = () => reject(tr.error)
+            const os = tr.objectStore('accounts')
+            const req = os.put({name: 'Compte'})
+            req.onerror = () => reject(req.error)
+            req.onsuccess = () => resolve([{id: req.result, name: 'Compte'}])
+          } else {
+            resolve(req.result)
+          }
+        }
+      })
+      .catch(err => reject(err))
   })
 }
 
 
-function getLedger(account) {
+function createAccount(name) {
   return new Promise((resolve, reject) => {
-    openLedger(account)
+    openDB()
       .then(db => {
-        const tr = db.transaction('transactions', 'readonly')
+        const tr = db.transaction(['accounts'], 'readwrite')
         tr.onerror = () => reject(tr.error)
-        const os = tr.objectStore('transactions')
+        const os = tr.objectStore('accounts')
+        const req = os.add({name: name})
+        req.onerror = () => reject(req.error)
+        req.onsuccess = () => resolve(req.result)
+      })
+      .catch(err => reject(err))
+  })
+}
+
+
+function renameAccount(id, name) {
+  return new Promise((resolve, reject) => {
+    openDB()
+      .then(db => {
+        const tr = db.transaction(['accounts'], 'readwrite')
+        tr.onerror = () => reject(tr.error)
+        const os = tr.objectStore('accounts')
+        const req = os.put({id: id, name: name})
+        req.onerror = () => reject(req.error)
+        req.onsuccess = () => resolve(req.result)
+      })
+      .catch(err => reject(err))
+  })
+}
+
+
+function deleteAccount(id) {
+  return new Promise((resolve, reject) => {
+    openDB()
+      .then(db => {
+        log(`deleting account "${id}"`)
+        const tr = db.transaction(['accounts', 'ledger'], 'readwrite')
+        tr.onerror = () => reject(tr.error)
+        const os = tr.objectStore('ledger')
+        const idx = os.index('account')
+        const req = idx.openCursor(IDBKeyRange.only(id))
+        req.onerror = () => reject(req.error)
+        req.onsuccess = () => {
+          const cursor = req.result
+          if(cursor) {
+            log(`deleting key "${cursor.key}"`)
+            cursor.delete()
+            cursor.continue()
+          }
+          else {
+            log("FINISHED?")
+            const os = tr.objectStore('accounts')
+            const req = os.delete(id)
+            req.onerror = () => reject(req.error)
+            req.onsuccess = () => resolve(req.result)
+          }
+        }
+      })
+      .catch(err => reject(err))
+  })
+}
+
+
+// CATEGORIES /////////////////////////////////////////////////////////////////
+
+
+function getCategoryList() {
+  return new Promise((resolve, reject) => {
+    openDB()
+      .then(db => {
+        const tr = db.transaction(['categories'], 'readonly')
+        tr.onerror = () => reject(tr.error)
+        const os = tr.objectStore('categories')
         const req = os.getAll()
         req.onerror = () => reject(req.error)
         req.onsuccess = () => resolve(req.result)
@@ -306,50 +437,83 @@ function getLedger(account) {
   })
 }
 
-/*
-function getTransactionKeys(date) {
+
+function createCategory(name, icon) {
   return new Promise((resolve, reject) => {
-    const errhandler = event => {
-      reject(new Error(`getTransactionKeys('${date}'): ${event.target.error}`))
-    }
-    const tr = _database.transaction('transactions', 'readonly')
-    tr.onerror = errhandler
-
-    const os = tr.objectStore('transactions')
-    const idx = os.index('date')
-    const req = idx.getAllKeys(date)
-    req.onerror = errhandler
-    req.onsuccess = event => {
-      resolve(req.result)
-    }
-  })
-}
-
-
-function getTransaction(key) {
-  return new Promise((resolve, reject) => {
-    const errhandler = event => {
-      reject(new Error(`getTransaction('${key}): ${event.target.error}`))
-    }
-    const tr = _database.transaction('transactions', 'readonly')
-    tr.onerrror = errhandler
-    const os = tr.objectStore('transactions')
-    const req = os.get(key)
-    req.onerror = errhandler
-    req.onsuccess = event => {
-      resolve(req.result)
-    }
-  })
-}
-*/
-
-function addTransaction(account, transaction) {
-  return new Promise((resolve, reject) => {
-    openLedger(account)
+    openDB()
       .then(db => {
-        const tr = db.transaction('transactions', 'readwrite')
+        const tr = db.transaction(['categories'], 'readwrite')
         tr.onerror = () => reject(tr.error)
-        const os = tr.objectStore('transactions')
+        const os = tr.objectStore('categories')
+        const req = os.add({name: name, icon: icon})
+        req.onerror = () => reject(req.error)
+        req.onsuccess = () => resolve(req.result)
+      })
+      .catch(err => reject(err))
+  })
+}
+
+
+function renameCategory(id, name, icon) {
+  return new Promise((resolve, reject) => {
+    openDB()
+      .then(db => {
+        const tr = db.transaction(['categories'], 'readwrite')
+        tr.onerror = () => reject(tr.error)
+        const os = tr.objectStore('categories')
+        const req = os.put({id: id, name: name, icon: icon})
+        req.onerror = () => reject(req.error)
+        req.onsuccess = () => resolve(req.result)
+      })
+      .catch(err => reject(err))
+  })
+}
+
+
+function deleteCategory(id) {
+  return new Promise((resolve, reject) => {
+    openDB()
+      .then(db => {
+        const tr = db.transaction(['categories'], 'readwrite')
+        tr.onerror = () => reject(tr.error)
+        const os = tr.objectStore('categories')
+        const req = os.delete(id)
+        req.onerror = () => reject(req.error)
+        req.onsuccess = () => resolve(req.result)
+      })
+      .catch(err => reject(err))
+  })
+}
+
+
+// LEDGER /////////////////////////////////////////////////////////////////////
+
+
+function getLedger(accountID) {
+  return new Promise((resolve, reject) => {
+    openDB()
+      .then(db => {
+        const tr = db.transaction(['ledger'], 'readonly')
+        tr.onerror = () => reject(tr.error)
+        const os = tr.objectStore('ledger')
+        const idx = os.index('account')
+        const req = idx.getAll(accountID)
+        req.onerror = () => reject(req.error)
+        req.onsuccess = () => resolve(req.result)
+      })
+      .catch(err => reject(err))
+  })
+}
+
+
+//TODO
+function addTransaction(transaction) {
+  return new Promise((resolve, reject) => {
+    openDB()
+      .then(db => {
+        const tr = db.transaction(['ledger'], 'readwrite')
+        tr.onerror = () => reject(tr.error)
+        const os = tr.objectStore('ledger')
         const req = os.add(transaction)
         req.onerror = () => reject(req.error)
         req.onsuccess = () => resolve(req.result)
@@ -358,13 +522,14 @@ function addTransaction(account, transaction) {
 }
 
 
-function putTransaction(account, transaction) {
+//TODO
+function putTransaction(transaction) {
   return new Promise((resolve, reject) => {
-    openLedger(account)
+    openDB()
       .then(db => {
-        const tr = db.transaction('transactions', 'readwrite')
+        const tr = db.transaction(['ledger'], 'readwrite')
         tr.onerror = () => reject(tr.error)
-        const os = tr.objectStore('transactions')
+        const os = tr.objectStore('ledger')
         const req = os.put(transaction)
         req.onerror = () => reject(req.error)
         req.onsuccess = () => resolve(req.result)
@@ -373,13 +538,14 @@ function putTransaction(account, transaction) {
 }
 
 
-function deleteTransaction(account, id) {
+//TODO
+function deleteTransaction(id) {
   return new Promise((resolve, reject) => {
-    openLedger(account)
+    openDB()
       .then(db => {
-        const tr = db.transaction('transactions', 'readwrite')
+        const tr = db.transaction(['ledger'], 'readwrite')
         tr.onerror = () => reject(tr.error)
-        const os = tr.objectStore('transactions')
+        const os = tr.objectStore('ledger')
         const req = os.delete(id)
         req.onerror = () => reject(req.error)
         req.onsuccess = () => resolve(req.result)
@@ -391,11 +557,11 @@ function deleteTransaction(account, id) {
 // UTILITIES //////////////////////////////////////////////////////////////////
 
 
-function log(msg) {
-  console.log(`[SW] ${msg}`)
+function log(msg, ...args) {
+  console.log(`[SW] ${msg}`, ...args)
 }
 
 
-function error(msg) {
-  console.error(`[SW] ${msg}`)
+function error(msg, ...args) {
+  console.error(`[SW] ${msg}`, ...args)
 }

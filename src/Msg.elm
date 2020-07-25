@@ -12,20 +12,29 @@ type Msg
     = Today Date.Date
     | LinkClicked Browser.UrlRequest
     | UrlChanged Url.Url
-    | Receive ( String, Decode.Value )
+    | FromService ( String, Decode.Value )
     | ToCalendar
     | ToTabular
     | ToMainPage
     | ToSettings
     | Close
     | SelectDate Date.Date
-    | SelectAccount String
+    | SelectAccount Int
     | KeyDown String
     | KeyUp String
     | NewDialog Bool Date.Date -- NewDialog isExpense date
     | EditDialog Int
     | DialogAmount String
     | DialogDescription String
+    | DialogCategory Int
     | DialogDelete
     | DialogConfirm
+    | CreateAccount String
+    | OpenRenameAccount Int
+    | OpenDeleteAccount Int
+    | CreateCategory String String
+    | OpenRenameCategory Int
+    | OpenDeleteCategory Int
+    | SettingsChangeName String
+    | SettingsConfirm
     | NoOp

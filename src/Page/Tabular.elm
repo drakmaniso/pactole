@@ -1,6 +1,5 @@
 module Page.Tabular exposing (view)
 
-import Common
 import Date
 import Element exposing (..)
 import Element.Background as Background
@@ -12,22 +11,15 @@ import Ledger
 import Money
 import Msg
 import Page.Summary as Summary
+import Shared
 import Style
+import Ui
 
 
-view : Common.Model -> Element Msg.Msg
+view : Shared.Model -> Element Msg.Msg
 view model =
-    row
-        [ width fill
-        , height fill
-        , clipX
-        , clipY
-        , htmlAttribute <| Html.Attributes.style "z-index" "-1"
-        , Background.color Style.bgPage
-        , Style.fontFamily
-        ]
-        [ column
-            [ width (fillPortion 25), height fill, padding 16, alignTop ]
+    Ui.pageWithSidePanel []
+        { panel =
             [ el
                 [ width fill, height (fillPortion 1) ]
                 (Summary.view model)
@@ -35,17 +27,12 @@ view model =
                 [ width fill, height (fillPortion 2) ]
                 none
             ]
-        , column
-            [ width (fillPortion 75)
-            , height fill
-            , Border.widthEach { top = 0, bottom = 0, left = 3, right = 0 }
-            , Border.color Style.bgDark
-            ]
-            (transactionView model)
-        ]
+        , page =
+            transactionView model
+        }
 
 
-transactionView : Common.Model -> List (Element Msg.Msg)
+transactionView : Shared.Model -> List (Element Msg.Msg)
 transactionView model =
     Tuple.second
         (List.foldl

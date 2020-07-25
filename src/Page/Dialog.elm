@@ -1,6 +1,7 @@
 module Page.Dialog exposing
     ( Model
     , msgAmount
+    , msgCategory
     , msgConfirm
     , msgDelete
     , msgDescription
@@ -10,8 +11,8 @@ module Page.Dialog exposing
     )
 
 import Browser.Dom as Dom
-import Common
 import Date
+import Dict
 import Element exposing (..)
 import Element.Background as Background
 import Element.Border as Border
@@ -23,6 +24,7 @@ import Ledger
 import Money
 import Msg
 import Ports
+import Shared
 import Style
 import Task
 import Ui
@@ -39,6 +41,7 @@ type alias Model =
     , amount : String
     , amountError : String
     , description : String
+    , category : Int
     }
 
 
@@ -46,9 +49,9 @@ type alias Model =
 -- UPDATE
 
 
-msgNewDialog : Bool -> Date.Date -> Common.Model -> Maybe Model -> ( Common.Model, Maybe Model, Cmd Msg.Msg )
-msgNewDialog isExpense date common _ =
-    ( common
+msgNewDialog : Bool -> Date.Date -> Shared.Model -> Maybe Model -> ( Shared.Model, Maybe Model, Cmd Msg.Msg )
+msgNewDialog isExpense date shared _ =
+    ( shared
     , Just
         { id = Nothing
         , isExpense = isExpense
@@ -56,19 +59,20 @@ msgNewDialog isExpense date common _ =
         , amount = ""
         , amountError = ""
         , description = ""
+        , category = 0
         }
     , Task.attempt (\_ -> Msg.NoOp) (Dom.focus "dialog-amount")
     )
 
 
-msgEditDialog : Int -> Common.Model -> Maybe Model -> ( Common.Model, Maybe Model, Cmd Msg.Msg )
-msgEditDialog id common _ =
-    case Ledger.getTransaction id common.ledger of
+msgEditDialog : Int -> Shared.Model -> Maybe Model -> ( Shared.Model, Maybe Model, Cmd Msg.Msg )
+msgEditDialog id shared _ =
+    case Ledger.getTransaction id shared.ledger of
         Nothing ->
-            ( common, Nothing, Ports.error "msgEditDialog: unable to get transaction" )
+            ( shared, Nothing, Ports.error "msgEditDialog: unable to get transaction" )
 
         Just t ->
-            ( common
+            ( shared
             , Just
                 { id = Just t.id
                 , isExpense = Money.isExpense t.amount
@@ -76,16 +80,17 @@ msgEditDialog id common _ =
                 , amount = Money.toInput t.amount
                 , amountError = Money.validate (Money.toInput t.amount)
                 , description = t.description
+                , category = t.category
                 }
             , Cmd.none
             )
 
 
-msgAmount : String -> Common.Model -> Maybe Model -> ( Common.Model, Maybe Model, Cmd Msg.Msg )
-msgAmount amount common model =
+msgAmount : String -> Shared.Model -> Maybe Model -> ( Shared.Model, Maybe Model, Cmd Msg.Msg )
+msgAmount amount shared model =
     case model of
         Just dialog ->
-            ( common
+            ( shared
             , Just
                 { dialog
                     | amount = amount
@@ -95,14 +100,14 @@ msgAmount amount common model =
             )
 
         Nothing ->
-            ( common, Nothing, Cmd.none )
+            ( shared, Nothing, Cmd.none )
 
 
-msgDescription : String -> Common.Model -> Maybe Model -> ( Common.Model, Maybe Model, Cmd Msg.Msg )
-msgDescription string common model =
+msgDescription : String -> Shared.Model -> Maybe Model -> ( Shared.Model, Maybe Model, Cmd Msg.Msg )
+msgDescription string shared model =
     case model of
         Just dialog ->
-            ( common
+            ( shared
             , Just
                 { dialog
                     | description =
@@ -112,71 +117,89 @@ msgDescription string common model =
             )
 
         Nothing ->
-            ( common, model, Cmd.none )
+            ( shared, model, Cmd.none )
 
 
-msgConfirm : Common.Model -> Maybe Model -> ( Common.Model, Maybe Model, Cmd Msg.Msg )
-msgConfirm common model =
+msgCategory : Int -> Shared.Model -> Maybe Model -> ( Shared.Model, Maybe Model, Cmd Msg.Msg )
+msgCategory id shared model =
+    case model of
+        Just dialog ->
+            ( shared
+            , Just
+                { dialog | category = id }
+            , Cmd.none
+            )
+
+        Nothing ->
+            ( shared, model, Cmd.none )
+
+
+msgConfirm : Shared.Model -> Maybe Model -> ( Shared.Model, Maybe Model, Cmd Msg.Msg )
+msgConfirm shared model =
     case model of
         Just dialog ->
             case ( dialog.id, Money.fromInput dialog.isExpense dialog.amount ) of
                 ( Just id, Just amount ) ->
-                    ( common
+                    ( shared
                     , Nothing
                     , Ports.putTransaction
-                        { account = common.account
+                        { account = shared.account
                         , id = id
                         , date = dialog.date
                         , amount = amount
                         , description = dialog.description
+                        , category = dialog.category
+                        , checked = False
                         }
                     )
 
                 ( Nothing, Just amount ) ->
-                    ( common
+                    ( shared
                     , Nothing
                     , Ports.addTransaction
-                        { account = common.account
+                        { account = shared.account
                         , date = dialog.date
                         , amount = amount
                         , description = dialog.description
+                        , category = dialog.category
+                        , checked = False
                         }
                     )
 
                 ( _, Nothing ) ->
-                    ( common, model, Ports.error "invalid amount input" )
+                    ( shared, model, Ports.error "invalid amount input" )
 
         _ ->
-            ( common, model, Ports.error "impossible Confirm message" )
+            ( shared, model, Ports.error "impossible Confirm message" )
 
 
-msgDelete : Common.Model -> Maybe Model -> ( Common.Model, Maybe Model, Cmd Msg.Msg )
-msgDelete common model =
+msgDelete : Shared.Model -> Maybe Model -> ( Shared.Model, Maybe Model, Cmd Msg.Msg )
+msgDelete shared model =
     case model of
         Just dialog ->
             case dialog.id of
                 Just id ->
-                    ( common
+                    ( shared
                     , Nothing
                     , Ports.deleteTransaction
-                        { account = common.account
+                        { account = shared.account
                         , id = id
                         }
                     )
 
                 Nothing ->
-                    ( common, model, Ports.error "impossible Delete message" )
+                    ( shared, model, Ports.error "impossible Delete message" )
 
         Nothing ->
-            ( common, model, Ports.error "impossible Delete message" )
+            ( shared, model, Ports.error "impossible Delete message" )
 
 
 
 -- VIEW
 
 
-view : Model -> Element Msg.Msg
-view dialog =
+view : Shared.Model -> Model -> Element Msg.Msg
+view shared dialog =
     column
         [ centerX
         , centerY
@@ -191,6 +214,11 @@ view dialog =
         [ titleRow dialog
         , amountRow dialog
         , descriptionRow dialog
+        , if dialog.isExpense then
+            categoryRow shared dialog
+
+          else
+            none
         , el [ height fill, Background.color Style.bgWhite ] none
         , buttonsRow dialog
         ]
@@ -224,6 +252,7 @@ amountRow dialog =
         , paddingEach { top = 48, bottom = 24, right = 64, left = 64 }
         , spacing 12
         , Background.color Style.bgWhite
+        , centerY
         ]
         [ Input.text
             [ Ui.onEnter Msg.DialogConfirm
@@ -262,29 +291,37 @@ amountRow dialog =
             , Border.color (rgba 0 0 0 0)
             ]
             (text "€")
-        , el
-            [ Style.fontIcons
-            , alignBottom
-            , paddingEach { top = 0, bottom = 4, left = 12, right = 0 }
-            , Font.size 48
-            , Font.color Style.bgDark
-            ]
-            (if dialog.amountError /= "" then
-                text "\u{F071}"
 
-             else
-                text ""
-            )
-        , paragraph
-            [ Style.smallFont
-            , width fill
-            , height shrink
-            , alignBottom
-            , paddingEach { top = 8, bottom = 8, left = 0, right = 0 }
-            , Font.alignLeft
-            , Font.color (rgb 0 0 0)
-            ]
-            [ text dialog.amountError ]
+        {-
+           , el
+               [ Style.fontIcons
+               , alignBottom
+               , paddingEach { top = 0, bottom = 4, left = 12, right = 0 }
+               , Font.size 48
+               , Font.color Style.bgDark
+               ]
+               (if dialog.amountError /= "" then
+                   text "\u{F071}"
+
+                else
+                   text ""
+               )
+           , paragraph
+               [ Style.smallFont
+               , width fill
+               , height shrink
+               , alignBottom
+               , paddingEach { top = 8, bottom = 8, left = 0, right = 0 }
+               , Font.alignLeft
+               , Font.color (rgb 0 0 0)
+               ]
+               [ text dialog.amountError ]
+        -}
+        , if dialog.amountError /= "" then
+            Ui.warningParagraph [ width fill ] [ text dialog.amountError ]
+
+          else
+            none
         ]
 
 
@@ -323,6 +360,128 @@ descriptionRow dialog =
         ]
 
 
+categoryRow shared dialog =
+    let
+        groupBy3 accum list =
+            let
+                group =
+                    List.take 3 list
+            in
+            if List.isEmpty group then
+                accum
+
+            else
+                groupBy3 (group :: accum) (List.drop 3 list)
+
+        categories =
+            shared.categories
+                |> Dict.toList
+                |> (\l ->
+                        ( 0, { name = "Aucune", icon = "" } )
+                            :: l
+                            |> groupBy3 []
+                            |> List.reverse
+                   )
+    in
+    column
+        [ width fill
+        , height fill
+        , paddingEach { top = 24, bottom = 24, right = 64, left = 64 }
+        , spacing 6
+        , Background.color Style.bgWhite
+        ]
+        [ el
+            [ width shrink
+            , height fill
+            , Font.color Style.fgTitle
+            , Style.normalFont
+            , Font.bold
+            , paddingEach { top = 0, bottom = 12, left = 12, right = 0 }
+            , pointer
+            ]
+            (text "Catégorie:")
+        , table
+            [ width fill
+            , spacing 24
+            , paddingXY 64 0
+
+            --BUGGY: , scrollbarY
+            ]
+            { data = categories
+            , columns =
+                [ { header = none
+                  , width = fill
+                  , view =
+                        \row ->
+                            case List.head row of
+                                Nothing ->
+                                    none
+
+                                Just ( k, v ) ->
+                                    radioButton []
+                                        { onPress = Just (Msg.DialogCategory k)
+                                        , label = v.name
+                                        , active = k == dialog.category
+                                        }
+                  }
+                , { header = none
+                  , width = fill
+                  , view =
+                        \row ->
+                            case List.head (List.drop 1 row) of
+                                Nothing ->
+                                    none
+
+                                Just ( k, v ) ->
+                                    radioButton []
+                                        { onPress = Just (Msg.DialogCategory k)
+                                        , label = v.name
+                                        , active = k == dialog.category
+                                        }
+                  }
+                , { header = none
+                  , width = fill
+                  , view =
+                        \row ->
+                            case List.head (List.drop 2 row) of
+                                Nothing ->
+                                    none
+
+                                Just ( k, v ) ->
+                                    radioButton []
+                                        { onPress = Just (Msg.DialogCategory k)
+                                        , label = v.name
+                                        , active = k == dialog.category
+                                        }
+                  }
+                ]
+            }
+        ]
+
+
+radioButton attributes { onPress, label, active } =
+    Input.button
+        ([ Style.normalFont
+         , Border.rounded 4
+         , paddingXY 24 8
+         ]
+            ++ (if active then
+                    [ Font.color Style.fgWhite
+                    , Background.color Style.bgTitle
+                    ]
+
+                else
+                    [ Font.color Style.fgTitle
+                    , Background.color Style.bgWhite
+                    ]
+               )
+            ++ attributes
+        )
+        { onPress = onPress
+        , label = text label
+        }
+
+
 buttonsRow dialog =
     row
         [ width fill
@@ -330,13 +489,13 @@ buttonsRow dialog =
         , paddingEach { top = 64, bottom = 24, left = 64, right = 64 }
         , Background.color Style.bgWhite
         ]
-        [ Input.button
-            (alignRight :: Style.button shrink Style.fgTitle Style.bgWhite Style.bgDark)
+        [ Ui.simpleButton
+            [ alignRight ]
             { label = text "Annuler", onPress = Just Msg.Close }
         , case dialog.id of
             Just _ ->
-                Input.button
-                    (Style.button shrink Style.fgTitle Style.bgWhite Style.bgDark)
+                Ui.simpleButton
+                    []
                     { label = text "Supprimer", onPress = Just Msg.DialogDelete }
 
             Nothing ->
