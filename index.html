@@ -45,32 +45,32 @@
 
     // PROGRESSIVE WEB APP ////////////////////////////////////////////////////
 
-
-    navigator.storage.persist().then(persistent => {
-      if (persistent) {
-        navigator.storage.estimate().then(info => {
-          log(
-            `Persistent storage: usage = ${Math.round(
-              info.usage / 1024,
-            )} kb, (quota = ${Math.round(info.quota / (1024*1024))} Mb).`,
-          )
-        })
-      } else {
-        //TODO: what?
-        error('FATAL: This application requires persistent storage')
-      }
-    })
-
-
     if (!('indexedDB' in window)) {
-      error('IndexedDB not supported by browser.')
-      throw new Error('IndexedDB not supported by browser.')
+      fatalError('IndexedDB not supported by browser.')
     }
 
-
     if (!('serviceWorker' in navigator)) {
-      error('Service workers are not supported by the navigator.')
-      throw new Error('Service workers are not supported by the navigator.')
+      fatalError('service workers not supported by the navigator.')
+    }
+
+    if (navigator.storage && navigator.storage.persist) {
+      navigator.storage.persist().then(persistent => {
+        if (persistent) {
+          navigator.storage.estimate().then(info => {
+            log(
+              `Persistent storage: usage = ${Math.round(
+                info.usage / 1024,
+              )} kb, (quota = ${Math.round(info.quota / (1024*1024))} Mb).`,
+            )
+          })
+        } else {
+          //TODO: fatalError instead?
+          error('persistent storage not granted')
+        }
+      })
+    } else {
+      //TODO: fatalError instead?
+      error('no persistent storage API')
     }
 
 
@@ -109,19 +109,23 @@
         .catch(err => error(`Service registration failed: ${err}`))
     }
 
-    //navigator.serviceWorker.startMessages()
+
+    navigator.serviceWorker.addEventListener("controllerchange", (event) => {
+      log("Service workder controller changed.");
+      log(`Restarting application.`)
+      app.ports.receive.send(["start application", null])
+    });
 
 
     navigator.serviceWorker
       .ready
       .then(registration => {
-        log(`Application started.`)
-        //service = registration.active
+        log(`Starting application.`)
         navigator.serviceWorker.onmessage = event => {
           log(`Received "${event.data.title}" from service.`)
           app.ports.receive.send([event.data.title, event.data.content])
         }
-        app.ports.receive.send(["service worker ready", null])
+        app.ports.receive.send(["start application", null])
       })
       .catch(err => error(`Service worker not ready: ${err}`))
 
@@ -171,6 +175,12 @@
 
     function error(msg) {
       console.error(`[JS] ${msg}`)
+    }
+
+    function fatalError(msg) {
+      document.body.innerHTML =
+        `<div><h1>Le navigateur utilisé n'est pas compatible avec cette application (raison: "${msg}").</h1>` + document.body.innerHTML
+      throw new Error(msg)
     }
 
 

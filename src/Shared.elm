@@ -275,7 +275,7 @@ msgSetSettings settings model =
 msgFromService : ( String, Decode.Value ) -> Model -> ( Model, Cmd Msg )
 msgFromService ( title, content ) model =
     case title of
-        "service worker ready" ->
+        "start application" ->
             ( model
             , Cmd.batch
                 [ Ports.getAccountList

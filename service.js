@@ -21,6 +21,7 @@ const version = 1
 
 self.addEventListener('install', event => {
   log('Installing service worker...')
+  event.waitUntil(self.skipWaiting())
   event.waitUntil(
     caches
       .open('Pactole-v' + version)
@@ -34,7 +35,6 @@ self.addEventListener('install', event => {
       })
       .then(() => {
         log('...service worker installed.')
-        return self.skipWaiting()
       })
       .catch(err => {
         error(err)
@@ -45,22 +45,18 @@ self.addEventListener('install', event => {
 
 self.addEventListener('activate', event => {
   log('Service worker activated.')
+  event.waitUntil(clients.claim())
   event.waitUntil(
-    clients.claim()
-      .then(
-        caches.keys()
-          .then(names => {
-            return Promise.all(
-              names
-                .filter(n =>  n != 'Pactole-v' + version)
-                .map(n => caches.delete(n))
-            )
-          })
-      )
-      .catch(err => {
-        error(err)
+    caches.keys()
+      .then(names => {
+        return Promise.all(
+          names
+            .filter(n =>  n != 'Pactole-v' + version)
+            .map(n => caches.delete(n))
+        )
       })
-  )
+    )
+    .catch(err => error(err))
 })
 
 
