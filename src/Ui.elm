@@ -11,7 +11,9 @@ module Ui exposing
     , pageTitle
     , pageWithSidePanel
     , plusIcon
+    , radioRowOption
     , row
+    , settingsButton
     , simpleButton
     , warningParagraph
     )
@@ -95,18 +97,44 @@ configRadio :
         }
     -> El.Element msg
 configRadio attributes { label, options, selected, onChange } =
-    Input.radio
+    Input.radioRow
         [ El.paddingEach { top = 12, bottom = 24, left = 12 + 64, right = 12 }
         , El.width El.fill
         ]
         { label =
             Input.labelAbove
                 [ El.paddingEach { bottom = 0, top = 48, left = 12, right = 12 } ]
-                (El.text label)
+                (El.el [ Font.bold ] (El.text label))
         , options = options
         , selected = selected
         , onChange = onChange
         }
+
+
+radioRowOption : value -> El.Element msg -> Input.Option value msg
+radioRowOption value element =
+    Input.optionWith
+        value
+        (\state ->
+            El.el
+                ([ El.centerX
+                 , El.paddingXY 16 7
+                 , Border.rounded 3
+                 , Style.bigFont
+                 ]
+                    ++ (case state of
+                            Input.Idle ->
+                                [ Font.color Style.fgTitle ]
+
+                            Input.Focused ->
+                                []
+
+                            Input.Selected ->
+                                [ Font.color (El.rgb 1 1 1), Background.color Style.bgTitle ]
+                       )
+                )
+                element
+        )
 
 
 configCustom :
@@ -125,7 +153,7 @@ configCustom attributes { label, content } =
             [ El.width El.fill
             , El.paddingEach { top = 0, bottom = 24, right = 0, left = 0 }
             ]
-            (El.text label)
+            (El.el [ Font.bold ] (El.text label))
         , El.el [ El.paddingEach { left = 64, bottom = 24, right = 0, top = 0 } ] content
         ]
 
@@ -269,6 +297,48 @@ iconButton attributes { onPress, icon } =
         { onPress = onPress
         , label = icon
         }
+
+
+settingsButton :
+    List (El.Attribute msg)
+    -> { onPress : Maybe msg, enabled : Bool }
+    -> El.Element msg
+settingsButton attributes { onPress, enabled } =
+    if enabled then
+        Input.button
+            ([ Background.color Style.bgPage
+             , Style.normalFont
+             , Font.color Style.fgTitle
+             , Font.center
+             , roundCorners
+             , El.padding 2
+             , El.width (El.px 36)
+             , El.height (El.px 36)
+             ]
+                ++ attributes
+            )
+            { onPress = onPress
+            , label = El.el [ Style.fontIcons, Style.normalFont, El.centerX ] (El.text "\u{F013}")
+            }
+
+    else
+        Input.button
+            ([ Background.color Style.bgPage
+             , Style.normalFont
+             , Font.color Style.fgTitle
+             , Font.center
+             , roundCorners
+             , El.padding 2
+             , El.width (El.px 36)
+             , El.height (El.px 36)
+             ]
+                ++ attributes
+            )
+            { onPress = Nothing
+            , label =
+                El.el [ Style.fontIcons, Style.normalFont, El.centerX, Font.color Style.bgLight ]
+                    (El.text "\u{F013}")
+            }
 
 
 

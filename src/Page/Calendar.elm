@@ -9,7 +9,6 @@ import Element.Input as Input
 import Html.Attributes
 import Ledger
 import Money
-import Msg
 import Page.Summary as Summary
 import Shared
 import Style
@@ -21,7 +20,7 @@ import Ui
 -- VIEW
 
 
-view : Shared.Model -> E.Element Msg.Msg
+view : Shared.Model -> E.Element Shared.Msg
 view model =
     Ui.pageWithSidePanel []
         { panel =
@@ -42,7 +41,7 @@ view model =
 -- THE CALENDAR
 
 
-calendar : Shared.Model -> E.Element Msg.Msg
+calendar : Shared.Model -> E.Element Shared.Msg
 calendar model =
     let
         findTheFirst date =
@@ -142,7 +141,7 @@ calendarHeader model =
                                 (E.text (Date.getMonthName (Date.decrementMonth model.date)))
                             , E.el [ E.centerX, Style.fontIcons, Style.normalFont ] (E.text "  \u{F060}  ")
                             ]
-                    , onPress = Just (Msg.SelectDate (Date.decrementMonth model.date))
+                    , onPress = Just (Shared.SelectDate (Date.decrementMonth model.date))
                     }
                 )
             , E.el
@@ -177,7 +176,7 @@ calendarHeader model =
                             , E.el [ Style.bigFont, Font.color Style.fgTitle, E.centerX ]
                                 (E.text (Date.getMonthName (Date.incrementMonth model.date)))
                             ]
-                    , onPress = Just (Msg.SelectDate (Date.incrementMonth model.date))
+                    , onPress = Just (Shared.SelectDate (Date.incrementMonth model.date))
                     }
                 )
             ]
@@ -213,7 +212,7 @@ calendarFooter model =
         ]
 
 
-calendarCell : Shared.Model -> Date.Date -> E.Element Msg.Msg
+calendarCell : Shared.Model -> Date.Date -> E.Element Shared.Msg
 calendarCell model day =
     let
         sel =
@@ -281,7 +280,7 @@ calendarCell model day =
                             ]
                             (cellContentFor model day)
                         ]
-                , onPress = Just (Msg.SelectDate day)
+                , onPress = Just (Shared.SelectDate day)
                 }
             )
 
@@ -295,7 +294,7 @@ calendarCell model day =
             E.none
 
 
-cellContentFor : Shared.Model -> Date.Date -> List (E.Element Msg.Msg)
+cellContentFor : Shared.Model -> Date.Date -> List (E.Element Shared.Msg)
 cellContentFor model day =
     let
         render transaction =
@@ -378,15 +377,15 @@ dayView model =
             ]
             [ Input.button
                 (Style.iconButton (E.fillPortion 2) Style.fgIncome Style.bgWhite Style.fgIncome)
-                { label = E.text "\u{F067}", onPress = Just (Msg.NewDialog False model.date) }
+                { label = E.text "\u{F067}", onPress = Just (Shared.NewDialog False model.date) }
             , Input.button
                 (Style.iconButton (E.fillPortion 2) Style.fgExpense Style.bgWhite Style.fgExpense)
-                { label = E.text "\u{F068}", onPress = Just (Msg.NewDialog True model.date) }
+                { label = E.text "\u{F068}", onPress = Just (Shared.NewDialog True model.date) }
             ]
         ]
 
 
-dayContentFor : Shared.Model -> Date.Date -> List (E.Element Msg.Msg)
+dayContentFor : Shared.Model -> Date.Date -> List (E.Element Shared.Msg)
 dayContentFor model day =
     let
         render transaction =
@@ -404,7 +403,7 @@ dayContentFor model day =
                     , Border.color (E.rgba 0 0 0 0)
                     , E.focused [ Border.color Style.fgFocus ]
                     ]
-                    { onPress = Just (Msg.EditDialog transaction.id)
+                    { onPress = Just (Shared.EditDialog transaction.id)
                     , label =
                         E.row
                             [ E.width E.fill

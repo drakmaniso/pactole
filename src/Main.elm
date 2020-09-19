@@ -17,7 +17,6 @@ import Json.Decode as Decode
 import Json.Encode as Encode
 import Ledger
 import Money
-import Msg
 import Page.Calendar as Calendar
 import Page.Dialog as Dialog
 import Page.Settings as Settings
@@ -40,8 +39,8 @@ main =
         , update = update
         , view = view
         , subscriptions = subscriptions
-        , onUrlChange = Msg.UrlChanged
-        , onUrlRequest = Msg.LinkClicked
+        , onUrlChange = Shared.UrlChanged
+        , onUrlRequest = Shared.LinkClicked
         }
 
 
@@ -62,7 +61,7 @@ type Page
     | Settings
 
 
-init : Decode.Value -> Url.Url -> Navigation.Key -> ( Model, Cmd Msg.Msg )
+init : Decode.Value -> Url.Url -> Navigation.Key -> ( Model, Cmd Shared.Msg )
 init flags _ _ =
     let
         ( shared, commonCmd ) =
@@ -78,7 +77,7 @@ init flags _ _ =
         ]
       {-
          , Cmd.batch
-             [ Task.perform Msg.Today (Task.map2 Date.fromZoneAndPosix Time.here Time.now)
+             [ Task.perform Shared.Today (Task.map2 Date.fromZoneAndPosix Time.here Time.now)
              ]
       -}
     )
@@ -88,7 +87,7 @@ init flags _ _ =
 -- UPDATE
 
 
-update : Msg.Msg -> Model -> ( Model, Cmd Msg.Msg )
+update : Shared.Msg -> Model -> ( Model, Cmd Shared.Msg )
 update msg model =
     let
         sharedMsg handler =
@@ -113,10 +112,10 @@ update msg model =
             ( { model | settingsDialog = settings }, cmd )
     in
     case msg of
-        Msg.Today d ->
+        Shared.Today d ->
             sharedMsg (Shared.msgToday d)
 
-        Msg.LinkClicked req ->
+        Shared.LinkClicked req ->
             case req of
                 Browser.Internal url ->
                     ( model, Cmd.none )
@@ -124,69 +123,63 @@ update msg model =
                 Browser.External href ->
                     ( model, Cmd.none )
 
-        Msg.UrlChanged url ->
+        Shared.UrlChanged url ->
             ( model, Cmd.none )
 
-        Msg.FromService ( title, json ) ->
+        Shared.FromService ( title, json ) ->
             sharedMsg (Shared.msgFromService ( title, json ))
 
-        Msg.ToCalendar ->
-            sharedMsg Shared.msgToCalendar
-
-        Msg.ToTabular ->
-            sharedMsg Shared.msgToTabular
-
-        Msg.ToMainPage ->
+        Shared.ToMainPage ->
             ( { model | page = MainPage }, Cmd.none )
 
-        Msg.ToSettings ->
+        Shared.ToSettings ->
             ( { model | page = Settings }, Cmd.none )
 
-        Msg.Close ->
+        Shared.Close ->
             --TODO: delegate to Dialog?
             ( { model | dialog = Nothing, settingsDialog = Nothing }, Cmd.none )
 
-        Msg.SelectDate date ->
+        Shared.SelectDate date ->
             sharedMsg (Shared.msgSelectDate date)
 
-        Msg.SelectAccount account ->
+        Shared.SelectAccount account ->
             sharedMsg (Shared.msgSelectAccount account)
 
-        Msg.KeyDown string ->
-            if string == "Alt" || string == "Control" then
+        Shared.KeyDown string ->
+            if string == "Alt" || string == "Control" || string == "Shift" then
                 sharedMsg (Shared.msgShowAdvanced True)
 
             else
                 ( model, Cmd.none )
 
-        Msg.KeyUp string ->
+        Shared.KeyUp string ->
             sharedMsg (Shared.msgShowAdvanced False)
 
-        Msg.NewDialog isExpense date ->
+        Shared.NewDialog isExpense date ->
             dialogMsg (Dialog.msgNewDialog isExpense date)
 
-        Msg.EditDialog id ->
+        Shared.EditDialog id ->
             dialogMsg (Dialog.msgEditDialog id)
 
-        Msg.DialogAmount amount ->
+        Shared.DialogAmount amount ->
             dialogMsg (Dialog.msgAmount amount)
 
-        Msg.DialogDescription string ->
+        Shared.DialogDescription string ->
             dialogMsg (Dialog.msgDescription string)
 
-        Msg.DialogCategory id ->
+        Shared.DialogCategory id ->
             dialogMsg (Dialog.msgCategory id)
 
-        Msg.DialogConfirm ->
+        Shared.DialogConfirm ->
             dialogMsg Dialog.msgConfirm
 
-        Msg.DialogDelete ->
+        Shared.DialogDelete ->
             dialogMsg Dialog.msgDelete
 
-        Msg.CreateAccount name ->
+        Shared.CreateAccount name ->
             sharedMsg (Shared.msgCreateAccount name)
 
-        Msg.OpenRenameAccount id ->
+        Shared.OpenRenameAccount id ->
             ( { model
                 | settingsDialog =
                     Just (Settings.openRenameAccount id model.shared)
@@ -194,7 +187,7 @@ update msg model =
             , Cmd.none
             )
 
-        Msg.OpenDeleteAccount id ->
+        Shared.OpenDeleteAccount id ->
             ( { model
                 | settingsDialog =
                     Just (Settings.openDeleteAccount id model.shared)
@@ -202,10 +195,10 @@ update msg model =
             , Cmd.none
             )
 
-        Msg.CreateCategory name icon ->
+        Shared.CreateCategory name icon ->
             sharedMsg (Shared.msgCreateCategory name icon)
 
-        Msg.OpenRenameCategory id ->
+        Shared.OpenRenameCategory id ->
             ( { model
                 | settingsDialog =
                     Just (Settings.openRenameCategory id model.shared)
@@ -213,7 +206,7 @@ update msg model =
             , Cmd.none
             )
 
-        Msg.OpenDeleteCategory id ->
+        Shared.OpenDeleteCategory id ->
             ( { model
                 | settingsDialog =
                     Just (Settings.openDeleteCategory id model.shared)
@@ -221,13 +214,16 @@ update msg model =
             , Cmd.none
             )
 
-        Msg.SettingsChangeName name ->
+        Shared.SettingsChangeName name ->
             settingsMsg (Settings.msgChangeName name)
 
-        Msg.SettingsConfirm ->
+        Shared.SetSettings settings ->
+            sharedMsg (Shared.msgSetSettings settings)
+
+        Shared.SettingsConfirm ->
             settingsMsg Settings.msgConfirm
 
-        Msg.NoOp ->
+        Shared.NoOp ->
             ( model, Cmd.none )
 
 
@@ -235,16 +231,16 @@ update msg model =
 -- SUBSCRIPTIONS
 
 
-subscriptions : Model -> Sub Msg.Msg
+subscriptions : Model -> Sub Shared.Msg
 subscriptions _ =
     Sub.batch
-        [ Ports.receive Msg.FromService
-        , Browser.Events.onKeyDown (keyDecoder Msg.KeyDown)
-        , Browser.Events.onKeyUp (keyDecoder Msg.KeyUp)
+        [ Ports.receive Shared.FromService
+        , Browser.Events.onKeyDown (keyDecoder Shared.KeyDown)
+        , Browser.Events.onKeyUp (keyDecoder Shared.KeyUp)
         ]
 
 
-keyDecoder : (String -> Msg.Msg) -> Decode.Decoder Msg.Msg
+keyDecoder : (String -> Shared.Msg) -> Decode.Decoder Shared.Msg
 keyDecoder msg =
     Decode.field "key" Decode.string
         |> Decode.map msg
@@ -254,7 +250,7 @@ keyDecoder msg =
 -- VIEW
 
 
-view : Model -> Browser.Document Msg.Msg
+view : Model -> Browser.Document Shared.Msg
 view model =
     { title = "Pactole"
     , body =
@@ -312,7 +308,7 @@ view model =
                                             , Background.color (E.rgba 0 0 0 0.6)
                                             ]
                                             { label = E.none
-                                            , onPress = Just Msg.Close
+                                            , onPress = Just Shared.Close
                                             }
                                         )
                                     ]
@@ -328,7 +324,7 @@ view model =
                     Settings.view model.shared
 
                 MainPage ->
-                    case model.shared.mode of
+                    case model.shared.settings.defaultMode of
                         Shared.InCalendar ->
                             Calendar.view model.shared
 

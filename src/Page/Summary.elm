@@ -8,7 +8,6 @@ import Element.Font as Font
 import Element.Input as Input
 import Ledger
 import Money
-import Msg
 import Shared
 import Style
 import Ui
@@ -27,7 +26,8 @@ view model =
         [ Elem.row
             [ Elem.width Elem.fill
             ]
-            [ Elem.el [ Elem.width Elem.fill ] Elem.none
+            [ Elem.el [ Elem.width Elem.fill ]
+                Elem.none
             , Input.radioRow
                 [ Elem.width Elem.shrink
                 , Elem.focused
@@ -39,7 +39,7 @@ view model =
                         }
                     ]
                 ]
-                { onChange = Msg.SelectAccount
+                { onChange = Shared.SelectAccount
                 , selected = model.account
                 , label = Input.labelHidden "Compte"
                 , options =
@@ -47,7 +47,13 @@ view model =
                         (\account -> Input.optionWith account (accountOption account model))
                         (Dict.keys model.accounts)
                 }
-            , Elem.el [ Elem.width Elem.fill ] Elem.none
+            , Elem.el [ Elem.width Elem.fill ]
+                (Ui.settingsButton
+                    [ Elem.alignRight ]
+                    { onPress = Just Shared.ToSettings
+                    , enabled = model.showAdvanced
+                    }
+                )
             ]
         , Elem.row [ Elem.height (Elem.fillPortion 1) ] [ Elem.none ]
         , Elem.el
@@ -60,22 +66,7 @@ view model =
             (Elem.text "Solde actuel:")
         , balanceRow model
         , Elem.row [ Elem.height (Elem.fillPortion 1) ] [ Elem.none ]
-        , if model.showAdvanced then
-            Elem.row
-                [ Elem.width Elem.fill
-                ]
-                [ Elem.el [ Elem.width Elem.fill ] Elem.none
-                , Ui.simpleButton
-                    []
-                    { label =
-                        Elem.text "Configurer"
-                    , onPress = Just Msg.ToSettings
-                    }
-                , Elem.el [ Elem.width Elem.fill ] Elem.none
-                ]
-
-          else
-            buttonRow model
+        , buttonRow model
         , Elem.row [ Elem.height (Elem.fillPortion 2) ] [ Elem.none ]
         ]
 
@@ -99,7 +90,7 @@ accountOption accountID shared state =
                         [ Font.color (Elem.rgb 1 1 1), Background.color Style.bgTitle ]
                )
         )
-        (Elem.text (Maybe.withDefault "ERROR" (Dict.get accountID shared.accounts)))
+        (Elem.text (Shared.accountName accountID shared))
 
 
 balanceRow model =
@@ -142,18 +133,25 @@ balanceRow model =
 
 buttonRow model =
     Elem.row
-        [ Elem.width Elem.fill ]
+        [ Elem.width Elem.fill, Elem.spacing 12 ]
         [ Elem.el [ Elem.width Elem.fill ] Elem.none
-        , Ui.simpleButton
-            [ Elem.width (Elem.fillPortion 3) ]
-            { onPress = Nothing
-            , label = Elem.text "Bilan"
-            }
-        , Elem.el [ Elem.width Elem.fill ] Elem.none
-        , Ui.simpleButton
-            [ Elem.width (Elem.fillPortion 3) ]
-            { onPress = Nothing
-            , label = Elem.text "Pointer"
-            }
+        , if model.settings.summaryEnabled then
+            Ui.simpleButton
+                [ Elem.width (Elem.fillPortion 3) ]
+                { onPress = Nothing
+                , label = Elem.text "Bilan"
+                }
+
+          else
+            Elem.none
+        , if model.settings.reconciliationEnabled then
+            Ui.simpleButton
+                [ Elem.width (Elem.fillPortion 3) ]
+                { onPress = Nothing
+                , label = Elem.text "Pointer"
+                }
+
+          else
+            Elem.none
         , Elem.el [ Elem.width Elem.fill ] Elem.none
         ]

@@ -9,14 +9,13 @@ import Element.Input as Input
 import Html.Attributes
 import Ledger
 import Money
-import Msg
 import Page.Summary as Summary
 import Shared
 import Style
 import Ui
 
 
-view : Shared.Model -> Element Msg.Msg
+view : Shared.Model -> Element Shared.Msg
 view model =
     Ui.pageWithSidePanel []
         { panel =
@@ -32,7 +31,7 @@ view model =
         }
 
 
-transactionView : Shared.Model -> List (Element Msg.Msg)
+transactionView : Shared.Model -> List (Element Shared.Msg)
 transactionView model =
     Tuple.second
         (List.foldl

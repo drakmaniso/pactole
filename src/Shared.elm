@@ -1,28 +1,33 @@
 module Shared exposing
-    ( Mode(..)
+    ( Category
+    , Mode(..)
     , Model
+    , Msg(..)
+    , Settings
+    , accountName
+    , categoryName
     , init
     , msgCreateAccount
     , msgCreateCategory
     , msgFromService
     , msgSelectAccount
     , msgSelectDate
+    , msgSetSettings
     , msgShowAdvanced
-    , msgToCalendar
-    , msgToTabular
     , msgToday
     )
 
 import Array as Array
+import Browser
 import Date
 import Dict
 import Json.Decode as Decode
 import Ledger
 import Money
-import Msg
 import Ports
 import Time
 import Tuple
+import Url
 
 
 
@@ -30,7 +35,7 @@ import Tuple
 
 
 type alias Model =
-    { mode : Mode
+    { settings : Settings
     , today : Date.Date
     , date : Date.Date
     , ledger : Ledger.Ledger
@@ -47,6 +52,19 @@ type alias Category =
     }
 
 
+type alias Settings =
+    { categoriesEnabled : Bool
+    , defaultMode : Mode
+    , reconciliationEnabled : Bool
+    , summaryEnabled : Bool
+    }
+
+
+type Mode
+    = InCalendar
+    | InTabular
+
+
 decodeAccount =
     Decode.map2 Tuple.pair
         (Decode.field "id" Decode.int)
@@ -60,12 +78,51 @@ decodeCategory =
         (Decode.field "icon" Decode.string)
 
 
-type Mode
-    = InCalendar
-    | InTabular
+decodeSettings =
+    Decode.map4
+        (\cat mod rec summ ->
+            { categoriesEnabled = cat
+            , defaultMode = mod
+            , reconciliationEnabled = rec
+            , summaryEnabled = summ
+            }
+        )
+        (Decode.field "categoriesEnabled" Decode.bool)
+        (Decode.field "defaultMode" decodeMode)
+        (Decode.field "reconciliationEnabled" Decode.bool)
+        (Decode.field "summaryEnabled" Decode.bool)
 
 
-init : Decode.Value -> ( Model, Cmd Msg.Msg )
+decodeMode =
+    Decode.map
+        (\str ->
+            case str of
+                "calendar" ->
+                    InCalendar
+
+                _ ->
+                    InTabular
+        )
+        Decode.string
+
+
+accountName accountID model =
+    Maybe.withDefault
+        ("COMPTE_" ++ String.fromInt accountID)
+        (Dict.get accountID model.accounts)
+
+
+categoryName categoryID model =
+    Maybe.withDefault
+        ("CATEGORIE_" ++ String.fromInt categoryID)
+        (Dict.get categoryID model.categories)
+
+
+
+-- INIT
+
+
+init : Decode.Value -> ( Model, Cmd Msg )
 init flags =
     let
         day =
@@ -100,7 +157,12 @@ init flags =
                 Nothing ->
                     ( Date.default, Ports.error "init flags: invalid date for today" )
     in
-    ( { mode = InCalendar
+    ( { settings =
+            { categoriesEnabled = False
+            , defaultMode = InCalendar
+            , reconciliationEnabled = False
+            , summaryEnabled = False
+            }
       , today = today
       , date = today
       , ledger = Ledger.empty
@@ -114,58 +176,103 @@ init flags =
 
 
 
+-- MSG
+
+
+type Msg
+    = Today Date.Date
+    | LinkClicked Browser.UrlRequest
+    | UrlChanged Url.Url
+    | FromService ( String, Decode.Value )
+    | ToMainPage
+    | ToSettings
+    | Close
+    | SelectDate Date.Date
+    | SelectAccount Int
+    | KeyDown String
+    | KeyUp String
+    | NewDialog Bool Date.Date -- NewDialog isExpense date
+    | EditDialog Int
+    | DialogAmount String
+    | DialogDescription String
+    | DialogCategory Int
+    | DialogDelete
+    | DialogConfirm
+    | CreateAccount String
+    | OpenRenameAccount Int
+    | OpenDeleteAccount Int
+    | CreateCategory String String
+    | OpenRenameCategory Int
+    | OpenDeleteCategory Int
+    | SettingsChangeName String
+    | SetSettings Settings
+    | SettingsConfirm
+    | NoOp
+
+
+
 -- UPDATE MESSAGES
 
 
-msgToday : Date.Date -> Model -> ( Model, Cmd Msg.Msg )
+msgToday : Date.Date -> Model -> ( Model, Cmd Msg )
 msgToday d model =
     ( { model | today = d, date = d }, Cmd.none )
 
 
-msgToCalendar : Model -> ( Model, Cmd Msg.Msg )
-msgToCalendar model =
-    ( { model | mode = InCalendar }
-    , Cmd.none
-    )
-
-
-msgToTabular : Model -> ( Model, Cmd Msg.Msg )
-msgToTabular model =
-    ( { model | mode = InTabular }
-    , Cmd.none
-    )
-
-
-msgSelectDate : Date.Date -> Model -> ( Model, Cmd Msg.Msg )
+msgSelectDate : Date.Date -> Model -> ( Model, Cmd Msg )
 msgSelectDate date model =
     ( { model | date = date }, Cmd.none )
 
 
-msgSelectAccount : Int -> Model -> ( Model, Cmd Msg.Msg )
+msgSelectAccount : Int -> Model -> ( Model, Cmd Msg )
 msgSelectAccount accountID model =
     ( { model | account = Just accountID }, Ports.getLedger accountID )
 
 
-msgCreateAccount : String -> Model -> ( Model, Cmd Msg.Msg )
+msgCreateAccount : String -> Model -> ( Model, Cmd Msg )
 msgCreateAccount name model =
     ( model, Ports.createAccount name )
 
 
-msgCreateCategory : String -> String -> Model -> ( Model, Cmd Msg.Msg )
+msgCreateCategory : String -> String -> Model -> ( Model, Cmd Msg )
 msgCreateCategory name icon model =
     ( model, Ports.createCategory name icon )
 
 
-msgShowAdvanced : Bool -> Model -> ( Model, Cmd Msg.Msg )
+msgShowAdvanced : Bool -> Model -> ( Model, Cmd Msg )
 msgShowAdvanced show model =
     ( { model | showAdvanced = show }, Cmd.none )
+
+
+msgSetSettings : Settings -> Model -> ( Model, Cmd Msg )
+msgSetSettings settings model =
+    let
+        modeString =
+            case settings.defaultMode of
+                InCalendar ->
+                    "calendar"
+
+                InTabular ->
+                    "tabular"
+
+        settingsString =
+            { categoriesEnabled = settings.categoriesEnabled
+            , modeString = modeString
+            , reconciliationEnabled = settings.reconciliationEnabled
+            , summaryEnabled = settings.summaryEnabled
+            }
+    in
+    ( model
+      --{ model | settings = settings }
+    , Ports.setSettings settingsString
+    )
 
 
 
 -- SERVICE WORKER MESSAGES
 
 
-msgFromService : ( String, Decode.Value ) -> Model -> ( Model, Cmd Msg.Msg )
+msgFromService : ( String, Decode.Value ) -> Model -> ( Model, Cmd Msg )
 msgFromService ( title, content ) model =
     case title of
         "service worker ready" ->
@@ -173,6 +280,7 @@ msgFromService ( title, content ) model =
             , Cmd.batch
                 [ Ports.getAccountList
                 , Ports.getCategoryList
+                , Ports.getSettings
                 ]
             )
 
@@ -208,6 +316,15 @@ msgFromService ( title, content ) model =
                     --TODO: error
                     ( model, Ports.error ("while decoding category list: " ++ Decode.errorToString e) )
 
+        "set settings" ->
+            case Decode.decodeValue decodeSettings content of
+                Ok settings ->
+                    ( { model | settings = settings }, Cmd.none )
+
+                Err e ->
+                    --TODO: error
+                    ( model, Ports.error ("while decoding settings: " ++ Decode.errorToString e) )
+
         "ledger updated" ->
             case ( model.account, Decode.decodeValue Decode.int content ) of
                 ( Just currentID, Ok updatedID ) ->
@@ -227,6 +344,16 @@ msgFromService ( title, content ) model =
             case Decode.decodeValue Ledger.decode content of
                 Ok ledger ->
                     ( { model | ledger = ledger }
+                    , Cmd.none
+                    )
+
+                Err e ->
+                    ( model, Ports.error (Decode.errorToString e) )
+
+        "settings updated" ->
+            case Decode.decodeValue decodeSettings content of
+                Ok settings ->
+                    ( { model | settings = settings }
                     , Cmd.none
                     )
 

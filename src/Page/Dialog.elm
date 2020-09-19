@@ -22,7 +22,6 @@ import Html.Attributes as HtmlAttr
 import Json.Encode as Encode
 import Ledger
 import Money
-import Msg
 import Ports
 import Shared
 import Style
@@ -49,7 +48,7 @@ type alias Model =
 -- UPDATE
 
 
-msgNewDialog : Bool -> Date.Date -> Shared.Model -> Maybe Model -> ( Shared.Model, Maybe Model, Cmd Msg.Msg )
+msgNewDialog : Bool -> Date.Date -> Shared.Model -> Maybe Model -> ( Shared.Model, Maybe Model, Cmd Shared.Msg )
 msgNewDialog isExpense date shared _ =
     ( shared
     , Just
@@ -61,11 +60,11 @@ msgNewDialog isExpense date shared _ =
         , description = ""
         , category = 0
         }
-    , Task.attempt (\_ -> Msg.NoOp) (Dom.focus "dialog-amount")
+    , Task.attempt (\_ -> Shared.NoOp) (Dom.focus "dialog-amount")
     )
 
 
-msgEditDialog : Int -> Shared.Model -> Maybe Model -> ( Shared.Model, Maybe Model, Cmd Msg.Msg )
+msgEditDialog : Int -> Shared.Model -> Maybe Model -> ( Shared.Model, Maybe Model, Cmd Shared.Msg )
 msgEditDialog id shared _ =
     case Ledger.getTransaction id shared.ledger of
         Nothing ->
@@ -86,7 +85,7 @@ msgEditDialog id shared _ =
             )
 
 
-msgAmount : String -> Shared.Model -> Maybe Model -> ( Shared.Model, Maybe Model, Cmd Msg.Msg )
+msgAmount : String -> Shared.Model -> Maybe Model -> ( Shared.Model, Maybe Model, Cmd Shared.Msg )
 msgAmount amount shared model =
     case model of
         Just dialog ->
@@ -103,7 +102,7 @@ msgAmount amount shared model =
             ( shared, Nothing, Cmd.none )
 
 
-msgDescription : String -> Shared.Model -> Maybe Model -> ( Shared.Model, Maybe Model, Cmd Msg.Msg )
+msgDescription : String -> Shared.Model -> Maybe Model -> ( Shared.Model, Maybe Model, Cmd Shared.Msg )
 msgDescription string shared model =
     case model of
         Just dialog ->
@@ -120,7 +119,7 @@ msgDescription string shared model =
             ( shared, model, Cmd.none )
 
 
-msgCategory : Int -> Shared.Model -> Maybe Model -> ( Shared.Model, Maybe Model, Cmd Msg.Msg )
+msgCategory : Int -> Shared.Model -> Maybe Model -> ( Shared.Model, Maybe Model, Cmd Shared.Msg )
 msgCategory id shared model =
     case model of
         Just dialog ->
@@ -134,7 +133,7 @@ msgCategory id shared model =
             ( shared, model, Cmd.none )
 
 
-msgConfirm : Shared.Model -> Maybe Model -> ( Shared.Model, Maybe Model, Cmd Msg.Msg )
+msgConfirm : Shared.Model -> Maybe Model -> ( Shared.Model, Maybe Model, Cmd Shared.Msg )
 msgConfirm shared model =
     case model of
         Just dialog ->
@@ -173,7 +172,7 @@ msgConfirm shared model =
             ( shared, model, Ports.error "impossible Confirm message" )
 
 
-msgDelete : Shared.Model -> Maybe Model -> ( Shared.Model, Maybe Model, Cmd Msg.Msg )
+msgDelete : Shared.Model -> Maybe Model -> ( Shared.Model, Maybe Model, Cmd Shared.Msg )
 msgDelete shared model =
     case model of
         Just dialog ->
@@ -198,7 +197,7 @@ msgDelete shared model =
 -- VIEW
 
 
-view : Shared.Model -> Model -> Element Msg.Msg
+view : Shared.Model -> Model -> Element Shared.Msg
 view shared dialog =
     column
         [ centerX
@@ -214,7 +213,7 @@ view shared dialog =
         [ titleRow dialog
         , amountRow dialog
         , descriptionRow dialog
-        , if dialog.isExpense then
+        , if dialog.isExpense && shared.settings.categoriesEnabled then
             categoryRow shared dialog
 
           else
@@ -255,7 +254,7 @@ amountRow dialog =
         , centerY
         ]
         [ Input.text
-            [ Ui.onEnter Msg.DialogConfirm
+            [ Ui.onEnter Shared.DialogConfirm
             , Style.bigFont
             , paddingXY 8 12
             , width (shrink |> minimum 220)
@@ -278,7 +277,7 @@ amountRow dialog =
                     (text "Somme:")
             , text = dialog.amount
             , placeholder = Nothing
-            , onChange = Msg.DialogAmount
+            , onChange = Shared.DialogAmount
             }
         , el
             [ Style.bigFont
@@ -333,7 +332,7 @@ descriptionRow dialog =
         , Background.color Style.bgWhite
         ]
         [ Input.multiline
-            [ Ui.onEnter Msg.DialogConfirm
+            [ Ui.onEnter Shared.DialogConfirm
             , Style.bigFont
             , paddingXY 8 12
             , Border.width 1
@@ -354,7 +353,7 @@ descriptionRow dialog =
                     (text "Description:")
             , text = dialog.description
             , placeholder = Nothing
-            , onChange = Msg.DialogDescription
+            , onChange = Shared.DialogDescription
             , spellcheck = True
             }
         ]
@@ -385,7 +384,7 @@ categoryRow shared dialog =
     in
     column
         [ width fill
-        , height fill
+        , height shrink
         , paddingEach { top = 24, bottom = 24, right = 64, left = 64 }
         , spacing 6
         , Background.color Style.bgWhite
@@ -402,7 +401,7 @@ categoryRow shared dialog =
             (text "Catégorie:")
         , table
             [ width fill
-            , spacing 24
+            , spacing 12
             , paddingXY 64 0
 
             --BUGGY: , scrollbarY
@@ -419,7 +418,7 @@ categoryRow shared dialog =
 
                                 Just ( k, v ) ->
                                     radioButton []
-                                        { onPress = Just (Msg.DialogCategory k)
+                                        { onPress = Just (Shared.DialogCategory k)
                                         , label = v.name
                                         , active = k == dialog.category
                                         }
@@ -434,7 +433,7 @@ categoryRow shared dialog =
 
                                 Just ( k, v ) ->
                                     radioButton []
-                                        { onPress = Just (Msg.DialogCategory k)
+                                        { onPress = Just (Shared.DialogCategory k)
                                         , label = v.name
                                         , active = k == dialog.category
                                         }
@@ -449,7 +448,7 @@ categoryRow shared dialog =
 
                                 Just ( k, v ) ->
                                     radioButton []
-                                        { onPress = Just (Msg.DialogCategory k)
+                                        { onPress = Just (Shared.DialogCategory k)
                                         , label = v.name
                                         , active = k == dialog.category
                                         }
@@ -491,12 +490,12 @@ buttonsRow dialog =
         ]
         [ Ui.simpleButton
             [ alignRight ]
-            { label = text "Annuler", onPress = Just Msg.Close }
+            { label = text "Annuler", onPress = Just Shared.Close }
         , case dialog.id of
             Just _ ->
                 Ui.simpleButton
                     []
-                    { label = text "Supprimer", onPress = Just Msg.DialogDelete }
+                    { label = text "Supprimer", onPress = Just Shared.DialogDelete }
 
             Nothing ->
                 none
@@ -507,6 +506,6 @@ buttonsRow dialog =
                 Style.bgTitle
             )
             { label = text "OK"
-            , onPress = Just Msg.DialogConfirm
+            , onPress = Just Shared.DialogConfirm
             }
         ]
