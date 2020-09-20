@@ -21,6 +21,7 @@ const version = 1
 
 self.addEventListener('install', event => {
   log('Installing service worker...')
+  event.waitUntil(self.skipWaiting())
   event.waitUntil(
     caches
       .open('Pactole-v' + version)
@@ -34,7 +35,6 @@ self.addEventListener('install', event => {
       })
       .then(() => {
         log('...service worker installed.')
-        return self.skipWaiting()
       })
       .catch(err => {
         error(err)
@@ -45,22 +45,18 @@ self.addEventListener('install', event => {
 
 self.addEventListener('activate', event => {
   log('Service worker activated.')
+  event.waitUntil(clients.claim())
   event.waitUntil(
-    clients.claim()
-      .then(
-        caches.keys()
-          .then(names => {
-            return Promise.all(
-              names
-                .filter(n =>  n != 'Pactole-v' + version)
-                .map(n => caches.delete(n))
-            )
-          })
-      )
-      .catch(err => {
-        error(err)
+    caches.keys()
+      .then(names => {
+        return Promise.all(
+          names
+            .filter(n =>  n != 'Pactole-v' + version)
+            .map(n => caches.delete(n))
+        )
       })
-  )
+    )
+    .catch(err => error(err))
 })
 
 
@@ -210,6 +206,17 @@ self.addEventListener('message', event => {
         error(`delete transaction: ${err}`)
       }
       break
+
+    case 'get settings':
+      getSettings()
+        .then(settings => respond(event, 'set settings', settings))
+        .catch(err => error(`get settings: ${err}`))
+      break
+
+    case 'set settings':
+      setSettings(msg.content)
+        .then(() => broadcast('settings updated', msg.content))
+      break
   }
 })
 
@@ -307,6 +314,18 @@ function openDB() {
 // SETTINGS /////////////////////////////////////////////////////////////////////////////
 
 
+function getSettings() {
+  return new Promise((resolve, reject) => {
+    var settings = {}
+    getSetting('categoriesEnabled')
+      .then(cat => { settings.categoriesEnabled = cat; return getSetting('defaultMode') })
+      .then(mod => { settings.defaultMode = mod; return getSetting('summaryEnabled') })
+      .then(sum => { settings.summaryEnabled = sum; return getSetting('reconciliationEnabled') })
+      .then(rec => { settings.reconciliationEnabled = rec; resolve(settings) })
+      .catch(err => reject(err))
+  })
+}
+
 function getSetting(key) {
   return new Promise((resolve, reject) => {
     openDB()
@@ -324,6 +343,34 @@ function getSetting(key) {
   })
 }
 
+
+function setSettings(settings) {
+  try {
+    const {
+      categoriesEnabled,
+      defaultMode,
+      reconciliationEnabled,
+      summaryEnabled
+    } = settings
+    return new Promise((resolve, reject) => {
+      openDB()
+        .then(db => {
+          const tr = db.transaction(['settings'], 'readwrite')
+          tr.onerror = () => reject(tr.error)
+          tr.oncomplete = () => resolve()
+          const os = tr.objectStore('settings')
+          os.put(categoriesEnabled, 'categoriesEnabled')
+          os.put(defaultMode, 'defaultMode')
+          os.put(reconciliationEnabled, 'reconciliationEnabled')
+          os.put(summaryEnabled, 'summaryEnabled')
+        })
+        .catch(err => reject(err))
+    })
+  }
+  catch(err) {
+    error(`set settings: ${err}`)
+  }
+}
 
 // ACCOUNTS ///////////////////////////////////////////////////////////////////
 

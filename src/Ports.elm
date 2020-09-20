@@ -4,7 +4,6 @@ import Date
 import Json.Decode as Decode
 import Json.Encode as Encode
 import Money
-import Msg
 
 
 port send : ( String, Encode.Value ) -> Cmd msg
@@ -17,7 +16,7 @@ port receive : (( String, Decode.Value ) -> msg) -> Sub msg
 -- HELPERS
 
 
-error : String -> Cmd Msg.Msg
+error : String -> Cmd msg
 error msg =
     send ( "error", Encode.string msg )
 
@@ -30,7 +29,7 @@ createAccount name =
     send ( "create account", Encode.string name )
 
 
-renameAccount : Int -> String -> Cmd Msg.Msg
+renameAccount : Int -> String -> Cmd msg
 renameAccount account newName =
     send
         ( "rename account"
@@ -41,7 +40,7 @@ renameAccount account newName =
         )
 
 
-deleteAccount : Int -> Cmd Msg.Msg
+deleteAccount : Int -> Cmd msg
 deleteAccount account =
     send
         ( "delete account"
@@ -63,7 +62,7 @@ createCategory name icon =
         )
 
 
-renameCategory : Int -> String -> String -> Cmd Msg.Msg
+renameCategory : Int -> String -> String -> Cmd msg
 renameCategory id name icon =
     send
         ( "rename category"
@@ -75,7 +74,7 @@ renameCategory id name icon =
         )
 
 
-deleteCategory : Int -> Cmd Msg.Msg
+deleteCategory : Int -> Cmd msg
 deleteCategory id =
     send
         ( "delete category"
@@ -83,12 +82,12 @@ deleteCategory id =
         )
 
 
-getLedger : Int -> Cmd Msg.Msg
+getLedger : Int -> Cmd msg
 getLedger account =
     send ( "get ledger", Encode.int account )
 
 
-addTransaction : { account : Maybe Int, date : Date.Date, amount : Money.Money, description : String, category : Int, checked : Bool } -> Cmd Msg.Msg
+addTransaction : { account : Maybe Int, date : Date.Date, amount : Money.Money, description : String, category : Int, checked : Bool } -> Cmd msg
 addTransaction { account, date, amount, description, category, checked } =
     case account of
         Just acc ->
@@ -108,7 +107,7 @@ addTransaction { account, date, amount, description, category, checked } =
             error "add transaction: no current account"
 
 
-putTransaction : { account : Maybe Int, id : Int, date : Date.Date, amount : Money.Money, description : String, category : Int, checked : Bool } -> Cmd Msg.Msg
+putTransaction : { account : Maybe Int, id : Int, date : Date.Date, amount : Money.Money, description : String, category : Int, checked : Bool } -> Cmd msg
 putTransaction { account, id, date, amount, description, category, checked } =
     case account of
         Just acc ->
@@ -129,7 +128,7 @@ putTransaction { account, id, date, amount, description, category, checked } =
             error "put transaction: no current account"
 
 
-deleteTransaction : { account : Maybe Int, id : Int } -> Cmd Msg.Msg
+deleteTransaction : { account : Maybe Int, id : Int } -> Cmd msg
 deleteTransaction { account, id } =
     case account of
         Just acc ->
@@ -143,3 +142,20 @@ deleteTransaction { account, id } =
 
         Nothing ->
             error "delete transaction: no current account"
+
+
+getSettings =
+    send ( "get settings", Encode.object [] )
+
+
+setSettings : { categoriesEnabled : Bool, modeString : String, reconciliationEnabled : Bool, summaryEnabled : Bool } -> Cmd msg
+setSettings { categoriesEnabled, modeString, reconciliationEnabled, summaryEnabled } =
+    send
+        ( "set settings"
+        , Encode.object
+            [ ( "categoriesEnabled", Encode.bool categoriesEnabled )
+            , ( "defaultMode", Encode.string modeString )
+            , ( "reconciliationEnabled", Encode.bool reconciliationEnabled )
+            , ( "summaryEnabled", Encode.bool summaryEnabled )
+            ]
+        )

@@ -6,9 +6,9 @@ import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
 import Element.Input as Input
+import Html.Attributes as HtmlAttr
 import Ledger
 import Money
-import Msg
 import Shared
 import Style
 import Ui
@@ -27,7 +27,8 @@ view model =
         [ Elem.row
             [ Elem.width Elem.fill
             ]
-            [ Elem.el [ Elem.width Elem.fill ] Elem.none
+            [ Elem.el [ Elem.width Elem.fill ]
+                Elem.none
             , Input.radioRow
                 [ Elem.width Elem.shrink
                 , Elem.focused
@@ -39,7 +40,7 @@ view model =
                         }
                     ]
                 ]
-                { onChange = Msg.SelectAccount
+                { onChange = Shared.SelectAccount
                 , selected = model.account
                 , label = Input.labelHidden "Compte"
                 , options =
@@ -47,7 +48,13 @@ view model =
                         (\account -> Input.optionWith account (accountOption account model))
                         (Dict.keys model.accounts)
                 }
-            , Elem.el [ Elem.width Elem.fill ] Elem.none
+            , Elem.el [ Elem.width Elem.fill ]
+                (Ui.settingsButton
+                    [ Elem.alignRight ]
+                    { onPress = Just (Shared.ChangePage Shared.SettingsPage)
+                    , enabled = model.showAdvanced
+                    }
+                )
             ]
         , Elem.row [ Elem.height (Elem.fillPortion 1) ] [ Elem.none ]
         , Elem.el
@@ -58,24 +65,13 @@ view model =
             , Font.color Style.fgDark
             ]
             (Elem.text "Solde actuel:")
-        , balanceRow model
-        , Elem.row [ Elem.height (Elem.fillPortion 1) ] [ Elem.none ]
-        , if model.showAdvanced then
-            Elem.row
-                [ Elem.width Elem.fill
-                ]
-                [ Elem.el [ Elem.width Elem.fill ] Elem.none
-                , Ui.simpleButton
-                    []
-                    { label =
-                        Elem.text "Configurer"
-                    , onPress = Just Msg.ToSettings
-                    }
-                , Elem.el [ Elem.width Elem.fill ] Elem.none
-                ]
+        , if model.account /= Nothing then
+            balanceRow model
 
           else
-            buttonRow model
+            Elem.none
+        , Elem.row [ Elem.height (Elem.fillPortion 1) ] [ Elem.none ]
+        , buttonRow model
         , Elem.row [ Elem.height (Elem.fillPortion 2) ] [ Elem.none ]
         ]
 
@@ -99,14 +95,16 @@ accountOption accountID shared state =
                         [ Font.color (Elem.rgb 1 1 1), Background.color Style.bgTitle ]
                )
         )
-        (Elem.text (Maybe.withDefault "ERROR" (Dict.get accountID shared.accounts)))
+        (Elem.text (Shared.accountName accountID shared))
 
 
 balanceRow model =
     let
-        parts =
+        balance =
             Ledger.getBalance model.ledger
-                |> Money.toStrings
+
+        parts =
+            Money.toStrings balance
 
         sign =
             if parts.sign == "+" then
@@ -114,9 +112,19 @@ balanceRow model =
 
             else
                 "-"
+
+        color =
+            if Money.isGreaterThan balance 100 then
+                Style.fgBlack
+
+            else if Money.isGreaterThan balance 0 then
+                Style.fgWarning
+
+            else
+                Style.fgRed
     in
     Elem.row
-        [ Elem.width Elem.fill ]
+        [ Elem.width Elem.fill, Font.color color ]
         [ Elem.el [ Elem.width Elem.fill ] Elem.none
         , Elem.el
             [ Style.biggestFont
@@ -142,18 +150,46 @@ balanceRow model =
 
 buttonRow model =
     Elem.row
-        [ Elem.width Elem.fill ]
+        [ Elem.width Elem.fill, Elem.spacing 12 ]
         [ Elem.el [ Elem.width Elem.fill ] Elem.none
-        , Ui.simpleButton
-            [ Elem.width (Elem.fillPortion 3) ]
-            { onPress = Nothing
-            , label = Elem.text "Bilan"
-            }
-        , Elem.el [ Elem.width Elem.fill ] Elem.none
-        , Ui.simpleButton
-            [ Elem.width (Elem.fillPortion 3) ]
-            { onPress = Nothing
-            , label = Elem.text "Pointer"
-            }
+        , if model.page == Shared.MainPage && model.settings.summaryEnabled then
+            Ui.simpleButton
+                [ Elem.width (Elem.fillPortion 3)
+                , Elem.htmlAttribute <| HtmlAttr.id "unfocus-on-page-change"
+                ]
+                { onPress = Just (Shared.ChangePage Shared.StatsPage)
+                , label = Elem.text "Bilan"
+                }
+
+          else
+            Elem.none
+        , if model.page == Shared.MainPage && model.settings.reconciliationEnabled then
+            Ui.simpleButton
+                [ Elem.width (Elem.fillPortion 3)
+                , Elem.htmlAttribute <| HtmlAttr.id "unfocus-on-page-change"
+                ]
+                { onPress = Nothing
+                , label = Elem.text "Pointer"
+                }
+
+          else
+            Elem.none
+        , if model.page /= Shared.MainPage then
+            Ui.simpleButton
+                [ Elem.width (Elem.fillPortion 3)
+                , Elem.htmlAttribute <| HtmlAttr.id "unfocus-on-page-change"
+                ]
+                { onPress = Just (Shared.ChangePage Shared.MainPage)
+                , label =
+                    Ui.row [ Font.center, Elem.width Elem.fill ]
+                        [ Elem.el [ Elem.width Elem.fill ] Elem.none
+                        , Ui.backIcon []
+                        , Elem.text "  Retour"
+                        , Elem.el [ Elem.width Elem.fill ] Elem.none
+                        ]
+                }
+
+          else
+            Elem.none
         , Elem.el [ Elem.width Elem.fill ] Elem.none
         ]

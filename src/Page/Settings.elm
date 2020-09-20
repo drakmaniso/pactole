@@ -17,7 +17,6 @@ import Element.Border as Border
 import Element.Font as Font
 import Element.Input as Input
 import Html.Attributes
-import Msg
 import Ports
 import Shared
 import Style
@@ -75,7 +74,7 @@ openDeleteCategory id shared =
     DeleteCategory { id = id, name = name, icon = icon }
 
 
-msgChangeName : String -> Maybe Dialog -> ( Maybe Dialog, Cmd Msg.Msg )
+msgChangeName : String -> Maybe Dialog -> ( Maybe Dialog, Cmd Shared.Msg )
 msgChangeName name variant =
     case variant of
         Just (RenameAccount model) ->
@@ -119,7 +118,7 @@ msgConfirm variant =
 -- VIEW
 
 
-view : Shared.Model -> Element Msg.Msg
+view : Shared.Model -> Element Shared.Msg
 view shared =
     column
         [ width fill
@@ -139,7 +138,7 @@ view shared =
             , padding 12
             ]
             [ Ui.simpleButton []
-                { onPress = Just Msg.ToMainPage
+                { onPress = Just (Shared.ChangePage Shared.MainPage)
                 , label =
                     Ui.row []
                         [ Ui.backIcon []
@@ -159,8 +158,19 @@ view shared =
                 , height fill
                 , centerX
                 ]
-                [ Ui.configCustom []
-                    { label = "Comptes enregistrés sur cet ordinateur:"
+                [ row
+                    [ width fill ]
+                    [ paragraph
+                        [ width (fillPortion 4)
+                        , paddingEach { top = 24, bottom = 24, left = 12, right = 12 }
+                        ]
+                        [ text "Rappel: l'application enregistre ses données uniquement sur cet ordinateur; "
+                        , text "rien n'est envoyé sur internet."
+                        ]
+                    , el [ width (fillPortion 2) ] none
+                    ]
+                , Ui.configCustom []
+                    { label = "Personnes utilisant l'application:"
                     , content =
                         column [ spacing 24 ]
                             [ table [ spacing 6 ]
@@ -176,7 +186,7 @@ view shared =
                                             \a ->
                                                 Ui.iconButton []
                                                     { icon = Ui.editIcon []
-                                                    , onPress = Just (Msg.OpenRenameAccount (Tuple.first a))
+                                                    , onPress = Just (Shared.OpenRenameAccount (Tuple.first a))
                                                     }
                                       }
                                     , { header = none
@@ -185,70 +195,48 @@ view shared =
                                             \a ->
                                                 Ui.iconButton []
                                                     { icon = Ui.deleteIcon []
-                                                    , onPress = Just (Msg.OpenDeleteAccount (Tuple.first a))
+                                                    , onPress = Just (Shared.OpenDeleteAccount (Tuple.first a))
                                                     }
                                       }
                                     ]
                                 }
                             , Ui.simpleButton []
-                                { onPress = Just (Msg.CreateAccount (newAccountName (Dict.values shared.accounts) 1))
+                                { onPress = Just (Shared.CreateAccount (newAccountName (Dict.values shared.accounts) 1))
                                 , label = Ui.row [] [ Ui.plusIcon [], text "  Ajouter" ]
                                 }
                             ]
                     }
-                , Ui.configCustom []
-                    { label = "Catégories:"
-                    , content =
-                        column [ spacing 24 ]
-                            [ table [ spacing 6 ]
-                                { data = Dict.toList shared.categories
-                                , columns =
-                                    [ { header = none
-                                      , width = fill
-                                      , view = \a -> el [ centerY ] (text (Tuple.second a).name)
-                                      }
-                                    , { header = none
-                                      , width = shrink
-                                      , view =
-                                            \a ->
-                                                Ui.iconButton []
-                                                    { icon = Ui.editIcon []
-                                                    , onPress = Just (Msg.OpenRenameCategory (Tuple.first a))
-                                                    }
-                                      }
-                                    , { header = none
-                                      , width = shrink
-                                      , view =
-                                            \a ->
-                                                Ui.iconButton []
-                                                    { icon = Ui.deleteIcon []
-                                                    , onPress = Just (Msg.OpenDeleteCategory (Tuple.first a))
-                                                    }
-                                      }
-                                    ]
-                                }
-                            , Ui.simpleButton []
-                                { onPress = Just (Msg.CreateCategory "Nouvelle catégorie" "")
-                                , label = Ui.row [] [ Ui.plusIcon [], text "  Ajouter" ]
-                                }
-                            ]
-                    }
-                , Ui.configRadio []
-                    { onChange =
-                        \o ->
-                            case o of
-                                Shared.InCalendar ->
-                                    Msg.ToCalendar
 
-                                Shared.InTabular ->
-                                    Msg.ToTabular
-                    , label = "Mode d'affichage des opérations:"
-                    , options =
-                        [ Input.option Shared.InCalendar (text "Calendrier")
-                        , Input.option Shared.InTabular (text "Liste")
-                        ]
-                    , selected = Just shared.mode
-                    }
+                {-
+                   , Ui.configRadio []
+                       { onChange =
+                           \o ->
+                               let
+                                   settings =
+                                       shared.settings
+                               in
+                               case o of
+                                   Shared.InCalendar ->
+                                       Shared.SetSettings { settings | defaultMode = Shared.InCalendar }
+
+                                   Shared.InTabular ->
+                                       Shared.SetSettings { settings | defaultMode = Shared.InTabular }
+                       , label = "Affichage les opérations par:"
+                       , options =
+                           [ Ui.radioRowOption Shared.InCalendar (text "Calendrier")
+                           , Ui.radioRowOption Shared.InTabular (text "Liste")
+                           ]
+                       , selected = Just shared.settings.defaultMode
+                       }
+                -}
+                , configSummary shared
+                , configReconciliation shared
+                , configCategoriesEnabled shared
+                , if shared.settings.categoriesEnabled then
+                    configCategories shared
+
+                  else
+                    el [] none
                 ]
             , el [ width (fillPortion 1) ] none
             ]
@@ -269,6 +257,115 @@ accountRow shared account =
         ]
 
 
+configSummary shared =
+    Ui.configRadio []
+        { onChange =
+            \o ->
+                let
+                    settings =
+                        shared.settings
+                in
+                case o of
+                    True ->
+                        Shared.SetSettings { settings | summaryEnabled = True }
+
+                    False ->
+                        Shared.SetSettings { settings | summaryEnabled = False }
+        , label = "Activer la page de bilan:"
+        , options =
+            [ Ui.radioRowOption True (text "Oui")
+            , Ui.radioRowOption False (text "Non")
+            ]
+        , selected = Just shared.settings.summaryEnabled
+        }
+
+
+configReconciliation shared =
+    Ui.configRadio []
+        { onChange =
+            \o ->
+                let
+                    settings =
+                        shared.settings
+                in
+                case o of
+                    True ->
+                        Shared.SetSettings { settings | reconciliationEnabled = True }
+
+                    False ->
+                        Shared.SetSettings { settings | reconciliationEnabled = False }
+        , label = "Activer la page de pointage:"
+        , options =
+            [ Ui.radioRowOption True (text "Oui")
+            , Ui.radioRowOption False (text "Non")
+            ]
+        , selected = Just shared.settings.reconciliationEnabled
+        }
+
+
+configCategoriesEnabled shared =
+    Ui.configRadio []
+        { onChange =
+            \o ->
+                let
+                    settings =
+                        shared.settings
+                in
+                case o of
+                    True ->
+                        Shared.SetSettings { settings | categoriesEnabled = True }
+
+                    False ->
+                        Shared.SetSettings { settings | categoriesEnabled = False }
+        , label = "Utiliser des catégories:"
+        , options =
+            [ Ui.radioRowOption True (text "Oui")
+            , Ui.radioRowOption False (text "Non")
+            ]
+        , selected = Just shared.settings.categoriesEnabled
+        }
+
+
+configCategories shared =
+    Ui.configCustom []
+        { label = "Catégories utilisées:"
+        , content =
+            column [ spacing 24 ]
+                [ table [ spacing 6 ]
+                    { data = Dict.toList shared.categories
+                    , columns =
+                        [ { header = none
+                          , width = fill
+                          , view = \a -> el [ centerY ] (text (Tuple.second a).name)
+                          }
+                        , { header = none
+                          , width = shrink
+                          , view =
+                                \a ->
+                                    Ui.iconButton []
+                                        { icon = Ui.editIcon []
+                                        , onPress = Just (Shared.OpenRenameCategory (Tuple.first a))
+                                        }
+                          }
+                        , { header = none
+                          , width = shrink
+                          , view =
+                                \a ->
+                                    Ui.iconButton []
+                                        { icon = Ui.deleteIcon []
+                                        , onPress = Just (Shared.OpenDeleteCategory (Tuple.first a))
+                                        }
+                          }
+                        ]
+                    }
+                , Ui.simpleButton []
+                    { onPress = Just (Shared.CreateCategory "Nouvelle catégorie" "")
+                    , label = Ui.row [] [ Ui.plusIcon [], text "  Ajouter" ]
+                    }
+                ]
+        }
+
+
 
 -- CALLBACKS
 
@@ -281,7 +378,7 @@ createNewAccount shared =
 -- DIALOG
 
 
-viewDialog : Dialog -> Element Msg.Msg
+viewDialog : Dialog -> Element Shared.Msg
 viewDialog variant =
     case variant of
         RenameAccount model ->
@@ -299,7 +396,7 @@ viewDialog variant =
                 [ el
                     [ paddingEach { top = 24, bottom = 24, right = 48, left = 48 } ]
                     (Input.text
-                        [ Ui.onEnter Msg.SettingsConfirm
+                        [ Ui.onEnter Shared.SettingsConfirm
                         , Style.bigFont
                         ]
                         { label =
@@ -313,7 +410,7 @@ viewDialog variant =
                                 ]
                                 (text ("Renommer le compte \"" ++ model.name ++ "\":"))
                         , text = model.name
-                        , onChange = \n -> Msg.SettingsChangeName n
+                        , onChange = \n -> Shared.SettingsChangeName n
                         , placeholder = Nothing
                         }
                     )
@@ -325,11 +422,11 @@ viewDialog variant =
                     [ Ui.simpleButton
                         [ alignRight ]
                         { label = text "Annuler"
-                        , onPress = Just Msg.Close
+                        , onPress = Just Shared.Close
                         }
                     , Ui.mainButton []
                         { label = text "Confirmer"
-                        , onPress = Just Msg.SettingsConfirm
+                        , onPress = Just Shared.SettingsConfirm
                         }
                     ]
                 ]
@@ -364,11 +461,11 @@ viewDialog variant =
                     [ Ui.simpleButton
                         [ alignRight ]
                         { label = text "Annuler"
-                        , onPress = Just Msg.Close
+                        , onPress = Just Shared.Close
                         }
                     , Ui.mainButton []
                         { label = text "Supprimer"
-                        , onPress = Just Msg.SettingsConfirm
+                        , onPress = Just Shared.SettingsConfirm
                         }
                     ]
                 ]
@@ -388,7 +485,7 @@ viewDialog variant =
                 [ el
                     [ paddingEach { top = 24, bottom = 24, right = 48, left = 48 } ]
                     (Input.text
-                        [ Ui.onEnter Msg.SettingsConfirm
+                        [ Ui.onEnter Shared.SettingsConfirm
                         , Style.bigFont
                         ]
                         { label =
@@ -402,7 +499,7 @@ viewDialog variant =
                                 ]
                                 (text ("Renommer la catégorie \"" ++ model.name ++ "\":"))
                         , text = model.name
-                        , onChange = \n -> Msg.SettingsChangeName n
+                        , onChange = \n -> Shared.SettingsChangeName n
                         , placeholder = Nothing
                         }
                     )
@@ -414,11 +511,11 @@ viewDialog variant =
                     [ Ui.simpleButton
                         [ alignRight ]
                         { label = text "Annuler"
-                        , onPress = Just Msg.Close
+                        , onPress = Just Shared.Close
                         }
                     , Ui.mainButton []
                         { label = text "Confirmer"
-                        , onPress = Just Msg.SettingsConfirm
+                        , onPress = Just Shared.SettingsConfirm
                         }
                     ]
                 ]
@@ -453,11 +550,11 @@ viewDialog variant =
                     [ Ui.simpleButton
                         [ alignRight ]
                         { label = text "Annuler"
-                        , onPress = Just Msg.Close
+                        , onPress = Just Shared.Close
                         }
                     , Ui.mainButton []
                         { label = text "Supprimer"
-                        , onPress = Just Msg.SettingsConfirm
+                        , onPress = Just Shared.SettingsConfirm
                         }
                     ]
                 ]
