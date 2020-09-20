@@ -164,7 +164,7 @@ configCustom attributes { label, content } =
 
 backIcon attributes =
     El.el ([ Style.fontIcons, Style.normalFont ] ++ attributes)
-        (El.text "\u{F060}")
+        (El.text "\u{F30A}")
 
 
 editIcon attributes =

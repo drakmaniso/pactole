@@ -10,6 +10,7 @@ import Html.Attributes
 import Ledger
 import Money
 import Page.Summary as Summary
+import Page.Widgets as Widgets
 import Shared
 import Style
 import Time
@@ -110,76 +111,7 @@ calendarHeader model =
         [ E.width E.fill
         , Background.color Style.bgWhite
         ]
-        [ E.row
-            [ E.width E.fill
-            , E.alignTop
-            , E.paddingEach { top = 0, bottom = 8, left = 0, right = 0 }
-            , Background.color Style.bgWhite
-            ]
-            [ E.el
-                [ E.width (E.fillPortion 2)
-                , E.height E.fill
-                ]
-                (Input.button
-                    [ E.width E.fill
-                    , E.height E.fill
-                    , Border.roundEach { topLeft = 0, bottomLeft = 0, topRight = 0, bottomRight = 32 }
-                    , Font.color Style.fgTitle
-                    , Border.widthEach { top = 0, bottom = 2, left = 0, right = 2 }
-                    , Background.color Style.bgWhite
-                    , Border.color Style.bgDark
-                    , E.paddingEach { top = 4, bottom = 8, left = 0, right = 0 }
-                    , E.focused
-                        [ Border.color Style.fgFocus
-                        , Border.shadow { offset = ( 0, 0 ), size = 0, blur = 0, color = E.rgba 0 0 0 0 }
-                        ]
-                    ]
-                    { label =
-                        E.row
-                            [ E.width E.fill ]
-                            [ E.el [ Style.bigFont, Font.color Style.fgTitle, E.centerX ]
-                                (E.text (Date.getMonthName (Date.decrementMonth model.date)))
-                            , E.el [ E.centerX, Style.fontIcons, Style.normalFont ] (E.text "  \u{F060}  ")
-                            ]
-                    , onPress = Just (Shared.SelectDate (Date.decrementMonth model.date))
-                    }
-                )
-            , E.el
-                [ E.width (E.fillPortion 3)
-                , E.height E.fill
-                , E.paddingEach { top = 4, bottom = 8, left = 0, right = 0 }
-                ]
-                (E.el Style.calendarMonthName (E.text (Date.getMonthFullName model.today model.date)))
-            , E.el
-                -- needed to circumvent focus bug in elm-ui
-                [ E.width (E.fillPortion 2)
-                , E.height E.fill
-                ]
-                (Input.button
-                    [ E.width E.fill
-                    , E.height E.fill
-                    , Border.roundEach { topLeft = 0, bottomLeft = 32, topRight = 0, bottomRight = 0 }
-                    , Font.color Style.fgTitle
-                    , Border.widthEach { top = 0, bottom = 2, left = 2, right = 0 }
-                    , Background.color Style.bgWhite
-                    , Border.color Style.bgDark
-                    , E.paddingEach { top = 4, bottom = 8, left = 0, right = 0 }
-                    , E.focused
-                        [ Border.color Style.fgFocus
-                        , Border.shadow { offset = ( 0, 0 ), size = 0, blur = 0, color = E.rgba 0 0 0 0 }
-                        ]
-                    ]
-                    { label =
-                        E.row
-                            [ E.width E.fill ]
-                            [ E.el [ E.centerX, Style.fontIcons, Style.normalFont ] (E.text "  \u{F061}  ")
-                            , E.el [ Style.bigFont, Font.color Style.fgTitle, E.centerX ]
-                                (E.text (Date.getMonthName (Date.incrementMonth model.date)))
-                            ]
-                    , onPress = Just (Shared.SelectDate (Date.incrementMonth model.date))
-                    }
-                )
-            ]
+        [ Widgets.dateNavigation model
         , E.row
             [ E.width E.fill
             , E.alignBottom
@@ -341,29 +273,32 @@ dayView model =
         , E.clip
         , Background.color Style.bgWhite
         ]
-        [ E.el
+        [ E.column
             [ E.width E.fill
             , E.height E.shrink
             , E.paddingXY 4 12
+            , E.spacing 8
             , Font.color Style.fgBlack
             , Font.center
-            , Font.bold
             , Style.bigFont
             , Border.widthEach { top = 2, bottom = 0, left = 0, right = 0 }
             , Border.color Style.bgDark
             ]
-            (if model.date == model.today then
-                E.text "Aujourd'hui"
-
-             else
-                E.text
+            [ E.el [ E.width E.fill, Font.bold ]
+                (E.text
                     (Date.getWeekdayName model.date
                         ++ " "
                         ++ String.fromInt (Date.getDay model.date)
                         ++ " "
                         ++ Date.getMonthName model.date
                     )
-            )
+                )
+            , if model.date == model.today then
+                E.el [ E.width E.fill ] (E.text "— Aujourd'hui —")
+
+              else
+                E.none
+            ]
         , E.column
             [ E.width E.fill
             , E.height E.fill
@@ -414,33 +349,7 @@ dayContentFor model day =
                                 ]
                                 (E.column
                                     [ E.width E.fill ]
-                                    [ E.row
-                                        [ E.width E.fill
-                                        , E.height E.shrink
-                                        , E.paddingEach { top = 0, bottom = 0, left = 0, right = 16 }
-                                        , if Money.isExpense transaction.amount then
-                                            Font.color Style.fgExpense
-
-                                          else
-                                            Font.color Style.fgIncome
-                                        ]
-                                        [ E.el
-                                            [ E.width (E.fillPortion 75)
-                                            , Style.normalFont
-                                            , Font.bold
-                                            , Font.alignRight
-                                            ]
-                                            (E.text (parts.sign ++ parts.units))
-                                        , E.el
-                                            [ E.width (E.fillPortion 25)
-                                            , Font.bold
-                                            , Style.smallFont
-                                            , Font.alignLeft
-                                            , E.alignBottom
-                                            , E.paddingXY 0 1
-                                            ]
-                                            (E.text ("," ++ parts.cents))
-                                        ]
+                                    [ Widgets.viewMoney transaction.amount
                                     , E.el [ E.height E.fill ] E.none
                                     ]
                                 )

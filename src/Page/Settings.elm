@@ -138,7 +138,7 @@ view shared =
             , padding 12
             ]
             [ Ui.simpleButton []
-                { onPress = Just Shared.ToMainPage
+                { onPress = Just (Shared.ChangePage Shared.MainPage)
                 , label =
                     Ui.row []
                         [ Ui.backIcon []

@@ -7,6 +7,9 @@ module Ledger exposing
     , getBalance
     , getDateTransactions
     , getDescriptionDisplay
+    , getMonthlyCategory
+    , getMonthlyExpense
+    , getMonthlyIncome
     , getTransaction
     )
 
@@ -42,6 +45,77 @@ getBalance (Ledger ledger) =
         (\t accum -> Money.add accum t.amount)
         Money.zero
         ledger.transactions
+
+
+getMonthlyIncome : Ledger -> Date.Date -> Money.Money
+getMonthlyIncome (Ledger ledger) date =
+    let
+        year =
+            Date.getYear date
+
+        month =
+            Date.getMonth date
+    in
+    ledger.transactions
+        --TODO
+        |> List.filter
+            (\t ->
+                (Date.getYear t.date == year)
+                    && (Date.getMonth t.date == month)
+            )
+        |> List.filter
+            (\t -> not (Money.isExpense t.amount))
+        |> List.foldl
+            (\t accum -> Money.add accum t.amount)
+            Money.zero
+
+
+getMonthlyExpense : Ledger -> Date.Date -> Money.Money
+getMonthlyExpense (Ledger ledger) date =
+    let
+        year =
+            Date.getYear date
+
+        month =
+            Date.getMonth date
+    in
+    ledger.transactions
+        --TODO
+        |> List.filter
+            (\t ->
+                (Date.getYear t.date == year)
+                    && (Date.getMonth t.date == month)
+            )
+        |> List.filter
+            (\t -> Money.isExpense t.amount)
+        |> List.foldl
+            (\t accum -> Money.add accum t.amount)
+            Money.zero
+
+
+getMonthlyCategory : Ledger -> Date.Date -> Int -> Money.Money
+getMonthlyCategory (Ledger ledger) date catID =
+    let
+        year =
+            Date.getYear date
+
+        month =
+            Date.getMonth date
+    in
+    ledger.transactions
+        --TODO
+        |> List.filter
+            (\t ->
+                (Date.getYear t.date == year)
+                    && (Date.getMonth t.date == month)
+            )
+        |> List.filter
+            (\t -> Money.isExpense t.amount)
+        |> List.filter
+            (\t -> t.category == catID)
+        |> List.foldl
+            (\t accum -> Money.add accum t.amount)
+            Money.zero
 
 
 getDateTransactions : Date.Date -> Ledger -> List Transaction

@@ -3,10 +3,12 @@ module Shared exposing
     , Mode(..)
     , Model
     , Msg(..)
+    , Page(..)
     , Settings
     , accountName
     , categoryName
     , init
+    , msgChangePage
     , msgCreateAccount
     , msgCreateCategory
     , msgFromService
@@ -19,12 +21,14 @@ module Shared exposing
 
 import Array as Array
 import Browser
+import Browser.Dom as Dom
 import Date
 import Dict
 import Json.Decode as Decode
 import Ledger
 import Money
 import Ports
+import Task
 import Time
 import Tuple
 import Url
@@ -43,6 +47,7 @@ type alias Model =
     , account : Maybe Int
     , categories : Dict.Dict Int Category
     , showAdvanced : Bool
+    , page : Page
     }
 
 
@@ -63,6 +68,12 @@ type alias Settings =
 type Mode
     = InCalendar
     | InTabular
+
+
+type Page
+    = MainPage
+    | StatsPage
+    | SettingsPage
 
 
 decodeAccount =
@@ -170,6 +181,7 @@ init flags =
       , account = Nothing
       , categories = Dict.empty
       , showAdvanced = False
+      , page = MainPage
       }
     , cmd
     )
@@ -184,8 +196,7 @@ type Msg
     | LinkClicked Browser.UrlRequest
     | UrlChanged Url.Url
     | FromService ( String, Decode.Value )
-    | ToMainPage
-    | ToSettings
+    | ChangePage Page
     | Close
     | SelectDate Date.Date
     | SelectAccount Int
@@ -242,6 +253,13 @@ msgCreateCategory name icon model =
 msgShowAdvanced : Bool -> Model -> ( Model, Cmd Msg )
 msgShowAdvanced show model =
     ( { model | showAdvanced = show }, Cmd.none )
+
+
+msgChangePage : Page -> Model -> ( Model, Cmd Msg )
+msgChangePage page model =
+    ( { model | page = page }
+    , Task.attempt (\_ -> NoOp) (Dom.blur "unfocus-on-page-change")
+    )
 
 
 msgSetSettings : Settings -> Model -> ( Model, Cmd Msg )

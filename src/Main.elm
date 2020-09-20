@@ -20,6 +20,7 @@ import Money
 import Page.Calendar as Calendar
 import Page.Dialog as Dialog
 import Page.Settings as Settings
+import Page.Statistics as Statistics
 import Page.Tabular as Tabular
 import Ports
 import Shared
@@ -52,13 +53,7 @@ type alias Model =
     { shared : Shared.Model
     , dialog : Maybe Dialog.Model
     , settingsDialog : Maybe Settings.Dialog
-    , page : Page
     }
-
-
-type Page
-    = MainPage
-    | Settings
 
 
 init : Decode.Value -> Url.Url -> Navigation.Key -> ( Model, Cmd Shared.Msg )
@@ -70,7 +65,6 @@ init flags _ _ =
     ( { shared = shared
       , dialog = Nothing
       , settingsDialog = Nothing
-      , page = MainPage -- Settings -- MainPage
       }
     , Cmd.batch
         [ commonCmd
@@ -129,11 +123,8 @@ update msg model =
         Shared.FromService ( title, json ) ->
             sharedMsg (Shared.msgFromService ( title, json ))
 
-        Shared.ToMainPage ->
-            ( { model | page = MainPage }, Cmd.none )
-
-        Shared.ToSettings ->
-            ( { model | page = Settings }, Cmd.none )
+        Shared.ChangePage page ->
+            sharedMsg (Shared.msgChangePage page)
 
         Shared.Close ->
             --TODO: delegate to Dialog?
@@ -319,11 +310,14 @@ view model =
                         Nothing ->
                             [ E.width E.fill, E.height E.fill, E.scrollbarY ]
             )
-            (case model.page of
-                Settings ->
+            (case model.shared.page of
+                Shared.SettingsPage ->
                     Settings.view model.shared
 
-                MainPage ->
+                Shared.StatsPage ->
+                    Statistics.view model.shared
+
+                Shared.MainPage ->
                     case model.shared.settings.defaultMode of
                         Shared.InCalendar ->
                             Calendar.view model.shared

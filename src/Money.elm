@@ -5,6 +5,8 @@ module Money exposing
     , encoder
     , fromInput
     , isExpense
+    , isGreaterThan
+    , isZero
     , toInput
     , toStrings
     , validate
@@ -23,9 +25,19 @@ zero =
     Money 0
 
 
+isZero : Money -> Bool
+isZero (Money money) =
+    money == 0
+
+
 isExpense : Money -> Bool
 isExpense (Money money) =
     money < 0
+
+
+isGreaterThan : Money -> Int -> Bool
+isGreaterThan (Money money) other =
+    money > other * 100
 
 
 add : Money -> Money -> Money

@@ -12,6 +12,7 @@ module Date exposing
     , getMonthName
     , getWeekday
     , getWeekdayName
+    , getYear
     , incrementDay
     , incrementMonth
     , incrementWeek
@@ -296,3 +297,7 @@ compare (Date a) (Date b) =
 
 getMonth (Date date) =
     Calendar.getMonth date
+
+
+getYear (Date date) =
+    Calendar.getYear date
