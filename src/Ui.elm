@@ -1,8 +1,9 @@
 module Ui exposing
     ( backIcon
-    , column
+    , bigWarningIcon
     , configCustom
     , configRadio
+    , dateNavigationBar
     , deleteIcon
     , editIcon
     , iconButton
@@ -12,13 +13,15 @@ module Ui exposing
     , pageWithSidePanel
     , plusIcon
     , radioRowOption
-    , row
     , settingsButton
     , simpleButton
+    , viewMoney
+    , warningIcon
     , warningParagraph
     )
 
-import Element as El
+import Date
+import Element as E
 import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
@@ -26,6 +29,8 @@ import Element.Input as Input
 import Html.Attributes
 import Html.Events as Events
 import Json.Decode as Decode
+import Money
+import Shared
 import Style
 
 
@@ -34,7 +39,7 @@ import Style
 
 
 warningColor =
-    El.rgb 0.82 0.47 0.0
+    E.rgb 0.82 0.47 0.0
 
 
 
@@ -42,34 +47,34 @@ warningColor =
 
 
 pageWithSidePanel :
-    List (El.Attribute msg)
+    List (E.Attribute msg)
     ->
-        { panel : List (El.Element msg)
-        , page : List (El.Element msg)
+        { panel : List (E.Element msg)
+        , page : List (E.Element msg)
         }
-    -> El.Element msg
+    -> E.Element msg
 pageWithSidePanel attributes { panel, page } =
-    El.row
-        ([ El.width El.fill
-         , El.height El.fill
-         , El.clipX
-         , El.clipY
+    E.row
+        ([ E.width E.fill
+         , E.height E.fill
+         , E.clipX
+         , E.clipY
          , Background.color Style.bgPage
          , Style.fontFamily
          , Style.normalFont
          ]
             ++ attributes
         )
-        [ El.column
-            [ El.width (El.fillPortion 1)
-            , El.height El.fill
-            , El.padding 16
-            , El.alignTop
+        [ E.column
+            [ E.width (E.fillPortion 1)
+            , E.height E.fill
+            , E.padding 16
+            , E.alignTop
             ]
             panel
-        , El.column
-            [ El.width (El.fillPortion 3)
-            , El.height El.fill
+        , E.column
+            [ E.width (E.fillPortion 3)
+            , E.height E.fill
             , Border.widthEach { top = 0, left = borderWidth, bottom = 0, right = 0 }
             , Border.color Style.bgDark
             ]
@@ -77,48 +82,38 @@ pageWithSidePanel attributes { panel, page } =
         ]
 
 
-column : List (El.Attribute msg) -> List (El.Element msg) -> El.Element msg
-column =
-    El.column
-
-
-row : List (El.Attribute msg) -> List (El.Element msg) -> El.Element msg
-row =
-    El.row
-
-
 configRadio :
-    List (El.Attribute msg)
+    List (E.Attribute msg)
     ->
         { label : String
         , options : List (Input.Option option msg)
         , selected : Maybe option
         , onChange : option -> msg
         }
-    -> El.Element msg
+    -> E.Element msg
 configRadio attributes { label, options, selected, onChange } =
     Input.radioRow
-        [ El.paddingEach { top = 12, bottom = 24, left = 12 + 64, right = 12 }
-        , El.width El.fill
+        [ E.paddingEach { top = 12, bottom = 24, left = 12 + 64, right = 12 }
+        , E.width E.fill
         ]
         { label =
             Input.labelAbove
-                [ El.paddingEach { bottom = 0, top = 48, left = 12, right = 12 } ]
-                (El.el [ Font.bold ] (El.text label))
+                [ E.paddingEach { bottom = 0, top = 48, left = 12, right = 12 } ]
+                (E.el [ Font.bold ] (E.text label))
         , options = options
         , selected = selected
         , onChange = onChange
         }
 
 
-radioRowOption : value -> El.Element msg -> Input.Option value msg
+radioRowOption : value -> E.Element msg -> Input.Option value msg
 radioRowOption value element =
     Input.optionWith
         value
         (\state ->
-            El.el
-                ([ El.centerX
-                 , El.paddingXY 16 7
+            E.el
+                ([ E.centerX
+                 , E.paddingXY 16 7
                  , Border.rounded 3
                  , Style.bigFont
                  ]
@@ -130,7 +125,7 @@ radioRowOption value element =
                                 []
 
                             Input.Selected ->
-                                [ Font.color (El.rgb 1 1 1), Background.color Style.bgTitle ]
+                                [ Font.color (E.rgb 1 1 1), Background.color Style.bgTitle ]
                        )
                 )
                 element
@@ -138,23 +133,23 @@ radioRowOption value element =
 
 
 configCustom :
-    List (El.Attribute msg)
+    List (E.Attribute msg)
     ->
         { label : String
-        , content : El.Element msg
+        , content : E.Element msg
         }
-    -> El.Element msg
+    -> E.Element msg
 configCustom attributes { label, content } =
-    El.column
-        [ El.paddingEach { top = 48, bottom = 24, left = 12, right = 12 }
-        , El.width El.fill
+    E.column
+        [ E.paddingEach { top = 48, bottom = 24, left = 12, right = 12 }
+        , E.width E.fill
         ]
-        [ El.el
-            [ El.width El.fill
-            , El.paddingEach { top = 0, bottom = 24, right = 0, left = 0 }
+        [ E.el
+            [ E.width E.fill
+            , E.paddingEach { top = 0, bottom = 24, right = 0, left = 0 }
             ]
-            (El.el [ Font.bold ] (El.text label))
-        , El.el [ El.paddingEach { left = 64, bottom = 24, right = 0, top = 0 } ] content
+            (E.el [ Font.bold ] (E.text label))
+        , E.el [ E.paddingEach { left = 64, bottom = 24, right = 0, top = 0 } ] content
         ]
 
 
@@ -163,70 +158,193 @@ configCustom attributes { label, content } =
 
 
 backIcon attributes =
-    El.el ([ Style.fontIcons, Style.normalFont ] ++ attributes)
-        (El.text "\u{F30A}")
+    E.el ([ Style.fontIcons, Style.normalFont ] ++ attributes)
+        (E.text "\u{F30A}")
 
 
 editIcon attributes =
-    El.el ([ Style.fontIcons, Style.normalFont, El.centerX ] ++ attributes)
-        (El.text "\u{F044}")
+    E.el ([ Style.fontIcons, Style.normalFont, E.centerX ] ++ attributes)
+        (E.text "\u{F044}")
 
 
 deleteIcon attributes =
-    El.el ([ Style.fontIcons, Style.normalFont, El.centerX ] ++ attributes)
-        (El.text "\u{F2ED}")
+    E.el ([ Style.fontIcons, Style.normalFont, E.centerX ] ++ attributes)
+        (E.text "\u{F2ED}")
 
 
 plusIcon attributes =
-    El.el ([ Style.fontIcons, Style.normalFont, El.centerX ] ++ attributes)
-        (El.text "\u{F067}")
+    E.el ([ Style.fontIcons, Style.normalFont, E.centerX ] ++ attributes)
+        (E.text "\u{F067}")
 
 
 warningIcon attributes =
-    El.el ([ Style.fontIcons, Style.normalFont, El.centerX ] ++ attributes)
-        (El.text "\u{F071}")
+    E.el ([ Style.fontIcons, Style.bigFont, E.centerX, E.paddingXY 24 0, Font.color warningColor ] ++ attributes)
+        (E.text "\u{F071}")
 
 
 bigWarningIcon attributes =
-    El.el
-        ([ Style.fontIcons, Font.size 48, El.alignLeft, El.padding 12, Font.color warningColor ]
+    E.el
+        ([ Style.fontIcons, Font.size 48, E.alignLeft, E.padding 12, Font.color warningColor ]
             ++ attributes
         )
-        (El.text "\u{F071}")
+        (E.text "\u{F071}")
 
 
 
 -- ELEMENTS
 
 
-pageTitle : List (El.Attribute msg) -> El.Element msg -> El.Element msg
+pageTitle : List (E.Attribute msg) -> E.Element msg -> E.Element msg
 pageTitle attributes element =
-    El.el
+    E.el
         ([ Style.bigFont
          , Font.center
          , Font.bold
-         , El.paddingEach { top = 12, bottom = 12, left = 12, right = 12 }
-         , El.width El.fill
+         , E.paddingEach { top = 12, bottom = 12, left = 12, right = 12 }
+         , E.width E.fill
          ]
             ++ attributes
         )
         element
 
 
-warningParagraph : List (El.Attribute msg) -> List (El.Element msg) -> El.Element msg
+warningParagraph : List (E.Attribute msg) -> List (E.Element msg) -> E.Element msg
 warningParagraph attributes elements =
-    El.row
+    E.row
         ([ Font.color warningColor
          , Style.smallFont
          , Font.color Style.fgBlack
-         , El.centerY
-         , El.spacing 12
+         , E.centerY
+         , E.spacing 12
          ]
             ++ attributes
         )
         [ bigWarningIcon []
-        , El.paragraph [] elements
+        , E.paragraph [] elements
         ]
+
+
+dateNavigationBar model =
+    E.row
+        [ E.width E.fill
+        , E.alignTop
+        , E.paddingEach { top = 0, bottom = 8, left = 0, right = 0 }
+        , Background.color Style.bgWhite
+        ]
+        [ E.el
+            [ E.width (E.fillPortion 2)
+            , E.height E.fill
+            ]
+            (Input.button
+                [ E.width E.fill
+                , E.height E.fill
+                , Border.roundEach { topLeft = 0, bottomLeft = 0, topRight = 0, bottomRight = 32 }
+                , Font.color Style.fgTitle
+                , Border.widthEach { top = 0, bottom = 2, left = 0, right = 2 }
+                , Background.color Style.bgWhite
+                , Border.color Style.bgDark
+                , E.paddingEach { top = 4, bottom = 8, left = 0, right = 0 }
+                , E.focused
+                    [ Border.color Style.fgFocus
+                    , Border.shadow { offset = ( 0, 0 ), size = 0, blur = 0, color = E.rgba 0 0 0 0 }
+                    ]
+                ]
+                { label =
+                    E.row
+                        [ E.width E.fill ]
+                        [ E.el [ Style.bigFont, Font.color Style.fgTitle, E.centerX ]
+                            (E.text (Date.getMonthName (Date.decrementMonth model.date)))
+                        , E.el [ E.centerX, Style.fontIcons, Style.normalFont ] (E.text "  \u{F060}  ")
+                        ]
+                , onPress = Just (Shared.SelectDate (Date.decrementMonth model.date))
+                }
+            )
+        , E.el
+            [ E.width (E.fillPortion 3)
+            , E.height E.fill
+            , E.paddingEach { top = 4, bottom = 8, left = 0, right = 0 }
+            ]
+            (E.el Style.calendarMonthName (E.text (Date.getMonthFullName model.today model.date)))
+        , E.el
+            -- needed to circumvent focus bug in elm-ui
+            [ E.width (E.fillPortion 2)
+            , E.height E.fill
+            ]
+            (Input.button
+                [ E.width E.fill
+                , E.height E.fill
+                , Border.roundEach { topLeft = 0, bottomLeft = 32, topRight = 0, bottomRight = 0 }
+                , Font.color Style.fgTitle
+                , Border.widthEach { top = 0, bottom = 2, left = 2, right = 0 }
+                , Background.color Style.bgWhite
+                , Border.color Style.bgDark
+                , E.paddingEach { top = 4, bottom = 8, left = 0, right = 0 }
+                , E.focused
+                    [ Border.color Style.fgFocus
+                    , Border.shadow { offset = ( 0, 0 ), size = 0, blur = 0, color = E.rgba 0 0 0 0 }
+                    ]
+                ]
+                { label =
+                    E.row
+                        [ E.width E.fill ]
+                        [ E.el [ E.centerX, Style.fontIcons, Style.normalFont ] (E.text "  \u{F061}  ")
+                        , E.el [ Style.bigFont, Font.color Style.fgTitle, E.centerX ]
+                            (E.text (Date.getMonthName (Date.incrementMonth model.date)))
+                        ]
+                , onPress = Just (Shared.SelectDate (Date.incrementMonth model.date))
+                }
+            )
+        ]
+
+
+viewMoney money =
+    let
+        parts =
+            Money.toStrings money
+
+        isExpense =
+            Money.isExpense money
+
+        isZero =
+            Money.isZero money
+    in
+    E.row
+        [ E.width E.fill
+        , E.height E.shrink
+        , E.paddingEach { top = 0, bottom = 0, left = 0, right = 16 }
+        , if isExpense then
+            Font.color Style.fgExpense
+
+          else if isZero then
+            Font.color Style.fgDark
+
+          else
+            Font.color Style.fgIncome
+        ]
+        (if isZero then
+            [ E.el [ E.width (E.fillPortion 75), Style.normalFont, Font.alignRight ] (E.text "—")
+            , E.el [ E.width (E.fillPortion 25) ] E.none
+            ]
+
+         else
+            [ E.el
+                [ E.width (E.fillPortion 75)
+                , Style.normalFont
+                , Font.bold
+                , Font.alignRight
+                ]
+                (E.text (parts.sign ++ parts.units))
+            , E.el
+                [ E.width (E.fillPortion 25)
+                , Font.bold
+                , Style.smallFont
+                , Font.alignLeft
+                , E.alignBottom
+                , E.paddingXY 0 1
+                ]
+                (E.text ("," ++ parts.cents))
+            ]
+        )
 
 
 
@@ -234,9 +352,9 @@ warningParagraph attributes elements =
 
 
 simpleButton :
-    List (El.Attribute msg)
-    -> { onPress : Maybe msg, label : El.Element msg }
-    -> El.Element msg
+    List (E.Attribute msg)
+    -> { onPress : Maybe msg, label : E.Element msg }
+    -> E.Element msg
 simpleButton attributes { onPress, label } =
     Input.button
         ([ Background.color Style.bgPage
@@ -246,7 +364,7 @@ simpleButton attributes { onPress, label } =
          , roundCorners
          , Border.width borderWidth
          , Border.color Style.fgDark
-         , El.paddingXY 24 8
+         , E.paddingXY 24 8
          ]
             ++ attributes
         )
@@ -256,9 +374,9 @@ simpleButton attributes { onPress, label } =
 
 
 mainButton :
-    List (El.Attribute msg)
-    -> { onPress : Maybe msg, label : El.Element msg }
-    -> El.Element msg
+    List (E.Attribute msg)
+    -> { onPress : Maybe msg, label : E.Element msg }
+    -> E.Element msg
 mainButton attributes { onPress, label } =
     Input.button
         ([ Background.color Style.bgTitle
@@ -268,7 +386,7 @@ mainButton attributes { onPress, label } =
          , roundCorners
          , Border.width borderWidth
          , Border.color Style.bgTitle
-         , El.paddingXY 24 8
+         , E.paddingXY 24 8
          ]
             ++ attributes
         )
@@ -278,9 +396,9 @@ mainButton attributes { onPress, label } =
 
 
 iconButton :
-    List (El.Attribute msg)
-    -> { onPress : Maybe msg, icon : El.Element msg }
-    -> El.Element msg
+    List (E.Attribute msg)
+    -> { onPress : Maybe msg, icon : E.Element msg }
+    -> E.Element msg
 iconButton attributes { onPress, icon } =
     Input.button
         ([ Background.color Style.bgPage
@@ -288,9 +406,9 @@ iconButton attributes { onPress, icon } =
          , Font.color Style.fgTitle
          , Font.center
          , roundCorners
-         , El.padding 8
-         , El.width (El.px 48)
-         , El.height (El.px 48)
+         , E.padding 8
+         , E.width (E.px 48)
+         , E.height (E.px 48)
          ]
             ++ attributes
         )
@@ -300,9 +418,9 @@ iconButton attributes { onPress, icon } =
 
 
 settingsButton :
-    List (El.Attribute msg)
+    List (E.Attribute msg)
     -> { onPress : Maybe msg, enabled : Bool }
-    -> El.Element msg
+    -> E.Element msg
 settingsButton attributes { onPress, enabled } =
     if enabled then
         Input.button
@@ -311,14 +429,14 @@ settingsButton attributes { onPress, enabled } =
              , Font.color Style.fgTitle
              , Font.center
              , roundCorners
-             , El.padding 2
-             , El.width (El.px 36)
-             , El.height (El.px 36)
+             , E.padding 2
+             , E.width (E.px 36)
+             , E.height (E.px 36)
              ]
                 ++ attributes
             )
             { onPress = onPress
-            , label = El.el [ Style.fontIcons, Style.normalFont, El.centerX ] (El.text "\u{F013}")
+            , label = E.el [ Style.fontIcons, Style.normalFont, E.centerX ] (E.text "\u{F013}")
             }
 
     else
@@ -328,16 +446,16 @@ settingsButton attributes { onPress, enabled } =
              , Font.color Style.fgTitle
              , Font.center
              , roundCorners
-             , El.padding 2
-             , El.width (El.px 36)
-             , El.height (El.px 36)
+             , E.padding 2
+             , E.width (E.px 36)
+             , E.height (E.px 36)
              ]
                 ++ attributes
             )
             { onPress = Nothing
             , label =
-                El.el [ Style.fontIcons, Style.normalFont, El.centerX, Font.color Style.bgLight ]
-                    (El.text "\u{F013}")
+                E.el [ Style.fontIcons, Style.normalFont, E.centerX, Font.color Style.bgLight ]
+                    (E.text "\u{F013}")
             }
 
 
@@ -345,9 +463,9 @@ settingsButton attributes { onPress, enabled } =
 -- ATTRIBUTES
 
 
-onEnter : msg -> El.Attribute msg
+onEnter : msg -> E.Attribute msg
 onEnter msg =
-    El.htmlAttribute
+    E.htmlAttribute
         (Events.on "keyup"
             (Decode.field "key" Decode.string
                 |> Decode.andThen

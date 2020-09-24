@@ -6,7 +6,6 @@ import Element.Font as Font
 import Ledger
 import Money
 import Page.Summary as Summary
-import Page.Widgets as Widgets
 import Shared
 import Style
 import Ui
@@ -28,7 +27,7 @@ view shared =
                 E.none
             ]
         , page =
-            [ Widgets.dateNavigation shared
+            [ Ui.dateNavigationBar shared
             , E.el [ E.height E.fill ] E.none
             , viewItem
                 "Entrées d'argent: "
@@ -72,6 +71,6 @@ viewItem description money =
         , E.paddingXY 48 12
         ]
         [ E.el [ Style.normalFont, Font.alignRight, E.width (E.fillPortion 3) ] (E.text description)
-        , Widgets.viewMoney money
+        , Ui.viewMoney money
         , E.el [ E.width (E.fillPortion 2) ] E.none
         ]

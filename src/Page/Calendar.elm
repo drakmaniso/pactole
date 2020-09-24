@@ -10,7 +10,6 @@ import Html.Attributes
 import Ledger
 import Money
 import Page.Summary as Summary
-import Page.Widgets as Widgets
 import Shared
 import Style
 import Time
@@ -111,7 +110,7 @@ calendarHeader model =
         [ E.width E.fill
         , Background.color Style.bgWhite
         ]
-        [ Widgets.dateNavigation model
+        [ Ui.dateNavigationBar model
         , E.row
             [ E.width E.fill
             , E.alignBottom
@@ -349,7 +348,7 @@ dayContentFor model day =
                                 ]
                                 (E.column
                                     [ E.width E.fill ]
-                                    [ Widgets.viewMoney transaction.amount
+                                    [ Ui.viewMoney transaction.amount
                                     , E.el [ E.height E.fill ] E.none
                                     ]
                                 )

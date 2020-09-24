@@ -43,10 +43,6 @@ fgBlack =
     rgb 0 0 0
 
 
-fgWarning =
-    rgb 0.64 0.0 0.42
-
-
 fgRed =
     rgb 0.84 0.22 0.0
 
