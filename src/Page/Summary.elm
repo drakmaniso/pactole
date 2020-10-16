@@ -10,7 +10,6 @@ import Html.Attributes as HtmlAttr
 import Ledger
 import Money
 import Shared
-import Style
 import Ui
 
 
@@ -36,7 +35,7 @@ view model =
                         { offset = ( 0, 0 )
                         , size = 4
                         , blur = 0
-                        , color = Style.fgFocus
+                        , color = Ui.fgFocus
                         }
                     ]
                 ]
@@ -58,11 +57,11 @@ view model =
             ]
         , E.row [ E.height (E.fillPortion 1) ] [ E.none ]
         , E.el
-            [ Style.smallFont
+            [ Ui.smallFont
             , E.paddingEach { top = 0, bottom = 6, left = 0, right = 0 }
             , E.width E.fill
             , Font.center
-            , Font.color Style.fgDark
+            , Font.color Ui.fgDark
             ]
             (E.text "Solde actuel:")
         , if model.account /= Nothing then
@@ -82,17 +81,17 @@ accountOption accountID shared state =
         ([ E.centerX
          , E.paddingXY 16 7
          , Border.rounded 3
-         , Style.bigFont
+         , Ui.bigFont
          ]
             ++ (case state of
                     Input.Idle ->
-                        [ Font.color Style.fgTitle ]
+                        [ Font.color Ui.fgTitle ]
 
                     Input.Focused ->
                         []
 
                     Input.Selected ->
-                        [ Font.color (E.rgb 1 1 1), Background.color Style.bgTitle ]
+                        [ Font.color (E.rgb 1 1 1), Background.color Ui.bgTitle ]
                )
         )
         (E.text (Shared.accountName accountID shared))
@@ -115,10 +114,10 @@ balanceRow model =
 
         color =
             if Money.isGreaterThan balance 0 then
-                Style.fgBlack
+                Ui.fgBlack
 
             else
-                Style.fgRed
+                Ui.fgRed
     in
     E.row
         [ E.width E.fill, Font.color color ]
@@ -129,19 +128,19 @@ balanceRow model =
           else
             Ui.warningIcon []
         , E.el
-            [ Style.biggestFont
+            [ Ui.biggestFont
             , Font.bold
             ]
             (E.text (sign ++ parts.units))
         , E.el
-            [ Style.biggerFont
+            [ Ui.biggerFont
             , Font.bold
             , E.alignBottom
             , E.paddingEach { top = 0, bottom = 2, left = 0, right = 0 }
             ]
             (E.text ("," ++ parts.cents))
         , E.el
-            [ Style.bigFont
+            [ Ui.bigFont
             , E.alignTop
             , E.paddingEach { top = 2, bottom = 0, left = 4, right = 0 }
             ]

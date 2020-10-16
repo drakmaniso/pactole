@@ -7,7 +7,6 @@ import Ledger
 import Money
 import Page.Summary as Summary
 import Shared
-import Style
 import Ui
 
 
@@ -70,7 +69,7 @@ viewItem description money =
         [ E.width E.fill
         , E.paddingXY 48 12
         ]
-        [ E.el [ Style.normalFont, Font.alignRight, E.width (E.fillPortion 3) ] (E.text description)
+        [ E.el [ Ui.normalFont, Font.alignRight, E.width (E.fillPortion 3) ] (E.text description)
         , Ui.viewMoney money
         , E.el [ E.width (E.fillPortion 2) ] E.none
         ]

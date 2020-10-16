@@ -1,24 +1,4 @@
-module Ui exposing
-    ( backIcon
-    , bigWarningIcon
-    , configCustom
-    , configRadio
-    , dateNavigationBar
-    , deleteIcon
-    , editIcon
-    , iconButton
-    , mainButton
-    , onEnter
-    , pageTitle
-    , pageWithSidePanel
-    , plusIcon
-    , radioRowOption
-    , settingsButton
-    , simpleButton
-    , viewMoney
-    , warningIcon
-    , warningParagraph
-    )
+module Ui exposing (..)
 
 import Date
 import Element as E
@@ -31,7 +11,18 @@ import Html.Events as Events
 import Json.Decode as Decode
 import Money
 import Shared
-import Style
+
+
+
+-- CONSTANTS
+
+
+borderWidth =
+    2
+
+
+roundCorners =
+    Border.rounded 24
 
 
 
@@ -40,6 +31,153 @@ import Style
 
 warningColor =
     E.rgb 0.82 0.47 0.0
+
+
+fgFocus =
+    --rgb 0.98 0.62 0.05
+    --rgb 0.15 0.76 0.98
+    --rgba 0 0 0 0.4
+    E.rgb 1.0 0.7 0
+
+
+bgPage =
+    --rgb 0.85 0.82 0.75
+    --rgb 0.76 0.73 0.65
+    -- rgb 0.74 0.71 0.65
+    E.rgb 1 1 1
+
+
+bgLight =
+    -- rgb 0.94 0.92 0.87
+    E.rgb 0.86 0.86 0.86
+
+
+bgDark =
+    -- rgb 0.72 0.71 0.68
+    E.rgb 0.7 0.7 0.7
+
+
+bgWhite =
+    E.rgb 1.0 1.0 1.0
+
+
+fgWhite =
+    E.rgb 1.0 1.0 1.0
+
+
+fgBlack =
+    E.rgb 0 0 0
+
+
+fgRed =
+    E.rgb 0.84 0.22 0.0
+
+
+fgDark =
+    E.rgb 0.6 0.6 0.6
+
+
+fgTransaction isExpense =
+    if isExpense then
+        fgExpense
+
+    else
+        fgIncome
+
+
+bgTransaction isExpense =
+    if isExpense then
+        bgExpense
+
+    else
+        bgIncome
+
+
+bgExpense =
+    -- rgb 0.8 0.25 0.2
+    E.rgb 0.64 0.12 0.0
+
+
+fgExpense =
+    -- rgb 0.6 0.125 0
+    bgExpense
+
+
+fgOnExpense =
+    E.rgb 1.0 1.0 1.0
+
+
+bgIncome =
+    -- rgb255 44 136 32
+    -- rgb255 22 102 0
+    E.rgb 0.1 0.44 0
+
+
+fgIncome =
+    -- rgb255 22 68 0
+    bgIncome
+
+
+fgOnIncome =
+    E.rgb 1.0 1.0 1.0
+
+
+bgTitle =
+    --rgb 0.3 0.6 0.7
+    --rgb 0.12 0.51 0.65
+    --rgb 0.06 0.25 0.32
+    E.rgb 0.08 0.26 0.42
+
+
+fgTitle =
+    bgTitle
+
+
+fgOnTitle =
+    E.rgb 1 1 1
+
+
+
+-- FONTS
+
+
+fontFamily =
+    Font.family
+        [ Font.typeface "Work Sans"
+        , Font.sansSerif
+        ]
+
+
+biggestFont =
+    Font.size 48
+
+
+biggerFont =
+    Font.size 36
+
+
+bigFont =
+    Font.size 32
+
+
+normalFont =
+    Font.size 26
+
+
+smallFont =
+    Font.size 20
+
+
+smallerFont =
+    Font.size 14
+
+
+verySmallFont =
+    Font.size 16
+
+
+iconFont =
+    Font.family [ Font.typeface "Font Awesome 5 Free" ]
 
 
 
@@ -59,9 +197,9 @@ pageWithSidePanel attributes { panel, page } =
          , E.height E.fill
          , E.clipX
          , E.clipY
-         , Background.color Style.bgPage
-         , Style.fontFamily
-         , Style.normalFont
+         , Background.color bgPage
+         , fontFamily
+         , normalFont
          ]
             ++ attributes
         )
@@ -76,7 +214,7 @@ pageWithSidePanel attributes { panel, page } =
             [ E.width (E.fillPortion 3)
             , E.height E.fill
             , Border.widthEach { top = 0, left = borderWidth, bottom = 0, right = 0 }
-            , Border.color Style.bgDark
+            , Border.color bgDark
             ]
             page
         ]
@@ -115,17 +253,17 @@ radioRowOption value element =
                 ([ E.centerX
                  , E.paddingXY 16 7
                  , Border.rounded 3
-                 , Style.bigFont
+                 , bigFont
                  ]
                     ++ (case state of
                             Input.Idle ->
-                                [ Font.color Style.fgTitle ]
+                                [ Font.color fgTitle ]
 
                             Input.Focused ->
                                 []
 
                             Input.Selected ->
-                                [ Font.color (E.rgb 1 1 1), Background.color Style.bgTitle ]
+                                [ Font.color (E.rgb 1 1 1), Background.color bgTitle ]
                        )
                 )
                 element
@@ -158,36 +296,46 @@ configCustom attributes { label, content } =
 
 
 backIcon attributes =
-    E.el ([ Style.fontIcons, Style.normalFont ] ++ attributes)
+    E.el ([ iconFont, normalFont ] ++ attributes)
         (E.text "\u{F30A}")
 
 
 editIcon attributes =
-    E.el ([ Style.fontIcons, Style.normalFont, E.centerX ] ++ attributes)
+    E.el ([ iconFont, normalFont, E.centerX ] ++ attributes)
         (E.text "\u{F044}")
 
 
 deleteIcon attributes =
-    E.el ([ Style.fontIcons, Style.normalFont, E.centerX ] ++ attributes)
+    E.el ([ iconFont, normalFont, E.centerX ] ++ attributes)
         (E.text "\u{F2ED}")
 
 
 plusIcon attributes =
-    E.el ([ Style.fontIcons, Style.normalFont, E.centerX ] ++ attributes)
+    E.el ([ iconFont, normalFont, E.centerX ] ++ attributes)
         (E.text "\u{F067}")
 
 
 warningIcon attributes =
-    E.el ([ Style.fontIcons, Style.bigFont, E.centerX, E.paddingXY 24 0, Font.color warningColor ] ++ attributes)
+    E.el ([ iconFont, bigFont, E.centerX, E.paddingXY 24 0, Font.color warningColor ] ++ attributes)
         (E.text "\u{F071}")
 
 
 bigWarningIcon attributes =
     E.el
-        ([ Style.fontIcons, Font.size 48, E.alignLeft, E.padding 12, Font.color warningColor ]
+        ([ iconFont, Font.size 48, E.alignLeft, E.padding 12, Font.color warningColor ]
             ++ attributes
         )
         (E.text "\u{F071}")
+
+
+incomeIcon attributes =
+    E.el ([ iconFont, normalFont, E.centerX, Font.color fgIncome ] ++ attributes)
+        (E.text "\u{F067}")
+
+
+expenseIcon attributes =
+    E.el ([ iconFont, normalFont, E.centerX, Font.color fgExpense ] ++ attributes)
+        (E.text "\u{F068}")
 
 
 
@@ -197,7 +345,7 @@ bigWarningIcon attributes =
 pageTitle : List (E.Attribute msg) -> E.Element msg -> E.Element msg
 pageTitle attributes element =
     E.el
-        ([ Style.bigFont
+        ([ bigFont
          , Font.center
          , Font.bold
          , E.paddingEach { top = 12, bottom = 12, left = 12, right = 12 }
@@ -212,8 +360,8 @@ warningParagraph : List (E.Attribute msg) -> List (E.Element msg) -> E.Element m
 warningParagraph attributes elements =
     E.row
         ([ Font.color warningColor
-         , Style.smallFont
-         , Font.color Style.fgBlack
+         , smallFont
+         , Font.color fgBlack
          , E.centerY
          , E.spacing 12
          ]
@@ -229,7 +377,7 @@ dateNavigationBar model =
         [ E.width E.fill
         , E.alignTop
         , E.paddingEach { top = 0, bottom = 8, left = 0, right = 0 }
-        , Background.color Style.bgWhite
+        , Background.color bgWhite
         ]
         [ E.el
             [ E.width (E.fillPortion 2)
@@ -239,22 +387,22 @@ dateNavigationBar model =
                 [ E.width E.fill
                 , E.height E.fill
                 , Border.roundEach { topLeft = 0, bottomLeft = 0, topRight = 0, bottomRight = 32 }
-                , Font.color Style.fgTitle
+                , Font.color fgTitle
                 , Border.widthEach { top = 0, bottom = 2, left = 0, right = 2 }
-                , Background.color Style.bgWhite
-                , Border.color Style.bgDark
+                , Background.color bgWhite
+                , Border.color bgDark
                 , E.paddingEach { top = 4, bottom = 8, left = 0, right = 0 }
                 , E.focused
-                    [ Border.color Style.fgFocus
+                    [ Border.color fgFocus
                     , Border.shadow { offset = ( 0, 0 ), size = 0, blur = 0, color = E.rgba 0 0 0 0 }
                     ]
                 ]
                 { label =
                     E.row
                         [ E.width E.fill ]
-                        [ E.el [ Style.bigFont, Font.color Style.fgTitle, E.centerX ]
+                        [ E.el [ bigFont, Font.color fgTitle, E.centerX ]
                             (E.text (Date.getMonthName (Date.decrementMonth model.date)))
-                        , E.el [ E.centerX, Style.fontIcons, Style.normalFont ] (E.text "  \u{F060}  ")
+                        , E.el [ E.centerX, iconFont, normalFont ] (E.text "  \u{F060}  ")
                         ]
                 , onPress = Just (Shared.SelectDate (Date.decrementMonth model.date))
                 }
@@ -264,7 +412,13 @@ dateNavigationBar model =
             , E.height E.fill
             , E.paddingEach { top = 4, bottom = 8, left = 0, right = 0 }
             ]
-            (E.el Style.calendarMonthName (E.text (Date.getMonthFullName model.today model.date)))
+            (E.el
+                [ E.centerX
+                , Font.bold
+                , bigFont
+                ]
+                (E.text (Date.getMonthFullName model.today model.date))
+            )
         , E.el
             -- needed to circumvent focus bug in elm-ui
             [ E.width (E.fillPortion 2)
@@ -274,21 +428,21 @@ dateNavigationBar model =
                 [ E.width E.fill
                 , E.height E.fill
                 , Border.roundEach { topLeft = 0, bottomLeft = 32, topRight = 0, bottomRight = 0 }
-                , Font.color Style.fgTitle
+                , Font.color fgTitle
                 , Border.widthEach { top = 0, bottom = 2, left = 2, right = 0 }
-                , Background.color Style.bgWhite
-                , Border.color Style.bgDark
+                , Background.color bgWhite
+                , Border.color bgDark
                 , E.paddingEach { top = 4, bottom = 8, left = 0, right = 0 }
                 , E.focused
-                    [ Border.color Style.fgFocus
+                    [ Border.color fgFocus
                     , Border.shadow { offset = ( 0, 0 ), size = 0, blur = 0, color = E.rgba 0 0 0 0 }
                     ]
                 ]
                 { label =
                     E.row
                         [ E.width E.fill ]
-                        [ E.el [ E.centerX, Style.fontIcons, Style.normalFont ] (E.text "  \u{F061}  ")
-                        , E.el [ Style.bigFont, Font.color Style.fgTitle, E.centerX ]
+                        [ E.el [ E.centerX, iconFont, normalFont ] (E.text "  \u{F061}  ")
+                        , E.el [ bigFont, Font.color fgTitle, E.centerX ]
                             (E.text (Date.getMonthName (Date.incrementMonth model.date)))
                         ]
                 , onPress = Just (Shared.SelectDate (Date.incrementMonth model.date))
@@ -313,23 +467,23 @@ viewMoney money =
         , E.height E.shrink
         , E.paddingEach { top = 0, bottom = 0, left = 0, right = 16 }
         , if isExpense then
-            Font.color Style.fgExpense
+            Font.color fgExpense
 
           else if isZero then
-            Font.color Style.fgDark
+            Font.color fgDark
 
           else
-            Font.color Style.fgIncome
+            Font.color fgIncome
         ]
         (if isZero then
-            [ E.el [ E.width (E.fillPortion 75), Style.normalFont, Font.alignRight ] (E.text "—")
+            [ E.el [ E.width (E.fillPortion 75), normalFont, Font.alignRight ] (E.text "—")
             , E.el [ E.width (E.fillPortion 25) ] E.none
             ]
 
          else
             [ E.el
                 [ E.width (E.fillPortion 75)
-                , Style.normalFont
+                , normalFont
                 , Font.bold
                 , Font.alignRight
                 ]
@@ -337,7 +491,7 @@ viewMoney money =
             , E.el
                 [ E.width (E.fillPortion 25)
                 , Font.bold
-                , Style.smallFont
+                , smallFont
                 , Font.alignLeft
                 , E.alignBottom
                 , E.paddingXY 0 1
@@ -357,13 +511,13 @@ simpleButton :
     -> E.Element msg
 simpleButton attributes { onPress, label } =
     Input.button
-        ([ Background.color Style.bgPage
-         , Style.normalFont
-         , Font.color Style.fgTitle
+        ([ Background.color bgPage
+         , normalFont
+         , Font.color fgTitle
          , Font.center
          , roundCorners
          , Border.width borderWidth
-         , Border.color Style.fgDark
+         , Border.color fgDark
          , E.paddingXY 24 8
          ]
             ++ attributes
@@ -379,13 +533,35 @@ mainButton :
     -> E.Element msg
 mainButton attributes { onPress, label } =
     Input.button
-        ([ Background.color Style.bgTitle
-         , Style.normalFont
-         , Font.color Style.fgWhite
+        ([ Background.color bgTitle
+         , normalFont
+         , Font.color fgWhite
          , Font.center
          , roundCorners
          , Border.width borderWidth
-         , Border.color Style.bgTitle
+         , Border.color bgTitle
+         , E.paddingXY 24 8
+         ]
+            ++ attributes
+        )
+        { onPress = onPress
+        , label = label
+        }
+
+
+coloredButton :
+    List (E.Attribute msg)
+    -> { onPress : Maybe msg, label : E.Element msg, color : E.Color }
+    -> E.Element msg
+coloredButton attributes { onPress, label, color } =
+    Input.button
+        ([ Background.color bgPage
+         , normalFont
+         , Font.color color
+         , Font.center
+         , roundCorners
+         , Border.width borderWidth
+         , Border.color color
          , E.paddingXY 24 8
          ]
             ++ attributes
@@ -401,9 +577,9 @@ iconButton :
     -> E.Element msg
 iconButton attributes { onPress, icon } =
     Input.button
-        ([ Background.color Style.bgPage
-         , Style.normalFont
-         , Font.color Style.fgTitle
+        ([ Background.color bgPage
+         , normalFont
+         , Font.color fgTitle
          , Font.center
          , roundCorners
          , E.padding 8
@@ -424,9 +600,9 @@ settingsButton :
 settingsButton attributes { onPress, enabled } =
     if enabled then
         Input.button
-            ([ Background.color Style.bgPage
-             , Style.normalFont
-             , Font.color Style.fgTitle
+            ([ Background.color bgPage
+             , normalFont
+             , Font.color fgTitle
              , Font.center
              , roundCorners
              , E.padding 2
@@ -436,14 +612,14 @@ settingsButton attributes { onPress, enabled } =
                 ++ attributes
             )
             { onPress = onPress
-            , label = E.el [ Style.fontIcons, Style.normalFont, E.centerX ] (E.text "\u{F013}")
+            , label = E.el [ iconFont, normalFont, E.centerX ] (E.text "\u{F013}")
             }
 
     else
         Input.button
-            ([ Background.color Style.bgPage
-             , Style.normalFont
-             , Font.color Style.fgTitle
+            ([ Background.color bgPage
+             , normalFont
+             , Font.color fgTitle
              , Font.center
              , roundCorners
              , E.padding 2
@@ -454,7 +630,7 @@ settingsButton attributes { onPress, enabled } =
             )
             { onPress = Nothing
             , label =
-                E.el [ Style.fontIcons, Style.normalFont, E.centerX, Font.color Style.bgLight ]
+                E.el [ iconFont, normalFont, E.centerX, Font.color bgLight ]
                     (E.text "\u{F013}")
             }
 
@@ -478,15 +654,3 @@ onEnter msg =
                     )
             )
         )
-
-
-
--- CONSTANTS
-
-
-borderWidth =
-    2
-
-
-roundCorners =
-    Border.rounded 24

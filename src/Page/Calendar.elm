@@ -11,7 +11,6 @@ import Ledger
 import Money
 import Page.Summary as Summary
 import Shared
-import Style
 import Time
 import Ui
 
@@ -98,7 +97,7 @@ calendar model =
         , E.height E.fill
         , E.spacing 2
         , E.padding 0
-        , Background.color Style.bgDark
+        , Background.color Ui.bgDark
         ]
         (calendarHeader model
             :: loopThroughMonth (findMonday (findTheFirst model.date))
@@ -108,38 +107,24 @@ calendar model =
 calendarHeader model =
     E.column
         [ E.width E.fill
-        , Background.color Style.bgWhite
+        , Background.color Ui.bgWhite
         ]
         [ Ui.dateNavigationBar model
         , E.row
             [ E.width E.fill
             , E.alignBottom
-            , Background.color Style.bgWhite
+            , Background.color Ui.bgWhite
+            , Ui.smallFont
+            , Font.color Ui.fgDark
             ]
-            [ E.el [ E.width E.fill ] (E.el Style.weekDayName (E.text "Lundi"))
-            , E.el [ E.width E.fill ] (E.el Style.weekDayName (E.text "Mardi"))
-            , E.el [ E.width E.fill ] (E.el Style.weekDayName (E.text "Mercredi"))
-            , E.el [ E.width E.fill ] (E.el Style.weekDayName (E.text "Jeudi"))
-            , E.el [ E.width E.fill ] (E.el Style.weekDayName (E.text "Vendredi"))
-            , E.el [ E.width E.fill ] (E.el Style.weekDayName (E.text "Samedi"))
-            , E.el [ E.width E.fill ] (E.el Style.weekDayName (E.text "Dimanche"))
+            [ E.el [ E.width E.fill ] (E.el [ E.centerX ] (E.text "Lundi"))
+            , E.el [ E.width E.fill ] (E.el [ E.centerX ] (E.text "Mardi"))
+            , E.el [ E.width E.fill ] (E.el [ E.centerX ] (E.text "Mercredi"))
+            , E.el [ E.width E.fill ] (E.el [ E.centerX ] (E.text "Jeudi"))
+            , E.el [ E.width E.fill ] (E.el [ E.centerX ] (E.text "Vendredi"))
+            , E.el [ E.width E.fill ] (E.el [ E.centerX ] (E.text "Samedi"))
+            , E.el [ E.width E.fill ] (E.el [ E.centerX ] (E.text "Dimanche"))
             ]
-        ]
-
-
-calendarFooter model =
-    E.row
-        [ E.width E.fill
-        , E.alignBottom
-        , Background.color Style.bgWhite
-        ]
-        [ E.el [ E.width E.fill ] (E.el Style.weekDayName (E.text "Lundi"))
-        , E.el [ E.width E.fill ] (E.el Style.weekDayName (E.text "Mardi"))
-        , E.el [ E.width E.fill ] (E.el Style.weekDayName (E.text "Mercredi"))
-        , E.el [ E.width E.fill ] (E.el Style.weekDayName (E.text "Jeudi"))
-        , E.el [ E.width E.fill ] (E.el Style.weekDayName (E.text "Vendredi"))
-        , E.el [ E.width E.fill ] (E.el Style.weekDayName (E.text "Samedi"))
-        , E.el [ E.width E.fill ] (E.el Style.weekDayName (E.text "Dimanche"))
         ]
 
 
@@ -157,10 +142,27 @@ calendarCell model day =
              , E.clipY
              ]
                 ++ (if sel then
-                        Style.dayCellSelected
+                        [ Background.color Ui.bgTitle
+                        , Border.color Ui.bgTitle
+                        , Border.rounded 0
+                        , Border.width 4
+                        , E.focused
+                            [ Border.shadow
+                                { offset = ( 0, 0 ), size = 0, blur = 0, color = E.rgba 0 0 0 0 }
+                            ]
+                        ]
 
                     else
-                        Style.dayCell
+                        [ Background.color Ui.bgWhite
+                        , Border.color (E.rgba 0 0 0 0)
+                        , Border.width 4
+                        , Border.rounded 0
+                        , E.focused
+                            [ Border.color Ui.fgFocus
+                            , Border.shadow
+                                { offset = ( 0, 0 ), size = 0, blur = 0, color = E.rgba 0 0 0 0 }
+                            ]
+                        ]
                    )
             )
             (Input.button
@@ -177,14 +179,14 @@ calendarCell model day =
                         [ E.el
                             [ E.width E.fill
                             , E.paddingEach { top = 0, bottom = 4, left = 0, right = 0 }
-                            , Style.smallFont
+                            , Ui.smallFont
                             , Font.center
                             , Font.color
                                 (if sel then
-                                    Style.fgWhite
+                                    Ui.fgWhite
 
                                  else
-                                    Style.fgBlack
+                                    Ui.fgBlack
                                 )
                             ]
                             (E.text
@@ -203,7 +205,7 @@ calendarCell model day =
                             , E.scrollbarY
                             , Background.color
                                 (if sel then
-                                    Style.bgWhite
+                                    Ui.bgWhite
 
                                  else
                                     E.rgba 0 0 0 0
@@ -217,11 +219,12 @@ calendarCell model day =
 
     else
         E.el
-            (E.width
-                E.fill
-                :: E.height E.fill
-                :: Style.dayCellNone
-            )
+            [ E.width E.fill
+            , E.height E.fill
+            , Border.color (E.rgba 0 0 0 0)
+            , Border.width 4
+            , Background.color Ui.bgLight
+            ]
             E.none
 
 
@@ -235,20 +238,20 @@ cellContentFor model day =
             in
             E.row
                 [ E.paddingEach { top = 3, bottom = 4, left = 6, right = 8 }
-                , Style.smallFont
+                , Ui.smallFont
                 , Font.color (E.rgb 1 1 1)
                 , if Money.isExpense transaction.amount then
-                    Background.color Style.bgExpense
+                    Background.color Ui.bgExpense
 
                   else
-                    Background.color Style.bgIncome
+                    Background.color Ui.bgIncome
                 , Border.rounded 16
                 , Border.width 0
                 , E.htmlAttribute <| Html.Attributes.style "display" "inline-flex"
                 ]
-                [ E.el [ Style.smallFont, Font.medium ] (E.text (parts.sign ++ parts.units))
+                [ E.el [ Ui.smallFont, Font.medium ] (E.text (parts.sign ++ parts.units))
                 , E.el
-                    [ Style.smallerFont
+                    [ Ui.smallerFont
                     , E.alignBottom
                     , E.paddingXY 0 1
                     ]
@@ -270,18 +273,18 @@ dayView model =
         [ E.width E.fill
         , E.height E.fill
         , E.clip
-        , Background.color Style.bgWhite
+        , Background.color Ui.bgWhite
         ]
         [ E.column
             [ E.width E.fill
             , E.height E.shrink
             , E.paddingXY 4 12
             , E.spacing 8
-            , Font.color Style.fgBlack
+            , Font.color Ui.fgBlack
             , Font.center
-            , Style.bigFont
+            , Ui.bigFont
             , Border.widthEach { top = 2, bottom = 0, left = 0, right = 0 }
-            , Border.color Style.bgDark
+            , Border.color Ui.bgDark
             ]
             [ E.el [ E.width E.fill, Font.bold ]
                 (E.text
@@ -309,12 +312,18 @@ dayView model =
             , E.spacing 24
             , E.paddingXY 24 12
             ]
-            [ Input.button
-                (Style.iconButton (E.fillPortion 2) Style.fgIncome Style.bgWhite Style.fgIncome)
-                { label = E.text "\u{F067}", onPress = Just (Shared.NewDialog False model.date) }
-            , Input.button
-                (Style.iconButton (E.fillPortion 2) Style.fgExpense Style.bgWhite Style.fgExpense)
-                { label = E.text "\u{F068}", onPress = Just (Shared.NewDialog True model.date) }
+            [ Ui.coloredButton
+                [ E.width (E.fillPortion 2) ]
+                { label = Ui.incomeIcon []
+                , color = Ui.fgIncome
+                , onPress = Just (Shared.NewDialog False model.date)
+                }
+            , Ui.coloredButton
+                [ E.width (E.fillPortion 2) ]
+                { label = Ui.expenseIcon []
+                , color = Ui.fgExpense
+                , onPress = Just (Shared.NewDialog True model.date)
+                }
             ]
         ]
 
@@ -335,7 +344,7 @@ dayContentFor model day =
                     , E.paddingEach { top = 8, bottom = 8, left = 6, right = 6 }
                     , Border.width 4
                     , Border.color (E.rgba 0 0 0 0)
-                    , E.focused [ Border.color Style.fgFocus ]
+                    , E.focused [ Border.color Ui.fgFocus ]
                     ]
                     { onPress = Just (Shared.EditDialog transaction.id)
                     , label =
@@ -355,7 +364,7 @@ dayContentFor model day =
                             , E.el
                                 [ E.width (E.fillPortion 66)
                                 , E.alignTop
-                                , Style.normalFont
+                                , Ui.normalFont
                                 , Font.color (E.rgb 0 0 0)
                                 ]
                                 (E.paragraph [] [ E.text (Ledger.getDescriptionDisplay transaction) ])
@@ -368,8 +377,8 @@ dayContentFor model day =
             [ E.el
                 [ E.width E.fill
                 , Font.center
-                , Font.color Style.fgDark
-                , Style.normalFont
+                , Font.color Ui.fgDark
+                , Ui.normalFont
                 , E.paddingXY 8 32
                 ]
                 (E.text "(Aucune dépense)")

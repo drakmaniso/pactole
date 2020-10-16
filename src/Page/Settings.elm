@@ -19,7 +19,6 @@ import Element.Input as Input
 import Html.Attributes
 import Ports
 import Shared
-import Style
 import Ui
 
 
@@ -123,18 +122,18 @@ view shared =
     E.column
         [ E.width E.fill
         , E.height E.fill
-        , Background.color Style.bgPage
-        , Style.fontFamily
-        , Style.normalFont
+        , Background.color Ui.bgPage
+        , Ui.fontFamily
+        , Ui.normalFont
         , E.scrollbarY
         ]
         [ E.row
             [ E.width E.fill
 
             {- , Border.widthEach { top = 0, left = 0, bottom = 2, right = 0 }
-               , Border.color Style.bgDark
+               , Border.color Ui.bgDark
             -}
-            , Background.color Style.bgTitle
+            , Background.color Ui.bgTitle
             , E.padding 12
             ]
             [ Ui.simpleButton []
@@ -146,7 +145,7 @@ view shared =
                         ]
                 }
             , E.el [ E.width E.fill, E.height E.fill ] E.none
-            , Ui.pageTitle [ E.centerY, Font.color Style.fgWhite ]
+            , Ui.pageTitle [ E.centerY, Font.color Ui.fgWhite ]
                 (E.text "Configuration")
             , E.el [ E.width E.fill, E.height E.fill ] E.none
             ]
@@ -390,20 +389,20 @@ viewDialog variant =
                 , E.paddingXY 0 0
                 , E.spacing 0
                 , E.scrollbarY
-                , Background.color Style.bgWhite
+                , Background.color Ui.bgWhite
                 , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 32, color = E.rgba 0 0 0 0.75 }
                 ]
                 [ E.el
                     [ E.paddingEach { top = 24, bottom = 24, right = 48, left = 48 } ]
                     (Input.text
                         [ Ui.onEnter Shared.SettingsConfirm
-                        , Style.bigFont
+                        , Ui.bigFont
                         ]
                         { label =
                             Input.labelAbove
                                 [ E.width E.shrink
-                                , Font.color Style.fgTitle
-                                , Style.normalFont
+                                , Font.color Ui.fgTitle
+                                , Ui.normalFont
                                 , Font.bold
                                 , E.paddingEach { top = 12, bottom = 0, left = 12, right = 0 }
                                 , E.pointer
@@ -440,12 +439,12 @@ viewDialog variant =
                 , E.paddingXY 0 0
                 , E.spacing 0
                 , E.scrollbarY
-                , Background.color Style.bgWhite
+                , Background.color Ui.bgWhite
                 , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 32, color = E.rgba 0 0 0 0.75 }
                 ]
                 [ E.el
                     [ E.paddingEach { top = 24, bottom = 24, right = 48, left = 48 }
-                    , Style.bigFont
+                    , Ui.bigFont
                     ]
                     (E.text ("Supprimer la catégorie \"" ++ model.name ++ "\" ?"))
                 , E.paragraph
@@ -479,20 +478,20 @@ viewDialog variant =
                 , E.paddingXY 0 0
                 , E.spacing 0
                 , E.scrollbarY
-                , Background.color Style.bgWhite
+                , Background.color Ui.bgWhite
                 , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 32, color = E.rgba 0 0 0 0.75 }
                 ]
                 [ E.el
                     [ E.paddingEach { top = 24, bottom = 24, right = 48, left = 48 } ]
                     (Input.text
                         [ Ui.onEnter Shared.SettingsConfirm
-                        , Style.bigFont
+                        , Ui.bigFont
                         ]
                         { label =
                             Input.labelAbove
                                 [ E.width E.shrink
-                                , Font.color Style.fgTitle
-                                , Style.normalFont
+                                , Font.color Ui.fgTitle
+                                , Ui.normalFont
                                 , Font.bold
                                 , E.paddingEach { top = 12, bottom = 0, left = 12, right = 0 }
                                 , E.pointer
@@ -529,12 +528,12 @@ viewDialog variant =
                 , E.paddingXY 0 0
                 , E.spacing 0
                 , E.scrollbarY
-                , Background.color Style.bgWhite
+                , Background.color Ui.bgWhite
                 , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 32, color = E.rgba 0 0 0 0.75 }
                 ]
                 [ E.el
                     [ E.paddingEach { top = 24, bottom = 24, right = 48, left = 48 }
-                    , Style.bigFont
+                    , Ui.bigFont
                     ]
                     (E.text ("Supprimer le compte \"" ++ model.name ++ "\" ?"))
                 , Ui.warningParagraph

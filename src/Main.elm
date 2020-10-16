@@ -24,9 +24,9 @@ import Page.Statistics as Statistics
 import Page.Tabular as Tabular
 import Ports
 import Shared
-import Style
 import Task
 import Time
+import Ui
 import Url
 
 
@@ -252,7 +252,7 @@ view model =
                     , backgroundColor = Nothing
                     , shadow =
                         Just
-                            { color = Style.fgFocus
+                            { color = Ui.fgFocus
                             , offset = ( 0, 0 )
                             , blur = 0
                             , size = 4
@@ -266,7 +266,7 @@ view model =
                         (E.el
                             [ E.width E.fill
                             , E.height E.fill
-                            , Style.fontFamily
+                            , Ui.fontFamily
                             , E.padding 16
                             , E.scrollbarY
                             , E.behindContent
@@ -289,7 +289,7 @@ view model =
                                 (E.el
                                     [ E.width E.fill
                                     , E.height E.fill
-                                    , Style.fontFamily
+                                    , Ui.fontFamily
                                     , E.padding 16
                                     , E.scrollbarY
                                     , E.behindContent
