@@ -228,6 +228,7 @@ view shared =
                        , selected = Just shared.settings.defaultMode
                        }
                 -}
+                , configWarning shared
                 , configSummary shared
                 , configReconciliation shared
                 , configCategoriesEnabled shared
@@ -250,6 +251,30 @@ accountRow shared account =
             , onPress = Nothing
             }
         ]
+
+
+configWarning shared =
+    let
+        settings =
+            shared.settings
+    in
+    Ui.configCustom []
+        { label = "Avertissement solde bas:"
+        , content =
+            E.row []
+                [ Ui.iconButton []
+                    { icon = E.text "-"
+                    , onPress =
+                        Just (Shared.SetSettings { settings | balanceWarning = settings.balanceWarning - 10 })
+                    }
+                , E.text (String.fromInt shared.settings.balanceWarning)
+                , Ui.iconButton []
+                    { icon = E.text "+"
+                    , onPress =
+                        Just (Shared.SetSettings { settings | balanceWarning = settings.balanceWarning + 10 })
+                    }
+                ]
+        }
 
 
 configSummary shared =

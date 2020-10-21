@@ -122,7 +122,7 @@ balanceRow model =
     E.row
         [ E.width E.fill, Font.color color ]
         [ E.el [ E.width E.fill ] E.none
-        , if Money.isGreaterThan balance 100 then
+        , if Money.isGreaterThan balance model.settings.balanceWarning then
             E.none
 
           else
@@ -145,7 +145,7 @@ balanceRow model =
             , E.paddingEach { top = 2, bottom = 0, left = 4, right = 0 }
             ]
             (E.text "€")
-        , if Money.isGreaterThan balance 100 then
+        , if Money.isGreaterThan balance model.settings.balanceWarning then
             E.none
 
           else

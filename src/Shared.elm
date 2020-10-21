@@ -62,6 +62,7 @@ type alias Settings =
     , defaultMode : Mode
     , reconciliationEnabled : Bool
     , summaryEnabled : Bool
+    , balanceWarning : Int
     }
 
 
@@ -90,18 +91,20 @@ decodeCategory =
 
 
 decodeSettings =
-    Decode.map4
-        (\cat mod rec summ ->
+    Decode.map5
+        (\cat mod rec summ balwarn ->
             { categoriesEnabled = cat
             , defaultMode = mod
             , reconciliationEnabled = rec
             , summaryEnabled = summ
+            , balanceWarning = balwarn
             }
         )
-        (Decode.field "categoriesEnabled" Decode.bool)
-        (Decode.field "defaultMode" decodeMode)
-        (Decode.field "reconciliationEnabled" Decode.bool)
-        (Decode.field "summaryEnabled" Decode.bool)
+        (Decode.oneOf [ Decode.field "categoriesEnabled" Decode.bool, Decode.succeed False ])
+        (Decode.oneOf [ Decode.field "defaultMode" decodeMode, Decode.succeed InCalendar ])
+        (Decode.oneOf [ Decode.field "reconciliationEnabled" Decode.bool, Decode.succeed False ])
+        (Decode.oneOf [ Decode.field "summaryEnabled" Decode.bool, Decode.succeed False ])
+        (Decode.oneOf [ Decode.field "balanceWarning" Decode.int, Decode.succeed 100 ])
 
 
 decodeMode =
@@ -173,6 +176,7 @@ init flags =
             , defaultMode = InCalendar
             , reconciliationEnabled = False
             , summaryEnabled = False
+            , balanceWarning = 100
             }
       , today = today
       , date = today
@@ -278,6 +282,7 @@ msgSetSettings settings model =
             , modeString = modeString
             , reconciliationEnabled = settings.reconciliationEnabled
             , summaryEnabled = settings.summaryEnabled
+            , balanceWarning = settings.balanceWarning
             }
     in
     ( model
