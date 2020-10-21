@@ -231,11 +231,7 @@ view shared =
                 , configSummary shared
                 , configReconciliation shared
                 , configCategoriesEnabled shared
-                , if shared.settings.categoriesEnabled then
-                    configCategories shared
-
-                  else
-                    E.el [] E.none
+                , configCategories shared
                 ]
             , E.el [ E.width (E.fillPortion 1) ] E.none
             ]
@@ -327,7 +323,12 @@ configCategoriesEnabled shared =
 
 configCategories shared =
     Ui.configCustom []
-        { label = "Catégories utilisées:"
+        { label =
+            if shared.settings.categoriesEnabled then
+                "Catégories:"
+
+            else
+                "Catégories (désactivées):"
         , content =
             E.column [ E.spacing 24 ]
                 [ E.table [ E.spacing 6 ]
