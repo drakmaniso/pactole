@@ -10,6 +10,7 @@ module Ledger exposing
     , getMonthlyCategory
     , getMonthlyExpense
     , getMonthlyIncome
+    , getMonthlyTotal
     , getTransaction
     )
 
@@ -45,6 +46,27 @@ getBalance (Ledger ledger) =
         (\t accum -> Money.add accum t.amount)
         Money.zero
         ledger.transactions
+
+
+getMonthlyTotal : Ledger -> Date.Date -> Money.Money
+getMonthlyTotal (Ledger ledger) date =
+    let
+        year =
+            Date.getYear date
+
+        month =
+            Date.getMonth date
+    in
+    ledger.transactions
+        --TODO
+        |> List.filter
+            (\t ->
+                (Date.getYear t.date == year)
+                    && (Date.getMonth t.date == month)
+            )
+        |> List.foldl
+            (\t accum -> Money.add accum t.amount)
+            Money.zero
 
 
 getMonthlyIncome : Ledger -> Date.Date -> Money.Money

@@ -45,6 +45,10 @@ view shared =
                 viewItem
                     "Dépenses: "
                     (Ledger.getMonthlyExpense shared.ledger shared.date)
+            , E.text " "
+            , viewItem
+                "Total du mois: "
+                (Ledger.getMonthlyTotal shared.ledger shared.date)
             , E.el [ E.height E.fill ] E.none
             ]
         }
