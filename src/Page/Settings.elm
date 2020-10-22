@@ -261,15 +261,18 @@ configWarning shared =
     Ui.configCustom []
         { label = "Avertissement solde bas:"
         , content =
-            E.row []
-                [ Ui.iconButton []
-                    { icon = E.text "-"
+            E.row [ E.spacing 12 ]
+                [ Ui.iconButton [ Border.color Ui.fgDark, Border.width Ui.borderWidth ]
+                    { icon = Ui.minusIcon []
                     , onPress =
                         Just (Shared.SetSettings { settings | balanceWarning = settings.balanceWarning - 10 })
                     }
-                , E.text (String.fromInt shared.settings.balanceWarning)
-                , Ui.iconButton []
-                    { icon = E.text "+"
+                , E.el [ Ui.bigFont ]
+                    (E.text (String.fromInt shared.settings.balanceWarning))
+                , E.el [ Ui.normalFont ]
+                    (E.text "€")
+                , Ui.iconButton [ Border.color Ui.fgDark, Border.width Ui.borderWidth ]
+                    { icon = Ui.plusIcon []
                     , onPress =
                         Just (Shared.SetSettings { settings | balanceWarning = settings.balanceWarning + 10 })
                     }
@@ -476,7 +479,7 @@ viewDialog variant =
                 , E.paragraph
                     [ E.paddingEach { top = 24, bottom = 24, right = 96, left = 96 }
                     ]
-                    [ E.text "(les opérations associées à cette catégorie ne seront pas affectées)"
+                    [ E.text "Les opérations dans cette catégorie deviendront \"Sans Catégorie\""
                     ]
                 , E.row
                     [ E.width E.fill
@@ -565,7 +568,8 @@ viewDialog variant =
                 , Ui.warningParagraph
                     [ E.paddingEach { top = 24, bottom = 24, right = 96, left = 96 }
                     ]
-                    [ E.text "  Note: toutes les opérations associées à ce compte seront définitivement supprimées."
+                    [ E.text "  Toutes les opérations associées à ce compte seront "
+                    , E.el [ Font.bold ] (E.text "définitivement supprimées!")
                     ]
                 , E.row
                     [ E.width E.fill

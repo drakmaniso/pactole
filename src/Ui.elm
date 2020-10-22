@@ -310,6 +310,11 @@ deleteIcon attributes =
         (E.text "\u{F2ED}")
 
 
+minusIcon attributes =
+    E.el ([ iconFont, normalFont, E.centerX ] ++ attributes)
+        (E.text "\u{F068}")
+
+
 plusIcon attributes =
     E.el ([ iconFont, normalFont, E.centerX ] ++ attributes)
         (E.text "\u{F067}")
@@ -360,7 +365,7 @@ warningParagraph : List (E.Attribute msg) -> List (E.Element msg) -> E.Element m
 warningParagraph attributes elements =
     E.row
         ([ Font.color warningColor
-         , smallFont
+         , normalFont
          , Font.color fgBlack
          , E.centerY
          , E.spacing 12
