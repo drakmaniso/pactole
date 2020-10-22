@@ -119,45 +119,30 @@ msgConfirm variant =
 
 view : Shared.Model -> E.Element Shared.Msg
 view shared =
-    E.column
-        [ E.width E.fill
-        , E.height E.fill
-        , Background.color Ui.bgPage
-        , Ui.fontFamily
-        , Ui.normalFont
-        , E.scrollbarY
-        ]
-        [ E.row
-            [ E.width E.fill
-
-            {- , Border.widthEach { top = 0, left = 0, bottom = 2, right = 0 }
-               , Border.color Ui.bgDark
-            -}
-            , Background.color Ui.bgTitle
-            , E.padding 12
-            ]
-            [ Ui.simpleButton []
-                { onPress = Just (Shared.ChangePage Shared.MainPage)
-                , label =
-                    E.row []
-                        [ Ui.backIcon []
-                        , E.text "  Retour"
-                        ]
-                }
-            , E.el [ E.width E.fill, E.height E.fill ] E.none
-            , Ui.pageTitle [ E.centerY, Font.color Ui.fgWhite ]
-                (E.text "Configuration")
-            , E.el [ E.width E.fill, E.height E.fill ] E.none
-            ]
-        , E.row
-            [ E.width E.fill, E.height E.fill, E.scrollbarY ]
-            [ E.el [ E.width (E.fillPortion 1) ] E.none
-            , E.column
-                [ E.width (E.fillPortion 6)
-                , E.height E.fill
-                , E.centerX
+    Ui.pageWithSidePanel []
+        { panel =
+            [ E.row
+                [ E.centerX ]
+                [ Ui.simpleButton []
+                    { onPress = Just (Shared.ChangePage Shared.MainPage)
+                    , label =
+                        E.row []
+                            [ Ui.backIcon []
+                            , E.text "  Retour"
+                            ]
+                    }
                 ]
-                [ E.row
+            ]
+        , page =
+            [ E.column
+                [ E.width E.fill
+                , E.height E.fill
+                , E.paddingXY 48 0
+                , E.scrollbarY
+                ]
+                [ Ui.pageTitle [ E.centerY, Font.color Ui.fgTitle ]
+                    (E.text "Configuration")
+                , E.row
                     [ E.width E.fill ]
                     [ E.paragraph
                         [ E.width (E.fillPortion 4)
@@ -234,9 +219,8 @@ view shared =
                 , configCategoriesEnabled shared
                 , configCategories shared
                 ]
-            , E.el [ E.width (E.fillPortion 1) ] E.none
             ]
-        ]
+        }
 
 
 accountRow shared account =
