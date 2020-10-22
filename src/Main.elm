@@ -19,6 +19,7 @@ import Ledger
 import Money
 import Page.Calendar as Calendar
 import Page.Dialog as Dialog
+import Page.Reconcile as Reconcile
 import Page.Settings as Settings
 import Page.Statistics as Statistics
 import Page.Tabular as Tabular
@@ -316,6 +317,9 @@ view model =
 
                 Shared.StatsPage ->
                     Statistics.view model.shared
+
+                Shared.ReconcilePage ->
+                    Reconcile.view model.shared
 
                 Shared.MainPage ->
                     case model.shared.settings.defaultMode of

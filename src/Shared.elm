@@ -74,6 +74,7 @@ type Mode
 type Page
     = MainPage
     | StatsPage
+    | ReconcilePage
     | SettingsPage
 
 

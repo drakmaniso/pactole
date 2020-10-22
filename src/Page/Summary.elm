@@ -174,7 +174,7 @@ buttonRow model =
                 [ E.width (E.fillPortion 3)
                 , E.htmlAttribute <| HtmlAttr.id "unfocus-on-page-change"
                 ]
-                { onPress = Nothing
+                { onPress = Just (Shared.ChangePage Shared.ReconcilePage)
                 , label = E.text "Pointer"
                 }
 
