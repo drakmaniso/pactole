@@ -223,6 +223,7 @@ type Msg
     | SettingsChangeName String
     | SetSettings Settings
     | SettingsConfirm
+    | CheckTransaction Ledger.Transaction Bool
     | NoOp
 
 

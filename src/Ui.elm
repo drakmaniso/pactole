@@ -49,12 +49,13 @@ bgPage =
 
 bgLight =
     -- rgb 0.94 0.92 0.87
-    E.rgb 0.86 0.86 0.86
+    --E.rgb 0.86 0.86 0.86
+    E.rgb 0.9 0.9 0.89
 
 
 bgDark =
     -- rgb 0.72 0.71 0.68
-    E.rgb 0.7 0.7 0.7
+    E.rgb 0.7 0.7 0.65
 
 
 bgWhite =
@@ -74,7 +75,7 @@ fgRed =
 
 
 fgDark =
-    E.rgb 0.6 0.6 0.6
+    E.rgb 0.7 0.7 0.65
 
 
 fgTransaction isExpense =
@@ -127,6 +128,20 @@ bgTitle =
     --rgb 0.12 0.51 0.65
     --rgb 0.06 0.25 0.32
     E.rgb 0.08 0.26 0.42
+
+
+bgEvenRow =
+    --E.rgb 0.99 0.98 0.9
+    E.rgb 0.96 0.96 0.95
+
+
+bgOddRow =
+    --E.rgb 0.96 0.95 0.74
+    E.rgb 0.9 0.9 0.89
+
+
+bgMouseOver =
+    E.rgb 0.85 0.92 0.98
 
 
 fgTitle =
@@ -206,7 +221,7 @@ pageWithSidePanel attributes { panel, page } =
         [ E.column
             [ E.width (E.fillPortion 1)
             , E.height E.fill
-            , E.padding 16
+            , E.paddingXY 0 16
             , E.alignTop
             ]
             panel
@@ -318,6 +333,11 @@ minusIcon attributes =
 plusIcon attributes =
     E.el ([ iconFont, normalFont, E.centerX ] ++ attributes)
         (E.text "\u{F067}")
+
+
+checkIcon attributes =
+    E.el ([ iconFont, normalFont ] ++ attributes)
+        (E.text "\u{F00C}")
 
 
 warningIcon attributes =
@@ -524,6 +544,8 @@ simpleButton attributes { onPress, label } =
          , Border.width borderWidth
          , Border.color fgDark
          , E.paddingXY 24 8
+
+         --, E.mouseOver [ Background.color bgMouseOver ]
          ]
             ++ attributes
         )
@@ -568,6 +590,8 @@ coloredButton attributes { onPress, label, color } =
          , Border.width borderWidth
          , Border.color color
          , E.paddingXY 24 8
+
+         --, E.mouseOver [ Background.color bgMouseOver ]
          ]
             ++ attributes
         )
@@ -590,6 +614,8 @@ iconButton attributes { onPress, icon } =
          , E.padding 8
          , E.width (E.px 48)
          , E.height (E.px 48)
+
+         --, E.mouseOver [ Background.color bgMouseOver ]
          ]
             ++ attributes
         )

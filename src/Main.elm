@@ -215,6 +215,19 @@ update msg model =
         Shared.SettingsConfirm ->
             settingsMsg Settings.msgConfirm
 
+        Shared.CheckTransaction transaction checked ->
+            ( model
+            , Ports.putTransaction
+                { account = model.shared.account
+                , id = transaction.id
+                , date = transaction.date
+                , amount = transaction.amount
+                , description = transaction.description
+                , category = transaction.category
+                , checked = checked
+                }
+            )
+
         Shared.NoOp ->
             ( model, Cmd.none )
 

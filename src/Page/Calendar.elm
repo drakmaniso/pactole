@@ -153,8 +153,8 @@ calendarCell model day =
                         ]
 
                     else
-                        [ Background.color Ui.bgWhite
-                        , Border.color (E.rgba 0 0 0 0)
+                        [ Background.color Ui.bgEvenRow
+                        , Border.color Ui.bgEvenRow -- (E.rgba 0 0 0 0)
                         , Border.width 4
                         , Border.rounded 0
                         , E.focused
@@ -208,7 +208,8 @@ calendarCell model day =
                                     Ui.bgWhite
 
                                  else
-                                    E.rgba 0 0 0 0
+                                    --E.rgba 0 0 0 0
+                                    Ui.bgEvenRow
                                 )
                             ]
                             (cellContentFor model day)
@@ -223,7 +224,7 @@ calendarCell model day =
             , E.height E.fill
             , Border.color (E.rgba 0 0 0 0)
             , Border.width 4
-            , Background.color Ui.bgLight
+            , Background.color Ui.bgOddRow -- Ui.bgLight
             ]
             E.none
 
@@ -278,7 +279,7 @@ dayView model =
         [ E.column
             [ E.width E.fill
             , E.height E.shrink
-            , E.paddingXY 4 12
+            , E.paddingXY 0 12
             , E.spacing 8
             , Font.color Ui.fgBlack
             , Font.center
@@ -331,17 +332,23 @@ dayView model =
 dayContentFor : Shared.Model -> Date.Date -> List (E.Element Shared.Msg)
 dayContentFor model day =
     let
-        render transaction =
+        render idx transaction =
             let
                 parts =
                     Money.toStrings transaction.amount
             in
             E.el
                 [ E.width E.fill
+                , E.padding 0
+                , if Basics.remainderBy 2 idx == 0 then
+                    Background.color Ui.bgEvenRow
+
+                  else
+                    Background.color Ui.bgOddRow
                 ]
                 (Input.button
                     [ E.width E.fill
-                    , E.paddingEach { top = 8, bottom = 8, left = 6, right = 6 }
+                    , E.paddingEach { top = 8, bottom = 8, left = 0, right = 0 }
                     , Border.width 4
                     , Border.color (E.rgba 0 0 0 0)
                     , E.focused [ Border.color Ui.fgFocus ]
@@ -385,4 +392,4 @@ dayContentFor model day =
             ]
 
         t ->
-            List.map render t
+            List.indexedMap render t
