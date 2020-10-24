@@ -526,6 +526,34 @@ viewMoney money =
         )
 
 
+viewSum money =
+    let
+        parts =
+            Money.toStrings money
+    in
+    E.row
+        [ E.width E.shrink
+        , E.height E.shrink
+        , E.paddingEach { top = 0, bottom = 0, left = 16, right = 16 }
+        , Font.color fgBlack
+        ]
+        [ E.el
+            [ E.width (E.fillPortion 75)
+            , biggestFont
+            , Font.alignRight
+            ]
+            (E.text (parts.sign ++ parts.units))
+        , E.el
+            [ E.width (E.fillPortion 25)
+            , biggerFont
+            , Font.alignLeft
+            , E.alignBottom
+            , E.paddingXY 0 1
+            ]
+            (E.text ("," ++ parts.cents))
+        ]
+
+
 
 -- INTERACTIVE ELEMENTS
 

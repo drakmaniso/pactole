@@ -4,6 +4,7 @@ module Date exposing
     , decrementDay
     , decrementMonth
     , default
+    , firstDayOf
     , fromInt
     , fromParts
     , getDay
@@ -285,6 +286,15 @@ incrementDay (Date date) =
 
 lastDayOf (Date date) =
     Calendar.lastDayOf date
+
+
+firstDayOf (Date date) =
+    case Calendar.setDay 1 date of
+        Just d ->
+            Date d
+
+        Nothing ->
+            default
 
 
 getWeekday (Date date) =

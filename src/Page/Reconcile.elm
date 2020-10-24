@@ -35,11 +35,31 @@ view shared =
                 , E.height E.fill
                 , E.scrollbarY
                 ]
-                [ E.el [ E.height (E.px 48) ] E.none
+                [ viewReconciled shared
                 , viewTransactions shared
                 ]
             ]
         }
+
+
+viewReconciled shared =
+    E.column
+        [ E.width E.fill, E.paddingXY 48 24 ]
+        [ if Ledger.uncheckedBeforeMonth shared.ledger shared.date then
+            E.el
+                [ E.width E.fill, Font.center ]
+                (E.text "Attention: il y a des opérations non pointées dans les mois précédents.")
+
+          else
+            E.none
+        , E.row
+            [ E.width E.fill, E.paddingXY 48 24 ]
+            [ E.el [ E.width E.fill ] E.none
+            , E.el [ Ui.biggerFont ] (E.text "Total pointé: ")
+            , Ui.viewSum (Ledger.getReconciled shared.ledger)
+            , E.el [ E.width E.fill ] E.none
+            ]
+        ]
 
 
 viewTransactions shared =

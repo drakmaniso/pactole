@@ -12,7 +12,9 @@ module Ledger exposing
     , getMonthlyExpense
     , getMonthlyIncome
     , getMonthlyTotal
+    , getReconciled
     , getTransaction
+    , uncheckedBeforeMonth
     )
 
 import Date
@@ -47,6 +49,28 @@ getBalance (Ledger ledger) =
         (\t accum -> Money.add accum t.amount)
         Money.zero
         ledger.transactions
+
+
+getReconciled : Ledger -> Money.Money
+getReconciled (Ledger ledger) =
+    ledger.transactions
+        |> List.filter (\t -> t.checked == True)
+        |> List.foldl
+            (\t accum -> Money.add accum t.amount)
+            Money.zero
+
+
+uncheckedBeforeMonth : Ledger -> Date.Date -> Bool
+uncheckedBeforeMonth (Ledger ledger) date =
+    let
+        d =
+            Date.firstDayOf date
+    in
+    ledger.transactions
+        |> List.filter
+            (\t -> Date.compare t.date d == LT)
+        |> List.any
+            (\t -> not t.checked)
 
 
 getDateTransactions : Date.Date -> Ledger -> List Transaction
