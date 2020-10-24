@@ -25,6 +25,10 @@ roundCorners =
     Border.rounded 24
 
 
+notSelectable =
+    E.htmlAttribute (Html.Attributes.style "user-select" "none")
+
+
 
 -- COLORS
 
@@ -436,6 +440,7 @@ dateNavigationBar model =
             [ E.width (E.fillPortion 3)
             , E.height E.fill
             , E.paddingEach { top = 4, bottom = 8, left = 0, right = 0 }
+            , notSelectable
             ]
             (E.el
                 [ E.centerX
@@ -449,29 +454,45 @@ dateNavigationBar model =
             [ E.width (E.fillPortion 2)
             , E.height E.fill
             ]
-            (Input.button
-                [ E.width E.fill
-                , E.height E.fill
-                , Border.roundEach { topLeft = 0, bottomLeft = 32, topRight = 0, bottomRight = 0 }
-                , Font.color fgTitle
-                , Border.widthEach { top = 0, bottom = 2, left = 2, right = 0 }
-                , Background.color bgWhite
-                , Border.color bgDark
-                , E.paddingEach { top = 4, bottom = 8, left = 0, right = 0 }
-                , E.focused
-                    [ Border.color fgFocus
-                    , Border.shadow { offset = ( 0, 0 ), size = 0, blur = 0, color = E.rgba 0 0 0 0 }
-                    ]
-                ]
-                { label =
-                    E.row
-                        [ E.width E.fill ]
-                        [ E.el [ E.centerX, iconFont, normalFont ] (E.text "  \u{F061}  ")
-                        , E.el [ bigFont, Font.color fgTitle, E.centerX ]
-                            (E.text (Date.getMonthName (Date.incrementMonth model.date)))
+            (if
+                (Date.getYear model.date /= Date.getYear model.today)
+                    || (Date.getMonth model.date /= Date.getMonth model.today)
+             then
+                Input.button
+                    [ E.width E.fill
+                    , E.height E.fill
+                    , Border.roundEach { topLeft = 0, bottomLeft = 32, topRight = 0, bottomRight = 0 }
+                    , Font.color fgTitle
+                    , Border.widthEach { top = 0, bottom = 2, left = 2, right = 0 }
+                    , Background.color bgWhite
+                    , Border.color bgDark
+                    , E.paddingEach { top = 4, bottom = 8, left = 0, right = 0 }
+                    , E.focused
+                        [ Border.color fgFocus
+                        , Border.shadow { offset = ( 0, 0 ), size = 0, blur = 0, color = E.rgba 0 0 0 0 }
                         ]
-                , onPress = Just (Shared.SelectDate (Date.incrementMonth model.date))
-                }
+                    ]
+                    { label =
+                        E.row
+                            [ E.width E.fill ]
+                            [ E.el [ E.centerX, iconFont, normalFont ] (E.text "  \u{F061}  ")
+                            , E.el [ bigFont, Font.color fgTitle, E.centerX ]
+                                (E.text (Date.getMonthName (Date.incrementMonth model.date)))
+                            ]
+                    , onPress = Just (Shared.SelectDate (Date.incrementMonth model.date))
+                    }
+
+             else
+                E.el
+                    [ E.width E.fill
+                    , E.height E.fill
+                    , Border.roundEach { topLeft = 0, bottomLeft = 32, topRight = 0, bottomRight = 0 }
+                    , Border.widthEach { top = 0, bottom = 2, left = 2, right = 0 }
+                    , Background.color bgWhite
+                    , Border.color bgDark
+                    , E.paddingEach { top = 4, bottom = 8, left = 0, right = 0 }
+                    ]
+                    E.none
             )
         ]
 

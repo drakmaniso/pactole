@@ -47,7 +47,7 @@ view model =
                         (\account -> Input.optionWith account (accountOption account model))
                         (Dict.keys model.accounts)
                 }
-            , E.el [ E.width E.fill ]
+            , E.el [ E.width E.fill, E.paddingXY 12 0 ]
                 (Ui.settingsButton
                     [ E.alignRight ]
                     { onPress = Just (Shared.ChangePage Shared.SettingsPage)
@@ -62,6 +62,7 @@ view model =
             , E.width E.fill
             , Font.center
             , Font.color Ui.fgDark
+            , Ui.notSelectable
             ]
             (E.text "Solde actuel:")
         , if model.account /= Nothing then
@@ -120,7 +121,7 @@ balanceRow model =
                 Ui.fgRed
     in
     E.row
-        [ E.width E.fill, Font.color color ]
+        [ E.width E.fill, Font.color color, Ui.notSelectable ]
         [ E.el [ E.width E.fill ] E.none
         , if Money.isGreaterThan balance model.settings.balanceWarning then
             E.none

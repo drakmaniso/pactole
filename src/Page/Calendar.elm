@@ -116,6 +116,7 @@ calendarHeader model =
             , Background.color Ui.bgWhite
             , Ui.smallFont
             , Font.color Ui.fgDark
+            , Ui.notSelectable
             ]
             [ E.el [ E.width E.fill ] (E.el [ E.centerX ] (E.text "Lundi"))
             , E.el [ E.width E.fill ] (E.el [ E.centerX ] (E.text "Mardi"))
