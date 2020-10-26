@@ -287,6 +287,7 @@ dayView model =
             , Ui.bigFont
             , Border.widthEach { top = 2, bottom = 0, left = 0, right = 0 }
             , Border.color Ui.bgDark
+            , Ui.notSelectable
             ]
             [ E.el [ E.width E.fill, Font.bold ]
                 (E.text
@@ -306,6 +307,7 @@ dayView model =
         , E.column
             [ E.width E.fill
             , E.height E.fill
+            , E.scrollbarY
             ]
             (dayContentFor model model.date)
         , E.row
