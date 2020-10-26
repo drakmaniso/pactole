@@ -17,6 +17,7 @@ const files = [
 
 
 const version = 1
+const staticCacheName = "pactole-cache-1"
 
 
 self.addEventListener('install', event => {
@@ -24,7 +25,7 @@ self.addEventListener('install', event => {
   event.waitUntil(self.skipWaiting())
   event.waitUntil(
     caches
-      .open('Pactole-v' + version)
+      .open(staticCacheName)
       .then(cache => {
         log('...installing cache...')
         return cache.addAll(
@@ -51,12 +52,12 @@ self.addEventListener('activate', event => {
       .then(names => {
         return Promise.all(
           names
-            .filter(n =>  n != 'Pactole-v' + version)
+            .filter(n =>  n != staticCacheName)
             .map(n => caches.delete(n))
         )
       })
+      .catch(err => error(err))
     )
-    .catch(err => error(err))
 })
 
 
