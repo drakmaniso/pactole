@@ -11,7 +11,6 @@ import Ledger
 import Money
 import Page.Summary as Summary
 import Shared
-import Style
 import Ui
 
 
@@ -47,8 +46,8 @@ makeRow transaction ( prevDate, accum ) =
         dateTxt =
             el
                 [ paddingEach { left = 12, right = 12, top = 24, bottom = 12 }
-                , Style.bigFont
-                , Font.color Style.fgTitle
+                , Ui.bigFont
+                , Font.color Ui.fgTitle
                 ]
                 (text
                     (Date.getWeekdayName transaction.date

@@ -148,8 +148,8 @@ getSettings =
     send ( "get settings", Encode.object [] )
 
 
-setSettings : { categoriesEnabled : Bool, modeString : String, reconciliationEnabled : Bool, summaryEnabled : Bool } -> Cmd msg
-setSettings { categoriesEnabled, modeString, reconciliationEnabled, summaryEnabled } =
+setSettings : { categoriesEnabled : Bool, modeString : String, reconciliationEnabled : Bool, summaryEnabled : Bool, balanceWarning : Int } -> Cmd msg
+setSettings { categoriesEnabled, modeString, reconciliationEnabled, summaryEnabled, balanceWarning } =
     send
         ( "set settings"
         , Encode.object
@@ -157,5 +157,6 @@ setSettings { categoriesEnabled, modeString, reconciliationEnabled, summaryEnabl
             , ( "defaultMode", Encode.string modeString )
             , ( "reconciliationEnabled", Encode.bool reconciliationEnabled )
             , ( "summaryEnabled", Encode.bool summaryEnabled )
+            , ( "balanceWarning", Encode.int balanceWarning )
             ]
         )

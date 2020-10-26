@@ -19,14 +19,15 @@ import Ledger
 import Money
 import Page.Calendar as Calendar
 import Page.Dialog as Dialog
+import Page.Reconcile as Reconcile
 import Page.Settings as Settings
 import Page.Statistics as Statistics
 import Page.Tabular as Tabular
 import Ports
 import Shared
-import Style
 import Task
 import Time
+import Ui
 import Url
 
 
@@ -214,6 +215,19 @@ update msg model =
         Shared.SettingsConfirm ->
             settingsMsg Settings.msgConfirm
 
+        Shared.CheckTransaction transaction checked ->
+            ( model
+            , Ports.putTransaction
+                { account = model.shared.account
+                , id = transaction.id
+                , date = transaction.date
+                , amount = transaction.amount
+                , description = transaction.description
+                , category = transaction.category
+                , checked = checked
+                }
+            )
+
         Shared.NoOp ->
             ( model, Cmd.none )
 
@@ -252,7 +266,7 @@ view model =
                     , backgroundColor = Nothing
                     , shadow =
                         Just
-                            { color = Style.fgFocus
+                            { color = Ui.fgFocus
                             , offset = ( 0, 0 )
                             , blur = 0
                             , size = 4
@@ -266,7 +280,7 @@ view model =
                         (E.el
                             [ E.width E.fill
                             , E.height E.fill
-                            , Style.fontFamily
+                            , Ui.fontFamily
                             , E.padding 16
                             , E.scrollbarY
                             , E.behindContent
@@ -289,7 +303,7 @@ view model =
                                 (E.el
                                     [ E.width E.fill
                                     , E.height E.fill
-                                    , Style.fontFamily
+                                    , Ui.fontFamily
                                     , E.padding 16
                                     , E.scrollbarY
                                     , E.behindContent
@@ -316,6 +330,9 @@ view model =
 
                 Shared.StatsPage ->
                     Statistics.view model.shared
+
+                Shared.ReconcilePage ->
+                    Reconcile.view model.shared
 
                 Shared.MainPage ->
                     case model.shared.settings.defaultMode of

@@ -17,6 +17,7 @@ const files = [
 
 
 const version = 1
+const staticCacheName = "pactole-cache-1"
 
 
 self.addEventListener('install', event => {
@@ -24,7 +25,7 @@ self.addEventListener('install', event => {
   event.waitUntil(self.skipWaiting())
   event.waitUntil(
     caches
-      .open('Pactole-v' + version)
+      .open(staticCacheName)
       .then(cache => {
         log('...installing cache...')
         return cache.addAll(
@@ -51,12 +52,12 @@ self.addEventListener('activate', event => {
       .then(names => {
         return Promise.all(
           names
-            .filter(n =>  n != 'Pactole-v' + version)
+            .filter(n =>  n != staticCacheName)
             .map(n => caches.delete(n))
         )
       })
+      .catch(err => error(err))
     )
-    .catch(err => error(err))
 })
 
 
@@ -316,24 +317,12 @@ function openDB() {
 
 function getSettings() {
   return new Promise((resolve, reject) => {
-    var settings = {}
-    getSetting('categoriesEnabled')
-      .then(cat => { settings.categoriesEnabled = cat; return getSetting('defaultMode') })
-      .then(mod => { settings.defaultMode = mod; return getSetting('summaryEnabled') })
-      .then(sum => { settings.summaryEnabled = sum; return getSetting('reconciliationEnabled') })
-      .then(rec => { settings.reconciliationEnabled = rec; resolve(settings) })
-      .catch(err => reject(err))
-  })
-}
-
-function getSetting(key) {
-  return new Promise((resolve, reject) => {
     openDB()
       .then(db => {
         const tr = db.transaction(['settings'], 'readonly')
         tr.onerror = () => reject(tr.error)
         const os = tr.objectStore('settings')
-        const req = os.get(key)
+        const req = os.get('settings')
         req.onerror = () => reject(req.error)
         req.onsuccess = event => {
           resolve(req.result)
@@ -345,13 +334,6 @@ function getSetting(key) {
 
 
 function setSettings(settings) {
-  try {
-    const {
-      categoriesEnabled,
-      defaultMode,
-      reconciliationEnabled,
-      summaryEnabled
-    } = settings
     return new Promise((resolve, reject) => {
       openDB()
         .then(db => {
@@ -359,17 +341,10 @@ function setSettings(settings) {
           tr.onerror = () => reject(tr.error)
           tr.oncomplete = () => resolve()
           const os = tr.objectStore('settings')
-          os.put(categoriesEnabled, 'categoriesEnabled')
-          os.put(defaultMode, 'defaultMode')
-          os.put(reconciliationEnabled, 'reconciliationEnabled')
-          os.put(summaryEnabled, 'summaryEnabled')
+          os.put(settings, 'settings')
         })
         .catch(err => reject(err))
     })
-  }
-  catch(err) {
-    error(`set settings: ${err}`)
-  }
 }
 
 // ACCOUNTS ///////////////////////////////////////////////////////////////////

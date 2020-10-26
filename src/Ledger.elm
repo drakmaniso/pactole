@@ -7,10 +7,14 @@ module Ledger exposing
     , getBalance
     , getDateTransactions
     , getDescriptionDisplay
+    , getMonthTransactions
     , getMonthlyCategory
     , getMonthlyExpense
     , getMonthlyIncome
+    , getMonthlyTotal
+    , getReconciled
     , getTransaction
+    , uncheckedBeforeMonth
     )
 
 import Date
@@ -47,8 +51,37 @@ getBalance (Ledger ledger) =
         ledger.transactions
 
 
-getMonthlyIncome : Ledger -> Date.Date -> Money.Money
-getMonthlyIncome (Ledger ledger) date =
+getReconciled : Ledger -> Money.Money
+getReconciled (Ledger ledger) =
+    ledger.transactions
+        |> List.filter (\t -> t.checked == True)
+        |> List.foldl
+            (\t accum -> Money.add accum t.amount)
+            Money.zero
+
+
+uncheckedBeforeMonth : Ledger -> Date.Date -> Bool
+uncheckedBeforeMonth (Ledger ledger) date =
+    let
+        d =
+            Date.firstDayOf date
+    in
+    ledger.transactions
+        |> List.filter
+            (\t -> Date.compare t.date d == LT)
+        |> List.any
+            (\t -> not t.checked)
+
+
+getDateTransactions : Date.Date -> Ledger -> List Transaction
+getDateTransactions date (Ledger ledger) =
+    List.filter
+        (\t -> t.date == date)
+        ledger.transactions
+
+
+getMonthTransactions : Ledger -> Date.Date -> List Transaction
+getMonthTransactions (Ledger ledger) date =
     let
         year =
             Date.getYear date
@@ -63,6 +96,19 @@ getMonthlyIncome (Ledger ledger) date =
                 (Date.getYear t.date == year)
                     && (Date.getMonth t.date == month)
             )
+
+
+getMonthlyTotal : Ledger -> Date.Date -> Money.Money
+getMonthlyTotal ledger date =
+    getMonthTransactions ledger date
+        |> List.foldl
+            (\t accum -> Money.add accum t.amount)
+            Money.zero
+
+
+getMonthlyIncome : Ledger -> Date.Date -> Money.Money
+getMonthlyIncome ledger date =
+    getMonthTransactions ledger date
         |> List.filter
             (\t -> not (Money.isExpense t.amount))
         |> List.foldl
@@ -71,21 +117,8 @@ getMonthlyIncome (Ledger ledger) date =
 
 
 getMonthlyExpense : Ledger -> Date.Date -> Money.Money
-getMonthlyExpense (Ledger ledger) date =
-    let
-        year =
-            Date.getYear date
-
-        month =
-            Date.getMonth date
-    in
-    ledger.transactions
-        --TODO
-        |> List.filter
-            (\t ->
-                (Date.getYear t.date == year)
-                    && (Date.getMonth t.date == month)
-            )
+getMonthlyExpense ledger date =
+    getMonthTransactions ledger date
         |> List.filter
             (\t -> Money.isExpense t.amount)
         |> List.foldl
@@ -94,21 +127,8 @@ getMonthlyExpense (Ledger ledger) date =
 
 
 getMonthlyCategory : Ledger -> Date.Date -> Int -> Money.Money
-getMonthlyCategory (Ledger ledger) date catID =
-    let
-        year =
-            Date.getYear date
-
-        month =
-            Date.getMonth date
-    in
-    ledger.transactions
-        --TODO
-        |> List.filter
-            (\t ->
-                (Date.getYear t.date == year)
-                    && (Date.getMonth t.date == month)
-            )
+getMonthlyCategory ledger date catID =
+    getMonthTransactions ledger date
         |> List.filter
             (\t -> Money.isExpense t.amount)
         |> List.filter
@@ -116,13 +136,6 @@ getMonthlyCategory (Ledger ledger) date catID =
         |> List.foldl
             (\t accum -> Money.add accum t.amount)
             Money.zero
-
-
-getDateTransactions : Date.Date -> Ledger -> List Transaction
-getDateTransactions date (Ledger ledger) =
-    List.filter
-        (\t -> t.date == date)
-        ledger.transactions
 
 
 getTransaction : Int -> Ledger -> Maybe Transaction

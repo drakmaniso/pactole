@@ -11,7 +11,7 @@ module Page.Settings exposing
     )
 
 import Dict
-import Element exposing (..)
+import Element as E
 import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
@@ -19,7 +19,6 @@ import Element.Input as Input
 import Html.Attributes
 import Ports
 import Shared
-import Style
 import Ui
 
 
@@ -118,70 +117,55 @@ msgConfirm variant =
 -- VIEW
 
 
-view : Shared.Model -> Element Shared.Msg
+view : Shared.Model -> E.Element Shared.Msg
 view shared =
-    column
-        [ width fill
-        , height fill
-        , Background.color Style.bgPage
-        , Style.fontFamily
-        , Style.normalFont
-        , scrollbarY
-        ]
-        [ row
-            [ width fill
-
-            {- , Border.widthEach { top = 0, left = 0, bottom = 2, right = 0 }
-               , Border.color Style.bgDark
-            -}
-            , Background.color Style.bgTitle
-            , padding 12
-            ]
-            [ Ui.simpleButton []
-                { onPress = Just (Shared.ChangePage Shared.MainPage)
-                , label =
-                    Ui.row []
-                        [ Ui.backIcon []
-                        , text "  Retour"
-                        ]
-                }
-            , el [ width fill, height fill ] none
-            , Ui.pageTitle [ centerY, Font.color Style.fgWhite ]
-                (text "Configuration")
-            , el [ width fill, height fill ] none
-            ]
-        , row
-            [ width fill, height fill, scrollbarY ]
-            [ el [ width (fillPortion 1) ] none
-            , column
-                [ width (fillPortion 6)
-                , height fill
-                , centerX
+    Ui.pageWithSidePanel []
+        { panel =
+            [ E.row
+                [ E.centerX ]
+                [ Ui.simpleButton []
+                    { onPress = Just (Shared.ChangePage Shared.MainPage)
+                    , label =
+                        E.row []
+                            [ Ui.backIcon []
+                            , E.text "  Retour"
+                            ]
+                    }
                 ]
-                [ row
-                    [ width fill ]
-                    [ paragraph
-                        [ width (fillPortion 4)
-                        , paddingEach { top = 24, bottom = 24, left = 12, right = 12 }
+            ]
+        , page =
+            [ E.column
+                [ E.width E.fill
+                , E.height E.fill
+                , E.paddingXY 48 0
+                , E.scrollbarY
+                ]
+                [ Ui.pageTitle [ E.centerY, Font.color Ui.fgTitle ]
+                    (E.text "Configuration")
+                , E.row
+                    [ E.width E.fill ]
+                    [ E.paragraph
+                        [ E.width (E.fillPortion 4)
+                        , E.paddingEach { top = 24, bottom = 24, left = 12, right = 12 }
                         ]
-                        [ text "Rappel: l'application enregistre ses données uniquement sur cet ordinateur; "
-                        , text "rien n'est envoyé sur internet."
+                        [ E.text "Rappel: l'application enregistre ses données uniquement sur cet ordinateur; "
+                        , E.text "rien n'est envoyé sur internet."
                         ]
-                    , el [ width (fillPortion 2) ] none
+                    , E.el [ E.width (E.fillPortion 2) ] E.none
                     ]
                 , Ui.configCustom []
                     { label = "Personnes utilisant l'application:"
                     , content =
-                        column [ spacing 24 ]
-                            [ table [ spacing 6 ]
+                        E.column [ E.spacing 24 ]
+                            [ E.table [ E.spacing 6 ]
                                 { data = Dict.toList shared.accounts
                                 , columns =
-                                    [ { header = none
-                                      , width = fill
-                                      , view = \a -> el [ centerY ] (text (Tuple.second a))
+                                    [ { header = E.none
+                                      , width = E.fill
+                                      , view = \a -> E.el [ E.centerY ] (E.text (Tuple.second a))
                                       }
-                                    , { header = none
-                                      , width = shrink
+                                    , { header = E.none
+                                      , width = E.shrink
                                       , view =
                                             \a ->
                                                 Ui.iconButton []
@@ -189,8 +173,8 @@ view shared =
                                                     , onPress = Just (Shared.OpenRenameAccount (Tuple.first a))
                                                     }
                                       }
-                                    , { header = none
-                                      , width = shrink
+                                    , { header = E.none
+                                      , width = E.shrink
                                       , view =
                                             \a ->
                                                 Ui.iconButton []
@@ -202,7 +186,7 @@ view shared =
                                 }
                             , Ui.simpleButton []
                                 { onPress = Just (Shared.CreateAccount (newAccountName (Dict.values shared.accounts) 1))
-                                , label = Ui.row [] [ Ui.plusIcon [], text "  Ajouter" ]
+                                , label = E.row [] [ Ui.plusIcon [], E.text "  Ajouter" ]
                                 }
                             ]
                     }
@@ -223,29 +207,25 @@ view shared =
                                        Shared.SetSettings { settings | defaultMode = Shared.InTabular }
                        , label = "Affichage les opérations par:"
                        , options =
-                           [ Ui.radioRowOption Shared.InCalendar (text "Calendrier")
-                           , Ui.radioRowOption Shared.InTabular (text "Liste")
+                           [ Ui.radioRowOption Shared.InCalendar (E.text "Calendrier")
+                           , Ui.radioRowOption Shared.InTabular (E.text "Liste")
                            ]
                        , selected = Just shared.settings.defaultMode
                        }
                 -}
+                , configWarning shared
                 , configSummary shared
                 , configReconciliation shared
                 , configCategoriesEnabled shared
-                , if shared.settings.categoriesEnabled then
-                    configCategories shared
-
-                  else
-                    el [] none
+                , configCategories shared
                 ]
-            , el [ width (fillPortion 1) ] none
             ]
-        ]
+        }
 
 
 accountRow shared account =
-    row [ spacing 48 ]
-        [ el [] (text account)
+    E.row [ E.spacing 48 ]
+        [ E.el [] (E.text account)
         , Ui.iconButton []
             { icon = Ui.editIcon []
             , onPress = Nothing
@@ -255,6 +235,33 @@ accountRow shared account =
             , onPress = Nothing
             }
         ]
+
+
+configWarning shared =
+    let
+        settings =
+            shared.settings
+    in
+    Ui.configCustom []
+        { label = "Avertissement solde bas:"
+        , content =
+            E.row [ E.spacing 12 ]
+                [ Ui.iconButton [ Border.color Ui.fgDark, Border.width Ui.borderWidth ]
+                    { icon = Ui.minusIcon []
+                    , onPress =
+                        Just (Shared.SetSettings { settings | balanceWarning = settings.balanceWarning - 10 })
+                    }
+                , E.el [ Ui.bigFont ]
+                    (E.text (String.fromInt shared.settings.balanceWarning))
+                , E.el [ Ui.normalFont ]
+                    (E.text "€")
+                , Ui.iconButton [ Border.color Ui.fgDark, Border.width Ui.borderWidth ]
+                    { icon = Ui.plusIcon []
+                    , onPress =
+                        Just (Shared.SetSettings { settings | balanceWarning = settings.balanceWarning + 10 })
+                    }
+                ]
+        }
 
 
 configSummary shared =
@@ -273,8 +280,8 @@ configSummary shared =
                         Shared.SetSettings { settings | summaryEnabled = False }
         , label = "Activer la page de bilan:"
         , options =
-            [ Ui.radioRowOption True (text "Oui")
-            , Ui.radioRowOption False (text "Non")
+            [ Ui.radioRowOption True (E.text "Oui")
+            , Ui.radioRowOption False (E.text "Non")
             ]
         , selected = Just shared.settings.summaryEnabled
         }
@@ -296,8 +303,8 @@ configReconciliation shared =
                         Shared.SetSettings { settings | reconciliationEnabled = False }
         , label = "Activer la page de pointage:"
         , options =
-            [ Ui.radioRowOption True (text "Oui")
-            , Ui.radioRowOption False (text "Non")
+            [ Ui.radioRowOption True (E.text "Oui")
+            , Ui.radioRowOption False (E.text "Non")
             ]
         , selected = Just shared.settings.reconciliationEnabled
         }
@@ -319,8 +326,8 @@ configCategoriesEnabled shared =
                         Shared.SetSettings { settings | categoriesEnabled = False }
         , label = "Utiliser des catégories:"
         , options =
-            [ Ui.radioRowOption True (text "Oui")
-            , Ui.radioRowOption False (text "Non")
+            [ Ui.radioRowOption True (E.text "Oui")
+            , Ui.radioRowOption False (E.text "Non")
             ]
         , selected = Just shared.settings.categoriesEnabled
         }
@@ -328,18 +335,23 @@ configCategoriesEnabled shared =
 
 configCategories shared =
     Ui.configCustom []
-        { label = "Catégories utilisées:"
+        { label =
+            if shared.settings.categoriesEnabled then
+                "Catégories:"
+
+            else
+                "Catégories (désactivées):"
         , content =
-            column [ spacing 24 ]
-                [ table [ spacing 6 ]
+            E.column [ E.spacing 24 ]
+                [ E.table [ E.spacing 6 ]
                     { data = Dict.toList shared.categories
                     , columns =
-                        [ { header = none
-                          , width = fill
-                          , view = \a -> el [ centerY ] (text (Tuple.second a).name)
+                        [ { header = E.none
+                          , width = E.fill
+                          , view = \a -> E.el [ E.centerY ] (E.text (Tuple.second a).name)
                           }
-                        , { header = none
-                          , width = shrink
+                        , { header = E.none
+                          , width = E.shrink
                           , view =
                                 \a ->
                                     Ui.iconButton []
@@ -347,8 +359,8 @@ configCategories shared =
                                         , onPress = Just (Shared.OpenRenameCategory (Tuple.first a))
                                         }
                           }
-                        , { header = none
-                          , width = shrink
+                        , { header = E.none
+                          , width = E.shrink
                           , view =
                                 \a ->
                                     Ui.iconButton []
@@ -360,7 +372,7 @@ configCategories shared =
                     }
                 , Ui.simpleButton []
                     { onPress = Just (Shared.CreateCategory "Nouvelle catégorie" "")
-                    , label = Ui.row [] [ Ui.plusIcon [], text "  Ajouter" ]
+                    , label = E.row [] [ Ui.plusIcon [], E.text "  Ajouter" ]
                     }
                 ]
         }
@@ -378,182 +390,183 @@ createNewAccount shared =
 -- DIALOG
 
 
-viewDialog : Dialog -> Element Shared.Msg
+viewDialog : Dialog -> E.Element Shared.Msg
 viewDialog variant =
     case variant of
         RenameAccount model ->
-            column
-                [ centerX
-                , centerY
-                , width (px 800)
-                , height shrink
-                , paddingXY 0 0
-                , spacing 0
-                , scrollbarY
-                , Background.color Style.bgWhite
-                , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 32, color = rgba 0 0 0 0.75 }
+            E.column
+                [ E.centerX
+                , E.centerY
+                , E.width (E.px 800)
+                , E.height E.shrink
+                , E.paddingXY 0 0
+                , E.spacing 0
+                , E.scrollbarY
+                , Background.color Ui.bgWhite
+                , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 32, color = E.rgba 0 0 0 0.75 }
                 ]
-                [ el
-                    [ paddingEach { top = 24, bottom = 24, right = 48, left = 48 } ]
+                [ E.el
+                    [ E.paddingEach { top = 24, bottom = 24, right = 48, left = 48 } ]
                     (Input.text
                         [ Ui.onEnter Shared.SettingsConfirm
-                        , Style.bigFont
+                        , Ui.bigFont
                         ]
                         { label =
                             Input.labelAbove
-                                [ width shrink
-                                , Font.color Style.fgTitle
-                                , Style.normalFont
+                                [ E.width E.shrink
+                                , Font.color Ui.fgTitle
+                                , Ui.normalFont
                                 , Font.bold
-                                , paddingEach { top = 12, bottom = 0, left = 12, right = 0 }
-                                , pointer
+                                , E.paddingEach { top = 12, bottom = 0, left = 12, right = 0 }
+                                , E.pointer
                                 ]
-                                (text ("Renommer le compte \"" ++ model.name ++ "\":"))
+                                (E.text ("Renommer le compte \"" ++ model.name ++ "\":"))
                         , text = model.name
                         , onChange = \n -> Shared.SettingsChangeName n
                         , placeholder = Nothing
                         }
                     )
-                , Ui.row
-                    [ width fill
-                    , spacing 24
-                    , paddingEach { top = 64, bottom = 24, right = 64, left = 64 }
+                , E.row
+                    [ E.width E.fill
+                    , E.spacing 24
+                    , E.paddingEach { top = 64, bottom = 24, right = 64, left = 64 }
                     ]
                     [ Ui.simpleButton
-                        [ alignRight ]
-                        { label = text "Annuler"
+                        [ E.alignRight ]
+                        { label = E.text "Annuler"
                         , onPress = Just Shared.Close
                         }
                     , Ui.mainButton []
-                        { label = text "Confirmer"
+                        { label = E.text "Confirmer"
                         , onPress = Just Shared.SettingsConfirm
                         }
                     ]
                 ]
 
         DeleteCategory model ->
-            column
-                [ centerX
-                , centerY
-                , width (px 800)
-                , height shrink
-                , paddingXY 0 0
-                , spacing 0
-                , scrollbarY
-                , Background.color Style.bgWhite
-                , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 32, color = rgba 0 0 0 0.75 }
+            E.column
+                [ E.centerX
+                , E.centerY
+                , E.width (E.px 800)
+                , E.height E.shrink
+                , E.paddingXY 0 0
+                , E.spacing 0
+                , E.scrollbarY
+                , Background.color Ui.bgWhite
+                , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 32, color = E.rgba 0 0 0 0.75 }
                 ]
-                [ el
-                    [ paddingEach { top = 24, bottom = 24, right = 48, left = 48 }
-                    , Style.bigFont
+                [ E.el
+                    [ E.paddingEach { top = 24, bottom = 24, right = 48, left = 48 }
+                    , Ui.bigFont
                     ]
-                    (text ("Supprimer la catégorie \"" ++ model.name ++ "\" ?"))
-                , paragraph
-                    [ paddingEach { top = 24, bottom = 24, right = 96, left = 96 }
+                    (E.text ("Supprimer la catégorie \"" ++ model.name ++ "\" ?"))
+                , E.paragraph
+                    [ E.paddingEach { top = 24, bottom = 24, right = 96, left = 96 }
                     ]
-                    [ text "(les opérations associées à cette catégorie ne seront pas affectées)"
+                    [ E.text "Les opérations dans cette catégorie deviendront \"Sans Catégorie\""
                     ]
-                , Ui.row
-                    [ width fill
-                    , spacing 24
-                    , paddingEach { top = 64, bottom = 24, right = 64, left = 64 }
+                , E.row
+                    [ E.width E.fill
+                    , E.spacing 24
+                    , E.paddingEach { top = 64, bottom = 24, right = 64, left = 64 }
                     ]
                     [ Ui.simpleButton
-                        [ alignRight ]
-                        { label = text "Annuler"
+                        [ E.alignRight ]
+                        { label = E.text "Annuler"
                         , onPress = Just Shared.Close
                         }
                     , Ui.mainButton []
-                        { label = text "Supprimer"
+                        { label = E.text "Supprimer"
                         , onPress = Just Shared.SettingsConfirm
                         }
                     ]
                 ]
 
         RenameCategory model ->
-            column
-                [ centerX
-                , centerY
-                , width (px 800)
-                , height shrink
-                , paddingXY 0 0
-                , spacing 0
-                , scrollbarY
-                , Background.color Style.bgWhite
-                , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 32, color = rgba 0 0 0 0.75 }
+            E.column
+                [ E.centerX
+                , E.centerY
+                , E.width (E.px 800)
+                , E.height E.shrink
+                , E.paddingXY 0 0
+                , E.spacing 0
+                , E.scrollbarY
+                , Background.color Ui.bgWhite
+                , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 32, color = E.rgba 0 0 0 0.75 }
                 ]
-                [ el
-                    [ paddingEach { top = 24, bottom = 24, right = 48, left = 48 } ]
+                [ E.el
+                    [ E.paddingEach { top = 24, bottom = 24, right = 48, left = 48 } ]
                     (Input.text
                         [ Ui.onEnter Shared.SettingsConfirm
-                        , Style.bigFont
+                        , Ui.bigFont
                         ]
                         { label =
                             Input.labelAbove
-                                [ width shrink
-                                , Font.color Style.fgTitle
-                                , Style.normalFont
+                                [ E.width E.shrink
+                                , Font.color Ui.fgTitle
+                                , Ui.normalFont
                                 , Font.bold
-                                , paddingEach { top = 12, bottom = 0, left = 12, right = 0 }
-                                , pointer
+                                , E.paddingEach { top = 12, bottom = 0, left = 12, right = 0 }
+                                , E.pointer
                                 ]
-                                (text ("Renommer la catégorie \"" ++ model.name ++ "\":"))
+                                (E.text ("Renommer la catégorie \"" ++ model.name ++ "\":"))
                         , text = model.name
                         , onChange = \n -> Shared.SettingsChangeName n
                         , placeholder = Nothing
                         }
                     )
-                , Ui.row
-                    [ width fill
-                    , spacing 24
-                    , paddingEach { top = 64, bottom = 24, right = 64, left = 64 }
+                , E.row
+                    [ E.width E.fill
+                    , E.spacing 24
+                    , E.paddingEach { top = 64, bottom = 24, right = 64, left = 64 }
                     ]
                     [ Ui.simpleButton
-                        [ alignRight ]
-                        { label = text "Annuler"
+                        [ E.alignRight ]
+                        { label = E.text "Annuler"
                         , onPress = Just Shared.Close
                         }
                     , Ui.mainButton []
-                        { label = text "Confirmer"
+                        { label = E.text "Confirmer"
                         , onPress = Just Shared.SettingsConfirm
                         }
                     ]
                 ]
 
         DeleteAccount model ->
-            column
-                [ centerX
-                , centerY
-                , width (px 800)
-                , height shrink
-                , paddingXY 0 0
-                , spacing 0
-                , scrollbarY
-                , Background.color Style.bgWhite
-                , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 32, color = rgba 0 0 0 0.75 }
+            E.column
+                [ E.centerX
+                , E.centerY
+                , E.width (E.px 800)
+                , E.height E.shrink
+                , E.paddingXY 0 0
+                , E.spacing 0
+                , E.scrollbarY
+                , Background.color Ui.bgWhite
+                , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 32, color = E.rgba 0 0 0 0.75 }
                 ]
-                [ el
-                    [ paddingEach { top = 24, bottom = 24, right = 48, left = 48 }
-                    , Style.bigFont
+                [ E.el
+                    [ E.paddingEach { top = 24, bottom = 24, right = 48, left = 48 }
+                    , Ui.bigFont
                     ]
-                    (text ("Supprimer le compte \"" ++ model.name ++ "\" ?"))
+                    (E.text ("Supprimer le compte \"" ++ model.name ++ "\" ?"))
                 , Ui.warningParagraph
-                    [ paddingEach { top = 24, bottom = 24, right = 96, left = 96 }
+                    [ E.paddingEach { top = 24, bottom = 24, right = 96, left = 96 }
                     ]
-                    [ text "  Note: toutes les opérations associées à ce compte seront définitivement supprimées."
+                    [ E.text "  Toutes les opérations associées à ce compte seront "
+                    , E.el [ Font.bold ] (E.text "définitivement supprimées!")
                     ]
-                , Ui.row
-                    [ width fill
-                    , spacing 24
-                    , paddingEach { top = 64, bottom = 24, right = 64, left = 64 }
+                , E.row
+                    [ E.width E.fill
+                    , E.spacing 24
+                    , E.paddingEach { top = 64, bottom = 24, right = 64, left = 64 }
                     ]
                     [ Ui.simpleButton
-                        [ alignRight ]
-                        { label = text "Annuler"
+                        [ E.alignRight ]
+                        { label = E.text "Annuler"
                         , onPress = Just Shared.Close
                         }
                     , Ui.mainButton []
-                        { label = text "Supprimer"
+                        { label = E.text "Supprimer"
                         , onPress = Just Shared.SettingsConfirm
                         }
                     ]

@@ -24,7 +24,6 @@ import Ledger
 import Money
 import Ports
 import Shared
-import Style
 import Task
 import Ui
 
@@ -207,7 +206,7 @@ view shared dialog =
         , paddingXY 0 0
         , spacing 0
         , scrollbarY
-        , Background.color Style.bgWhite
+        , Background.color Ui.bgWhite
         , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 32, color = rgba 0 0 0 0.75 }
         ]
         [ titleRow dialog
@@ -218,7 +217,7 @@ view shared dialog =
 
           else
             none
-        , el [ height fill, Background.color Style.bgWhite ] none
+        , el [ height fill, Background.color Ui.bgWhite ] none
         , buttonsRow dialog
         ]
 
@@ -229,10 +228,10 @@ titleRow dialog =
         , width fill
         , paddingEach { top = 24, bottom = 24, right = 48, left = 48 }
         , spacing 12
-        , Background.color (Style.bgTransaction dialog.isExpense)
+        , Background.color (Ui.bgTransaction dialog.isExpense)
         ]
         [ el
-            [ width fill, Font.center, Style.bigFont, Font.bold, Font.color Style.bgWhite ]
+            [ width fill, Font.center, Ui.bigFont, Font.bold, Font.color Ui.bgWhite ]
             (text
                 (if dialog.isExpense then
                     "Dépense"
@@ -250,17 +249,17 @@ amountRow dialog =
         , width fill
         , paddingEach { top = 48, bottom = 24, right = 64, left = 64 }
         , spacing 12
-        , Background.color Style.bgWhite
+        , Background.color Ui.bgWhite
         , centerY
         ]
         [ Input.text
             [ Ui.onEnter Shared.DialogConfirm
-            , Style.bigFont
+            , Ui.bigFont
             , paddingXY 8 12
             , width (shrink |> minimum 220)
             , alignLeft
             , Border.width 1
-            , Border.color Style.bgDark
+            , Border.color Ui.bgDark
             , htmlAttribute <| HtmlAttr.id "dialog-amount"
             ]
             { label =
@@ -268,8 +267,8 @@ amountRow dialog =
                     [ width shrink
                     , alignLeft
                     , height fill
-                    , Font.color Style.fgTitle
-                    , Style.normalFont
+                    , Font.color Ui.fgTitle
+                    , Ui.normalFont
                     , Font.bold
                     , paddingEach { top = 0, bottom = 0, left = 12, right = 0 }
                     , pointer
@@ -280,8 +279,8 @@ amountRow dialog =
             , onChange = Shared.DialogAmount
             }
         , el
-            [ Style.bigFont
-            , Font.color Style.fgBlack
+            [ Ui.bigFont
+            , Font.color Ui.fgBlack
             , paddingXY 0 12
             , width shrink
             , alignLeft
@@ -293,11 +292,11 @@ amountRow dialog =
 
         {-
            , el
-               [ Style.fontIcons
+               [ Ui.fontIcons
                , alignBottom
                , paddingEach { top = 0, bottom = 4, left = 12, right = 0 }
                , Font.size 48
-               , Font.color Style.bgDark
+               , Font.color Ui.bgDark
                ]
                (if dialog.amountError /= "" then
                    text "\u{F071}"
@@ -306,7 +305,7 @@ amountRow dialog =
                    text ""
                )
            , paragraph
-               [ Style.smallFont
+               [ Ui.smallFont
                , width fill
                , height shrink
                , alignBottom
@@ -329,14 +328,14 @@ descriptionRow dialog =
         [ width fill
         , paddingEach { top = 24, bottom = 24, right = 64, left = 64 }
         , spacing 12
-        , Background.color Style.bgWhite
+        , Background.color Ui.bgWhite
         ]
         [ Input.multiline
             [ Ui.onEnter Shared.DialogConfirm
-            , Style.bigFont
+            , Ui.bigFont
             , paddingXY 8 12
             , Border.width 1
-            , Border.color Style.bgDark
+            , Border.color Ui.bgDark
             , width fill
             , scrollbarY
             ]
@@ -344,8 +343,8 @@ descriptionRow dialog =
                 Input.labelAbove
                     [ width shrink
                     , height fill
-                    , Font.color Style.fgTitle
-                    , Style.normalFont
+                    , Font.color Ui.fgTitle
+                    , Ui.normalFont
                     , Font.bold
                     , paddingEach { top = 0, bottom = 0, left = 12, right = 0 }
                     , pointer
@@ -387,13 +386,13 @@ categoryRow shared dialog =
         , height shrink
         , paddingEach { top = 24, bottom = 24, right = 64, left = 64 }
         , spacing 6
-        , Background.color Style.bgWhite
+        , Background.color Ui.bgWhite
         ]
         [ el
             [ width shrink
             , height fill
-            , Font.color Style.fgTitle
-            , Style.normalFont
+            , Font.color Ui.fgTitle
+            , Ui.normalFont
             , Font.bold
             , paddingEach { top = 0, bottom = 12, left = 12, right = 0 }
             , pointer
@@ -460,18 +459,18 @@ categoryRow shared dialog =
 
 radioButton attributes { onPress, label, active } =
     Input.button
-        ([ Style.normalFont
+        ([ Ui.normalFont
          , Border.rounded 4
          , paddingXY 24 8
          ]
             ++ (if active then
-                    [ Font.color Style.fgWhite
-                    , Background.color Style.bgTitle
+                    [ Font.color Ui.fgWhite
+                    , Background.color Ui.bgTitle
                     ]
 
                 else
-                    [ Font.color Style.fgTitle
-                    , Background.color Style.bgWhite
+                    [ Font.color Ui.fgTitle
+                    , Background.color Ui.bgWhite
                     ]
                )
             ++ attributes
@@ -486,7 +485,7 @@ buttonsRow dialog =
         [ width fill
         , spacing 24
         , paddingEach { top = 64, bottom = 24, left = 64, right = 64 }
-        , Background.color Style.bgWhite
+        , Background.color Ui.bgWhite
         ]
         [ Ui.simpleButton
             [ alignRight ]
@@ -499,12 +498,7 @@ buttonsRow dialog =
 
             Nothing ->
                 none
-        , Input.button
-            (Style.button shrink
-                Style.fgWhite
-                Style.bgTitle
-                Style.bgTitle
-            )
+        , Ui.simpleButton [ width shrink ]
             { label = text "OK"
             , onPress = Just Shared.DialogConfirm
             }
