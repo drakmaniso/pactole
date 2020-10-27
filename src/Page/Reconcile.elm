@@ -30,14 +30,8 @@ view shared =
             ]
         , page =
             [ Ui.dateNavigationBar shared
-            , E.column
-                [ E.width E.fill
-                , E.height E.fill
-                , E.scrollbarY
-                ]
-                [ viewReconciled shared
-                , viewTransactions shared
-                ]
+            , viewReconciled shared
+            , viewTransactions shared
             ]
         }
 
