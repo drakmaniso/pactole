@@ -165,7 +165,7 @@ msgConfirm shared model =
                     )
 
                 ( _, Nothing ) ->
-                    ( shared, model, Ports.error "invalid amount input" )
+                    ( shared, model, Cmd.none )
 
         _ ->
             ( shared, model, Ports.error "impossible Confirm message" )
