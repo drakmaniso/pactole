@@ -408,6 +408,14 @@ viewDialog variant =
                     (Input.text
                         [ Ui.onEnter Shared.SettingsConfirm
                         , Ui.bigFont
+                        , E.focused
+                            [ Border.shadow
+                                { offset = ( 0, 0 )
+                                , size = 4
+                                , blur = 0
+                                , color = Ui.fgFocus
+                                }
+                            ]
                         ]
                         { label =
                             Input.labelAbove

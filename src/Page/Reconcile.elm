@@ -38,7 +38,6 @@ view shared =
             E.column
                 [ E.width E.fill
                 , E.height E.fill
-                , E.clipX
                 , E.clipY
                 ]
                 [ Ui.dateNavigationBar shared
@@ -89,7 +88,6 @@ viewTransactions shared =
         [ E.padding 0
         , E.spacing 0
         , E.width E.fill
-        , E.height E.fill
         , E.scrollbarY
         , Border.widthEach { top = Ui.borderWidth, bottom = 0, right = 0, left = 0 }
         , Border.color Ui.fgDark

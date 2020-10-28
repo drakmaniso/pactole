@@ -240,7 +240,6 @@ pageWithSidePanel attributes { panel, page } =
         , E.el
             [ E.width (E.fillPortion 3)
             , E.height E.fill
-            , E.clipX
             , E.clipY
             , Border.widthEach { top = 0, left = borderWidth, bottom = 0, right = 0 }
             , Border.color bgDark
