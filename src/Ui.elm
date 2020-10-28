@@ -206,8 +206,8 @@ iconFont =
 pageWithSidePanel :
     List (E.Attribute msg)
     ->
-        { panel : List (E.Element msg)
-        , page : List (E.Element msg)
+        { panel : E.Element msg
+        , page : E.Element msg
         }
     -> E.Element msg
 pageWithSidePanel attributes { panel, page } =
@@ -222,16 +222,18 @@ pageWithSidePanel attributes { panel, page } =
          ]
             ++ attributes
         )
-        [ E.column
+        [ E.el
             [ E.width (E.fillPortion 1)
             , E.height E.fill
             , E.paddingXY 0 16
             , E.alignTop
             ]
             panel
-        , E.column
+        , E.el
             [ E.width (E.fillPortion 3)
             , E.height E.fill
+            , E.clipX
+            , E.clipY
             , Border.widthEach { top = 0, left = borderWidth, bottom = 0, right = 0 }
             , Border.color bgDark
             ]

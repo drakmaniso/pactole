@@ -23,16 +23,20 @@ view : Shared.Model -> E.Element Shared.Msg
 view model =
     Ui.pageWithSidePanel []
         { panel =
-            [ E.el
-                [ E.width E.fill, E.height (E.fillPortion 1) ]
-                (Summary.view model)
-            , E.el
-                [ E.width E.fill, E.height (E.fillPortion 2) ]
-                (dayView model)
-            ]
-        , page =
-            [ calendar model
-            ]
+            E.column
+                [ E.width E.fill
+                , E.height E.fill
+                , E.clipX
+                , E.clipY
+                ]
+                [ E.el
+                    [ E.width E.fill, E.height (E.fillPortion 1) ]
+                    (Summary.view model)
+                , E.el
+                    [ E.width E.fill, E.height (E.fillPortion 2) ]
+                    (dayView model)
+                ]
+        , page = calendar model
         }
 
 

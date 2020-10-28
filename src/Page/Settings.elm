@@ -121,7 +121,7 @@ view : Shared.Model -> E.Element Shared.Msg
 view shared =
     Ui.pageWithSidePanel []
         { panel =
-            [ E.row
+            E.row
                 [ E.centerX ]
                 [ Ui.simpleButton []
                     { onPress = Just (Shared.ChangePage Shared.MainPage)
@@ -132,9 +132,8 @@ view shared =
                             ]
                     }
                 ]
-            ]
         , page =
-            [ E.column
+            E.column
                 [ E.width E.fill
                 , E.height E.fill
                 , E.paddingXY 48 0
@@ -219,7 +218,6 @@ view shared =
                 , configCategoriesEnabled shared
                 , configCategories shared
                 ]
-            ]
         }
 
 

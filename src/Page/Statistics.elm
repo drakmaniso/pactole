@@ -19,45 +19,57 @@ view : Shared.Model -> E.Element Shared.Msg
 view shared =
     Ui.pageWithSidePanel []
         { panel =
-            [ E.el
-                [ E.width E.fill, E.height (E.fillPortion 1) ]
-                (Summary.view shared)
-            , E.el
-                [ E.width E.fill, E.height (E.fillPortion 2) ]
-                E.none
-            ]
-        , page =
-            [ Ui.dateNavigationBar shared
-            , viewMonthBalance shared
-            , E.column
+            E.column
                 [ E.width E.fill
                 , E.height E.fill
-                , E.scrollbarY
-                , Border.widthEach { top = Ui.borderWidth, bottom = 0, right = 0, left = 0 }
-                , Border.color Ui.fgDark
+                , E.clipX
+                , E.clipY
                 ]
-                [ E.el [ E.height E.fill ] E.none
-                , viewItem
-                    "Entrées d'argent: "
-                    (Ledger.getMonthlyIncome shared.ledger shared.date)
-                , if shared.settings.categoriesEnabled then
-                    viewCategories shared
-
-                  else
+                [ E.el
+                    [ E.width E.fill, E.height (E.fillPortion 1) ]
+                    (Summary.view shared)
+                , E.el
+                    [ E.width E.fill, E.height (E.fillPortion 2) ]
                     E.none
-                , if shared.settings.categoriesEnabled then
-                    viewItem
-                        "Sans catégorie: "
-                        (Ledger.getMonthlyCategory shared.ledger shared.date 0)
-
-                  else
-                    viewItem
-                        "Dépenses: "
-                        (Ledger.getMonthlyExpense shared.ledger shared.date)
-                , E.text " "
-                , E.el [ E.height E.fill ] E.none
                 ]
-            ]
+        , page =
+            E.column
+                [ E.width E.fill
+                , E.height E.fill
+                , E.clipX
+                , E.clipY
+                ]
+                [ Ui.dateNavigationBar shared
+                , viewMonthBalance shared
+                , E.column
+                    [ E.width E.fill
+                    , E.height E.fill
+                    , E.scrollbarY
+                    , Border.widthEach { top = Ui.borderWidth, bottom = 0, right = 0, left = 0 }
+                    , Border.color Ui.fgDark
+                    ]
+                    [ E.el [ E.height E.fill ] E.none
+                    , viewItem
+                        "Entrées d'argent: "
+                        (Ledger.getMonthlyIncome shared.ledger shared.date)
+                    , if shared.settings.categoriesEnabled then
+                        viewCategories shared
+
+                      else
+                        E.none
+                    , if shared.settings.categoriesEnabled then
+                        viewItem
+                            "Sans catégorie: "
+                            (Ledger.getMonthlyCategory shared.ledger shared.date 0)
+
+                      else
+                        viewItem
+                            "Dépenses: "
+                            (Ledger.getMonthlyExpense shared.ledger shared.date)
+                    , E.text " "
+                    , E.el [ E.height E.fill ] E.none
+                    ]
+                ]
         }
 
 

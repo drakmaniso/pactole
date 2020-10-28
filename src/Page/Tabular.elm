@@ -18,27 +18,32 @@ view : Shared.Model -> Element Shared.Msg
 view model =
     Ui.pageWithSidePanel []
         { panel =
-            [ el
-                [ width fill, height (fillPortion 1) ]
-                (Summary.view model)
-            , el
-                [ width fill, height (fillPortion 2) ]
-                none
-            ]
+            column
+                []
+                [ el
+                    [ width fill, height (fillPortion 1) ]
+                    (Summary.view model)
+                , el
+                    [ width fill, height (fillPortion 2) ]
+                    none
+                ]
         , page =
             transactionView model
         }
 
 
-transactionView : Shared.Model -> List (Element Shared.Msg)
+transactionView : Shared.Model -> Element Shared.Msg
 transactionView model =
-    Tuple.second
-        (List.foldl
-            makeRow
-            ( Nothing, [] )
-            (Ledger.getAllTransactions model.ledger)
+    column
+        []
+        (Tuple.second
+            (List.foldl
+                makeRow
+                ( Nothing, [] )
+                (Ledger.getAllTransactions model.ledger)
+            )
+            |> List.reverse
         )
-        |> List.reverse
 
 
 makeRow transaction ( prevDate, accum ) =

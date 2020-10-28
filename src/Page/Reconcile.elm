@@ -21,18 +21,30 @@ view : Shared.Model -> E.Element Shared.Msg
 view shared =
     Ui.pageWithSidePanel []
         { panel =
-            [ E.el
-                [ E.width E.fill, E.height (E.fillPortion 1) ]
-                (Summary.view shared)
-            , E.el
-                [ E.width E.fill, E.height (E.fillPortion 2) ]
-                E.none
-            ]
+            E.column
+                [ E.width E.fill
+                , E.height E.fill
+                , E.clipX
+                , E.clipY
+                ]
+                [ E.el
+                    [ E.width E.fill, E.height (E.fillPortion 1) ]
+                    (Summary.view shared)
+                , E.el
+                    [ E.width E.fill, E.height (E.fillPortion 2) ]
+                    E.none
+                ]
         , page =
-            [ Ui.dateNavigationBar shared
-            , viewReconciled shared
-            , viewTransactions shared
-            ]
+            E.column
+                [ E.width E.fill
+                , E.height E.fill
+                , E.clipX
+                , E.clipY
+                ]
+                [ Ui.dateNavigationBar shared
+                , viewReconciled shared
+                , viewTransactions shared
+                ]
         }
 
 
