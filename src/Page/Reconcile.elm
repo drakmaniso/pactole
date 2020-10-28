@@ -128,6 +128,7 @@ colReconciled transaction =
             , Border.width Ui.borderWidth
             , Border.color Ui.fgDark
             , E.padding 2
+            , E.mouseDown [ Background.color Ui.bgMouseDown ]
             ]
             { icon =
                 if transaction.checked then

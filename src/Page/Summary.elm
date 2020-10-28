@@ -30,21 +30,35 @@ view model =
                 E.none
             , Input.radioRow
                 [ E.width E.shrink
-                , E.focused
-                    [ Border.shadow
-                        { offset = ( 0, 0 )
-                        , size = 4
-                        , blur = 0
-                        , color = Ui.fgFocus
-                        }
-                    ]
+                , if model.showFocus then
+                    E.focused
+                        [ Border.shadow
+                            { offset = ( 0, 0 )
+                            , size = 4
+                            , blur = 0
+                            , color = Ui.fgFocus
+                            }
+                        ]
+
+                  else
+                    E.focused
+                        [ Border.shadow
+                            { offset = ( 0, 0 )
+                            , size = 0
+                            , blur = 0
+                            , color = Ui.transparent
+                            }
+                        ]
                 ]
                 { onChange = Shared.SelectAccount
                 , selected = model.account
                 , label = Input.labelHidden "Compte"
                 , options =
                     List.map
-                        (\account -> Input.optionWith account (accountOption account model))
+                        (\account ->
+                            Input.optionWith account
+                                (accountOption account model)
+                        )
                         (Dict.keys model.accounts)
                 }
             , E.el [ E.width E.fill, E.paddingXY 12 0 ]

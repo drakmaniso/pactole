@@ -16,6 +16,7 @@ module Shared exposing
     , msgSelectDate
     , msgSetSettings
     , msgShowAdvanced
+    , msgShowFocus
     , msgToday
     )
 
@@ -47,6 +48,7 @@ type alias Model =
     , account : Maybe Int
     , categories : Dict.Dict Int Category
     , showAdvanced : Bool
+    , showFocus : Bool
     , page : Page
     }
 
@@ -186,6 +188,7 @@ init flags =
       , account = Nothing
       , categories = Dict.empty
       , showAdvanced = False
+      , showFocus = False
       , page = MainPage
       }
     , cmd
@@ -259,6 +262,11 @@ msgCreateCategory name icon model =
 msgShowAdvanced : Bool -> Model -> ( Model, Cmd Msg )
 msgShowAdvanced show model =
     ( { model | showAdvanced = show }, Cmd.none )
+
+
+msgShowFocus : Bool -> Model -> ( Model, Cmd Msg )
+msgShowFocus show model =
+    ( { model | showFocus = show }, Cmd.none )
 
 
 msgChangePage : Page -> Model -> ( Model, Cmd Msg )

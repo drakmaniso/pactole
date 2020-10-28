@@ -33,6 +33,10 @@ notSelectable =
 -- COLORS
 
 
+transparent =
+    E.rgba 0 0 0 0
+
+
 warningColor =
     E.rgb 0.82 0.47 0.0
 
@@ -146,6 +150,10 @@ bgOddRow =
 
 bgMouseOver =
     E.rgb 0.85 0.92 0.98
+
+
+bgMouseDown =
+    E.rgb 0.7 0.7 0.65
 
 
 fgTitle =
@@ -423,10 +431,15 @@ dateNavigationBar model =
                 , Background.color bgWhite
                 , Border.color bgDark
                 , E.paddingEach { top = 4, bottom = 8, left = 0, right = 0 }
-                , E.focused
-                    [ Border.color fgFocus
-                    , Border.shadow { offset = ( 0, 0 ), size = 0, blur = 0, color = E.rgba 0 0 0 0 }
-                    ]
+                , if model.showFocus then
+                    E.focused
+                        [ Border.color fgFocus
+                        , Border.shadow { offset = ( 0, 0 ), size = 0, blur = 0, color = E.rgba 0 0 0 0 }
+                        ]
+
+                  else
+                    E.focused []
+                , E.mouseDown [ Background.color bgMouseDown ]
                 ]
                 { label =
                     E.row
@@ -469,10 +482,15 @@ dateNavigationBar model =
                     , Background.color bgWhite
                     , Border.color bgDark
                     , E.paddingEach { top = 4, bottom = 8, left = 0, right = 0 }
-                    , E.focused
-                        [ Border.color fgFocus
-                        , Border.shadow { offset = ( 0, 0 ), size = 0, blur = 0, color = E.rgba 0 0 0 0 }
-                        ]
+                    , if model.showFocus then
+                        E.focused
+                            [ Border.color fgFocus
+                            , Border.shadow { offset = ( 0, 0 ), size = 0, blur = 0, color = E.rgba 0 0 0 0 }
+                            ]
+
+                      else
+                        E.focused []
+                    , E.mouseDown [ Background.color bgMouseDown ]
                     ]
                     { label =
                         E.row
@@ -597,6 +615,7 @@ simpleButton attributes { onPress, label } =
          , E.paddingXY 24 8
 
          --, E.mouseOver [ Background.color bgMouseOver ]
+         , E.mouseDown [ Background.color bgMouseDown ]
          ]
             ++ attributes
         )
@@ -619,6 +638,7 @@ mainButton attributes { onPress, label } =
          , Border.width borderWidth
          , Border.color bgTitle
          , E.paddingXY 24 8
+         , E.mouseDown [ Background.color bgMouseDown ]
          ]
             ++ attributes
         )
@@ -643,6 +663,7 @@ coloredButton attributes { onPress, label, color } =
          , E.paddingXY 24 8
 
          --, E.mouseOver [ Background.color bgMouseOver ]
+         , E.mouseDown [ Background.color bgMouseDown ]
          ]
             ++ attributes
         )

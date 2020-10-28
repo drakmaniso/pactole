@@ -260,6 +260,14 @@ amountRow dialog =
             , alignLeft
             , Border.width 1
             , Border.color Ui.bgDark
+            , focused
+                [ Border.shadow
+                    { offset = ( 0, 0 )
+                    , size = 4
+                    , blur = 0
+                    , color = Ui.fgFocus
+                    }
+                ]
             , htmlAttribute <| HtmlAttr.id "dialog-amount"
             ]
             { label =
@@ -336,6 +344,14 @@ descriptionRow dialog =
             , paddingXY 8 12
             , Border.width 1
             , Border.color Ui.bgDark
+            , focused
+                [ Border.shadow
+                    { offset = ( 0, 0 )
+                    , size = 4
+                    , blur = 0
+                    , color = Ui.fgFocus
+                    }
+                ]
             , width fill
             , scrollbarY
             ]
@@ -498,7 +514,7 @@ buttonsRow dialog =
 
             Nothing ->
                 none
-        , Ui.simpleButton [ width shrink ]
+        , Ui.mainButton [ width shrink ]
             { label = text "OK"
             , onPress = Just Shared.DialogConfirm
             }

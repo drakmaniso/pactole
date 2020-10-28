@@ -141,6 +141,9 @@ update msg model =
             if string == "Alt" || string == "Control" || string == "Shift" then
                 sharedMsg (Shared.msgShowAdvanced True)
 
+            else if string == "Tab" then
+                sharedMsg (Shared.msgShowFocus True)
+
             else
                 ( model, Cmd.none )
 
@@ -265,12 +268,21 @@ view model =
                     { borderColor = Nothing
                     , backgroundColor = Nothing
                     , shadow =
-                        Just
-                            { color = Ui.fgFocus
-                            , offset = ( 0, 0 )
-                            , blur = 0
-                            , size = 4
-                            }
+                        if model.shared.showFocus then
+                            Just
+                                { color = Ui.fgFocus
+                                , offset = ( 0, 0 )
+                                , blur = 0
+                                , size = 4
+                                }
+
+                        else
+                            Just
+                                { color = E.rgba 0 0 0 0
+                                , offset = ( 0, 0 )
+                                , blur = 0
+                                , size = 0
+                                }
                     }
                 ]
             }
