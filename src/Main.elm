@@ -127,6 +127,12 @@ update msg model =
         Shared.ChangePage page ->
             sharedMsg (Shared.msgChangePage page)
 
+        Shared.AttemptSettings ->
+            sharedMsg Shared.msgAttemptSettings
+
+        Shared.AttemptTimeout ->
+            sharedMsg Shared.msgAttemptTimeout
+
         Shared.Close ->
             --TODO: delegate to Dialog?
             ( { model | dialog = Nothing, settingsDialog = Nothing }, Cmd.none )

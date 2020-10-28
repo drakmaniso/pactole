@@ -695,48 +695,6 @@ iconButton attributes { onPress, icon } =
         }
 
 
-settingsButton :
-    List (E.Attribute msg)
-    -> { onPress : Maybe msg, enabled : Bool }
-    -> E.Element msg
-settingsButton attributes { onPress, enabled } =
-    if enabled then
-        Input.button
-            ([ Background.color bgPage
-             , normalFont
-             , Font.color fgTitle
-             , Font.center
-             , roundCorners
-             , E.padding 2
-             , E.width (E.px 36)
-             , E.height (E.px 36)
-             ]
-                ++ attributes
-            )
-            { onPress = onPress
-            , label = E.el [ iconFont, normalFont, E.centerX ] (E.text "\u{F013}")
-            }
-
-    else
-        Input.button
-            ([ Background.color bgPage
-             , normalFont
-             , Font.color fgTitle
-             , Font.center
-             , roundCorners
-             , E.padding 2
-             , E.width (E.px 36)
-             , E.height (E.px 36)
-             ]
-                ++ attributes
-            )
-            { onPress = Nothing
-            , label =
-                E.el [ iconFont, normalFont, E.centerX, Font.color bgLight ]
-                    (E.text "\u{F013}")
-            }
-
-
 
 -- ATTRIBUTES
 

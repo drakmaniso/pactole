@@ -62,12 +62,7 @@ view model =
                         (Dict.keys model.accounts)
                 }
             , E.el [ E.width E.fill, E.paddingXY 12 0 ]
-                (Ui.settingsButton
-                    [ E.alignRight ]
-                    { onPress = Just (Shared.ChangePage Shared.SettingsPage)
-                    , enabled = model.showAdvanced
-                    }
-                )
+                (settingsButton model)
             ]
         , E.row [ E.height (E.fillPortion 1) ] [ E.none ]
         , E.el
@@ -214,3 +209,39 @@ buttonRow model =
             E.none
         , E.el [ E.width E.fill ] E.none
         ]
+
+
+settingsButton model =
+    if model.showAdvanced then
+        Input.button
+            [ Background.color Ui.bgPage
+            , Ui.normalFont
+            , Font.color Ui.fgTitle
+            , Font.center
+            , Ui.roundCorners
+            , E.padding 2
+            , E.width (E.px 36)
+            , E.height (E.px 36)
+            , E.alignRight
+            ]
+            { onPress = Just (Shared.ChangePage Shared.SettingsPage)
+            , label = E.el [ Ui.iconFont, Ui.normalFont, E.centerX ] (E.text "\u{F013}")
+            }
+
+    else
+        Input.button
+            [ Background.color Ui.bgPage
+            , Ui.normalFont
+            , Font.color Ui.fgTitle
+            , Font.center
+            , Ui.roundCorners
+            , E.padding 2
+            , E.width (E.px 36)
+            , E.height (E.px 36)
+            , E.alignRight
+            ]
+            { onPress = Just Shared.AttemptSettings
+            , label =
+                E.el [ Ui.iconFont, Ui.normalFont, E.centerX, Font.color Ui.bgLight ]
+                    (E.text "\u{F013}")
+            }
