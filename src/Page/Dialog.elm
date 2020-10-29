@@ -201,7 +201,8 @@ view shared dialog =
     column
         [ centerX
         , centerY
-        , width (px 800)
+
+        --, width (px 800)
         , height shrink
         , paddingXY 0 0
         , spacing 0
@@ -434,6 +435,7 @@ categoryRow shared dialog =
                                 Just ( k, v ) ->
                                     radioButton []
                                         { onPress = Just (Shared.DialogCategory k)
+                                        , icon = v.icon
                                         , label = v.name
                                         , active = k == dialog.category
                                         }
@@ -449,6 +451,7 @@ categoryRow shared dialog =
                                 Just ( k, v ) ->
                                     radioButton []
                                         { onPress = Just (Shared.DialogCategory k)
+                                        , icon = v.icon
                                         , label = v.name
                                         , active = k == dialog.category
                                         }
@@ -464,6 +467,7 @@ categoryRow shared dialog =
                                 Just ( k, v ) ->
                                     radioButton []
                                         { onPress = Just (Shared.DialogCategory k)
+                                        , icon = v.icon
                                         , label = v.name
                                         , active = k == dialog.category
                                         }
@@ -473,7 +477,7 @@ categoryRow shared dialog =
         ]
 
 
-radioButton attributes { onPress, label, active } =
+radioButton attributes { onPress, icon, label, active } =
     Input.button
         ([ Ui.normalFont
          , Border.rounded 4
@@ -492,7 +496,12 @@ radioButton attributes { onPress, label, active } =
             ++ attributes
         )
         { onPress = onPress
-        , label = text label
+        , label =
+            row []
+                [ el [ Ui.iconFont ] (text "\u{F015}")
+                , text " "
+                , text label
+                ]
         }
 
 

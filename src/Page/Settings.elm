@@ -22,6 +22,69 @@ import Shared
 import Ui
 
 
+iconChoice =
+    [ "\u{F128}"
+    , "\u{F015}"
+    , "\u{F0F1}"
+    , "\u{F2E7}"
+    , "\u{F553}"
+    , "\u{F1B9}"
+    , "\u{F11B}"
+    , "\u{F017}"
+    , "\u{F018}"
+    , "\u{F01C}"
+    , "\u{F024}"
+    , "\u{F025}"
+    , "\u{F02B}"
+    , "\u{F02D}"
+    , "\u{F030}"
+    , "\u{F03E}"
+    , "\u{F043}"
+    , "\u{F06B}"
+    , "\u{F06C}"
+    , "\u{F06D}"
+    , "\u{F06E}"
+    , "\u{F072}"
+    , "\u{F07A}"
+    , "\u{F083}"
+    , "\u{F084}"
+    , "\u{F08D}"
+    , "\u{F091}"
+    , "\u{F094}"
+    , "\u{F095}"
+    , "\u{F0A1}"
+    , "\u{F0A3}"
+    , "\u{F0AC}"
+    , "\u{F0AD}"
+    , "\u{F0B1}"
+    , "\u{F0C0}"
+    , "\u{F0C2}"
+    , "\u{F0C3}"
+    , "\u{F0C4}"
+    , "\u{F0C5}"
+    , "\u{F0C6}"
+    , "\u{F128}"
+
+    --
+    , "\u{F0C0}"
+    , "\u{F0C1}"
+    , "\u{F0C2}"
+    , "\u{F0C3}"
+    , "\u{F0C4}"
+    , "\u{F0C5}"
+    , "\u{F0C6}"
+    , "\u{F0C7}"
+    , "\u{F0C8}"
+    , "\u{F0C9}"
+    , "\u{F0CA}"
+    , "\u{F0CB}"
+    , "\u{F0CC}"
+    , "\u{F0CD}"
+    , "\u{F0CE}"
+    , "\u{F0CF}"
+    ]
+
+
 
 -- MODEL
 
@@ -520,6 +583,40 @@ viewDialog variant =
                         , onChange = \n -> Shared.SettingsChangeName n
                         , placeholder = Nothing
                         }
+                    )
+                , E.el
+                    [ E.paddingEach { top = 24, bottom = 24, right = 48, left = 48 } ]
+                    (E.paragraph [ Ui.iconFont, Ui.biggerFont ]
+                        [ E.text "\u{F015} "
+                        , E.text "\u{F0F1} "
+                        , E.text "\u{F2E7} "
+                        , E.text "\u{F553} "
+                        , E.text "\u{F1B9} "
+                        , E.text "\u{F11B} "
+                        , E.text "\u{F128} "
+                        ]
+                    )
+                , E.wrappedRow
+                    [ E.paddingEach { top = 24, bottom = 24, right = 48, left = 48 }
+                    , E.spacing 48
+                    ]
+                    {- label =
+                       Input.labelAbove
+                           [ E.width E.shrink
+                           , Font.color Ui.fgTitle
+                           , Ui.normalFont
+                           , Font.bold
+                           , E.paddingEach { top = 12, bottom = 0, left = 12, right = 0 }
+                           , E.pointer
+                           ]
+                           (E.text "Choisir une icône: ")
+                    -}
+                    (List.map
+                        (\icon ->
+                            E.el [ Ui.iconFont, Ui.biggerFont, Font.color Ui.fgTitle ]
+                                (E.text icon)
+                        )
+                        iconChoice
                     )
                 , E.row
                     [ E.width E.fill
