@@ -231,6 +231,7 @@ type Msg
     | OpenRenameCategory Int
     | OpenDeleteCategory Int
     | SettingsChangeName String
+    | SettingsChangeIcon String
     | SetSettings Settings
     | SettingsConfirm
     | CheckTransaction Ledger.Transaction Bool

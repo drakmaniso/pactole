@@ -1,5 +1,6 @@
 module Page.Settings exposing
     ( Dialog
+    , msgChangeIcon
     , msgChangeName
     , msgConfirm
     , openDeleteAccount
@@ -64,24 +65,6 @@ iconChoice =
     , "\u{F0C5}"
     , "\u{F0C6}"
     , "\u{F128}"
-
-    --
-    , "\u{F0C0}"
-    , "\u{F0C1}"
-    , "\u{F0C2}"
-    , "\u{F0C3}"
-    , "\u{F0C4}"
-    , "\u{F0C5}"
-    , "\u{F0C6}"
-    , "\u{F0C7}"
-    , "\u{F0C8}"
-    , "\u{F0C9}"
-    , "\u{F0CA}"
-    , "\u{F0CB}"
-    , "\u{F0CC}"
-    , "\u{F0CD}"
-    , "\u{F0CE}"
-    , "\u{F0CF}"
     ]
 
 
@@ -146,6 +129,23 @@ msgChangeName name variant =
 
         Just (RenameCategory model) ->
             ( Just (RenameCategory { model | name = name })
+            , Cmd.none
+            )
+
+        Just other ->
+            ( Just other
+            , Ports.error "updateName: not in Rename Dialog"
+            )
+
+        Nothing ->
+            ( Nothing, Cmd.none )
+
+
+msgChangeIcon : String -> Maybe Dialog -> ( Maybe Dialog, Cmd Shared.Msg )
+msgChangeIcon icon variant =
+    case variant of
+        Just (RenameCategory model) ->
+            ( Just (RenameCategory { model | icon = icon })
             , Cmd.none
             )
 
@@ -556,10 +556,10 @@ viewDialog variant =
                 [ E.centerX
                 , E.centerY
                 , E.width (E.px 800)
-                , E.height E.shrink
+                , E.height E.fill
                 , E.paddingXY 0 0
                 , E.spacing 0
-                , E.scrollbarY
+                , E.clip
                 , Background.color Ui.bgWhite
                 , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 32, color = E.rgba 0 0 0 0.75 }
                 ]
@@ -585,38 +585,35 @@ viewDialog variant =
                         }
                     )
                 , E.el
-                    [ E.paddingEach { top = 24, bottom = 24, right = 48, left = 48 } ]
-                    (E.paragraph [ Ui.iconFont, Ui.biggerFont ]
-                        [ E.text "\u{F015} "
-                        , E.text "\u{F0F1} "
-                        , E.text "\u{F2E7} "
-                        , E.text "\u{F553} "
-                        , E.text "\u{F1B9} "
-                        , E.text "\u{F11B} "
-                        , E.text "\u{F128} "
-                        ]
-                    )
-                , E.wrappedRow
-                    [ E.paddingEach { top = 24, bottom = 24, right = 48, left = 48 }
-                    , E.spacing 48
+                    [ E.height (E.fill |> E.minimum 200)
+                    , E.scrollbarY
                     ]
-                    {- label =
-                       Input.labelAbove
-                           [ E.width E.shrink
-                           , Font.color Ui.fgTitle
-                           , Ui.normalFont
-                           , Font.bold
-                           , E.paddingEach { top = 12, bottom = 0, left = 12, right = 0 }
-                           , E.pointer
-                           ]
-                           (E.text "Choisir une icône: ")
-                    -}
-                    (List.map
-                        (\icon ->
-                            E.el [ Ui.iconFont, Ui.biggerFont, Font.color Ui.fgTitle ]
-                                (E.text icon)
+                    (E.wrappedRow
+                        [ E.paddingEach { top = 24, bottom = 24, right = 48, left = 48 }
+                        , E.spacing 6
+                        ]
+                        {- label =
+                           Input.labelAbove
+                               [ E.width E.shrink
+                               , Font.color Ui.fgTitle
+                               , Ui.normalFont
+                               , Font.bold
+                               , E.paddingEach { top = 12, bottom = 0, left = 12, right = 0 }
+                               , E.pointer
+                               ]
+                               (E.text "Choisir une icône: ")
+                        -}
+                        (List.map
+                            (\icon ->
+                                Ui.radioButton []
+                                    { onPress = Just (Shared.SettingsChangeIcon icon)
+                                    , icon = icon
+                                    , label = ""
+                                    , active = model.icon == icon
+                                    }
+                            )
+                            iconChoice
                         )
-                        iconChoice
                     )
                 , E.row
                     [ E.width E.fill

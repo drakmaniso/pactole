@@ -218,6 +218,9 @@ update msg model =
         Shared.SettingsChangeName name ->
             settingsMsg (Settings.msgChangeName name)
 
+        Shared.SettingsChangeIcon icon ->
+            settingsMsg (Settings.msgChangeIcon icon)
+
         Shared.SetSettings settings ->
             sharedMsg (Shared.msgSetSettings settings)
 
@@ -340,7 +343,11 @@ view model =
                             ]
 
                         Nothing ->
-                            [ E.width E.fill, E.height E.fill, E.scrollbarY ]
+                            [ E.width E.fill
+                            , E.height E.fill
+                            , E.scrollbarY
+                            , E.inFront (E.column [] [])
+                            ]
             )
             (case model.shared.page of
                 Shared.SettingsPage ->

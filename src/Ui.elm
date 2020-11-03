@@ -282,6 +282,7 @@ radioRowOption value element =
                  , E.paddingXY 16 7
                  , Border.rounded 3
                  , bigFont
+                 , E.mouseDown [ Background.color bgMouseDown ]
                  ]
                     ++ (case state of
                             Input.Idle ->
@@ -687,11 +688,40 @@ iconButton attributes { onPress, icon } =
          , E.height (E.px 48)
 
          --, E.mouseOver [ Background.color bgMouseOver ]
+         , E.mouseDown [ Background.color bgMouseDown ]
          ]
             ++ attributes
         )
         { onPress = onPress
         , label = icon
+        }
+
+
+radioButton attributes { onPress, icon, label, active } =
+    Input.button
+        ([ normalFont
+         , Border.rounded 4
+         , E.paddingXY 24 8
+         ]
+            ++ (if active then
+                    [ Font.color fgWhite
+                    , Background.color bgTitle
+                    ]
+
+                else
+                    [ Font.color fgTitle
+                    , Background.color bgWhite
+                    ]
+               )
+            ++ attributes
+        )
+        { onPress = onPress
+        , label =
+            E.row []
+                [ E.el [ iconFont ] (E.text icon)
+                , E.text " "
+                , E.text label
+                ]
         }
 
 

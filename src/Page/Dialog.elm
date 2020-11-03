@@ -433,7 +433,7 @@ categoryRow shared dialog =
                                     none
 
                                 Just ( k, v ) ->
-                                    radioButton []
+                                    Ui.radioButton []
                                         { onPress = Just (Shared.DialogCategory k)
                                         , icon = v.icon
                                         , label = v.name
@@ -449,7 +449,7 @@ categoryRow shared dialog =
                                     none
 
                                 Just ( k, v ) ->
-                                    radioButton []
+                                    Ui.radioButton []
                                         { onPress = Just (Shared.DialogCategory k)
                                         , icon = v.icon
                                         , label = v.name
@@ -465,7 +465,7 @@ categoryRow shared dialog =
                                     none
 
                                 Just ( k, v ) ->
-                                    radioButton []
+                                    Ui.radioButton []
                                         { onPress = Just (Shared.DialogCategory k)
                                         , icon = v.icon
                                         , label = v.name
@@ -475,34 +475,6 @@ categoryRow shared dialog =
                 ]
             }
         ]
-
-
-radioButton attributes { onPress, icon, label, active } =
-    Input.button
-        ([ Ui.normalFont
-         , Border.rounded 4
-         , paddingXY 24 8
-         ]
-            ++ (if active then
-                    [ Font.color Ui.fgWhite
-                    , Background.color Ui.bgTitle
-                    ]
-
-                else
-                    [ Font.color Ui.fgTitle
-                    , Background.color Ui.bgWhite
-                    ]
-               )
-            ++ attributes
-        )
-        { onPress = onPress
-        , label =
-            row []
-                [ el [ Ui.iconFont ] (text "\u{F015}")
-                , text " "
-                , text label
-                ]
-        }
 
 
 buttonsRow dialog =
