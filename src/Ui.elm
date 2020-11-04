@@ -398,8 +398,7 @@ pageTitle attributes element =
 warningParagraph : List (E.Attribute msg) -> List (E.Element msg) -> E.Element msg
 warningParagraph attributes elements =
     E.row
-        ([ Font.color warningColor
-         , normalFont
+        ([ normalFont
          , Font.color fgBlack
          , E.centerY
          , E.spacing 12

@@ -404,10 +404,17 @@ configCategories shared =
                 "Catégories (désactivées):"
         , content =
             E.column [ E.spacing 24 ]
-                [ E.table [ E.spacing 6 ]
+                [ E.table [ E.spacing 12 ]
                     { data = Dict.toList shared.categories
                     , columns =
                         [ { header = E.none
+                          , width = E.shrink
+                          , view =
+                                \a ->
+                                    E.el [ E.centerY, Ui.iconFont ]
+                                        (E.text (Tuple.second a).icon)
+                          }
+                        , { header = E.none
                           , width = E.fill
                           , view = \a -> E.el [ E.centerY ] (E.text (Tuple.second a).name)
                           }

@@ -201,8 +201,7 @@ view shared dialog =
     column
         [ centerX
         , centerY
-
-        --, width (px 800)
+        , width (px 960)
         , height shrink
         , paddingXY 0 0
         , spacing 0
@@ -247,6 +246,7 @@ titleRow dialog =
 amountRow dialog =
     row
         [ alignLeft
+        , centerY
         , width fill
         , paddingEach { top = 48, bottom = 24, right = 64, left = 64 }
         , spacing 12
@@ -298,37 +298,13 @@ amountRow dialog =
             , Border.color (rgba 0 0 0 0)
             ]
             (text "€")
-
-        {-
-           , el
-               [ Ui.fontIcons
-               , alignBottom
-               , paddingEach { top = 0, bottom = 4, left = 12, right = 0 }
-               , Font.size 48
-               , Font.color Ui.bgDark
-               ]
-               (if dialog.amountError /= "" then
-                   text "\u{F071}"
-
-                else
-                   text ""
-               )
-           , paragraph
-               [ Ui.smallFont
-               , width fill
-               , height shrink
-               , alignBottom
-               , paddingEach { top = 8, bottom = 8, left = 0, right = 0 }
-               , Font.alignLeft
-               , Font.color (rgb 0 0 0)
-               ]
-               [ text dialog.amountError ]
-        -}
         , if dialog.amountError /= "" then
-            Ui.warningParagraph [ width fill ] [ text dialog.amountError ]
+            Ui.warningParagraph
+                [ width fill ]
+                [ text dialog.amountError ]
 
           else
-            none
+            el [] none
         ]
 
 

@@ -6,7 +6,7 @@ module Shared exposing
     , Page(..)
     , Settings
     , accountName
-    , categoryName
+    , category
     , init
     , msgAttemptSettings
     , msgAttemptTimeout
@@ -133,9 +133,9 @@ accountName accountID model =
         (Dict.get accountID model.accounts)
 
 
-categoryName categoryID model =
+category categoryID model =
     Maybe.withDefault
-        ("CATEGORIE_" ++ String.fromInt categoryID)
+        { name = "CATEGORIE_" ++ String.fromInt categoryID, icon = "" }
         (Dict.get categoryID model.categories)
 
 
