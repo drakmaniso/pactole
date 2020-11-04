@@ -24,46 +24,85 @@ import Ui
 
 
 iconChoice =
-    [ "\u{F128}"
-    , "\u{F015}"
-    , "\u{F0F1}"
+    [ ""
+    , "\u{F6BE}" -- cat
+    , "\u{F520}" -- crow
+    , "\u{F6D3}" -- dog
+    , "\u{F578}" -- fish
+    , "\u{F1B0}" -- paw
+    , "\u{F001}" -- music
+    , "\u{F55E}" -- bus-alt
+    , "\u{F1B9}" -- car
+    , "\u{F5E4}" -- car-side
+
+    --, "\u{F8FF}" -- caravan
+    , "\u{F52F}" -- gas-pump
+    , "\u{F21C}" -- motorcycle
+    , "\u{F0D1}" -- truck
+    , "\u{F722}" -- tractor
+    , "\u{F5D1}" -- apple-alt
+    , "\u{F6BB}" -- campground
+    , "\u{F44E}" -- football-ball
+    , "\u{F6EC}" -- hiking
+    , "\u{F6FC}" -- mountain
+    , "\u{F1BB}" -- tree
+    , "\u{F015}" -- home
+    , "\u{F19C}" -- university
+    , "\u{F1FD}" -- birthday-cake
+    , "\u{F06B}" -- gift
+    , "\u{F095}" -- phone
+    , "\u{F77C}" -- baby
+    , "\u{F77D}" -- baby-carriage
+    , "\u{F553}" -- tshirt
+    , "\u{F696}" -- socks
+    , "\u{F303}" -- pencil-alt
+    , "\u{F53F}" -- palette
+    , "\u{F206}" -- bicycle
+    , "\u{F787}" -- carrot
+    , "\u{F522}" -- dice
+    , "\u{F11B}" -- gamepad
+    , "\u{F71E}" -- toilet-paper
+    , "\u{F0F9}" -- ambulance
+    , "\u{F0F1}" -- stethoscope
+    , "\u{F0F0}" -- user-md
+    , "\u{F193}" -- wheelchair
+    , "\u{F084}" -- key
+    , "\u{F48D}" -- smoking
+    , "\u{F5C4}" -- swimmer
+    , "\u{F5CA}" -- umbrella-beach
+    , "\u{F4B8}" -- couch
+
+    --, "\u{E005}" -- faucet
+    , "\u{F0EB}" -- lightbulb
+    , "\u{F1E6}" -- plug
+    , "\u{F2CC}" -- shower
+    , "\u{F083}" -- camera-retro
+    , "\u{F008}" -- film
+    , "\u{F0AD}" -- wrench
+    , "\u{F13D}" -- anchor
+    , "\u{F7A6}" -- guitar
+    , "\u{F1E3}" -- futbol
+    , "\u{F1FC}" -- paint-brush
+    , "\u{F290}" -- shopping-bag
+    , "\u{F291}" -- shopping-basket
+    , "\u{F07A}" -- shopping-cart
+    , "\u{F7D9}" -- tools
+    , "\u{F3A5}" -- gem
+    , "\u{F135}" -- rocket
+    , "\u{F004}" -- heart
+    , "\u{F005}" -- star
+    , "\u{F0C0}" -- users
+    , "\u{F45D}" -- table-tennis
+    , "\u{F108}" -- dekstop
+    , "\u{F11C}" -- keyboard
+
+    --
     , "\u{F2E7}"
-    , "\u{F553}"
-    , "\u{F1B9}"
-    , "\u{F11B}"
-    , "\u{F017}"
-    , "\u{F018}"
-    , "\u{F01C}"
-    , "\u{F024}"
-    , "\u{F025}"
-    , "\u{F02B}"
     , "\u{F02D}"
     , "\u{F030}"
     , "\u{F03E}"
-    , "\u{F043}"
-    , "\u{F06B}"
-    , "\u{F06C}"
-    , "\u{F06D}"
-    , "\u{F06E}"
     , "\u{F072}"
-    , "\u{F07A}"
-    , "\u{F083}"
-    , "\u{F084}"
-    , "\u{F08D}"
     , "\u{F091}"
-    , "\u{F094}"
-    , "\u{F095}"
-    , "\u{F0A1}"
-    , "\u{F0A3}"
-    , "\u{F0AC}"
-    , "\u{F0AD}"
-    , "\u{F0B1}"
-    , "\u{F0C0}"
-    , "\u{F0C2}"
-    , "\u{F0C3}"
-    , "\u{F0C4}"
-    , "\u{F0C5}"
-    , "\u{F0C6}"
     , "\u{F128}"
     ]
 
@@ -612,7 +651,10 @@ viewDialog variant =
                         -}
                         (List.map
                             (\icon ->
-                                Ui.radioButton []
+                                Ui.radioButton
+                                    [ E.width (E.shrink |> E.minimum 80)
+                                    , Font.center
+                                    ]
                                     { onPress = Just (Shared.SettingsChangeIcon icon)
                                     , icon = icon
                                     , label = ""
