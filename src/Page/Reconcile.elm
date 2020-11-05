@@ -21,24 +21,29 @@ view : Shared.Model -> E.Element Shared.Msg
 view shared =
     Ui.pageWithSidePanel []
         { panel =
-            [ E.el
-                [ E.width E.fill, E.height (E.fillPortion 1) ]
-                (Summary.view shared)
-            , E.el
-                [ E.width E.fill, E.height (E.fillPortion 2) ]
-                E.none
-            ]
-        , page =
-            [ Ui.dateNavigationBar shared
-            , E.column
+            E.column
                 [ E.width E.fill
                 , E.height E.fill
-                , E.scrollbarY
+                , E.clipX
+                , E.clipY
                 ]
-                [ viewReconciled shared
+                [ E.el
+                    [ E.width E.fill, E.height (E.fillPortion 1) ]
+                    (Summary.view shared)
+                , E.el
+                    [ E.width E.fill, E.height (E.fillPortion 2) ]
+                    E.none
+                ]
+        , page =
+            E.column
+                [ E.width E.fill
+                , E.height E.fill
+                , E.clipY
+                ]
+                [ Ui.dateNavigationBar shared
+                , viewReconciled shared
                 , viewTransactions shared
                 ]
-            ]
         }
 
 
@@ -122,6 +127,7 @@ colReconciled transaction =
             , Border.width Ui.borderWidth
             , Border.color Ui.fgDark
             , E.padding 2
+            , E.mouseDown [ Background.color Ui.bgMouseDown ]
             ]
             { icon =
                 if transaction.checked then

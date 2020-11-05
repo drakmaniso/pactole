@@ -1,5 +1,6 @@
 module Page.Settings exposing
     ( Dialog
+    , msgChangeIcon
     , msgChangeName
     , msgConfirm
     , openDeleteAccount
@@ -20,6 +21,90 @@ import Html.Attributes
 import Ports
 import Shared
 import Ui
+
+
+iconChoice =
+    [ ""
+    , "\u{F6BE}" -- cat
+    , "\u{F520}" -- crow
+    , "\u{F6D3}" -- dog
+    , "\u{F578}" -- fish
+    , "\u{F1B0}" -- paw
+    , "\u{F001}" -- music
+    , "\u{F55E}" -- bus-alt
+    , "\u{F1B9}" -- car
+    , "\u{F5E4}" -- car-side
+
+    --, "\u{F8FF}" -- caravan
+    , "\u{F52F}" -- gas-pump
+    , "\u{F21C}" -- motorcycle
+    , "\u{F0D1}" -- truck
+    , "\u{F722}" -- tractor
+    , "\u{F5D1}" -- apple-alt
+    , "\u{F6BB}" -- campground
+    , "\u{F44E}" -- football-ball
+    , "\u{F6EC}" -- hiking
+    , "\u{F6FC}" -- mountain
+    , "\u{F1BB}" -- tree
+    , "\u{F015}" -- home
+    , "\u{F19C}" -- university
+    , "\u{F1FD}" -- birthday-cake
+    , "\u{F06B}" -- gift
+    , "\u{F095}" -- phone
+    , "\u{F77C}" -- baby
+    , "\u{F77D}" -- baby-carriage
+    , "\u{F553}" -- tshirt
+    , "\u{F696}" -- socks
+    , "\u{F303}" -- pencil-alt
+    , "\u{F53F}" -- palette
+    , "\u{F206}" -- bicycle
+    , "\u{F787}" -- carrot
+    , "\u{F522}" -- dice
+    , "\u{F11B}" -- gamepad
+    , "\u{F71E}" -- toilet-paper
+    , "\u{F0F9}" -- ambulance
+    , "\u{F0F1}" -- stethoscope
+    , "\u{F0F0}" -- user-md
+    , "\u{F193}" -- wheelchair
+    , "\u{F084}" -- key
+    , "\u{F48D}" -- smoking
+    , "\u{F5C4}" -- swimmer
+    , "\u{F5CA}" -- umbrella-beach
+    , "\u{F4B8}" -- couch
+
+    --, "\u{E005}" -- faucet
+    , "\u{F0EB}" -- lightbulb
+    , "\u{F1E6}" -- plug
+    , "\u{F2CC}" -- shower
+    , "\u{F083}" -- camera-retro
+    , "\u{F008}" -- film
+    , "\u{F0AD}" -- wrench
+    , "\u{F13D}" -- anchor
+    , "\u{F7A6}" -- guitar
+    , "\u{F1E3}" -- futbol
+    , "\u{F1FC}" -- paint-brush
+    , "\u{F290}" -- shopping-bag
+    , "\u{F291}" -- shopping-basket
+    , "\u{F07A}" -- shopping-cart
+    , "\u{F7D9}" -- tools
+    , "\u{F3A5}" -- gem
+    , "\u{F135}" -- rocket
+    , "\u{F004}" -- heart
+    , "\u{F005}" -- star
+    , "\u{F0C0}" -- users
+    , "\u{F45D}" -- table-tennis
+    , "\u{F108}" -- dekstop
+    , "\u{F11C}" -- keyboard
+
+    --
+    , "\u{F2E7}"
+    , "\u{F02D}"
+    , "\u{F030}"
+    , "\u{F03E}"
+    , "\u{F072}"
+    , "\u{F091}"
+    , "\u{F128}"
+    ]
 
 
 
@@ -95,6 +180,23 @@ msgChangeName name variant =
             ( Nothing, Cmd.none )
 
 
+msgChangeIcon : String -> Maybe Dialog -> ( Maybe Dialog, Cmd Shared.Msg )
+msgChangeIcon icon variant =
+    case variant of
+        Just (RenameCategory model) ->
+            ( Just (RenameCategory { model | icon = icon })
+            , Cmd.none
+            )
+
+        Just other ->
+            ( Just other
+            , Ports.error "updateName: not in Rename Dialog"
+            )
+
+        Nothing ->
+            ( Nothing, Cmd.none )
+
+
 msgConfirm variant =
     case variant of
         Just (RenameAccount model) ->
@@ -121,7 +223,7 @@ view : Shared.Model -> E.Element Shared.Msg
 view shared =
     Ui.pageWithSidePanel []
         { panel =
-            [ E.row
+            E.row
                 [ E.centerX ]
                 [ Ui.simpleButton []
                     { onPress = Just (Shared.ChangePage Shared.MainPage)
@@ -132,9 +234,8 @@ view shared =
                             ]
                     }
                 ]
-            ]
         , page =
-            [ E.column
+            E.column
                 [ E.width E.fill
                 , E.height E.fill
                 , E.paddingXY 48 0
@@ -219,7 +320,6 @@ view shared =
                 , configCategoriesEnabled shared
                 , configCategories shared
                 ]
-            ]
         }
 
 
@@ -343,10 +443,17 @@ configCategories shared =
                 "Catégories (désactivées):"
         , content =
             E.column [ E.spacing 24 ]
-                [ E.table [ E.spacing 6 ]
+                [ E.table [ E.spacing 12 ]
                     { data = Dict.toList shared.categories
                     , columns =
                         [ { header = E.none
+                          , width = E.shrink
+                          , view =
+                                \a ->
+                                    E.el [ E.centerY, Ui.iconFont ]
+                                        (E.text (Tuple.second a).icon)
+                          }
+                        , { header = E.none
                           , width = E.fill
                           , view = \a -> E.el [ E.centerY ] (E.text (Tuple.second a).name)
                           }
@@ -410,6 +517,14 @@ viewDialog variant =
                     (Input.text
                         [ Ui.onEnter Shared.SettingsConfirm
                         , Ui.bigFont
+                        , E.focused
+                            [ Border.shadow
+                                { offset = ( 0, 0 )
+                                , size = 4
+                                , blur = 0
+                                , color = Ui.fgFocus
+                                }
+                            ]
                         ]
                         { label =
                             Input.labelAbove
@@ -487,10 +602,10 @@ viewDialog variant =
                 [ E.centerX
                 , E.centerY
                 , E.width (E.px 800)
-                , E.height E.shrink
+                , E.height E.fill
                 , E.paddingXY 0 0
                 , E.spacing 0
-                , E.scrollbarY
+                , E.clip
                 , Background.color Ui.bgWhite
                 , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 32, color = E.rgba 0 0 0 0.75 }
                 ]
@@ -514,6 +629,40 @@ viewDialog variant =
                         , onChange = \n -> Shared.SettingsChangeName n
                         , placeholder = Nothing
                         }
+                    )
+                , E.el
+                    [ E.height (E.fill |> E.minimum 200)
+                    , E.scrollbarY
+                    ]
+                    (E.wrappedRow
+                        [ E.paddingEach { top = 24, bottom = 24, right = 48, left = 48 }
+                        , E.spacing 6
+                        ]
+                        {- label =
+                           Input.labelAbove
+                               [ E.width E.shrink
+                               , Font.color Ui.fgTitle
+                               , Ui.normalFont
+                               , Font.bold
+                               , E.paddingEach { top = 12, bottom = 0, left = 12, right = 0 }
+                               , E.pointer
+                               ]
+                               (E.text "Choisir une icône: ")
+                        -}
+                        (List.map
+                            (\icon ->
+                                Ui.radioButton
+                                    [ E.width (E.shrink |> E.minimum 80)
+                                    , Font.center
+                                    ]
+                                    { onPress = Just (Shared.SettingsChangeIcon icon)
+                                    , icon = icon
+                                    , label = ""
+                                    , active = model.icon == icon
+                                    }
+                            )
+                            iconChoice
+                        )
                     )
                 , E.row
                     [ E.width E.fill

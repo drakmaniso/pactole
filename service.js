@@ -278,13 +278,13 @@ function openDB() {
       // Categories Store
       {
         const os = db.createObjectStore('categories', {keyPath: 'id', autoIncrement: true})
-        os.add({name: 'Maison', icon: ''})
-        os.add({name: 'Santé', icon: ''})
-        os.add({name: 'Nourriture', icon: ''})
-        os.add({name: 'Vêtements', icon: ''})
-        os.add({name: 'Transports', icon: ''})
-        os.add({name: 'Loisirs', icon: ''})
-        os.add({name: 'Banque', icon: ''})
+        os.add({name: 'Maison', icon: '\u{F015}'})
+        os.add({name: 'Santé', icon: '\u{F0F1}'})
+        os.add({name: 'Nourriture', icon: '\u{F2E7}'})
+        os.add({name: 'Vêtements', icon: '\u{F553}'})
+        os.add({name: 'Transports', icon: '\u{F5E4}'})
+        os.add({name: 'Loisirs', icon: '\u{F5CA}'})
+        os.add({name: 'Banque', icon: '\u{F19C}'})
       }
 
       // Ledger Store

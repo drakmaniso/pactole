@@ -6,8 +6,10 @@ module Shared exposing
     , Page(..)
     , Settings
     , accountName
-    , categoryName
+    , category
     , init
+    , msgAttemptSettings
+    , msgAttemptTimeout
     , msgChangePage
     , msgCreateAccount
     , msgCreateCategory
@@ -16,6 +18,7 @@ module Shared exposing
     , msgSelectDate
     , msgSetSettings
     , msgShowAdvanced
+    , msgShowFocus
     , msgToday
     )
 
@@ -28,6 +31,7 @@ import Json.Decode as Decode
 import Ledger
 import Money
 import Ports
+import Process
 import Task
 import Time
 import Tuple
@@ -47,6 +51,8 @@ type alias Model =
     , account : Maybe Int
     , categories : Dict.Dict Int Category
     , showAdvanced : Bool
+    , advancedCounter : Int
+    , showFocus : Bool
     , page : Page
     }
 
@@ -127,9 +133,9 @@ accountName accountID model =
         (Dict.get accountID model.accounts)
 
 
-categoryName categoryID model =
+category categoryID model =
     Maybe.withDefault
-        ("CATEGORIE_" ++ String.fromInt categoryID)
+        { name = "CATEGORIE_" ++ String.fromInt categoryID, icon = "" }
         (Dict.get categoryID model.categories)
 
 
@@ -186,6 +192,8 @@ init flags =
       , account = Nothing
       , categories = Dict.empty
       , showAdvanced = False
+      , advancedCounter = 0
+      , showFocus = False
       , page = MainPage
       }
     , cmd
@@ -202,6 +210,8 @@ type Msg
     | UrlChanged Url.Url
     | FromService ( String, Decode.Value )
     | ChangePage Page
+    | AttemptSettings
+    | AttemptTimeout
     | Close
     | SelectDate Date.Date
     | SelectAccount Int
@@ -221,6 +231,7 @@ type Msg
     | OpenRenameCategory Int
     | OpenDeleteCategory Int
     | SettingsChangeName String
+    | SettingsChangeIcon String
     | SetSettings Settings
     | SettingsConfirm
     | CheckTransaction Ledger.Transaction Bool
@@ -261,10 +272,48 @@ msgShowAdvanced show model =
     ( { model | showAdvanced = show }, Cmd.none )
 
 
+msgShowFocus : Bool -> Model -> ( Model, Cmd Msg )
+msgShowFocus show model =
+    ( { model | showFocus = show }, Cmd.none )
+
+
 msgChangePage : Page -> Model -> ( Model, Cmd Msg )
 msgChangePage page model =
     ( { model | page = page }
     , Task.attempt (\_ -> NoOp) (Dom.blur "unfocus-on-page-change")
+    )
+
+
+msgAttemptSettings : Model -> ( Model, Cmd Msg )
+msgAttemptSettings model =
+    ( { model
+        | advancedCounter =
+            if model.advancedCounter > 3 then
+                3
+
+            else
+                model.advancedCounter + 1
+        , showAdvanced = model.advancedCounter >= 3
+      }
+    , Task.perform
+        (\_ -> AttemptTimeout)
+        (Process.sleep 3000.0
+            |> Task.andThen (\_ -> Task.succeed ())
+        )
+    )
+
+
+msgAttemptTimeout model =
+    ( { model
+        | advancedCounter =
+            if model.advancedCounter <= 0 then
+                0
+
+            else
+                model.advancedCounter - 1
+        , showAdvanced = model.advancedCounter <= 0
+      }
+    , Cmd.none
     )
 
 

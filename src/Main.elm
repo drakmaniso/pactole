@@ -127,6 +127,12 @@ update msg model =
         Shared.ChangePage page ->
             sharedMsg (Shared.msgChangePage page)
 
+        Shared.AttemptSettings ->
+            sharedMsg Shared.msgAttemptSettings
+
+        Shared.AttemptTimeout ->
+            sharedMsg Shared.msgAttemptTimeout
+
         Shared.Close ->
             --TODO: delegate to Dialog?
             ( { model | dialog = Nothing, settingsDialog = Nothing }, Cmd.none )
@@ -140,6 +146,9 @@ update msg model =
         Shared.KeyDown string ->
             if string == "Alt" || string == "Control" || string == "Shift" then
                 sharedMsg (Shared.msgShowAdvanced True)
+
+            else if string == "Tab" then
+                sharedMsg (Shared.msgShowFocus True)
 
             else
                 ( model, Cmd.none )
@@ -209,6 +218,9 @@ update msg model =
         Shared.SettingsChangeName name ->
             settingsMsg (Settings.msgChangeName name)
 
+        Shared.SettingsChangeIcon icon ->
+            settingsMsg (Settings.msgChangeIcon icon)
+
         Shared.SetSettings settings ->
             sharedMsg (Shared.msgSetSettings settings)
 
@@ -265,12 +277,21 @@ view model =
                     { borderColor = Nothing
                     , backgroundColor = Nothing
                     , shadow =
-                        Just
-                            { color = Ui.fgFocus
-                            , offset = ( 0, 0 )
-                            , blur = 0
-                            , size = 4
-                            }
+                        if model.shared.showFocus then
+                            Just
+                                { color = Ui.fgFocus
+                                , offset = ( 0, 0 )
+                                , blur = 0
+                                , size = 4
+                                }
+
+                        else
+                            Just
+                                { color = E.rgba 0 0 0 0
+                                , offset = ( 0, 0 )
+                                , blur = 0
+                                , size = 0
+                                }
                     }
                 ]
             }
@@ -322,7 +343,11 @@ view model =
                             ]
 
                         Nothing ->
-                            [ E.width E.fill, E.height E.fill, E.scrollbarY ]
+                            [ E.width E.fill
+                            , E.height E.fill
+                            , E.scrollbarY
+                            , E.inFront (E.column [] [])
+                            ]
             )
             (case model.shared.page of
                 Shared.SettingsPage ->

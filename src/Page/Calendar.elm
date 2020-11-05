@@ -23,16 +23,20 @@ view : Shared.Model -> E.Element Shared.Msg
 view model =
     Ui.pageWithSidePanel []
         { panel =
-            [ E.el
-                [ E.width E.fill, E.height (E.fillPortion 1) ]
-                (Summary.view model)
-            , E.el
-                [ E.width E.fill, E.height (E.fillPortion 2) ]
-                (dayView model)
-            ]
-        , page =
-            [ calendar model
-            ]
+            E.column
+                [ E.width E.fill
+                , E.height E.fill
+                , E.clipX
+                , E.clipY
+                ]
+                [ E.el
+                    [ E.width E.fill, E.height (E.fillPortion 1) ]
+                    (Summary.view model)
+                , E.el
+                    [ E.width E.fill, E.height (E.fillPortion 2) ]
+                    (dayView model)
+                ]
+        , page = calendar model
         }
 
 
@@ -339,6 +343,9 @@ dayContentFor model day =
             let
                 parts =
                     Money.toStrings transaction.amount
+
+                category =
+                    Shared.category transaction.category model
             in
             E.el
                 [ E.width E.fill
@@ -351,7 +358,7 @@ dayContentFor model day =
                 ]
                 (Input.button
                     [ E.width E.fill
-                    , E.paddingEach { top = 8, bottom = 8, left = 0, right = 0 }
+                    , E.paddingEach { top = 8, bottom = 8, left = 12, right = 12 }
                     , Border.width 4
                     , Border.color (E.rgba 0 0 0 0)
                     , E.focused [ Border.color Ui.fgFocus ]
@@ -362,7 +369,7 @@ dayContentFor model day =
                             [ E.width E.fill
                             ]
                             [ E.el
-                                [ E.width (E.fillPortion 33)
+                                [ E.width (E.fillPortion 3)
                                 , E.height E.fill
                                 ]
                                 (E.column
@@ -372,12 +379,25 @@ dayContentFor model day =
                                     ]
                                 )
                             , E.el
-                                [ E.width (E.fillPortion 66)
+                                [ E.width (E.fillPortion 6)
                                 , E.alignTop
                                 , Ui.normalFont
                                 , Font.color (E.rgb 0 0 0)
                                 ]
                                 (E.paragraph [] [ E.text (Ledger.getDescriptionDisplay transaction) ])
+                            , E.el
+                                [ E.width (E.fillPortion 1)
+                                , E.alignTop
+                                , Font.color (E.rgb 0 0 0)
+                                , Ui.iconFont
+                                , Font.center
+                                ]
+                                (if model.settings.categoriesEnabled then
+                                    E.text category.icon
+
+                                 else
+                                    E.none
+                                )
                             ]
                     }
                 )

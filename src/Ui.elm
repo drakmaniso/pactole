@@ -33,6 +33,10 @@ notSelectable =
 -- COLORS
 
 
+transparent =
+    E.rgba 0 0 0 0
+
+
 warningColor =
     E.rgb 0.82 0.47 0.0
 
@@ -148,6 +152,10 @@ bgMouseOver =
     E.rgb 0.85 0.92 0.98
 
 
+bgMouseDown =
+    E.rgb 0.7 0.7 0.65
+
+
 fgTitle =
     bgTitle
 
@@ -206,8 +214,8 @@ iconFont =
 pageWithSidePanel :
     List (E.Attribute msg)
     ->
-        { panel : List (E.Element msg)
-        , page : List (E.Element msg)
+        { panel : E.Element msg
+        , page : E.Element msg
         }
     -> E.Element msg
 pageWithSidePanel attributes { panel, page } =
@@ -222,16 +230,17 @@ pageWithSidePanel attributes { panel, page } =
          ]
             ++ attributes
         )
-        [ E.column
+        [ E.el
             [ E.width (E.fillPortion 1)
             , E.height E.fill
             , E.paddingXY 0 16
             , E.alignTop
             ]
             panel
-        , E.column
+        , E.el
             [ E.width (E.fillPortion 3)
             , E.height E.fill
+            , E.clipY
             , Border.widthEach { top = 0, left = borderWidth, bottom = 0, right = 0 }
             , Border.color bgDark
             ]
@@ -273,6 +282,7 @@ radioRowOption value element =
                  , E.paddingXY 16 7
                  , Border.rounded 3
                  , bigFont
+                 , E.mouseDown [ Background.color bgMouseDown ]
                  ]
                     ++ (case state of
                             Input.Idle ->
@@ -388,8 +398,7 @@ pageTitle attributes element =
 warningParagraph : List (E.Attribute msg) -> List (E.Element msg) -> E.Element msg
 warningParagraph attributes elements =
     E.row
-        ([ Font.color warningColor
-         , normalFont
+        ([ normalFont
          , Font.color fgBlack
          , E.centerY
          , E.spacing 12
@@ -421,10 +430,15 @@ dateNavigationBar model =
                 , Background.color bgWhite
                 , Border.color bgDark
                 , E.paddingEach { top = 4, bottom = 8, left = 0, right = 0 }
-                , E.focused
-                    [ Border.color fgFocus
-                    , Border.shadow { offset = ( 0, 0 ), size = 0, blur = 0, color = E.rgba 0 0 0 0 }
-                    ]
+                , if model.showFocus then
+                    E.focused
+                        [ Border.color fgFocus
+                        , Border.shadow { offset = ( 0, 0 ), size = 0, blur = 0, color = E.rgba 0 0 0 0 }
+                        ]
+
+                  else
+                    E.focused []
+                , E.mouseDown [ Background.color bgMouseDown ]
                 ]
                 { label =
                     E.row
@@ -467,10 +481,15 @@ dateNavigationBar model =
                     , Background.color bgWhite
                     , Border.color bgDark
                     , E.paddingEach { top = 4, bottom = 8, left = 0, right = 0 }
-                    , E.focused
-                        [ Border.color fgFocus
-                        , Border.shadow { offset = ( 0, 0 ), size = 0, blur = 0, color = E.rgba 0 0 0 0 }
-                        ]
+                    , if model.showFocus then
+                        E.focused
+                            [ Border.color fgFocus
+                            , Border.shadow { offset = ( 0, 0 ), size = 0, blur = 0, color = E.rgba 0 0 0 0 }
+                            ]
+
+                      else
+                        E.focused []
+                    , E.mouseDown [ Background.color bgMouseDown ]
                     ]
                     { label =
                         E.row
@@ -595,6 +614,7 @@ simpleButton attributes { onPress, label } =
          , E.paddingXY 24 8
 
          --, E.mouseOver [ Background.color bgMouseOver ]
+         , E.mouseDown [ Background.color bgMouseDown ]
          ]
             ++ attributes
         )
@@ -617,6 +637,7 @@ mainButton attributes { onPress, label } =
          , Border.width borderWidth
          , Border.color bgTitle
          , E.paddingXY 24 8
+         , E.mouseDown [ Background.color bgMouseDown ]
          ]
             ++ attributes
         )
@@ -641,6 +662,7 @@ coloredButton attributes { onPress, label, color } =
          , E.paddingXY 24 8
 
          --, E.mouseOver [ Background.color bgMouseOver ]
+         , E.mouseDown [ Background.color bgMouseDown ]
          ]
             ++ attributes
         )
@@ -665,6 +687,7 @@ iconButton attributes { onPress, icon } =
          , E.height (E.px 48)
 
          --, E.mouseOver [ Background.color bgMouseOver ]
+         , E.mouseDown [ Background.color bgMouseDown ]
          ]
             ++ attributes
         )
@@ -673,46 +696,32 @@ iconButton attributes { onPress, icon } =
         }
 
 
-settingsButton :
-    List (E.Attribute msg)
-    -> { onPress : Maybe msg, enabled : Bool }
-    -> E.Element msg
-settingsButton attributes { onPress, enabled } =
-    if enabled then
-        Input.button
-            ([ Background.color bgPage
-             , normalFont
-             , Font.color fgTitle
-             , Font.center
-             , roundCorners
-             , E.padding 2
-             , E.width (E.px 36)
-             , E.height (E.px 36)
-             ]
-                ++ attributes
-            )
-            { onPress = onPress
-            , label = E.el [ iconFont, normalFont, E.centerX ] (E.text "\u{F013}")
-            }
+radioButton attributes { onPress, icon, label, active } =
+    Input.button
+        ([ normalFont
+         , Border.rounded 4
+         , E.paddingXY 24 8
+         ]
+            ++ (if active then
+                    [ Font.color fgWhite
+                    , Background.color bgTitle
+                    ]
 
-    else
-        Input.button
-            ([ Background.color bgPage
-             , normalFont
-             , Font.color fgTitle
-             , Font.center
-             , roundCorners
-             , E.padding 2
-             , E.width (E.px 36)
-             , E.height (E.px 36)
-             ]
-                ++ attributes
-            )
-            { onPress = Nothing
-            , label =
-                E.el [ iconFont, normalFont, E.centerX, Font.color bgLight ]
-                    (E.text "\u{F013}")
-            }
+                else
+                    [ Font.color fgTitle
+                    , Background.color bgWhite
+                    ]
+               )
+            ++ attributes
+        )
+        { onPress = onPress
+        , label =
+            E.row []
+                [ E.el [ iconFont ] (E.text icon)
+                , E.text " "
+                , E.text label
+                ]
+        }
 
 
 

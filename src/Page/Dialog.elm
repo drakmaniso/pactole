@@ -165,7 +165,7 @@ msgConfirm shared model =
                     )
 
                 ( _, Nothing ) ->
-                    ( shared, model, Ports.error "invalid amount input" )
+                    ( shared, model, Cmd.none )
 
         _ ->
             ( shared, model, Ports.error "impossible Confirm message" )
@@ -201,7 +201,7 @@ view shared dialog =
     column
         [ centerX
         , centerY
-        , width (px 800)
+        , width (px 960)
         , height shrink
         , paddingXY 0 0
         , spacing 0
@@ -246,6 +246,7 @@ titleRow dialog =
 amountRow dialog =
     row
         [ alignLeft
+        , centerY
         , width fill
         , paddingEach { top = 48, bottom = 24, right = 64, left = 64 }
         , spacing 12
@@ -260,6 +261,14 @@ amountRow dialog =
             , alignLeft
             , Border.width 1
             , Border.color Ui.bgDark
+            , focused
+                [ Border.shadow
+                    { offset = ( 0, 0 )
+                    , size = 4
+                    , blur = 0
+                    , color = Ui.fgFocus
+                    }
+                ]
             , htmlAttribute <| HtmlAttr.id "dialog-amount"
             ]
             { label =
@@ -289,37 +298,13 @@ amountRow dialog =
             , Border.color (rgba 0 0 0 0)
             ]
             (text "€")
-
-        {-
-           , el
-               [ Ui.fontIcons
-               , alignBottom
-               , paddingEach { top = 0, bottom = 4, left = 12, right = 0 }
-               , Font.size 48
-               , Font.color Ui.bgDark
-               ]
-               (if dialog.amountError /= "" then
-                   text "\u{F071}"
-
-                else
-                   text ""
-               )
-           , paragraph
-               [ Ui.smallFont
-               , width fill
-               , height shrink
-               , alignBottom
-               , paddingEach { top = 8, bottom = 8, left = 0, right = 0 }
-               , Font.alignLeft
-               , Font.color (rgb 0 0 0)
-               ]
-               [ text dialog.amountError ]
-        -}
         , if dialog.amountError /= "" then
-            Ui.warningParagraph [ width fill ] [ text dialog.amountError ]
+            Ui.warningParagraph
+                [ width fill ]
+                [ text dialog.amountError ]
 
           else
-            none
+            el [] none
         ]
 
 
@@ -336,6 +321,14 @@ descriptionRow dialog =
             , paddingXY 8 12
             , Border.width 1
             , Border.color Ui.bgDark
+            , focused
+                [ Border.shadow
+                    { offset = ( 0, 0 )
+                    , size = 4
+                    , blur = 0
+                    , color = Ui.fgFocus
+                    }
+                ]
             , width fill
             , scrollbarY
             ]
@@ -416,8 +409,9 @@ categoryRow shared dialog =
                                     none
 
                                 Just ( k, v ) ->
-                                    radioButton []
+                                    Ui.radioButton []
                                         { onPress = Just (Shared.DialogCategory k)
+                                        , icon = v.icon
                                         , label = v.name
                                         , active = k == dialog.category
                                         }
@@ -431,8 +425,9 @@ categoryRow shared dialog =
                                     none
 
                                 Just ( k, v ) ->
-                                    radioButton []
+                                    Ui.radioButton []
                                         { onPress = Just (Shared.DialogCategory k)
+                                        , icon = v.icon
                                         , label = v.name
                                         , active = k == dialog.category
                                         }
@@ -446,8 +441,9 @@ categoryRow shared dialog =
                                     none
 
                                 Just ( k, v ) ->
-                                    radioButton []
+                                    Ui.radioButton []
                                         { onPress = Just (Shared.DialogCategory k)
+                                        , icon = v.icon
                                         , label = v.name
                                         , active = k == dialog.category
                                         }
@@ -455,29 +451,6 @@ categoryRow shared dialog =
                 ]
             }
         ]
-
-
-radioButton attributes { onPress, label, active } =
-    Input.button
-        ([ Ui.normalFont
-         , Border.rounded 4
-         , paddingXY 24 8
-         ]
-            ++ (if active then
-                    [ Font.color Ui.fgWhite
-                    , Background.color Ui.bgTitle
-                    ]
-
-                else
-                    [ Font.color Ui.fgTitle
-                    , Background.color Ui.bgWhite
-                    ]
-               )
-            ++ attributes
-        )
-        { onPress = onPress
-        , label = text label
-        }
 
 
 buttonsRow dialog =
@@ -498,7 +471,7 @@ buttonsRow dialog =
 
             Nothing ->
                 none
-        , Ui.simpleButton [ width shrink ]
+        , Ui.mainButton [ width shrink ]
             { label = text "OK"
             , onPress = Just Shared.DialogConfirm
             }
