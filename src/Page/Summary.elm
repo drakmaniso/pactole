@@ -26,8 +26,8 @@ view model =
         [ E.row
             [ E.width E.fill
             ]
-            [ E.el [ E.width E.fill ]
-                E.none
+            [ E.el [ E.paddingXY 6 0, E.width E.fill ]
+                (settingsButton model)
             , Input.radioRow
                 [ E.width E.shrink
                 , if model.showFocus then
@@ -61,8 +61,8 @@ view model =
                         )
                         (Dict.keys model.accounts)
                 }
-            , E.el [ E.width E.fill, E.paddingXY 12 0 ]
-                (settingsButton model)
+            , E.el [ E.width E.fill ]
+                E.none
             ]
         , E.row [ E.height (E.fillPortion 1) ] [ E.none ]
         , E.el
@@ -222,7 +222,7 @@ settingsButton model =
             , E.padding 2
             , E.width (E.px 36)
             , E.height (E.px 36)
-            , E.alignRight
+            , E.alignLeft
             ]
             { onPress = Just (Shared.ChangePage Shared.SettingsPage)
             , label = E.el [ Ui.iconFont, Ui.normalFont, E.centerX ] (E.text "\u{F013}")
@@ -238,7 +238,7 @@ settingsButton model =
             , E.padding 2
             , E.width (E.px 36)
             , E.height (E.px 36)
-            , E.alignRight
+            , E.alignLeft
             ]
             { onPress = Just Shared.AttemptSettings
             , label =
