@@ -1,5 +1,7 @@
 module Ui exposing (..)
 
+--TODO: remove dependency to module Msg
+
 import Date
 import Element as E
 import Element.Background as Background
@@ -10,7 +12,7 @@ import Html.Attributes
 import Html.Events as Events
 import Json.Decode as Decode
 import Money
-import Shared
+import Msg
 
 
 
@@ -447,7 +449,7 @@ dateNavigationBar model =
                             (E.text (Date.getMonthName (Date.decrementMonth model.date)))
                         , E.el [ E.centerX, iconFont, normalFont ] (E.text "  \u{F060}  ")
                         ]
-                , onPress = Just (Shared.SelectDate (Date.decrementMonth model.date))
+                , onPress = Just (Msg.SelectDate (Date.decrementMonth model.date))
                 }
             )
         , E.el
@@ -498,7 +500,7 @@ dateNavigationBar model =
                             , E.el [ bigFont, Font.color fgTitle, E.centerX ]
                                 (E.text (Date.getMonthName (Date.incrementMonth model.date)))
                             ]
-                    , onPress = Just (Shared.SelectDate (Date.incrementMonth model.date))
+                    , onPress = Just (Msg.SelectDate (Date.incrementMonth model.date))
                     }
 
              else

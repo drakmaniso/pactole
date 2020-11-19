@@ -8,13 +8,14 @@ import Element.Font as Font
 import Element.Input as Input
 import Html.Attributes
 import Ledger
+import Model
 import Money
+import Msg
 import Page.Summary as Summary
-import Shared
 import Ui
 
 
-view : Shared.Model -> Element Shared.Msg
+view : Model.Model -> Element Msg.Msg
 view model =
     Ui.pageWithSidePanel []
         { panel =
@@ -32,7 +33,7 @@ view model =
         }
 
 
-transactionView : Shared.Model -> Element Shared.Msg
+transactionView : Model.Model -> Element Msg.Msg
 transactionView model =
     column
         []

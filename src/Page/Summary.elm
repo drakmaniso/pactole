@@ -8,8 +8,9 @@ import Element.Font as Font
 import Element.Input as Input
 import Html.Attributes as HtmlAttr
 import Ledger
+import Model
 import Money
-import Shared
+import Msg
 import Ui
 
 
@@ -50,7 +51,7 @@ view model =
                             }
                         ]
                 ]
-                { onChange = Shared.SelectAccount
+                { onChange = Msg.SelectAccount
                 , selected = model.account
                 , label = Input.labelHidden "Compte"
                 , options =
@@ -85,7 +86,7 @@ view model =
         ]
 
 
-accountOption : Int -> Shared.Model -> Input.OptionState -> E.Element msg
+accountOption : Int -> Model.Model -> Input.OptionState -> E.Element msg
 accountOption accountID shared state =
     E.el
         ([ E.centerX
@@ -104,7 +105,7 @@ accountOption accountID shared state =
                         [ Font.color (E.rgb 1 1 1), Background.color Ui.bgTitle ]
                )
         )
-        (E.text (Shared.accountName accountID shared))
+        (E.text (Model.accountName accountID shared))
 
 
 balanceRow model =
@@ -168,34 +169,34 @@ buttonRow model =
     E.row
         [ E.width E.fill, E.spacing 12 ]
         [ E.el [ E.width E.fill ] E.none
-        , if model.page == Shared.MainPage && model.settings.summaryEnabled then
+        , if model.page == Model.MainPage && model.settings.summaryEnabled then
             Ui.simpleButton
                 [ E.width (E.fillPortion 3)
                 , E.htmlAttribute <| HtmlAttr.id "unfocus-on-page-change"
                 ]
-                { onPress = Just (Shared.ChangePage Shared.StatsPage)
+                { onPress = Just (Msg.ChangePage Model.StatsPage)
                 , label = E.text "Bilan"
                 }
 
           else
             E.none
-        , if model.page == Shared.MainPage && model.settings.reconciliationEnabled then
+        , if model.page == Model.MainPage && model.settings.reconciliationEnabled then
             Ui.simpleButton
                 [ E.width (E.fillPortion 3)
                 , E.htmlAttribute <| HtmlAttr.id "unfocus-on-page-change"
                 ]
-                { onPress = Just (Shared.ChangePage Shared.ReconcilePage)
+                { onPress = Just (Msg.ChangePage Model.ReconcilePage)
                 , label = E.text "Pointer"
                 }
 
           else
             E.none
-        , if model.page /= Shared.MainPage then
+        , if model.page /= Model.MainPage then
             Ui.simpleButton
                 [ E.width (E.fillPortion 3)
                 , E.htmlAttribute <| HtmlAttr.id "unfocus-on-page-change"
                 ]
-                { onPress = Just (Shared.ChangePage Shared.MainPage)
+                { onPress = Just (Msg.ChangePage Model.MainPage)
                 , label =
                     E.row [ Font.center, E.width E.fill ]
                         [ E.el [ E.width E.fill ] E.none
@@ -224,7 +225,7 @@ settingsButton model =
             , E.height (E.px 36)
             , E.alignLeft
             ]
-            { onPress = Just (Shared.ChangePage Shared.SettingsPage)
+            { onPress = Just (Msg.ChangePage Model.SettingsPage)
             , label = E.el [ Ui.iconFont, Ui.normalFont, E.centerX ] (E.text "\u{F013}")
             }
 
@@ -240,7 +241,7 @@ settingsButton model =
             , E.height (E.px 36)
             , E.alignLeft
             ]
-            { onPress = Just Shared.AttemptSettings
+            { onPress = Just Msg.AttemptSettings
             , label =
                 E.el [ Ui.iconFont, Ui.normalFont, E.centerX, Font.color Ui.bgLight ]
                     (E.text "\u{F013}")

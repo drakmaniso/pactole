@@ -5,9 +5,10 @@ import Element as E
 import Element.Border as Border
 import Element.Font as Font
 import Ledger
+import Model
 import Money
+import Msg
 import Page.Summary as Summary
-import Shared
 import Ui
 
 
@@ -15,7 +16,7 @@ import Ui
 -- VIEW
 
 
-view : Shared.Model -> E.Element Shared.Msg
+view : Model.Model -> E.Element Msg.Msg
 view shared =
     Ui.pageWithSidePanel []
         { panel =
@@ -94,7 +95,7 @@ viewMonthBalance shared =
         ]
 
 
-viewCategories : Shared.Model -> E.Element Shared.Msg
+viewCategories : Model.Model -> E.Element Msg.Msg
 viewCategories shared =
     E.column
         [ E.width E.fill
