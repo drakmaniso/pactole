@@ -69,6 +69,7 @@ type alias Settings =
     , reconciliationEnabled : Bool
     , summaryEnabled : Bool
     , balanceWarning : Int
+    , recurringTransactions : List Ledger.NewTransaction
     }
 
 
@@ -98,13 +99,14 @@ decodeCategory =
 
 
 decodeSettings =
-    Decode.map5
-        (\cat mod rec summ balwarn ->
+    Decode.map6
+        (\cat mod rec summ balwarn rectrans ->
             { categoriesEnabled = cat
             , defaultMode = mod
             , reconciliationEnabled = rec
             , summaryEnabled = summ
             , balanceWarning = balwarn
+            , recurringTransactions = rectrans
             }
         )
         (Decode.oneOf [ Decode.field "categoriesEnabled" Decode.bool, Decode.succeed False ])
@@ -112,6 +114,11 @@ decodeSettings =
         (Decode.oneOf [ Decode.field "reconciliationEnabled" Decode.bool, Decode.succeed False ])
         (Decode.oneOf [ Decode.field "summaryEnabled" Decode.bool, Decode.succeed False ])
         (Decode.oneOf [ Decode.field "balanceWarning" Decode.int, Decode.succeed 100 ])
+        (Decode.oneOf
+            [ Decode.field "recurringTransactions" (Decode.list Ledger.decodeNewTransaction)
+            , Decode.succeed []
+            ]
+        )
 
 
 decodeMode =
@@ -184,6 +191,7 @@ init flags =
             , reconciliationEnabled = False
             , summaryEnabled = False
             , balanceWarning = 100
+            , recurringTransactions = []
             }
       , today = today
       , date = today
@@ -334,6 +342,7 @@ msgSetSettings settings model =
             , reconciliationEnabled = settings.reconciliationEnabled
             , summaryEnabled = settings.summaryEnabled
             , balanceWarning = settings.balanceWarning
+            , recurringTransactions = settings.recurringTransactions
             }
     in
     ( model

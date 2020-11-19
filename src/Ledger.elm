@@ -1,8 +1,13 @@
 module Ledger exposing
     ( Ledger
+    , NewTransaction
     , Transaction
     , decode
+    , decodeNewTransaction
+    , decodeTransaction
     , empty
+    , encodeNewTransaction
+    , encodeTransaction
     , getAllTransactions
     , getBalance
     , getDateTransactions
@@ -258,9 +263,29 @@ encodeTransaction { id, date, amount, description, category, checked } =
         ]
 
 
+encodeNewTransaction : NewTransaction -> Encode.Value
+encodeNewTransaction { date, amount, description, category, checked } =
+    Encode.object
+        [ ( "date", Encode.int (Date.toInt date) )
+        , ( "amount", Money.encoder amount )
+        , ( "description", Encode.string description )
+        , ( "category", Encode.int category )
+        , ( "checked", Encode.bool checked )
+        ]
+
+
 decodeTransaction =
     Decode.map6 Transaction
         (Decode.field "id" Decode.int)
+        (Decode.map Date.fromInt (Decode.field "date" Decode.int))
+        (Decode.field "amount" Money.decoder)
+        (Decode.field "description" Decode.string)
+        (Decode.field "category" Decode.int)
+        (Decode.field "checked" Decode.bool)
+
+
+decodeNewTransaction =
+    Decode.map5 NewTransaction
         (Decode.map Date.fromInt (Decode.field "date" Decode.int))
         (Decode.field "amount" Money.decoder)
         (Decode.field "description" Decode.string)

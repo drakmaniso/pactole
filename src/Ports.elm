@@ -3,6 +3,7 @@ port module Ports exposing (..)
 import Date
 import Json.Decode as Decode
 import Json.Encode as Encode
+import Ledger
 import Money
 
 
@@ -148,8 +149,8 @@ getSettings =
     send ( "get settings", Encode.object [] )
 
 
-setSettings : { categoriesEnabled : Bool, modeString : String, reconciliationEnabled : Bool, summaryEnabled : Bool, balanceWarning : Int } -> Cmd msg
-setSettings { categoriesEnabled, modeString, reconciliationEnabled, summaryEnabled, balanceWarning } =
+setSettings : { categoriesEnabled : Bool, modeString : String, reconciliationEnabled : Bool, summaryEnabled : Bool, balanceWarning : Int, recurringTransactions : List Ledger.NewTransaction } -> Cmd msg
+setSettings { categoriesEnabled, modeString, reconciliationEnabled, summaryEnabled, balanceWarning, recurringTransactions } =
     send
         ( "set settings"
         , Encode.object
@@ -158,5 +159,6 @@ setSettings { categoriesEnabled, modeString, reconciliationEnabled, summaryEnabl
             , ( "reconciliationEnabled", Encode.bool reconciliationEnabled )
             , ( "summaryEnabled", Encode.bool summaryEnabled )
             , ( "balanceWarning", Encode.int balanceWarning )
+            , ( "recurringTransactions", Encode.list Ledger.encodeNewTransaction recurringTransactions )
             ]
         )
