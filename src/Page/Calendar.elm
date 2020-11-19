@@ -325,13 +325,13 @@ dayView model =
                 [ E.width (E.fillPortion 2) ]
                 { label = Ui.incomeIcon []
                 , color = Ui.fgIncome
-                , onPress = Just (Msg.NewDialog False model.date)
+                , onPress = Just (Msg.ForDialog <| Msg.NewDialog False model.date)
                 }
             , Ui.coloredButton
                 [ E.width (E.fillPortion 2) ]
                 { label = Ui.expenseIcon []
                 , color = Ui.fgExpense
-                , onPress = Just (Msg.NewDialog True model.date)
+                , onPress = Just (Msg.ForDialog <| Msg.NewDialog True model.date)
                 }
             ]
         ]
@@ -364,7 +364,7 @@ dayContentFor model day =
                     , Border.color (E.rgba 0 0 0 0)
                     , E.focused [ Border.color Ui.fgFocus ]
                     ]
-                    { onPress = Just (Msg.EditDialog transaction.id)
+                    { onPress = Just (Msg.ForDialog <| Msg.EditDialog transaction.id)
                     , label =
                         E.row
                             [ E.width E.fill

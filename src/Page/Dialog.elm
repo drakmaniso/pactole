@@ -133,7 +133,7 @@ msgConfirm model =
         Just dialog ->
             case ( dialog.id, Money.fromInput dialog.isExpense dialog.amount ) of
                 ( Just id, Just amount ) ->
-                    ( model
+                    ( { model | dialog = Nothing }
                     , Ports.putTransaction
                         { account = model.account
                         , id = id
@@ -146,7 +146,7 @@ msgConfirm model =
                     )
 
                 ( Nothing, Just amount ) ->
-                    ( model
+                    ( { model | dialog = Nothing }
                     , Ports.addTransaction
                         { account = model.account
                         , date = dialog.date
@@ -170,7 +170,7 @@ msgDelete model =
         Just dialog ->
             case dialog.id of
                 Just id ->
-                    ( model
+                    ( { model | dialog = Nothing }
                     , Ports.deleteTransaction
                         { account = model.account
                         , id = id
@@ -251,7 +251,7 @@ amountRow dialog =
         , centerY
         ]
         [ Input.text
-            [ Ui.onEnter Msg.DialogConfirm
+            [ Ui.onEnter (Msg.ForDialog <| Msg.DialogConfirm)
             , Ui.bigFont
             , paddingXY 8 12
             , width (shrink |> minimum 220)
@@ -282,7 +282,7 @@ amountRow dialog =
                     (text "Somme:")
             , text = dialog.amount
             , placeholder = Nothing
-            , onChange = Msg.DialogAmount
+            , onChange = Msg.ForDialog << Msg.DialogAmount
             }
         , el
             [ Ui.bigFont
@@ -313,7 +313,7 @@ descriptionRow dialog =
         , Background.color Ui.bgWhite
         ]
         [ Input.multiline
-            [ Ui.onEnter Msg.DialogConfirm
+            [ Ui.onEnter (Msg.ForDialog <| Msg.DialogConfirm)
             , Ui.bigFont
             , paddingXY 8 12
             , Border.width 1
@@ -342,7 +342,7 @@ descriptionRow dialog =
                     (text "Description:")
             , text = dialog.description
             , placeholder = Nothing
-            , onChange = Msg.DialogDescription
+            , onChange = Msg.ForDialog << Msg.DialogDescription
             , spellcheck = True
             }
         ]
@@ -407,7 +407,7 @@ categoryRow model dialog =
 
                                 Just ( k, v ) ->
                                     Ui.radioButton []
-                                        { onPress = Just (Msg.DialogCategory k)
+                                        { onPress = Just (Msg.ForDialog <| Msg.DialogCategory k)
                                         , icon = v.icon
                                         , label = v.name
                                         , active = k == dialog.category
@@ -423,7 +423,7 @@ categoryRow model dialog =
 
                                 Just ( k, v ) ->
                                     Ui.radioButton []
-                                        { onPress = Just (Msg.DialogCategory k)
+                                        { onPress = Just (Msg.ForDialog <| Msg.DialogCategory k)
                                         , icon = v.icon
                                         , label = v.name
                                         , active = k == dialog.category
@@ -439,7 +439,7 @@ categoryRow model dialog =
 
                                 Just ( k, v ) ->
                                     Ui.radioButton []
-                                        { onPress = Just (Msg.DialogCategory k)
+                                        { onPress = Just (Msg.ForDialog <| Msg.DialogCategory k)
                                         , icon = v.icon
                                         , label = v.name
                                         , active = k == dialog.category
@@ -464,12 +464,12 @@ buttonsRow dialog =
             Just _ ->
                 Ui.simpleButton
                     []
-                    { label = text "Supprimer", onPress = Just Msg.DialogDelete }
+                    { label = text "Supprimer", onPress = Just (Msg.ForDialog <| Msg.DialogDelete) }
 
             Nothing ->
                 none
         , Ui.mainButton [ width shrink ]
             { label = text "OK"
-            , onPress = Just Msg.DialogConfirm
+            , onPress = Just (Msg.ForDialog <| Msg.DialogConfirm)
             }
         ]

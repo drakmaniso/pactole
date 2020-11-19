@@ -180,7 +180,7 @@ view model =
                                             \a ->
                                                 Ui.iconButton []
                                                     { icon = Ui.editIcon []
-                                                    , onPress = Just (Msg.OpenRenameAccount (Tuple.first a))
+                                                    , onPress = Just (Msg.ForSettingsDialog <| Msg.OpenRenameAccount (Tuple.first a))
                                                     }
                                       }
                                     , { header = E.none
@@ -189,7 +189,7 @@ view model =
                                             \a ->
                                                 Ui.iconButton []
                                                     { icon = Ui.deleteIcon []
-                                                    , onPress = Just (Msg.OpenDeleteAccount (Tuple.first a))
+                                                    , onPress = Just (Msg.ForSettingsDialog <| Msg.OpenDeleteAccount (Tuple.first a))
                                                     }
                                       }
                                     ]
@@ -372,7 +372,7 @@ configCategories model =
                                 \a ->
                                     Ui.iconButton []
                                         { icon = Ui.editIcon []
-                                        , onPress = Just (Msg.OpenRenameCategory (Tuple.first a))
+                                        , onPress = Just (Msg.ForSettingsDialog <| Msg.OpenRenameCategory (Tuple.first a))
                                         }
                           }
                         , { header = E.none
@@ -381,7 +381,7 @@ configCategories model =
                                 \a ->
                                     Ui.iconButton []
                                         { icon = Ui.deleteIcon []
-                                        , onPress = Just (Msg.OpenDeleteCategory (Tuple.first a))
+                                        , onPress = Just (Msg.ForSettingsDialog <| Msg.OpenDeleteCategory (Tuple.first a))
                                         }
                           }
                         ]
@@ -424,7 +424,7 @@ viewDialog variant =
                 [ E.el
                     [ E.paddingEach { top = 24, bottom = 24, right = 48, left = 48 } ]
                     (Input.text
-                        [ Ui.onEnter Msg.SettingsConfirm
+                        [ Ui.onEnter (Msg.ForSettingsDialog <| Msg.SettingsConfirm)
                         , Ui.bigFont
                         , E.focused
                             [ Border.shadow
@@ -446,7 +446,7 @@ viewDialog variant =
                                 ]
                                 (E.text ("Renommer le compte \"" ++ submodel.name ++ "\":"))
                         , text = submodel.name
-                        , onChange = \n -> Msg.SettingsChangeName n
+                        , onChange = \n -> Msg.ForSettingsDialog <| Msg.SettingsChangeName n
                         , placeholder = Nothing
                         }
                     )
@@ -462,7 +462,7 @@ viewDialog variant =
                         }
                     , Ui.mainButton []
                         { label = E.text "Confirmer"
-                        , onPress = Just Msg.SettingsConfirm
+                        , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsConfirm)
                         }
                     ]
                 ]
@@ -501,7 +501,7 @@ viewDialog variant =
                         }
                     , Ui.mainButton []
                         { label = E.text "Supprimer"
-                        , onPress = Just Msg.SettingsConfirm
+                        , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsConfirm)
                         }
                     ]
                 ]
@@ -521,7 +521,7 @@ viewDialog variant =
                 [ E.el
                     [ E.paddingEach { top = 24, bottom = 24, right = 48, left = 48 } ]
                     (Input.text
-                        [ Ui.onEnter Msg.SettingsConfirm
+                        [ Ui.onEnter (Msg.ForSettingsDialog <| Msg.SettingsConfirm)
                         , Ui.bigFont
                         ]
                         { label =
@@ -535,7 +535,7 @@ viewDialog variant =
                                 ]
                                 (E.text ("Renommer la catégorie \"" ++ submodel.name ++ "\":"))
                         , text = submodel.name
-                        , onChange = \n -> Msg.SettingsChangeName n
+                        , onChange = \n -> Msg.ForSettingsDialog <| Msg.SettingsChangeName n
                         , placeholder = Nothing
                         }
                     )
@@ -564,7 +564,7 @@ viewDialog variant =
                                     [ E.width (E.shrink |> E.minimum 80)
                                     , Font.center
                                     ]
-                                    { onPress = Just (Msg.SettingsChangeIcon icon)
+                                    { onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsChangeIcon icon)
                                     , icon = icon
                                     , label = ""
                                     , active = submodel.icon == icon
@@ -585,7 +585,7 @@ viewDialog variant =
                         }
                     , Ui.mainButton []
                         { label = E.text "Confirmer"
-                        , onPress = Just Msg.SettingsConfirm
+                        , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsConfirm)
                         }
                     ]
                 ]
@@ -625,7 +625,7 @@ viewDialog variant =
                         }
                     , Ui.mainButton []
                         { label = E.text "Supprimer"
-                        , onPress = Just Msg.SettingsConfirm
+                        , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsConfirm)
                         }
                     ]
                 ]

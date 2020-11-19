@@ -27,6 +27,7 @@ import Page.Settings as Settings
 import Page.Statistics as Statistics
 import Page.Tabular as Tabular
 import Ports
+import Process
 import Task
 import Time
 import Ui
@@ -124,13 +125,6 @@ init flags _ _ =
 update : Msg.Msg -> Model.Model -> ( Model.Model, Cmd Msg.Msg )
 update msg model =
     let
-        sharedMsg handler =
-            let
-                ( shared, cmd ) =
-                    handler model
-            in
-            ( shared, cmd )
-
         dialogMsg handler =
             let
                 ( shared, cmd ) =
@@ -147,7 +141,7 @@ update msg model =
     in
     case msg of
         Msg.Today d ->
-            sharedMsg (Msg.msgToday d)
+            ( { model | today = d, date = d }, Cmd.none )
 
         Msg.LinkClicked req ->
             case req of
@@ -161,98 +155,95 @@ update msg model =
             ( model, Cmd.none )
 
         Msg.FromService ( title, json ) ->
-            sharedMsg (Msg.msgFromService ( title, json ))
+            msgFromService ( title, json ) model
 
         Msg.ChangePage page ->
-            sharedMsg (Msg.msgChangePage page)
+            ( { model | page = page }
+            , Task.attempt (\_ -> Msg.NoOp) (Dom.blur "unfocus-on-page-change")
+            )
 
         Msg.AttemptSettings ->
-            sharedMsg Msg.msgAttemptSettings
+            ( { model
+                | advancedCounter =
+                    if model.advancedCounter > 3 then
+                        3
+
+                    else
+                        model.advancedCounter + 1
+                , showAdvanced = model.advancedCounter >= 3
+              }
+            , Task.perform
+                (\_ -> Msg.AttemptTimeout)
+                (Process.sleep 3000.0
+                    |> Task.andThen (\_ -> Task.succeed ())
+                )
+            )
 
         Msg.AttemptTimeout ->
-            sharedMsg Msg.msgAttemptTimeout
+            ( { model
+                | advancedCounter =
+                    if model.advancedCounter <= 0 then
+                        0
+
+                    else
+                        model.advancedCounter - 1
+                , showAdvanced = model.advancedCounter <= 0
+              }
+            , Cmd.none
+            )
 
         Msg.Close ->
             --TODO: delegate to Dialog?
             ( { model | dialog = Nothing, settingsDialog = Nothing }, Cmd.none )
 
         Msg.SelectDate date ->
-            sharedMsg (Msg.msgSelectDate date)
+            ( { model | date = date }, Cmd.none )
 
-        Msg.SelectAccount account ->
-            sharedMsg (Msg.msgSelectAccount account)
+        Msg.SelectAccount accountID ->
+            ( { model | account = Just accountID }, Ports.getLedger accountID )
 
         Msg.KeyDown string ->
             if string == "Alt" || string == "Control" || string == "Shift" then
-                sharedMsg (Msg.msgShowAdvanced True)
+                ( { model | showAdvanced = True }, Cmd.none )
 
             else if string == "Tab" then
-                sharedMsg (Msg.msgShowFocus True)
+                ( { model | showFocus = True }, Cmd.none )
 
             else
                 ( model, Cmd.none )
 
         Msg.KeyUp string ->
-            sharedMsg (Msg.msgShowAdvanced False)
-
-        Msg.NewDialog isExpense date ->
-            dialogMsg (Dialog.msgNewDialog isExpense date)
-
-        Msg.EditDialog id ->
-            dialogMsg (Dialog.msgEditDialog id)
-
-        Msg.DialogAmount amount ->
-            dialogMsg (Dialog.msgAmount amount)
-
-        Msg.DialogDescription string ->
-            dialogMsg (Dialog.msgDescription string)
-
-        Msg.DialogCategory id ->
-            dialogMsg (Dialog.msgCategory id)
-
-        Msg.DialogConfirm ->
-            dialogMsg Dialog.msgConfirm
-
-        Msg.DialogDelete ->
-            dialogMsg Dialog.msgDelete
+            ( { model | showAdvanced = False }, Cmd.none )
 
         Msg.CreateAccount name ->
-            sharedMsg (Msg.msgCreateAccount name)
-
-        Msg.OpenRenameAccount id ->
-            ( Settings.openRenameAccount id model
-            , Cmd.none
-            )
-
-        Msg.OpenDeleteAccount id ->
-            ( Settings.openDeleteAccount id model
-            , Cmd.none
-            )
+            ( model, Ports.createAccount name )
 
         Msg.CreateCategory name icon ->
-            sharedMsg (Msg.msgCreateCategory name icon)
-
-        Msg.OpenRenameCategory id ->
-            ( Settings.openRenameCategory id model
-            , Cmd.none
-            )
-
-        Msg.OpenDeleteCategory id ->
-            ( Settings.openDeleteCategory id model
-            , Cmd.none
-            )
-
-        Msg.SettingsChangeName name ->
-            settingsMsg (Settings.msgChangeName name)
-
-        Msg.SettingsChangeIcon icon ->
-            settingsMsg (Settings.msgChangeIcon icon)
+            ( model, Ports.createCategory name icon )
 
         Msg.SetSettings settings ->
-            sharedMsg (Msg.msgSetSettings settings)
+            let
+                modeString =
+                    case settings.defaultMode of
+                        Model.InCalendar ->
+                            "calendar"
 
-        Msg.SettingsConfirm ->
-            settingsMsg Settings.msgConfirm
+                        Model.InTabular ->
+                            "tabular"
+
+                settingsString =
+                    { categoriesEnabled = settings.categoriesEnabled
+                    , modeString = modeString
+                    , reconciliationEnabled = settings.reconciliationEnabled
+                    , summaryEnabled = settings.summaryEnabled
+                    , balanceWarning = settings.balanceWarning
+                    , recurringTransactions = settings.recurringTransactions
+                    }
+            in
+            ( model
+              --{ model | settings = settings }
+            , Ports.setSettings settingsString
+            )
 
         Msg.CheckTransaction transaction checked ->
             ( model
@@ -267,8 +258,155 @@ update msg model =
                 }
             )
 
+        Msg.ForDialog (Msg.NewDialog isExpense date) ->
+            dialogMsg (Dialog.msgNewDialog isExpense date)
+
+        Msg.ForDialog (Msg.EditDialog id) ->
+            dialogMsg (Dialog.msgEditDialog id)
+
+        Msg.ForDialog (Msg.DialogAmount amount) ->
+            dialogMsg (Dialog.msgAmount amount)
+
+        Msg.ForDialog (Msg.DialogDescription string) ->
+            dialogMsg (Dialog.msgDescription string)
+
+        Msg.ForDialog (Msg.DialogCategory id) ->
+            dialogMsg (Dialog.msgCategory id)
+
+        Msg.ForDialog Msg.DialogConfirm ->
+            dialogMsg Dialog.msgConfirm
+
+        Msg.ForDialog Msg.DialogDelete ->
+            dialogMsg Dialog.msgDelete
+
+        Msg.ForSettingsDialog (Msg.OpenRenameAccount id) ->
+            ( Settings.openRenameAccount id model
+            , Cmd.none
+            )
+
+        Msg.ForSettingsDialog (Msg.OpenDeleteAccount id) ->
+            ( Settings.openDeleteAccount id model
+            , Cmd.none
+            )
+
+        Msg.ForSettingsDialog (Msg.OpenRenameCategory id) ->
+            ( Settings.openRenameCategory id model
+            , Cmd.none
+            )
+
+        Msg.ForSettingsDialog (Msg.OpenDeleteCategory id) ->
+            ( Settings.openDeleteCategory id model
+            , Cmd.none
+            )
+
+        Msg.ForSettingsDialog (Msg.SettingsChangeName name) ->
+            settingsMsg (Settings.msgChangeName name)
+
+        Msg.ForSettingsDialog (Msg.SettingsChangeIcon icon) ->
+            settingsMsg (Settings.msgChangeIcon icon)
+
+        Msg.ForSettingsDialog Msg.SettingsConfirm ->
+            settingsMsg Settings.msgConfirm
+
         Msg.NoOp ->
             ( model, Cmd.none )
+
+
+
+-- SERVICE WORKER MESSAGES
+
+
+msgFromService : ( String, Decode.Value ) -> Model.Model -> ( Model.Model, Cmd Msg.Msg )
+msgFromService ( title, content ) model =
+    case title of
+        "start application" ->
+            ( model
+            , Cmd.batch
+                [ Ports.getAccountList
+                , Ports.getCategoryList
+                , Ports.getSettings
+                ]
+            )
+
+        "set account list" ->
+            case Decode.decodeValue (Decode.list Model.decodeAccount) content of
+                Ok (head :: tail) ->
+                    let
+                        accounts =
+                            head :: tail
+
+                        accountID =
+                            --TODO: use current account if set
+                            Tuple.first head
+                    in
+                    ( { model | accounts = Dict.fromList accounts, account = Just accountID }
+                    , Ports.getLedger accountID
+                    )
+
+                Err e ->
+                    --TODO: error
+                    ( model, Ports.error ("while decoding account list: " ++ Decode.errorToString e) )
+
+                _ ->
+                    --TODO: error
+                    ( model, Ports.error "received account list is empty" )
+
+        "set category list" ->
+            case Decode.decodeValue (Decode.list Model.decodeCategory) content of
+                Ok categories ->
+                    ( { model | categories = Dict.fromList categories }, Cmd.none )
+
+                Err e ->
+                    --TODO: error
+                    ( model, Ports.error ("while decoding category list: " ++ Decode.errorToString e) )
+
+        "set settings" ->
+            case Decode.decodeValue Model.decodeSettings content of
+                Ok settings ->
+                    ( { model | settings = settings }, Cmd.none )
+
+                Err e ->
+                    --TODO: error
+                    ( model, Ports.error ("while decoding settings: " ++ Decode.errorToString e) )
+
+        "ledger updated" ->
+            case ( model.account, Decode.decodeValue Decode.int content ) of
+                ( Just currentID, Ok updatedID ) ->
+                    if updatedID == currentID then
+                        ( model, Ports.getLedger updatedID )
+
+                    else
+                        ( model, Cmd.none )
+
+                ( Nothing, _ ) ->
+                    ( model, Cmd.none )
+
+                ( _, Err e ) ->
+                    ( model, Ports.error (Decode.errorToString e) )
+
+        "set ledger" ->
+            case Decode.decodeValue Ledger.decode content of
+                Ok ledger ->
+                    ( { model | ledger = ledger }
+                    , Cmd.none
+                    )
+
+                Err e ->
+                    ( model, Ports.error (Decode.errorToString e) )
+
+        "settings updated" ->
+            case Decode.decodeValue Model.decodeSettings content of
+                Ok settings ->
+                    ( { model | settings = settings }
+                    , Cmd.none
+                    )
+
+                Err e ->
+                    ( model, Ports.error (Decode.errorToString e) )
+
+        _ ->
+            --TODO: error
+            ( model, Ports.error ("in message from service: unknown title \"" ++ title ++ "\"") )
 
 
 
