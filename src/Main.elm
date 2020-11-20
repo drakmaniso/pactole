@@ -215,34 +215,13 @@ update msg model =
             ( model, Ports.createCategory name icon )
 
         Msg.SetSettings settings ->
-            let
-                modeString =
-                    case settings.defaultMode of
-                        Model.InCalendar ->
-                            "calendar"
-
-                        Model.InTabular ->
-                            "tabular"
-
-                settingsString =
-                    { categoriesEnabled = settings.categoriesEnabled
-                    , modeString = modeString
-                    , reconciliationEnabled = settings.reconciliationEnabled
-                    , summaryEnabled = settings.summaryEnabled
-                    , balanceWarning = settings.balanceWarning
-                    , recurringTransactions = settings.recurringTransactions
-                    }
-            in
-            ( model
-              --{ model | settings = settings }
-            , Ports.storeSettings settingsString
-            )
+            ( model, Ports.storeSettings settings )
 
         Msg.CheckTransaction transaction checked ->
             ( model
             , Ports.replaceTransaction
-                { account = model.account
-                , id = transaction.id
+                model.account
+                { id = transaction.id
                 , date = transaction.date
                 , amount = transaction.amount
                 , description = transaction.description

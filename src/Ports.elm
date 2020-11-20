@@ -4,6 +4,7 @@ import Date
 import Json.Decode as Decode
 import Json.Encode as Encode
 import Ledger
+import Model
 import Money
 
 
@@ -88,49 +89,34 @@ requestLedger account =
     send ( "request ledger", Encode.int account )
 
 
-createTransaction : { account : Maybe Int, date : Date.Date, amount : Money.Money, description : String, category : Int, checked : Bool } -> Cmd msg
-createTransaction { account, date, amount, description, category, checked } =
-    case account of
-        Just acc ->
+createTransaction : Maybe Int -> Ledger.NewTransaction -> Cmd msg
+createTransaction maybeAccount transaction =
+    case maybeAccount of
+        Just account ->
             send
                 ( "create transaction"
-                , Encode.object
-                    [ ( "account", Encode.int acc )
-                    , ( "date", Encode.int (Date.toInt date) )
-                    , ( "amount", Money.encoder amount )
-                    , ( "description", Encode.string description )
-                    , ( "category", Encode.int category )
-                    , ( "checked", Encode.bool checked )
-                    ]
+                , Ledger.encodeNewTransaction account transaction
                 )
 
         Nothing ->
             error "create transaction: no current account"
 
 
-replaceTransaction : { account : Maybe Int, id : Int, date : Date.Date, amount : Money.Money, description : String, category : Int, checked : Bool } -> Cmd msg
-replaceTransaction { account, id, date, amount, description, category, checked } =
-    case account of
-        Just acc ->
+replaceTransaction : Maybe Int -> Ledger.Transaction -> Cmd msg
+replaceTransaction maybeAccount transaction =
+    case maybeAccount of
+        Just account ->
             send
                 ( "replace transaction"
-                , Encode.object
-                    [ ( "account", Encode.int acc )
-                    , ( "id", Encode.int id )
-                    , ( "date", Encode.int (Date.toInt date) )
-                    , ( "amount", Money.encoder amount )
-                    , ( "description", Encode.string description )
-                    , ( "category", Encode.int category )
-                    , ( "checked", Encode.bool checked )
-                    ]
+                , Ledger.encodeTransaction account transaction
                 )
 
         Nothing ->
             error "replace transaction: no current account"
 
 
-deleteTransaction : { account : Maybe Int, id : Int } -> Cmd msg
-deleteTransaction { account, id } =
+deleteTransaction : Maybe Int -> Int -> Cmd msg
+deleteTransaction account id =
     case account of
         Just acc ->
             send
@@ -149,16 +135,6 @@ requestSettings =
     send ( "request settings", Encode.object [] )
 
 
-storeSettings : { categoriesEnabled : Bool, modeString : String, reconciliationEnabled : Bool, summaryEnabled : Bool, balanceWarning : Int, recurringTransactions : List Ledger.NewTransaction } -> Cmd msg
-storeSettings { categoriesEnabled, modeString, reconciliationEnabled, summaryEnabled, balanceWarning, recurringTransactions } =
-    send
-        ( "store settings"
-        , Encode.object
-            [ ( "categoriesEnabled", Encode.bool categoriesEnabled )
-            , ( "defaultMode", Encode.string modeString )
-            , ( "reconciliationEnabled", Encode.bool reconciliationEnabled )
-            , ( "summaryEnabled", Encode.bool summaryEnabled )
-            , ( "balanceWarning", Encode.int balanceWarning )
-            , ( "recurringTransactions", Encode.list Ledger.encodeNewTransaction recurringTransactions )
-            ]
-        )
+storeSettings : Model.Settings -> Cmd msg
+storeSettings settings =
+    send ( "store settings", Model.encodeSettings settings )

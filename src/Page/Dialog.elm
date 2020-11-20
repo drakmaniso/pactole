@@ -121,8 +121,8 @@ update msg model =
                         ( Just id, Just amount ) ->
                             ( { model | dialog = Nothing }
                             , Ports.replaceTransaction
-                                { account = model.account
-                                , id = id
+                                model.account
+                                { id = id
                                 , date = dialog.date
                                 , amount = amount
                                 , description = dialog.description
@@ -134,8 +134,8 @@ update msg model =
                         ( Nothing, Just amount ) ->
                             ( { model | dialog = Nothing }
                             , Ports.createTransaction
-                                { account = model.account
-                                , date = dialog.date
+                                model.account
+                                { date = dialog.date
                                 , amount = amount
                                 , description = dialog.description
                                 , category = dialog.category
@@ -155,10 +155,7 @@ update msg model =
                     case dialog.id of
                         Just id ->
                             ( { model | dialog = Nothing }
-                            , Ports.deleteTransaction
-                                { account = model.account
-                                , id = id
-                                }
+                            , Ports.deleteTransaction model.account id
                             )
 
                         Nothing ->

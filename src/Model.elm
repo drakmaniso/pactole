@@ -3,6 +3,7 @@ module Model exposing (..)
 import Date
 import Dict
 import Json.Decode as Decode
+import Json.Encode as Encode
 import Ledger
 
 
@@ -83,13 +84,36 @@ type alias Settings =
     , reconciliationEnabled : Bool
     , summaryEnabled : Bool
     , balanceWarning : Int
-    , recurringTransactions : List Ledger.NewTransaction
+    , recurringTransactions : List ( Int, Ledger.NewTransaction )
     }
 
 
 type Mode
     = InCalendar
     | InTabular
+
+
+encodeSettings settings =
+    let
+        modeString =
+            case settings.defaultMode of
+                InCalendar ->
+                    "calendar"
+
+                InTabular ->
+                    "tabular"
+
+        encodeRecurring ( accountID, transaction ) =
+            Ledger.encodeNewTransaction accountID transaction
+    in
+    Encode.object
+        [ ( "categoriesEnabled", Encode.bool settings.categoriesEnabled )
+        , ( "defaultMode", Encode.string modeString )
+        , ( "reconciliationEnabled", Encode.bool settings.reconciliationEnabled )
+        , ( "summaryEnabled", Encode.bool settings.summaryEnabled )
+        , ( "balanceWarning", Encode.int settings.balanceWarning )
+        , ( "recurringTransactions", Encode.list encodeRecurring settings.recurringTransactions )
+        ]
 
 
 decodeSettings =
