@@ -122,7 +122,7 @@
       .then(registration => {
         log(`Starting application.`)
         navigator.serviceWorker.onmessage = event => {
-          log(`Received "${event.data.title}" from service.`)
+          log(`Received "${event.data.title}".`)
           app.ports.receive.send([event.data.title, event.data.content])
         }
         app.ports.receive.send(["start application", null])
@@ -154,7 +154,7 @@
         console.error (`[ELM] ${content}`)
         return
       }
-      log(`Sending "${title}" to service...`)
+      log(`Sending "${title}"...`)
       const sw = navigator.serviceWorker.controller
       if (sw) {
         sw.postMessage({ title: title, content: content })
@@ -169,12 +169,12 @@
 
 
     function log(msg) {
-      console.log(`[JS] ${msg}`)
+      console.log(`[CLIENT] ${msg}`)
     }
 
 
     function error(msg) {
-      console.error(`[JS] ${msg}`)
+      console.error(`[CLIENTJS] ${msg}`)
     }
 
     function fatalError(msg) {

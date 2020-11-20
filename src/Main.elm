@@ -193,7 +193,7 @@ update msg model =
             ( { model | date = date }, Cmd.none )
 
         Msg.SelectAccount accountID ->
-            ( { model | account = Just accountID }, Ports.getLedger accountID )
+            ( { model | account = Just accountID }, Ports.requestLedger accountID )
 
         Msg.KeyDown string ->
             if string == "Alt" || string == "Control" || string == "Shift" then
@@ -235,12 +235,12 @@ update msg model =
             in
             ( model
               --{ model | settings = settings }
-            , Ports.setSettings settingsString
+            , Ports.storeSettings settingsString
             )
 
         Msg.CheckTransaction transaction checked ->
             ( model
-            , Ports.putTransaction
+            , Ports.replaceTransaction
                 { account = model.account
                 , id = transaction.id
                 , date = transaction.date
@@ -271,13 +271,13 @@ msgFromService ( title, content ) model =
         "start application" ->
             ( model
             , Cmd.batch
-                [ Ports.getAccountList
-                , Ports.getCategoryList
-                , Ports.getSettings
+                [ Ports.requestAccounts
+                , Ports.requestCategories
+                , Ports.requestSettings
                 ]
             )
 
-        "set account list" ->
+        "update accounts" ->
             case Decode.decodeValue (Decode.list Model.decodeAccount) content of
                 Ok (head :: tail) ->
                     let
@@ -289,7 +289,7 @@ msgFromService ( title, content ) model =
                             Tuple.first head
                     in
                     ( { model | accounts = Dict.fromList accounts, account = Just accountID }
-                    , Ports.getLedger accountID
+                    , Ports.requestLedger accountID
                     )
 
                 Err e ->
@@ -300,7 +300,7 @@ msgFromService ( title, content ) model =
                     --TODO: error
                     ( model, Ports.error "received account list is empty" )
 
-        "set category list" ->
+        "update categories" ->
             case Decode.decodeValue (Decode.list Model.decodeCategory) content of
                 Ok categories ->
                     ( { model | categories = Dict.fromList categories }, Cmd.none )
@@ -309,7 +309,7 @@ msgFromService ( title, content ) model =
                     --TODO: error
                     ( model, Ports.error ("while decoding category list: " ++ Decode.errorToString e) )
 
-        "set settings" ->
+        "update settings" ->
             case Decode.decodeValue Model.decodeSettings content of
                 Ok settings ->
                     ( { model | settings = settings }, Cmd.none )
@@ -318,11 +318,11 @@ msgFromService ( title, content ) model =
                     --TODO: error
                     ( model, Ports.error ("while decoding settings: " ++ Decode.errorToString e) )
 
-        "ledger updated" ->
+        "invalidate ledger" ->
             case ( model.account, Decode.decodeValue Decode.int content ) of
                 ( Just currentID, Ok updatedID ) ->
                     if updatedID == currentID then
-                        ( model, Ports.getLedger updatedID )
+                        ( model, Ports.requestLedger updatedID )
 
                     else
                         ( model, Cmd.none )
@@ -333,7 +333,7 @@ msgFromService ( title, content ) model =
                 ( _, Err e ) ->
                     ( model, Ports.error (Decode.errorToString e) )
 
-        "set ledger" ->
+        "update ledger" ->
             case Decode.decodeValue Ledger.decode content of
                 Ok ledger ->
                     ( { model | ledger = ledger }
@@ -343,7 +343,7 @@ msgFromService ( title, content ) model =
                 Err e ->
                     ( model, Ports.error (Decode.errorToString e) )
 
-        "settings updated" ->
+        "invalidate settings" ->
             case Decode.decodeValue Model.decodeSettings content of
                 Ok settings ->
                     ( { model | settings = settings }

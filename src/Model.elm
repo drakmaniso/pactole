@@ -6,6 +6,10 @@ import Json.Decode as Decode
 import Ledger
 
 
+
+-- MODEL
+
+
 type alias Model =
     { settings : Settings
     , today : Date.Date
@@ -23,10 +27,54 @@ type alias Model =
     }
 
 
+type Page
+    = MainPage
+    | StatsPage
+    | ReconcilePage
+    | SettingsPage
+
+
+
+-- TYPE CATEGORY
+
+
 type alias Category =
     { name : String
     , icon : String
     }
+
+
+category categoryID model =
+    Maybe.withDefault
+        { name = "CATEGORIE_" ++ String.fromInt categoryID, icon = "" }
+        (Dict.get categoryID model.categories)
+
+
+decodeCategory =
+    Decode.map3 (\id name icon -> ( id, { name = name, icon = icon } ))
+        (Decode.field "id" Decode.int)
+        (Decode.field "name" Decode.string)
+        (Decode.field "icon" Decode.string)
+
+
+
+-- TYPE ACCOUNT
+
+
+decodeAccount =
+    Decode.map2 Tuple.pair
+        (Decode.field "id" Decode.int)
+        (Decode.field "name" Decode.string)
+
+
+account accountID model =
+    Maybe.withDefault
+        ("COMPTE_" ++ String.fromInt accountID)
+        (Dict.get accountID model.accounts)
+
+
+
+-- TYPE SETTINGS
 
 
 type alias Settings =
@@ -44,45 +92,20 @@ type Mode
     | InTabular
 
 
-type Page
-    = MainPage
-    | StatsPage
-    | ReconcilePage
-    | SettingsPage
-
-
-type alias Dialog =
-    { id : Maybe Int
-    , isExpense : Bool
-    , date : Date.Date
-    , amount : String
-    , amountError : String
-    , description : String
-    , category : Int
-    }
-
-
-type SettingsDialog
-    = RenameAccount { id : Int, name : String }
-    | DeleteAccount { id : Int, name : String }
-    | RenameCategory { id : Int, name : String, icon : String }
-    | DeleteCategory { id : Int, name : String, icon : String }
-
-
-decodeAccount =
-    Decode.map2 Tuple.pair
-        (Decode.field "id" Decode.int)
-        (Decode.field "name" Decode.string)
-
-
-decodeCategory =
-    Decode.map3 (\id name icon -> ( id, { name = name, icon = icon } ))
-        (Decode.field "id" Decode.int)
-        (Decode.field "name" Decode.string)
-        (Decode.field "icon" Decode.string)
-
-
 decodeSettings =
+    let
+        decodeMode =
+            Decode.map
+                (\str ->
+                    case str of
+                        "calendar" ->
+                            InCalendar
+
+                        _ ->
+                            InTabular
+                )
+                Decode.string
+    in
     Decode.map6
         (\cat mod rec summ balwarn rectrans ->
             { categoriesEnabled = cat
@@ -105,26 +128,23 @@ decodeSettings =
         )
 
 
-decodeMode =
-    Decode.map
-        (\str ->
-            case str of
-                "calendar" ->
-                    InCalendar
 
-                _ ->
-                    InTabular
-        )
-        Decode.string
+-- DIALOGS
 
 
-accountName accountID model =
-    Maybe.withDefault
-        ("COMPTE_" ++ String.fromInt accountID)
-        (Dict.get accountID model.accounts)
+type alias Dialog =
+    { id : Maybe Int
+    , isExpense : Bool
+    , date : Date.Date
+    , amount : String
+    , amountError : String
+    , description : String
+    , category : Int
+    }
 
 
-category categoryID model =
-    Maybe.withDefault
-        { name = "CATEGORIE_" ++ String.fromInt categoryID, icon = "" }
-        (Dict.get categoryID model.categories)
+type SettingsDialog
+    = RenameAccount { id : Int, name : String }
+    | DeleteAccount { id : Int, name : String }
+    | RenameCategory { id : Int, name : String, icon : String }
+    | DeleteCategory { id : Int, name : String, icon : String }

@@ -22,8 +22,8 @@ error msg =
     send ( "error", Encode.string msg )
 
 
-getAccountList =
-    send ( "get account list", Encode.object [] )
+requestAccounts =
+    send ( "request accounts", Encode.object [] )
 
 
 createAccount name =
@@ -49,8 +49,8 @@ deleteAccount account =
         )
 
 
-getCategoryList =
-    send ( "get category list", Encode.object [] )
+requestCategories =
+    send ( "request categories", Encode.object [] )
 
 
 createCategory name icon =
@@ -83,17 +83,17 @@ deleteCategory id =
         )
 
 
-getLedger : Int -> Cmd msg
-getLedger account =
-    send ( "get ledger", Encode.int account )
+requestLedger : Int -> Cmd msg
+requestLedger account =
+    send ( "request ledger", Encode.int account )
 
 
-addTransaction : { account : Maybe Int, date : Date.Date, amount : Money.Money, description : String, category : Int, checked : Bool } -> Cmd msg
-addTransaction { account, date, amount, description, category, checked } =
+createTransaction : { account : Maybe Int, date : Date.Date, amount : Money.Money, description : String, category : Int, checked : Bool } -> Cmd msg
+createTransaction { account, date, amount, description, category, checked } =
     case account of
         Just acc ->
             send
-                ( "add transaction"
+                ( "create transaction"
                 , Encode.object
                     [ ( "account", Encode.int acc )
                     , ( "date", Encode.int (Date.toInt date) )
@@ -105,15 +105,15 @@ addTransaction { account, date, amount, description, category, checked } =
                 )
 
         Nothing ->
-            error "add transaction: no current account"
+            error "create transaction: no current account"
 
 
-putTransaction : { account : Maybe Int, id : Int, date : Date.Date, amount : Money.Money, description : String, category : Int, checked : Bool } -> Cmd msg
-putTransaction { account, id, date, amount, description, category, checked } =
+replaceTransaction : { account : Maybe Int, id : Int, date : Date.Date, amount : Money.Money, description : String, category : Int, checked : Bool } -> Cmd msg
+replaceTransaction { account, id, date, amount, description, category, checked } =
     case account of
         Just acc ->
             send
-                ( "put transaction"
+                ( "replace transaction"
                 , Encode.object
                     [ ( "account", Encode.int acc )
                     , ( "id", Encode.int id )
@@ -126,7 +126,7 @@ putTransaction { account, id, date, amount, description, category, checked } =
                 )
 
         Nothing ->
-            error "put transaction: no current account"
+            error "replace transaction: no current account"
 
 
 deleteTransaction : { account : Maybe Int, id : Int } -> Cmd msg
@@ -145,14 +145,14 @@ deleteTransaction { account, id } =
             error "delete transaction: no current account"
 
 
-getSettings =
-    send ( "get settings", Encode.object [] )
+requestSettings =
+    send ( "request settings", Encode.object [] )
 
 
-setSettings : { categoriesEnabled : Bool, modeString : String, reconciliationEnabled : Bool, summaryEnabled : Bool, balanceWarning : Int, recurringTransactions : List Ledger.NewTransaction } -> Cmd msg
-setSettings { categoriesEnabled, modeString, reconciliationEnabled, summaryEnabled, balanceWarning, recurringTransactions } =
+storeSettings : { categoriesEnabled : Bool, modeString : String, reconciliationEnabled : Bool, summaryEnabled : Bool, balanceWarning : Int, recurringTransactions : List Ledger.NewTransaction } -> Cmd msg
+storeSettings { categoriesEnabled, modeString, reconciliationEnabled, summaryEnabled, balanceWarning, recurringTransactions } =
     send
-        ( "set settings"
+        ( "store settings"
         , Encode.object
             [ ( "categoriesEnabled", Encode.bool categoriesEnabled )
             , ( "defaultMode", Encode.string modeString )

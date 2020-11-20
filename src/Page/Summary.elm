@@ -105,7 +105,7 @@ accountOption accountID shared state =
                         [ Font.color (E.rgb 1 1 1), Background.color Ui.bgTitle ]
                )
         )
-        (E.text (Model.accountName accountID shared))
+        (E.text (Model.account accountID shared))
 
 
 balanceRow model =

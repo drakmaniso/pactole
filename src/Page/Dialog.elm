@@ -120,7 +120,7 @@ update msg model =
                     case ( dialog.id, Money.fromInput dialog.isExpense dialog.amount ) of
                         ( Just id, Just amount ) ->
                             ( { model | dialog = Nothing }
-                            , Ports.putTransaction
+                            , Ports.replaceTransaction
                                 { account = model.account
                                 , id = id
                                 , date = dialog.date
@@ -133,7 +133,7 @@ update msg model =
 
                         ( Nothing, Just amount ) ->
                             ( { model | dialog = Nothing }
-                            , Ports.addTransaction
+                            , Ports.createTransaction
                                 { account = model.account
                                 , date = dialog.date
                                 , amount = amount

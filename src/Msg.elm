@@ -4,7 +4,7 @@ import Browser
 import Date
 import Json.Decode as Decode
 import Ledger
-import Model exposing (Model)
+import Model
 import Url
 
 
