@@ -1,11 +1,5 @@
 module Page.Dialog exposing
-    ( msgAmount
-    , msgCategory
-    , msgConfirm
-    , msgDelete
-    , msgDescription
-    , msgEditDialog
-    , msgNewDialog
+    ( update
     , view
     )
 
@@ -32,156 +26,146 @@ import Ui
 -- UPDATE
 
 
-msgNewDialog : Bool -> Date.Date -> Model.Model -> ( Model.Model, Cmd Msg.Msg )
-msgNewDialog isExpense date model =
-    ( { model
-        | dialog =
-            Just
-                { id = Nothing
-                , isExpense = isExpense
-                , date = date
-                , amount = ""
-                , amountError = ""
-                , description = ""
-                , category = 0
-                }
-      }
-    , Task.attempt (\_ -> Msg.NoOp) (Dom.focus "dialog-amount")
-    )
-
-
-msgEditDialog : Int -> Model.Model -> ( Model.Model, Cmd Msg.Msg )
-msgEditDialog id model =
-    case Ledger.getTransaction id model.ledger of
-        Nothing ->
-            ( model, Ports.error "msgEditDialog: unable to get transaction" )
-
-        Just t ->
+update : Msg.DialogMsg -> Model.Model -> ( Model.Model, Cmd Msg.Msg )
+update msg model =
+    case msg of
+        Msg.NewDialog isExpense date ->
             ( { model
                 | dialog =
                     Just
-                        { id = Just t.id
-                        , isExpense = Money.isExpense t.amount
-                        , date = t.date
-                        , amount = Money.toInput t.amount
-                        , amountError = Money.validate (Money.toInput t.amount)
-                        , description = t.description
-                        , category = t.category
+                        { id = Nothing
+                        , isExpense = isExpense
+                        , date = date
+                        , amount = ""
+                        , amountError = ""
+                        , description = ""
+                        , category = 0
                         }
               }
-            , Cmd.none
+            , Task.attempt (\_ -> Msg.NoOp) (Dom.focus "dialog-amount")
             )
 
+        Msg.EditDialog id ->
+            case Ledger.getTransaction id model.ledger of
+                Nothing ->
+                    ( model, Ports.error "msgEditDialog: unable to get transaction" )
 
-msgAmount : String -> Model.Model -> ( Model.Model, Cmd Msg.Msg )
-msgAmount amount model =
-    case model.dialog of
-        Just dialog ->
-            ( { model
-                | dialog =
-                    Just
-                        { dialog
-                            | amount = amount
-                            , amountError = Money.validate amount
-                        }
-              }
-            , Cmd.none
-            )
-
-        Nothing ->
-            ( model, Cmd.none )
-
-
-msgDescription : String -> Model.Model -> ( Model.Model, Cmd Msg.Msg )
-msgDescription string model =
-    case model.dialog of
-        Just dialog ->
-            ( { model
-                | dialog =
-                    Just
-                        { dialog
-                            | description =
-                                String.filter (\c -> c /= Char.fromCode 13 && c /= Char.fromCode 10) string
-                        }
-              }
-            , Cmd.none
-            )
-
-        Nothing ->
-            ( model, Cmd.none )
-
-
-msgCategory : Int -> Model.Model -> ( Model.Model, Cmd Msg.Msg )
-msgCategory id model =
-    case model.dialog of
-        Just dialog ->
-            ( { model
-                | dialog =
-                    Just
-                        { dialog | category = id }
-              }
-            , Cmd.none
-            )
-
-        Nothing ->
-            ( model, Cmd.none )
-
-
-msgConfirm : Model.Model -> ( Model.Model, Cmd Msg.Msg )
-msgConfirm model =
-    case model.dialog of
-        Just dialog ->
-            case ( dialog.id, Money.fromInput dialog.isExpense dialog.amount ) of
-                ( Just id, Just amount ) ->
-                    ( { model | dialog = Nothing }
-                    , Ports.putTransaction
-                        { account = model.account
-                        , id = id
-                        , date = dialog.date
-                        , amount = amount
-                        , description = dialog.description
-                        , category = dialog.category
-                        , checked = False
-                        }
+                Just t ->
+                    ( { model
+                        | dialog =
+                            Just
+                                { id = Just t.id
+                                , isExpense = Money.isExpense t.amount
+                                , date = t.date
+                                , amount = Money.toInput t.amount
+                                , amountError = Money.validate (Money.toInput t.amount)
+                                , description = t.description
+                                , category = t.category
+                                }
+                      }
+                    , Cmd.none
                     )
 
-                ( Nothing, Just amount ) ->
-                    ( { model | dialog = Nothing }
-                    , Ports.addTransaction
-                        { account = model.account
-                        , date = dialog.date
-                        , amount = amount
-                        , description = dialog.description
-                        , category = dialog.category
-                        , checked = False
-                        }
-                    )
-
-                ( _, Nothing ) ->
-                    ( model, Cmd.none )
-
-        _ ->
-            ( model, Ports.error "impossible Confirm message" )
-
-
-msgDelete : Model.Model -> ( Model.Model, Cmd Msg.Msg )
-msgDelete model =
-    case model.dialog of
-        Just dialog ->
-            case dialog.id of
-                Just id ->
-                    ( { model | dialog = Nothing }
-                    , Ports.deleteTransaction
-                        { account = model.account
-                        , id = id
-                        }
+        Msg.DialogAmount amount ->
+            case model.dialog of
+                Just dialog ->
+                    ( { model
+                        | dialog =
+                            Just
+                                { dialog
+                                    | amount = amount
+                                    , amountError = Money.validate amount
+                                }
+                      }
+                    , Cmd.none
                     )
 
                 Nothing ->
-                    ( model, Ports.error "impossible Delete message" )
+                    ( model, Cmd.none )
 
-        Nothing ->
-            ( model, Ports.error "impossible Delete message" )
+        Msg.DialogDescription string ->
+            case model.dialog of
+                Just dialog ->
+                    ( { model
+                        | dialog =
+                            Just
+                                { dialog
+                                    | description =
+                                        String.filter (\c -> c /= Char.fromCode 13 && c /= Char.fromCode 10) string
+                                }
+                      }
+                    , Cmd.none
+                    )
+
+                Nothing ->
+                    ( model, Cmd.none )
+
+        Msg.DialogCategory id ->
+            case model.dialog of
+                Just dialog ->
+                    ( { model
+                        | dialog =
+                            Just
+                                { dialog | category = id }
+                      }
+                    , Cmd.none
+                    )
+
+                Nothing ->
+                    ( model, Cmd.none )
+
+        Msg.DialogConfirm ->
+            case model.dialog of
+                Just dialog ->
+                    case ( dialog.id, Money.fromInput dialog.isExpense dialog.amount ) of
+                        ( Just id, Just amount ) ->
+                            ( { model | dialog = Nothing }
+                            , Ports.putTransaction
+                                { account = model.account
+                                , id = id
+                                , date = dialog.date
+                                , amount = amount
+                                , description = dialog.description
+                                , category = dialog.category
+                                , checked = False
+                                }
+                            )
+
+                        ( Nothing, Just amount ) ->
+                            ( { model | dialog = Nothing }
+                            , Ports.addTransaction
+                                { account = model.account
+                                , date = dialog.date
+                                , amount = amount
+                                , description = dialog.description
+                                , category = dialog.category
+                                , checked = False
+                                }
+                            )
+
+                        ( _, Nothing ) ->
+                            ( model, Cmd.none )
+
+                _ ->
+                    ( model, Ports.error "impossible Confirm message" )
+
+        Msg.DialogDelete ->
+            case model.dialog of
+                Just dialog ->
+                    case dialog.id of
+                        Just id ->
+                            ( { model | dialog = Nothing }
+                            , Ports.deleteTransaction
+                                { account = model.account
+                                , id = id
+                                }
+                            )
+
+                        Nothing ->
+                            ( model, Ports.error "impossible Delete message" )
+
+                Nothing ->
+                    ( model, Ports.error "impossible Delete message" )
 
 
 

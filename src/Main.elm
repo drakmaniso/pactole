@@ -125,13 +125,6 @@ init flags _ _ =
 update : Msg.Msg -> Model.Model -> ( Model.Model, Cmd Msg.Msg )
 update msg model =
     let
-        dialogMsg handler =
-            let
-                ( shared, cmd ) =
-                    handler model
-            in
-            ( shared, cmd )
-
         settingsMsg handler =
             let
                 ( shared, cmd ) =
@@ -258,55 +251,11 @@ update msg model =
                 }
             )
 
-        Msg.ForDialog (Msg.NewDialog isExpense date) ->
-            dialogMsg (Dialog.msgNewDialog isExpense date)
+        Msg.ForDialog m ->
+            Dialog.update m model
 
-        Msg.ForDialog (Msg.EditDialog id) ->
-            dialogMsg (Dialog.msgEditDialog id)
-
-        Msg.ForDialog (Msg.DialogAmount amount) ->
-            dialogMsg (Dialog.msgAmount amount)
-
-        Msg.ForDialog (Msg.DialogDescription string) ->
-            dialogMsg (Dialog.msgDescription string)
-
-        Msg.ForDialog (Msg.DialogCategory id) ->
-            dialogMsg (Dialog.msgCategory id)
-
-        Msg.ForDialog Msg.DialogConfirm ->
-            dialogMsg Dialog.msgConfirm
-
-        Msg.ForDialog Msg.DialogDelete ->
-            dialogMsg Dialog.msgDelete
-
-        Msg.ForSettingsDialog (Msg.OpenRenameAccount id) ->
-            ( Settings.openRenameAccount id model
-            , Cmd.none
-            )
-
-        Msg.ForSettingsDialog (Msg.OpenDeleteAccount id) ->
-            ( Settings.openDeleteAccount id model
-            , Cmd.none
-            )
-
-        Msg.ForSettingsDialog (Msg.OpenRenameCategory id) ->
-            ( Settings.openRenameCategory id model
-            , Cmd.none
-            )
-
-        Msg.ForSettingsDialog (Msg.OpenDeleteCategory id) ->
-            ( Settings.openDeleteCategory id model
-            , Cmd.none
-            )
-
-        Msg.ForSettingsDialog (Msg.SettingsChangeName name) ->
-            settingsMsg (Settings.msgChangeName name)
-
-        Msg.ForSettingsDialog (Msg.SettingsChangeIcon icon) ->
-            settingsMsg (Settings.msgChangeIcon icon)
-
-        Msg.ForSettingsDialog Msg.SettingsConfirm ->
-            settingsMsg Settings.msgConfirm
+        Msg.ForSettingsDialog m ->
+            Settings.update m model
 
         Msg.NoOp ->
             ( model, Cmd.none )

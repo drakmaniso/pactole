@@ -1,11 +1,5 @@
 module Page.Settings exposing
-    ( msgChangeIcon
-    , msgChangeName
-    , msgConfirm
-    , openDeleteAccount
-    , openDeleteCategory
-    , openRenameAccount
-    , openRenameCategory
+    ( update
     , view
     , viewDialog
     )
@@ -24,104 +18,103 @@ import Ui
 
 
 
--- MODEL
+-- UPDATE
 
 
-openRenameAccount : Int -> Model.Model -> Model.Model
-openRenameAccount id model =
-    let
-        name =
-            Maybe.withDefault "ERROR"
-                (Dict.get id model.accounts)
-    in
-    { model | settingsDialog = Just (Model.RenameAccount { id = id, name = name }) }
-
-
-openDeleteAccount : Int -> Model.Model -> Model.Model
-openDeleteAccount id model =
-    let
-        name =
-            Maybe.withDefault "ERROR"
-                (Dict.get id model.accounts)
-    in
-    { model | settingsDialog = Just (Model.DeleteAccount { id = id, name = name }) }
-
-
-openRenameCategory : Int -> Model.Model -> Model.Model
-openRenameCategory id model =
-    let
-        { name, icon } =
-            Maybe.withDefault { name = "ERROR", icon = "" }
-                (Dict.get id model.categories)
-    in
-    { model | settingsDialog = Just (Model.RenameCategory { id = id, name = name, icon = icon }) }
-
-
-openDeleteCategory : Int -> Model.Model -> Model.Model
-openDeleteCategory id model =
-    let
-        { name, icon } =
-            Maybe.withDefault { name = "ERROR", icon = "" }
-                (Dict.get id model.categories)
-    in
-    { model | settingsDialog = Just (Model.DeleteCategory { id = id, name = name, icon = icon }) }
-
-
-msgChangeName : String -> Model.Model -> ( Model.Model, Cmd Msg.Msg )
-msgChangeName name model =
-    case model.settingsDialog of
-        Just (Model.RenameAccount submodel) ->
-            ( { model | settingsDialog = Just (Model.RenameAccount { submodel | name = name }) }
+update : Msg.SettingsDialogMsg -> Model.Model -> ( Model.Model, Cmd Msg.Msg )
+update msg model =
+    case msg of
+        Msg.OpenRenameAccount id ->
+            let
+                name =
+                    Maybe.withDefault "ERROR"
+                        (Dict.get id model.accounts)
+            in
+            ( { model | settingsDialog = Just (Model.RenameAccount { id = id, name = name }) }
             , Cmd.none
             )
 
-        Just (Model.RenameCategory submodel) ->
-            ( { model | settingsDialog = Just (Model.RenameCategory { submodel | name = name }) }
+        Msg.OpenDeleteAccount id ->
+            let
+                name =
+                    Maybe.withDefault "ERROR"
+                        (Dict.get id model.accounts)
+            in
+            ( { model | settingsDialog = Just (Model.DeleteAccount { id = id, name = name }) }
             , Cmd.none
             )
 
-        Just other ->
-            ( { model | settingsDialog = Just other }
-            , Ports.error "updateName: not in Rename Model.SettingsDialog"
-            )
-
-        Nothing ->
-            ( { model | settingsDialog = Nothing }, Cmd.none )
-
-
-msgChangeIcon : String -> Model.Model -> ( Model.Model, Cmd Msg.Msg )
-msgChangeIcon icon model =
-    case model.settingsDialog of
-        Just (Model.RenameCategory submodel) ->
-            ( { model | settingsDialog = Just (Model.RenameCategory { submodel | icon = icon }) }
+        Msg.OpenRenameCategory id ->
+            let
+                { name, icon } =
+                    Maybe.withDefault { name = "ERROR", icon = "" }
+                        (Dict.get id model.categories)
+            in
+            ( { model | settingsDialog = Just (Model.RenameCategory { id = id, name = name, icon = icon }) }
             , Cmd.none
             )
 
-        Just other ->
-            ( { model | settingsDialog = Just other }
-            , Ports.error "updateName: not in Rename Model.SettingsDialog"
+        Msg.OpenDeleteCategory id ->
+            let
+                { name, icon } =
+                    Maybe.withDefault { name = "ERROR", icon = "" }
+                        (Dict.get id model.categories)
+            in
+            ( { model | settingsDialog = Just (Model.DeleteCategory { id = id, name = name, icon = icon }) }
+            , Cmd.none
             )
 
-        Nothing ->
-            ( { model | settingsDialog = Nothing }, Cmd.none )
+        Msg.SettingsChangeName name ->
+            case model.settingsDialog of
+                Just (Model.RenameAccount submodel) ->
+                    ( { model | settingsDialog = Just (Model.RenameAccount { submodel | name = name }) }
+                    , Cmd.none
+                    )
 
+                Just (Model.RenameCategory submodel) ->
+                    ( { model | settingsDialog = Just (Model.RenameCategory { submodel | name = name }) }
+                    , Cmd.none
+                    )
 
-msgConfirm model =
-    case model.settingsDialog of
-        Just (Model.RenameAccount submodel) ->
-            ( { model | settingsDialog = Nothing }, Ports.renameAccount submodel.id submodel.name )
+                Just other ->
+                    ( { model | settingsDialog = Just other }
+                    , Ports.error "updateName: not in Rename Model.SettingsDialog"
+                    )
 
-        Just (Model.DeleteAccount submodel) ->
-            ( { model | settingsDialog = Nothing }, Ports.deleteAccount submodel.id )
+                Nothing ->
+                    ( { model | settingsDialog = Nothing }, Cmd.none )
 
-        Just (Model.RenameCategory submodel) ->
-            ( { model | settingsDialog = Nothing }, Ports.renameCategory submodel.id submodel.name submodel.icon )
+        Msg.SettingsChangeIcon icon ->
+            case model.settingsDialog of
+                Just (Model.RenameCategory submodel) ->
+                    ( { model | settingsDialog = Just (Model.RenameCategory { submodel | icon = icon }) }
+                    , Cmd.none
+                    )
 
-        Just (Model.DeleteCategory submodel) ->
-            ( { model | settingsDialog = Nothing }, Ports.deleteCategory submodel.id )
+                Just other ->
+                    ( { model | settingsDialog = Just other }
+                    , Ports.error "updateName: not in Rename Model.SettingsDialog"
+                    )
 
-        Nothing ->
-            ( { model | settingsDialog = Nothing }, Cmd.none )
+                Nothing ->
+                    ( { model | settingsDialog = Nothing }, Cmd.none )
+
+        Msg.SettingsConfirm ->
+            case model.settingsDialog of
+                Just (Model.RenameAccount submodel) ->
+                    ( { model | settingsDialog = Nothing }, Ports.renameAccount submodel.id submodel.name )
+
+                Just (Model.DeleteAccount submodel) ->
+                    ( { model | settingsDialog = Nothing }, Ports.deleteAccount submodel.id )
+
+                Just (Model.RenameCategory submodel) ->
+                    ( { model | settingsDialog = Nothing }, Ports.renameCategory submodel.id submodel.name submodel.icon )
+
+                Just (Model.DeleteCategory submodel) ->
+                    ( { model | settingsDialog = Nothing }, Ports.deleteCategory submodel.id )
+
+                Nothing ->
+                    ( { model | settingsDialog = Nothing }, Cmd.none )
 
 
 
