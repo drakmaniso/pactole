@@ -326,6 +326,11 @@ configCustom attributes { label, content } =
 -- ICONS
 
 
+closeIcon attributes =
+    E.el ([ iconFont, normalFont, E.centerX ] ++ attributes)
+        (E.text "\u{F00D}")
+
+
 backIcon attributes =
     E.el ([ iconFont, normalFont ] ++ attributes)
         (E.text "\u{F30A}")

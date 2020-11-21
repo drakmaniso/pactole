@@ -245,7 +245,7 @@ configWarning model =
             model.settings
     in
     Ui.configCustom []
-        { label = "Avertissement solde bas:"
+        { label = "Avertissement lorsque le solde passe sous:"
         , content =
             E.row [ E.spacing 12 ]
                 [ Ui.iconButton [ Border.color Ui.fgDark, Border.width Ui.borderWidth ]
@@ -326,7 +326,7 @@ configCategoriesEnabled model =
 
                     False ->
                         Msg.SetSettings { settings | categoriesEnabled = False }
-        , label = "Utiliser des catégories:"
+        , label = "Activer les catégories:"
         , options =
             [ Ui.radioRowOption True (E.text "Oui")
             , Ui.radioRowOption False (E.text "Non")

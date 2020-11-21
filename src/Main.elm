@@ -398,12 +398,14 @@ view model =
                             , E.padding 16
                             , E.scrollbarY
                             , E.behindContent
-                                (E.el
+                                (Input.button
                                     [ E.width E.fill
                                     , E.height E.fill
                                     , Background.color (E.rgba 0 0 0 0.6)
                                     ]
-                                    E.none
+                                    { label = E.none
+                                    , onPress = Just Msg.Close
+                                    }
                                 )
                             ]
                             (Dialog.view model)
@@ -436,10 +438,7 @@ view model =
                             ]
 
                         Nothing ->
-                            [ E.width E.fill
-                            , E.height E.fill
-                            , E.scrollbarY
-                            , E.inFront (E.column [] [])
+                            [ E.inFront (E.column [] [])
                             ]
             )
             (case model.page of

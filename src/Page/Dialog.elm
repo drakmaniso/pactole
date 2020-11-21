@@ -6,7 +6,7 @@ module Page.Dialog exposing
 import Browser.Dom as Dom
 import Date
 import Dict
-import Element exposing (..)
+import Element as E
 import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
@@ -169,20 +169,20 @@ update msg model =
 -- VIEW
 
 
-view : Model.Model -> Element Msg.Msg
+view : Model.Model -> E.Element Msg.Msg
 view model =
     case model.dialog of
         Just dialog ->
-            column
-                [ centerX
-                , centerY
-                , width (px 960)
-                , height shrink
-                , paddingXY 0 0
-                , spacing 0
-                , scrollbarY
+            E.column
+                [ E.centerX
+                , E.centerY
+                , E.width (E.px 960)
+                , E.height E.shrink
+                , E.paddingXY 0 0
+                , E.spacing 0
+                , E.scrollbarY
                 , Background.color Ui.bgWhite
-                , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 32, color = rgba 0 0 0 0.75 }
+                , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 32, color = E.rgba 0 0 0 0.75 }
                 ]
                 [ titleRow dialog
                 , amountRow dialog
@@ -191,26 +191,27 @@ view model =
                     categoryRow model dialog
 
                   else
-                    none
-                , el [ height fill, Background.color Ui.bgWhite ] none
+                    E.none
+                , E.el [ E.height E.fill, Background.color Ui.bgWhite ] E.none
                 , buttonsRow dialog
                 ]
 
         Nothing ->
-            none
+            E.none
 
 
 titleRow dialog =
-    row
-        [ alignLeft
-        , width fill
-        , paddingEach { top = 24, bottom = 24, right = 48, left = 48 }
-        , spacing 12
+    E.row
+        [ E.alignLeft
+        , E.width E.fill
+        , E.paddingEach { top = 24, bottom = 24, right = 24, left = 24 }
+        , E.spacing 12
         , Background.color (Ui.bgTransaction dialog.isExpense)
         ]
-        [ el
-            [ width fill, Font.center, Ui.bigFont, Font.bold, Font.color Ui.bgWhite ]
-            (text
+        [ E.el [ E.width (E.px 48) ] E.none
+        , E.el
+            [ E.width E.fill, Font.center, Ui.bigFont, Font.bold, Font.color Ui.bgWhite ]
+            (E.text
                 (if dialog.isExpense then
                     "Dépense"
 
@@ -222,24 +223,24 @@ titleRow dialog =
 
 
 amountRow dialog =
-    row
-        [ alignLeft
-        , centerY
-        , width fill
-        , paddingEach { top = 48, bottom = 24, right = 64, left = 64 }
-        , spacing 12
+    E.row
+        [ E.alignLeft
+        , E.centerY
+        , E.width E.fill
+        , E.paddingEach { top = 48, bottom = 24, right = 64, left = 64 }
+        , E.spacing 12
         , Background.color Ui.bgWhite
-        , centerY
+        , E.centerY
         ]
         [ Input.text
             [ Ui.onEnter (Msg.ForDialog <| Msg.DialogConfirm)
             , Ui.bigFont
-            , paddingXY 8 12
-            , width (shrink |> minimum 220)
-            , alignLeft
+            , E.paddingXY 8 12
+            , E.width (E.shrink |> E.minimum 220)
+            , E.alignLeft
             , Border.width 1
             , Border.color Ui.bgDark
-            , focused
+            , E.focused
                 [ Border.shadow
                     { offset = ( 0, 0 )
                     , size = 4
@@ -247,59 +248,59 @@ amountRow dialog =
                     , color = Ui.fgFocus
                     }
                 ]
-            , htmlAttribute <| HtmlAttr.id "dialog-amount"
+            , E.htmlAttribute <| HtmlAttr.id "dialog-amount"
             ]
             { label =
                 Input.labelAbove
-                    [ width shrink
-                    , alignLeft
-                    , height fill
+                    [ E.width E.shrink
+                    , E.alignLeft
+                    , E.height E.fill
                     , Font.color Ui.fgTitle
                     , Ui.normalFont
                     , Font.bold
-                    , paddingEach { top = 0, bottom = 0, left = 12, right = 0 }
-                    , pointer
+                    , E.paddingEach { top = 0, bottom = 0, left = 12, right = 0 }
+                    , E.pointer
                     ]
-                    (text "Somme:")
+                    (E.text "Somme:")
             , text = dialog.amount
             , placeholder = Nothing
             , onChange = Msg.ForDialog << Msg.DialogAmount
             }
-        , el
+        , E.el
             [ Ui.bigFont
             , Font.color Ui.fgBlack
-            , paddingXY 0 12
-            , width shrink
-            , alignLeft
-            , alignBottom
+            , E.paddingXY 0 12
+            , E.width E.shrink
+            , E.alignLeft
+            , E.alignBottom
             , Border.width 1
-            , Border.color (rgba 0 0 0 0)
+            , Border.color (E.rgba 0 0 0 0)
             ]
-            (text "€")
+            (E.text "€")
         , if dialog.amountError /= "" then
             Ui.warningParagraph
-                [ width fill ]
-                [ text dialog.amountError ]
+                [ E.width E.fill ]
+                [ E.text dialog.amountError ]
 
           else
-            el [] none
+            E.el [] E.none
         ]
 
 
 descriptionRow dialog =
-    row
-        [ width fill
-        , paddingEach { top = 24, bottom = 24, right = 64, left = 64 }
-        , spacing 12
+    E.row
+        [ E.width E.fill
+        , E.paddingEach { top = 24, bottom = 24, right = 64, left = 64 }
+        , E.spacing 12
         , Background.color Ui.bgWhite
         ]
         [ Input.multiline
             [ Ui.onEnter (Msg.ForDialog <| Msg.DialogConfirm)
             , Ui.bigFont
-            , paddingXY 8 12
+            , E.paddingXY 8 12
             , Border.width 1
             , Border.color Ui.bgDark
-            , focused
+            , E.focused
                 [ Border.shadow
                     { offset = ( 0, 0 )
                     , size = 4
@@ -307,20 +308,20 @@ descriptionRow dialog =
                     , color = Ui.fgFocus
                     }
                 ]
-            , width fill
-            , scrollbarY
+            , E.width E.fill
+            , E.scrollbarY
             ]
             { label =
                 Input.labelAbove
-                    [ width shrink
-                    , height fill
+                    [ E.width E.shrink
+                    , E.height E.fill
                     , Font.color Ui.fgTitle
                     , Ui.normalFont
                     , Font.bold
-                    , paddingEach { top = 0, bottom = 0, left = 12, right = 0 }
-                    , pointer
+                    , E.paddingEach { top = 0, bottom = 0, left = 12, right = 0 }
+                    , E.pointer
                     ]
-                    (text "Description:")
+                    (E.text "Description:")
             , text = dialog.description
             , placeholder = Nothing
             , onChange = Msg.ForDialog << Msg.DialogDescription
@@ -352,39 +353,39 @@ categoryRow model dialog =
                             |> List.reverse
                    )
     in
-    column
-        [ width fill
-        , height shrink
-        , paddingEach { top = 24, bottom = 24, right = 64, left = 64 }
-        , spacing 6
+    E.column
+        [ E.width E.fill
+        , E.height E.shrink
+        , E.paddingEach { top = 24, bottom = 24, right = 64, left = 64 }
+        , E.spacing 6
         , Background.color Ui.bgWhite
         ]
-        [ el
-            [ width shrink
-            , height fill
+        [ E.el
+            [ E.width E.shrink
+            , E.height E.fill
             , Font.color Ui.fgTitle
             , Ui.normalFont
             , Font.bold
-            , paddingEach { top = 0, bottom = 12, left = 12, right = 0 }
-            , pointer
+            , E.paddingEach { top = 0, bottom = 12, left = 12, right = 0 }
+            , E.pointer
             ]
-            (text "Catégorie:")
-        , table
-            [ width fill
-            , spacing 12
-            , paddingXY 64 0
+            (E.text "Catégorie:")
+        , E.table
+            [ E.width E.fill
+            , E.spacing 12
+            , E.paddingXY 64 0
 
             --BUGGY: , scrollbarY
             ]
             { data = categories
             , columns =
-                [ { header = none
-                  , width = fill
+                [ { header = E.none
+                  , width = E.fill
                   , view =
                         \row ->
                             case List.head row of
                                 Nothing ->
-                                    none
+                                    E.none
 
                                 Just ( k, v ) ->
                                     Ui.radioButton []
@@ -394,13 +395,13 @@ categoryRow model dialog =
                                         , active = k == dialog.category
                                         }
                   }
-                , { header = none
-                  , width = fill
+                , { header = E.none
+                  , width = E.fill
                   , view =
                         \row ->
                             case List.head (List.drop 1 row) of
                                 Nothing ->
-                                    none
+                                    E.none
 
                                 Just ( k, v ) ->
                                     Ui.radioButton []
@@ -410,13 +411,13 @@ categoryRow model dialog =
                                         , active = k == dialog.category
                                         }
                   }
-                , { header = none
-                  , width = fill
+                , { header = E.none
+                  , width = E.fill
                   , view =
                         \row ->
                             case List.head (List.drop 2 row) of
                                 Nothing ->
-                                    none
+                                    E.none
 
                                 Just ( k, v ) ->
                                     Ui.radioButton []
@@ -432,25 +433,25 @@ categoryRow model dialog =
 
 
 buttonsRow dialog =
-    row
-        [ width fill
-        , spacing 24
-        , paddingEach { top = 64, bottom = 24, left = 64, right = 64 }
+    E.row
+        [ E.width E.fill
+        , E.spacing 24
+        , E.paddingEach { top = 64, bottom = 24, left = 64, right = 64 }
         , Background.color Ui.bgWhite
         ]
         [ Ui.simpleButton
-            [ alignRight ]
-            { label = text "Annuler", onPress = Just Msg.Close }
+            [ E.alignRight ]
+            { label = E.text "Annuler", onPress = Just Msg.Close }
         , case dialog.id of
             Just _ ->
                 Ui.simpleButton
                     []
-                    { label = text "Supprimer", onPress = Just (Msg.ForDialog <| Msg.DialogDelete) }
+                    { label = E.text "Supprimer", onPress = Just (Msg.ForDialog <| Msg.DialogDelete) }
 
             Nothing ->
-                none
-        , Ui.mainButton [ width shrink ]
-            { label = text "OK"
+                E.none
+        , Ui.mainButton [ E.width E.shrink ]
+            { label = E.text "OK"
             , onPress = Just (Msg.ForDialog <| Msg.DialogConfirm)
             }
         ]
