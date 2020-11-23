@@ -5,7 +5,6 @@ module Page.Dialog exposing
 
 import Browser.Dom as Dom
 import Database
-import Date
 import Dict
 import Element as E
 import Element.Background as Background
@@ -13,7 +12,6 @@ import Element.Border as Border
 import Element.Font as Font
 import Element.Input as Input
 import Html.Attributes as HtmlAttr
-import Json.Encode as Encode
 import Ledger
 import Log
 import Model

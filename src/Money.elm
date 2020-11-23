@@ -110,9 +110,6 @@ validate input =
 fromInput expense input =
     if validate input == "" then
         let
-            trimmed =
-                String.filter (\c -> c /= ' ') input
-
             sign =
                 if expense then
                     -1

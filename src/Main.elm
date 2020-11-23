@@ -62,7 +62,8 @@ init flags _ _ =
                 Ok v ->
                     v
 
-                Err e ->
+                Err _ ->
+                    --TODO
                     0
 
         month =
@@ -70,7 +71,8 @@ init flags _ _ =
                 Ok v ->
                     v
 
-                Err e ->
+                Err _ ->
+                    --TODO
                     0
 
         year =
@@ -78,7 +80,8 @@ init flags _ _ =
                 Ok v ->
                     v
 
-                Err e ->
+                Err _ ->
+                    --TODO
                     0
 
         ( today, cmd ) =
@@ -125,27 +128,19 @@ init flags _ _ =
 
 update : Msg.Msg -> Model.Model -> ( Model.Model, Cmd Msg.Msg )
 update msg model =
-    let
-        settingsMsg handler =
-            let
-                ( shared, cmd ) =
-                    handler model
-            in
-            ( shared, cmd )
-    in
     case msg of
         Msg.Today d ->
             ( { model | today = d, date = d }, Cmd.none )
 
         Msg.LinkClicked req ->
             case req of
-                Browser.Internal url ->
+                Browser.Internal _ ->
                     ( model, Cmd.none )
 
-                Browser.External href ->
+                Browser.External _ ->
                     ( model, Cmd.none )
 
-        Msg.UrlChanged url ->
+        Msg.UrlChanged _ ->
             ( model, Cmd.none )
 
         Msg.ChangePage page ->

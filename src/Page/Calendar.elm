@@ -342,9 +342,6 @@ dayContentFor model day =
     let
         render idx transaction =
             let
-                parts =
-                    Money.toStrings transaction.amount
-
                 category =
                     Model.category transaction.category model
             in

@@ -11,7 +11,6 @@ import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
 import Element.Input as Input
-import Html.Attributes
 import Log
 import Model
 import Msg
@@ -226,20 +225,6 @@ view model =
         }
 
 
-accountRow model account =
-    E.row [ E.spacing 48 ]
-        [ E.el [] (E.text account)
-        , Ui.iconButton []
-            { icon = Ui.editIcon []
-            , onPress = Nothing
-            }
-        , Ui.iconButton []
-            { icon = Ui.deleteIcon []
-            , onPress = Nothing
-            }
-        ]
-
-
 configWarning model =
     let
         settings =
@@ -386,14 +371,6 @@ configCategories model =
                     }
                 ]
         }
-
-
-
--- CALLBACKS
-
-
-createNewAccount model =
-    Database.createAccount (newAccountName model.accounts 1)
 
 
 

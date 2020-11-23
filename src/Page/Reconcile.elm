@@ -1,14 +1,12 @@
 module Page.Reconcile exposing (view)
 
 import Date
-import Dict
 import Element as E
 import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
 import Ledger
 import Model
-import Money
 import Msg
 import Page.Summary as Summary
 import Ui
