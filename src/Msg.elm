@@ -10,10 +10,7 @@ import Url
 
 
 type Msg
-    = Today Date.Date
-    | LinkClicked Browser.UrlRequest
-    | UrlChanged Url.Url
-    | ChangePage Model.Page
+    = ChangePage Model.Page
     | AttemptSettings
     | AttemptTimeout
     | Close

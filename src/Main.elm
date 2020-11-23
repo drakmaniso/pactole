@@ -45,8 +45,8 @@ main =
         , update = update
         , view = view
         , subscriptions = subscriptions
-        , onUrlChange = Msg.UrlChanged
-        , onUrlRequest = Msg.LinkClicked
+        , onUrlChange = \_ -> Msg.NoOp
+        , onUrlRequest = \_ -> Msg.NoOp
         }
 
 
@@ -129,20 +129,6 @@ init flags _ _ =
 update : Msg.Msg -> Model.Model -> ( Model.Model, Cmd Msg.Msg )
 update msg model =
     case msg of
-        Msg.Today d ->
-            ( { model | today = d, date = d }, Cmd.none )
-
-        Msg.LinkClicked req ->
-            case req of
-                Browser.Internal _ ->
-                    ( model, Cmd.none )
-
-                Browser.External _ ->
-                    ( model, Cmd.none )
-
-        Msg.UrlChanged _ ->
-            ( model, Cmd.none )
-
         Msg.ChangePage page ->
             ( { model | page = page }
             , Task.attempt (\_ -> Msg.NoOp) (Dom.blur "unfocus-on-page-change")
