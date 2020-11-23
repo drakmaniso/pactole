@@ -11,8 +11,10 @@ import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
 import Element.Input as Input
+import Ledger
 import Log
 import Model
+import Money
 import Msg
 import Ui
 
@@ -115,6 +117,54 @@ update msg model =
 
                 Nothing ->
                     ( { model | settingsDialog = Nothing }, Cmd.none )
+
+        Msg.NewRecurringTransaction ->
+            let
+                t =
+                    { date = model.today
+                    , amount = Money.zero
+                    , description = "Nouvelle operation"
+                    , category = 0
+                    , checked = False
+                    }
+
+                settings =
+                    model.settings
+
+                account =
+                    case model.account of
+                        Just a ->
+                            a
+
+                        Nothing ->
+                            0
+
+                newSettings =
+                    { settings
+                        | recurringTransactions =
+                            settings.recurringTransactions ++ [ ( account, t ) ]
+                    }
+            in
+            ( model, Database.storeSettings newSettings )
+
+        Msg.OpenEditRecurring _ ->
+            ( model, Cmd.none )
+
+        Msg.DeleteRecurring idx ->
+            let
+                remove i xs =
+                    List.take i xs ++ List.drop (i + 1) xs
+
+                settings =
+                    model.settings
+
+                newSettings =
+                    { settings
+                        | recurringTransactions =
+                            remove idx settings.recurringTransactions
+                    }
+            in
+            ( model, Database.storeSettings newSettings )
 
 
 
@@ -221,6 +271,7 @@ view model =
                 , configReconciliation model
                 , configCategoriesEnabled model
                 , configCategories model
+                , configRecurring model
                 ]
         }
 
@@ -367,6 +418,72 @@ configCategories model =
                     }
                 , Ui.simpleButton []
                     { onPress = Just (Msg.ForDatabase <| Msg.CreateCategory "Nouvelle catégorie" "")
+                    , label = E.row [] [ Ui.plusIcon [], E.text "  Ajouter" ]
+                    }
+                ]
+        }
+
+
+configRecurring : Model.Model -> E.Element Msg.Msg
+configRecurring model =
+    let
+        headerTxt txt =
+            E.el [ Font.center, Ui.smallFont, Font.color Ui.fgDark ] (E.text txt)
+    in
+    Ui.configCustom []
+        { label = "Operations recurrentes:"
+        , content =
+            E.column [ E.spacing 24 ]
+                [ E.table [ E.spacingXY 12 6 ]
+                    { data =
+                        List.indexedMap
+                            (\i ( a, t ) -> ( i, a, t ))
+                            model.settings.recurringTransactions
+                    , columns =
+                        [ { header = headerTxt "Compte"
+                          , width = E.shrink
+                          , view =
+                                \( i, a, t ) ->
+                                    E.el [ Font.center, E.centerY ] (E.text (Model.account a model))
+                          }
+                        , { header = headerTxt "Montant"
+                          , width = E.shrink
+                          , view =
+                                \( i, a, t ) ->
+                                    let
+                                        m =
+                                            Money.toStrings t.amount
+                                    in
+                                    E.el [ Font.alignRight, E.centerY ] (E.text (m.sign ++ m.units ++ "," ++ m.cents))
+                          }
+                        , { header = headerTxt "Description"
+                          , width = E.fill
+                          , view =
+                                \( i, a, t ) ->
+                                    E.el [ E.centerY ] (E.text t.description)
+                          }
+                        , { header = E.none
+                          , width = E.shrink
+                          , view =
+                                \( i, _, _ ) ->
+                                    Ui.iconButton []
+                                        { icon = Ui.editIcon []
+                                        , onPress = Just (Msg.ForSettingsDialog <| Msg.OpenEditRecurring i)
+                                        }
+                          }
+                        , { header = E.none
+                          , width = E.shrink
+                          , view =
+                                \( i, _, _ ) ->
+                                    Ui.iconButton []
+                                        { icon = Ui.deleteIcon []
+                                        , onPress = Just (Msg.ForSettingsDialog <| Msg.DeleteRecurring i)
+                                        }
+                          }
+                        ]
+                    }
+                , Ui.simpleButton []
+                    { onPress = Just (Msg.ForSettingsDialog <| Msg.NewRecurringTransaction)
                     , label = E.row [] [ Ui.plusIcon [], E.text "  Ajouter" ]
                     }
                 ]

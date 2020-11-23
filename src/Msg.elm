@@ -50,3 +50,6 @@ type SettingsDialogMsg
     | SettingsChangeName String
     | SettingsChangeIcon String
     | SettingsConfirm
+    | NewRecurringTransaction
+    | OpenEditRecurring Int
+    | DeleteRecurring Int
