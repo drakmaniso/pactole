@@ -11,6 +11,10 @@ when inside the directory containing this file.
 
 -}
 
+import NoDebug.Log
+import NoDebug.TodoOrToString
+import NoUnused.CustomTypeConstructorArgs
+import NoUnused.CustomTypeConstructors
 import NoUnused.Dependencies
 import NoUnused.Modules
 import NoUnused.Patterns
@@ -20,7 +24,11 @@ import Review.Rule exposing (Rule)
 
 config : List Rule
 config =
-    [ NoUnused.Dependencies.rule
+    [ NoDebug.Log.rule
+    , NoDebug.TodoOrToString.rule
+    , NoUnused.CustomTypeConstructors.rule []
+    , NoUnused.CustomTypeConstructorArgs.rule
+    , NoUnused.Dependencies.rule
     , NoUnused.Modules.rule
     , NoUnused.Patterns.rule
     , NoUnused.Variables.rule
