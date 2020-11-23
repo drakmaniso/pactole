@@ -4,6 +4,7 @@ module Page.Settings exposing
     , viewDialog
     )
 
+import Database
 import Dict
 import Element as E
 import Element.Background as Background
@@ -11,9 +12,9 @@ import Element.Border as Border
 import Element.Font as Font
 import Element.Input as Input
 import Html.Attributes
+import Log
 import Model
 import Msg
-import Ports
 import Ui
 
 
@@ -78,7 +79,7 @@ update msg model =
 
                 Just other ->
                     ( { model | settingsDialog = Just other }
-                    , Ports.error "updateName: not in Rename Model.SettingsDialog"
+                    , Log.error "updateName: not in Rename Model.SettingsDialog"
                     )
 
                 Nothing ->
@@ -93,7 +94,7 @@ update msg model =
 
                 Just other ->
                     ( { model | settingsDialog = Just other }
-                    , Ports.error "updateName: not in Rename Model.SettingsDialog"
+                    , Log.error "updateName: not in Rename Model.SettingsDialog"
                     )
 
                 Nothing ->
@@ -102,16 +103,16 @@ update msg model =
         Msg.SettingsConfirm ->
             case model.settingsDialog of
                 Just (Model.RenameAccount submodel) ->
-                    ( { model | settingsDialog = Nothing }, Ports.renameAccount submodel.id submodel.name )
+                    ( { model | settingsDialog = Nothing }, Database.renameAccount submodel.id submodel.name )
 
                 Just (Model.DeleteAccount submodel) ->
-                    ( { model | settingsDialog = Nothing }, Ports.deleteAccount submodel.id )
+                    ( { model | settingsDialog = Nothing }, Database.deleteAccount submodel.id )
 
                 Just (Model.RenameCategory submodel) ->
-                    ( { model | settingsDialog = Nothing }, Ports.renameCategory submodel.id submodel.name submodel.icon )
+                    ( { model | settingsDialog = Nothing }, Database.renameCategory submodel.id submodel.name submodel.icon )
 
                 Just (Model.DeleteCategory submodel) ->
-                    ( { model | settingsDialog = Nothing }, Ports.deleteCategory submodel.id )
+                    ( { model | settingsDialog = Nothing }, Database.deleteCategory submodel.id )
 
                 Nothing ->
                     ( { model | settingsDialog = Nothing }, Cmd.none )
@@ -188,7 +189,7 @@ view model =
                                     ]
                                 }
                             , Ui.simpleButton []
-                                { onPress = Just (Msg.CreateAccount (newAccountName (Dict.values model.accounts) 1))
+                                { onPress = Just (Msg.ForDatabase <| Msg.CreateAccount (newAccountName (Dict.values model.accounts) 1))
                                 , label = E.row [] [ Ui.plusIcon [], E.text "  Ajouter" ]
                                 }
                             ]
@@ -251,7 +252,7 @@ configWarning model =
                 [ Ui.iconButton [ Border.color Ui.fgDark, Border.width Ui.borderWidth ]
                     { icon = Ui.minusIcon []
                     , onPress =
-                        Just (Msg.SetSettings { settings | balanceWarning = settings.balanceWarning - 10 })
+                        Just (Msg.ForDatabase <| Msg.StoreSettings { settings | balanceWarning = settings.balanceWarning - 10 })
                     }
                 , E.el [ Ui.bigFont ]
                     (E.text (String.fromInt model.settings.balanceWarning))
@@ -260,7 +261,7 @@ configWarning model =
                 , Ui.iconButton [ Border.color Ui.fgDark, Border.width Ui.borderWidth ]
                     { icon = Ui.plusIcon []
                     , onPress =
-                        Just (Msg.SetSettings { settings | balanceWarning = settings.balanceWarning + 10 })
+                        Just (Msg.ForDatabase <| Msg.StoreSettings { settings | balanceWarning = settings.balanceWarning + 10 })
                     }
                 ]
         }
@@ -276,10 +277,10 @@ configSummary model =
                 in
                 case o of
                     True ->
-                        Msg.SetSettings { settings | summaryEnabled = True }
+                        Msg.ForDatabase <| Msg.StoreSettings { settings | summaryEnabled = True }
 
                     False ->
-                        Msg.SetSettings { settings | summaryEnabled = False }
+                        Msg.ForDatabase <| Msg.StoreSettings { settings | summaryEnabled = False }
         , label = "Activer la page de bilan:"
         , options =
             [ Ui.radioRowOption True (E.text "Oui")
@@ -299,10 +300,10 @@ configReconciliation model =
                 in
                 case o of
                     True ->
-                        Msg.SetSettings { settings | reconciliationEnabled = True }
+                        Msg.ForDatabase <| Msg.StoreSettings { settings | reconciliationEnabled = True }
 
                     False ->
-                        Msg.SetSettings { settings | reconciliationEnabled = False }
+                        Msg.ForDatabase <| Msg.StoreSettings { settings | reconciliationEnabled = False }
         , label = "Activer la page de pointage:"
         , options =
             [ Ui.radioRowOption True (E.text "Oui")
@@ -322,10 +323,10 @@ configCategoriesEnabled model =
                 in
                 case o of
                     True ->
-                        Msg.SetSettings { settings | categoriesEnabled = True }
+                        Msg.ForDatabase <| Msg.StoreSettings { settings | categoriesEnabled = True }
 
                     False ->
-                        Msg.SetSettings { settings | categoriesEnabled = False }
+                        Msg.ForDatabase <| Msg.StoreSettings { settings | categoriesEnabled = False }
         , label = "Activer les catégories:"
         , options =
             [ Ui.radioRowOption True (E.text "Oui")
@@ -380,7 +381,7 @@ configCategories model =
                         ]
                     }
                 , Ui.simpleButton []
-                    { onPress = Just (Msg.CreateCategory "Nouvelle catégorie" "")
+                    { onPress = Just (Msg.ForDatabase <| Msg.CreateCategory "Nouvelle catégorie" "")
                     , label = E.row [] [ Ui.plusIcon [], E.text "  Ajouter" ]
                     }
                 ]
@@ -392,7 +393,7 @@ configCategories model =
 
 
 createNewAccount model =
-    Ports.createAccount (newAccountName model.accounts 1)
+    Database.createAccount (newAccountName model.accounts 1)
 
 
 

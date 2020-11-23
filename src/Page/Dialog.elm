@@ -4,6 +4,7 @@ module Page.Dialog exposing
     )
 
 import Browser.Dom as Dom
+import Database
 import Date
 import Dict
 import Element as E
@@ -14,10 +15,10 @@ import Element.Input as Input
 import Html.Attributes as HtmlAttr
 import Json.Encode as Encode
 import Ledger
+import Log
 import Model
 import Money
 import Msg
-import Ports
 import Task
 import Ui
 
@@ -48,7 +49,7 @@ update msg model =
         Msg.EditDialog id ->
             case Ledger.getTransaction id model.ledger of
                 Nothing ->
-                    ( model, Ports.error "msgEditDialog: unable to get transaction" )
+                    ( model, Log.error "msgEditDialog: unable to get transaction" )
 
                 Just t ->
                     ( { model
@@ -120,7 +121,7 @@ update msg model =
                     case ( dialog.id, Money.fromInput dialog.isExpense dialog.amount ) of
                         ( Just id, Just amount ) ->
                             ( { model | dialog = Nothing }
-                            , Ports.replaceTransaction
+                            , Database.replaceTransaction
                                 model.account
                                 { id = id
                                 , date = dialog.date
@@ -133,7 +134,7 @@ update msg model =
 
                         ( Nothing, Just amount ) ->
                             ( { model | dialog = Nothing }
-                            , Ports.createTransaction
+                            , Database.createTransaction
                                 model.account
                                 { date = dialog.date
                                 , amount = amount
@@ -147,7 +148,7 @@ update msg model =
                             ( model, Cmd.none )
 
                 _ ->
-                    ( model, Ports.error "impossible Confirm message" )
+                    ( model, Log.error "impossible Confirm message" )
 
         Msg.DialogDelete ->
             case model.dialog of
@@ -155,14 +156,14 @@ update msg model =
                     case dialog.id of
                         Just id ->
                             ( { model | dialog = Nothing }
-                            , Ports.deleteTransaction model.account id
+                            , Database.deleteTransaction model.account id
                             )
 
                         Nothing ->
-                            ( model, Ports.error "impossible Delete message" )
+                            ( model, Log.error "impossible Delete message" )
 
                 Nothing ->
-                    ( model, Ports.error "impossible Delete message" )
+                    ( model, Log.error "impossible Delete message" )
 
 
 

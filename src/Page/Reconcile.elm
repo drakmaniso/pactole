@@ -136,7 +136,7 @@ colReconciled transaction =
 
                 else
                     E.none
-            , onPress = Just (Msg.CheckTransaction transaction (not transaction.checked))
+            , onPress = Just (Msg.ForDatabase <| Msg.CheckTransaction transaction (not transaction.checked))
             }
         )
 

@@ -5,6 +5,7 @@ import Date
 import Json.Decode as Decode
 import Ledger
 import Model
+import Ports
 import Url
 
 
@@ -12,7 +13,6 @@ type Msg
     = Today Date.Date
     | LinkClicked Browser.UrlRequest
     | UrlChanged Url.Url
-    | FromService ( String, Decode.Value )
     | ChangePage Model.Page
     | AttemptSettings
     | AttemptTimeout
@@ -21,13 +21,18 @@ type Msg
     | SelectAccount Int
     | KeyDown String
     | KeyUp String
-    | CreateAccount String
-    | CreateCategory String String
-    | SetSettings Model.Settings
-    | CheckTransaction Ledger.Transaction Bool
+    | ForDatabase DatabaseMsg
     | ForDialog DialogMsg
     | ForSettingsDialog SettingsDialogMsg
     | NoOp
+
+
+type DatabaseMsg
+    = FromService ( String, Decode.Value )
+    | CreateAccount String
+    | CreateCategory String String
+    | StoreSettings Model.Settings
+    | CheckTransaction Ledger.Transaction Bool
 
 
 type DialogMsg

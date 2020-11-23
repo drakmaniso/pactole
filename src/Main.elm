@@ -5,6 +5,7 @@ import Browser
 import Browser.Dom as Dom
 import Browser.Events
 import Browser.Navigation as Navigation
+import Database
 import Date
 import Dict
 import Element as E
@@ -17,6 +18,7 @@ import Html.Attributes
 import Json.Decode as Decode
 import Json.Encode as Encode
 import Ledger
+import Log
 import Model
 import Money
 import Msg
@@ -26,7 +28,6 @@ import Page.Reconcile as Reconcile
 import Page.Settings as Settings
 import Page.Statistics as Statistics
 import Page.Tabular as Tabular
-import Ports
 import Process
 import Task
 import Time
@@ -86,7 +87,7 @@ init flags _ _ =
                     ( d, Cmd.none )
 
                 Nothing ->
-                    ( Date.default, Ports.error "init flags: invalid date for today" )
+                    ( Date.default, Log.error "init flags: invalid date for today" )
     in
     ( { settings =
             { categoriesEnabled = False
@@ -147,9 +148,6 @@ update msg model =
         Msg.UrlChanged url ->
             ( model, Cmd.none )
 
-        Msg.FromService ( title, json ) ->
-            msgFromService ( title, json ) model
-
         Msg.ChangePage page ->
             ( { model | page = page }
             , Task.attempt (\_ -> Msg.NoOp) (Dom.blur "unfocus-on-page-change")
@@ -193,7 +191,7 @@ update msg model =
             ( { model | date = date }, Cmd.none )
 
         Msg.SelectAccount accountID ->
-            ( { model | account = Just accountID }, Ports.requestLedger accountID )
+            ( { model | account = Just accountID }, Database.requestLedger accountID )
 
         Msg.KeyDown string ->
             if string == "Alt" || string == "Control" || string == "Shift" then
@@ -208,27 +206,8 @@ update msg model =
         Msg.KeyUp string ->
             ( { model | showAdvanced = False }, Cmd.none )
 
-        Msg.CreateAccount name ->
-            ( model, Ports.createAccount name )
-
-        Msg.CreateCategory name icon ->
-            ( model, Ports.createCategory name icon )
-
-        Msg.SetSettings settings ->
-            ( model, Ports.storeSettings settings )
-
-        Msg.CheckTransaction transaction checked ->
-            ( model
-            , Ports.replaceTransaction
-                model.account
-                { id = transaction.id
-                , date = transaction.date
-                , amount = transaction.amount
-                , description = transaction.description
-                , category = transaction.category
-                , checked = checked
-                }
-            )
+        Msg.ForDatabase m ->
+            Database.update m model
 
         Msg.ForDialog m ->
             Dialog.update m model
@@ -241,110 +220,13 @@ update msg model =
 
 
 
--- SERVICE WORKER MESSAGES
-
-
-msgFromService : ( String, Decode.Value ) -> Model.Model -> ( Model.Model, Cmd Msg.Msg )
-msgFromService ( title, content ) model =
-    case title of
-        "start application" ->
-            ( model
-            , Cmd.batch
-                [ Ports.requestAccounts
-                , Ports.requestCategories
-                , Ports.requestSettings
-                ]
-            )
-
-        "update accounts" ->
-            case Decode.decodeValue (Decode.list Model.decodeAccount) content of
-                Ok (head :: tail) ->
-                    let
-                        accounts =
-                            head :: tail
-
-                        accountID =
-                            --TODO: use current account if set
-                            Tuple.first head
-                    in
-                    ( { model | accounts = Dict.fromList accounts, account = Just accountID }
-                    , Ports.requestLedger accountID
-                    )
-
-                Err e ->
-                    --TODO: error
-                    ( model, Ports.error ("while decoding account list: " ++ Decode.errorToString e) )
-
-                _ ->
-                    --TODO: error
-                    ( model, Ports.error "received account list is empty" )
-
-        "update categories" ->
-            case Decode.decodeValue (Decode.list Model.decodeCategory) content of
-                Ok categories ->
-                    ( { model | categories = Dict.fromList categories }, Cmd.none )
-
-                Err e ->
-                    --TODO: error
-                    ( model, Ports.error ("while decoding category list: " ++ Decode.errorToString e) )
-
-        "update settings" ->
-            case Decode.decodeValue Model.decodeSettings content of
-                Ok settings ->
-                    ( { model | settings = settings }, Cmd.none )
-
-                Err e ->
-                    --TODO: error
-                    ( model, Ports.error ("while decoding settings: " ++ Decode.errorToString e) )
-
-        "invalidate ledger" ->
-            case ( model.account, Decode.decodeValue Decode.int content ) of
-                ( Just currentID, Ok updatedID ) ->
-                    if updatedID == currentID then
-                        ( model, Ports.requestLedger updatedID )
-
-                    else
-                        ( model, Cmd.none )
-
-                ( Nothing, _ ) ->
-                    ( model, Cmd.none )
-
-                ( _, Err e ) ->
-                    ( model, Ports.error (Decode.errorToString e) )
-
-        "update ledger" ->
-            case Decode.decodeValue Ledger.decode content of
-                Ok ledger ->
-                    ( { model | ledger = ledger }
-                    , Cmd.none
-                    )
-
-                Err e ->
-                    ( model, Ports.error (Decode.errorToString e) )
-
-        "invalidate settings" ->
-            case Decode.decodeValue Model.decodeSettings content of
-                Ok settings ->
-                    ( { model | settings = settings }
-                    , Cmd.none
-                    )
-
-                Err e ->
-                    ( model, Ports.error (Decode.errorToString e) )
-
-        _ ->
-            --TODO: error
-            ( model, Ports.error ("in message from service: unknown title \"" ++ title ++ "\"") )
-
-
-
 -- SUBSCRIPTIONS
 
 
 subscriptions : Model.Model -> Sub Msg.Msg
 subscriptions _ =
     Sub.batch
-        [ Ports.receive Msg.FromService
+        [ Database.receive
         , Browser.Events.onKeyDown (keyDecoder Msg.KeyDown)
         , Browser.Events.onKeyUp (keyDecoder Msg.KeyUp)
         ]
