@@ -210,6 +210,68 @@ iconFont =
 
 
 
+-- ICONS
+
+
+closeIcon attributes =
+    E.el ([ iconFont, normalFont, E.centerX ] ++ attributes)
+        (E.text "\u{F00D}")
+
+
+backIcon attributes =
+    E.el ([ iconFont, normalFont ] ++ attributes)
+        (E.text "\u{F30A}")
+
+
+editIcon attributes =
+    E.el ([ iconFont, normalFont, E.centerX ] ++ attributes)
+        (E.text "\u{F044}")
+
+
+deleteIcon attributes =
+    E.el ([ iconFont, normalFont, E.centerX ] ++ attributes)
+        (E.text "\u{F2ED}")
+
+
+minusIcon attributes =
+    E.el ([ iconFont, normalFont, E.centerX ] ++ attributes)
+        (E.text "\u{F068}")
+
+
+plusIcon attributes =
+    E.el ([ iconFont, normalFont, E.centerX ] ++ attributes)
+        (E.text "\u{F067}")
+
+
+checkIcon attributes =
+    E.el ([ iconFont, normalFont ] ++ attributes)
+        (E.text "\u{F00C}")
+
+
+warningIcon attributes =
+    E.el ([ iconFont, bigFont, E.centerX, E.paddingXY 24 0, Font.color warningColor ] ++ attributes)
+        (E.text "\u{F071}")
+
+
+bigWarningIcon attributes =
+    E.el
+        ([ iconFont, Font.size 48, E.alignLeft, E.padding 12, Font.color warningColor ]
+            ++ attributes
+        )
+        (E.text "\u{F071}")
+
+
+incomeIcon attributes =
+    E.el ([ iconFont, normalFont, E.centerX, Font.color fgIncome ] ++ attributes)
+        (E.text "\u{F067}")
+
+
+expenseIcon attributes =
+    E.el ([ iconFont, normalFont, E.centerX, Font.color fgExpense ] ++ attributes)
+        (E.text "\u{F068}")
+
+
+
 -- CONTAINERS
 
 
@@ -320,68 +382,6 @@ configCustom attributes { label, content } =
             (E.el [ Font.bold ] (E.text label))
         , E.el [ E.paddingEach { left = 64, bottom = 24, right = 0, top = 0 } ] content
         ]
-
-
-
--- ICONS
-
-
-closeIcon attributes =
-    E.el ([ iconFont, normalFont, E.centerX ] ++ attributes)
-        (E.text "\u{F00D}")
-
-
-backIcon attributes =
-    E.el ([ iconFont, normalFont ] ++ attributes)
-        (E.text "\u{F30A}")
-
-
-editIcon attributes =
-    E.el ([ iconFont, normalFont, E.centerX ] ++ attributes)
-        (E.text "\u{F044}")
-
-
-deleteIcon attributes =
-    E.el ([ iconFont, normalFont, E.centerX ] ++ attributes)
-        (E.text "\u{F2ED}")
-
-
-minusIcon attributes =
-    E.el ([ iconFont, normalFont, E.centerX ] ++ attributes)
-        (E.text "\u{F068}")
-
-
-plusIcon attributes =
-    E.el ([ iconFont, normalFont, E.centerX ] ++ attributes)
-        (E.text "\u{F067}")
-
-
-checkIcon attributes =
-    E.el ([ iconFont, normalFont ] ++ attributes)
-        (E.text "\u{F00C}")
-
-
-warningIcon attributes =
-    E.el ([ iconFont, bigFont, E.centerX, E.paddingXY 24 0, Font.color warningColor ] ++ attributes)
-        (E.text "\u{F071}")
-
-
-bigWarningIcon attributes =
-    E.el
-        ([ iconFont, Font.size 48, E.alignLeft, E.padding 12, Font.color warningColor ]
-            ++ attributes
-        )
-        (E.text "\u{F071}")
-
-
-incomeIcon attributes =
-    E.el ([ iconFont, normalFont, E.centerX, Font.color fgIncome ] ++ attributes)
-        (E.text "\u{F067}")
-
-
-expenseIcon attributes =
-    E.el ([ iconFont, normalFont, E.centerX, Font.color fgExpense ] ++ attributes)
-        (E.text "\u{F068}")
 
 
 

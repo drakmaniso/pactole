@@ -87,7 +87,7 @@ view model =
 
 
 accountOption : Int -> Model.Model -> Input.OptionState -> E.Element msg
-accountOption accountID shared state =
+accountOption accountID model state =
     E.el
         ([ E.centerX
          , E.paddingXY 16 7
@@ -105,7 +105,7 @@ accountOption accountID shared state =
                         [ Font.color (E.rgb 1 1 1), Background.color Ui.bgTitle ]
                )
         )
-        (E.text (Model.account accountID shared))
+        (E.text (Model.account accountID model))
 
 
 balanceRow model =

@@ -172,3 +172,11 @@ type SettingsDialog
     | DeleteAccount { id : Int, name : String }
     | RenameCategory { id : Int, name : String, icon : String }
     | DeleteCategory { id : Int, name : String, icon : String }
+    | EditRecurring
+        { idx : Int
+        , account : Int
+        , amount : String
+        , description : String
+        , category : Int
+        , dueDate : Int
+        }

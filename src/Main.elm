@@ -296,7 +296,7 @@ view model =
                                             }
                                         )
                                     ]
-                                    (Settings.viewDialog dialog)
+                                    (Settings.viewDialog model)
                                 )
                             ]
 

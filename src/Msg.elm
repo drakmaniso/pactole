@@ -48,8 +48,9 @@ type SettingsDialogMsg
     | OpenRenameCategory Int
     | OpenDeleteCategory Int
     | SettingsChangeName String
+    | SettingsChangeAccount Int
     | SettingsChangeIcon String
     | SettingsConfirm
     | NewRecurringTransaction
-    | OpenEditRecurring Int
+    | OpenEditRecurring Int Int Ledger.NewTransaction
     | DeleteRecurring Int

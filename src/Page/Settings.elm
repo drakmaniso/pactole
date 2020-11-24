@@ -5,6 +5,7 @@ module Page.Settings exposing
     )
 
 import Database
+import Date
 import Dict
 import Element as E
 import Element.Background as Background
@@ -66,58 +67,6 @@ update msg model =
             , Cmd.none
             )
 
-        Msg.SettingsChangeName name ->
-            case model.settingsDialog of
-                Just (Model.RenameAccount submodel) ->
-                    ( { model | settingsDialog = Just (Model.RenameAccount { submodel | name = name }) }
-                    , Cmd.none
-                    )
-
-                Just (Model.RenameCategory submodel) ->
-                    ( { model | settingsDialog = Just (Model.RenameCategory { submodel | name = name }) }
-                    , Cmd.none
-                    )
-
-                Just other ->
-                    ( { model | settingsDialog = Just other }
-                    , Log.error "updateName: not in Rename Model.SettingsDialog"
-                    )
-
-                Nothing ->
-                    ( { model | settingsDialog = Nothing }, Cmd.none )
-
-        Msg.SettingsChangeIcon icon ->
-            case model.settingsDialog of
-                Just (Model.RenameCategory submodel) ->
-                    ( { model | settingsDialog = Just (Model.RenameCategory { submodel | icon = icon }) }
-                    , Cmd.none
-                    )
-
-                Just other ->
-                    ( { model | settingsDialog = Just other }
-                    , Log.error "updateName: not in Rename Model.SettingsDialog"
-                    )
-
-                Nothing ->
-                    ( { model | settingsDialog = Nothing }, Cmd.none )
-
-        Msg.SettingsConfirm ->
-            case model.settingsDialog of
-                Just (Model.RenameAccount submodel) ->
-                    ( { model | settingsDialog = Nothing }, Database.renameAccount submodel.id submodel.name )
-
-                Just (Model.DeleteAccount submodel) ->
-                    ( { model | settingsDialog = Nothing }, Database.deleteAccount submodel.id )
-
-                Just (Model.RenameCategory submodel) ->
-                    ( { model | settingsDialog = Nothing }, Database.renameCategory submodel.id submodel.name submodel.icon )
-
-                Just (Model.DeleteCategory submodel) ->
-                    ( { model | settingsDialog = Nothing }, Database.deleteCategory submodel.id )
-
-                Nothing ->
-                    ( { model | settingsDialog = Nothing }, Cmd.none )
-
         Msg.NewRecurringTransaction ->
             let
                 t =
@@ -147,8 +96,22 @@ update msg model =
             in
             ( model, Database.storeSettings newSettings )
 
-        Msg.OpenEditRecurring _ ->
-            ( model, Cmd.none )
+        Msg.OpenEditRecurring idx account transaction ->
+            ( { model
+                | settingsDialog =
+                    Just
+                        (Model.EditRecurring
+                            { idx = idx
+                            , account = account
+                            , amount = Money.toInput transaction.amount
+                            , description = transaction.description
+                            , category = transaction.category
+                            , dueDate = Date.getDay transaction.date
+                            }
+                        )
+              }
+            , Cmd.none
+            )
 
         Msg.DeleteRecurring idx ->
             let
@@ -165,6 +128,114 @@ update msg model =
                     }
             in
             ( model, Database.storeSettings newSettings )
+
+        Msg.SettingsChangeName name ->
+            case model.settingsDialog of
+                Just (Model.RenameAccount submodel) ->
+                    ( { model | settingsDialog = Just (Model.RenameAccount { submodel | name = name }) }
+                    , Cmd.none
+                    )
+
+                Just (Model.RenameCategory submodel) ->
+                    ( { model | settingsDialog = Just (Model.RenameCategory { submodel | name = name }) }
+                    , Cmd.none
+                    )
+
+                Just (Model.EditRecurring submodel) ->
+                    ( { model | settingsDialog = Just (Model.EditRecurring { submodel | description = name }) }
+                    , Cmd.none
+                    )
+
+                Just other ->
+                    ( { model | settingsDialog = Just other }
+                    , Log.error "invalid context for Msg.SettingsChangeName"
+                    )
+
+                Nothing ->
+                    ( { model | settingsDialog = Nothing }, Cmd.none )
+
+        Msg.SettingsChangeAccount account ->
+            case model.settingsDialog of
+                Just (Model.EditRecurring submodel) ->
+                    ( { model | settingsDialog = Just (Model.EditRecurring { submodel | account = account }) }
+                    , Cmd.none
+                    )
+
+                Just other ->
+                    ( { model | settingsDialog = Just other }
+                    , Log.error "invalid context for Msg.SettingsChangeAccount"
+                    )
+
+                Nothing ->
+                    ( { model | settingsDialog = Nothing }, Cmd.none )
+
+        Msg.SettingsChangeIcon icon ->
+            case model.settingsDialog of
+                Just (Model.RenameCategory submodel) ->
+                    ( { model | settingsDialog = Just (Model.RenameCategory { submodel | icon = icon }) }
+                    , Cmd.none
+                    )
+
+                Just other ->
+                    ( { model | settingsDialog = Just other }
+                    , Log.error "invalid context for Msg.SettingsChangeIcon"
+                    )
+
+                Nothing ->
+                    ( { model | settingsDialog = Nothing }, Cmd.none )
+
+        Msg.SettingsConfirm ->
+            case model.settingsDialog of
+                Just (Model.RenameAccount submodel) ->
+                    ( { model | settingsDialog = Nothing }, Database.renameAccount submodel.id submodel.name )
+
+                Just (Model.DeleteAccount submodel) ->
+                    ( { model | settingsDialog = Nothing }, Database.deleteAccount submodel.id )
+
+                Just (Model.RenameCategory submodel) ->
+                    ( { model | settingsDialog = Nothing }, Database.renameCategory submodel.id submodel.name submodel.icon )
+
+                Just (Model.DeleteCategory submodel) ->
+                    ( { model | settingsDialog = Nothing }, Database.deleteCategory submodel.id )
+
+                Just (Model.EditRecurring submodel) ->
+                    let
+                        replace i x xs =
+                            List.take i xs ++ (x :: List.drop (i + 1) xs)
+
+                        settings =
+                            model.settings
+
+                        newSettings =
+                            { settings
+                                | recurringTransactions =
+                                    replace submodel.idx
+                                        ( submodel.account
+                                        , { amount =
+                                                Maybe.withDefault Money.zero
+                                                    (Money.fromInput False submodel.amount)
+                                          , description = submodel.description
+                                          , category = submodel.category
+                                          , date = model.today
+                                          , checked = False
+                                          }
+                                        )
+                                        settings.recurringTransactions
+                            }
+                    in
+                    ( { model | settingsDialog = Nothing }
+                    , Database.storeSettings newSettings
+                    )
+
+                {-
+                   Just other ->
+                       ( { model | settingsDialog = Just other }
+                         -- TODO
+                       , Log.error "invalid context for Msg.SettingsChangeConfirm"
+                       )
+                -}
+                Nothing ->
+                    ( { model | settingsDialog = Nothing }, Cmd.none )
 
 
 
@@ -462,13 +533,23 @@ configRecurring model =
                                 \( i, a, t ) ->
                                     E.el [ E.centerY ] (E.text t.description)
                           }
+                        , { header = headerTxt "Echeance"
+                          , width = E.fill
+                          , view =
+                                \( i, a, t ) ->
+                                    E.el [ Font.center, E.centerY ] (E.text (Date.toString t.date))
+                          }
                         , { header = E.none
                           , width = E.shrink
                           , view =
-                                \( i, _, _ ) ->
+                                \( i, a, t ) ->
                                     Ui.iconButton []
                                         { icon = Ui.editIcon []
-                                        , onPress = Just (Msg.ForSettingsDialog <| Msg.OpenEditRecurring i)
+                                        , onPress =
+                                            Just
+                                                (Msg.ForSettingsDialog <|
+                                                    Msg.OpenEditRecurring i a t
+                                                )
                                         }
                           }
                         , { header = E.none
@@ -494,10 +575,13 @@ configRecurring model =
 -- DIALOG
 
 
-viewDialog : Model.SettingsDialog -> E.Element Msg.Msg
-viewDialog variant =
-    case variant of
-        Model.RenameAccount submodel ->
+viewDialog : Model.Model -> E.Element Msg.Msg
+viewDialog model =
+    case model.settingsDialog of
+        Nothing ->
+            E.none
+
+        Just (Model.RenameAccount submodel) ->
             E.column
                 [ E.centerX
                 , E.centerY
@@ -555,7 +639,7 @@ viewDialog variant =
                     ]
                 ]
 
-        Model.DeleteCategory submodel ->
+        Just (Model.DeleteCategory submodel) ->
             E.column
                 [ E.centerX
                 , E.centerY
@@ -594,7 +678,7 @@ viewDialog variant =
                     ]
                 ]
 
-        Model.RenameCategory submodel ->
+        Just (Model.RenameCategory submodel) ->
             E.column
                 [ E.centerX
                 , E.centerY
@@ -678,7 +762,7 @@ viewDialog variant =
                     ]
                 ]
 
-        Model.DeleteAccount submodel ->
+        Just (Model.DeleteAccount submodel) ->
             E.column
                 [ E.centerX
                 , E.centerY
@@ -713,6 +797,79 @@ viewDialog variant =
                         }
                     , Ui.mainButton []
                         { label = E.text "Supprimer"
+                        , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsConfirm)
+                        }
+                    ]
+                ]
+
+        Just (Model.EditRecurring submodel) ->
+            E.column
+                [ E.centerX
+                , E.centerY
+                , E.width (E.px 800)
+                , E.height E.shrink
+                , E.paddingXY 0 0
+                , E.spacing 0
+                , E.scrollbarY
+                , Background.color Ui.bgWhite
+                , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 32, color = E.rgba 0 0 0 0.75 }
+                ]
+                [ E.el
+                    [ E.paddingEach { top = 24, bottom = 24, right = 48, left = 48 } ]
+                    (E.row []
+                        (List.map
+                            (\( k, v ) ->
+                                Ui.radioButton []
+                                    { onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsChangeAccount k)
+                                    , icon = ""
+                                    , label = v
+                                    , active = k == submodel.account
+                                    }
+                            )
+                            (Dict.toList model.accounts)
+                        )
+                    )
+                , E.el
+                    [ E.paddingEach { top = 24, bottom = 24, right = 48, left = 48 } ]
+                    (Input.text
+                        [ Ui.onEnter (Msg.ForSettingsDialog <| Msg.SettingsConfirm)
+                        , Ui.bigFont
+                        , E.focused
+                            [ Border.shadow
+                                { offset = ( 0, 0 )
+                                , size = 4
+                                , blur = 0
+                                , color = Ui.fgFocus
+                                }
+                            ]
+                        ]
+                        { label =
+                            Input.labelAbove
+                                [ E.width E.shrink
+                                , Font.color Ui.fgTitle
+                                , Ui.normalFont
+                                , Font.bold
+                                , E.paddingEach { top = 12, bottom = 0, left = 12, right = 0 }
+                                , E.pointer
+                                ]
+                                (E.text "Description:")
+                        , text = submodel.description
+                        , onChange = \n -> Msg.ForSettingsDialog <| Msg.SettingsChangeName n
+                        , placeholder = Nothing
+                        }
+                    )
+                , E.row
+                    [ E.width E.fill
+                    , E.spacing 24
+                    , E.paddingEach { top = 64, bottom = 24, right = 64, left = 64 }
+                    ]
+                    [ Ui.simpleButton
+                        [ E.alignRight ]
+                        { label = E.text "Annuler"
+                        , onPress = Just Msg.Close
+                        }
+                    , Ui.mainButton []
+                        { label = E.text "Confirmer"
                         , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsConfirm)
                         }
                     ]
