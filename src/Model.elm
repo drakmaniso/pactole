@@ -175,8 +175,9 @@ type SettingsDialog
     | EditRecurring
         { idx : Int
         , account : Int
+        , isExpense : Bool
         , amount : String
         , description : String
         , category : Int
-        , dueDate : Int
+        , dueDate : String
         }

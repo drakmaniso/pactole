@@ -103,10 +103,11 @@ update msg model =
                         (Model.EditRecurring
                             { idx = idx
                             , account = account
+                            , isExpense = Money.isExpense transaction.amount
                             , amount = Money.toInput transaction.amount
                             , description = transaction.description
                             , category = transaction.category
-                            , dueDate = Date.getDay transaction.date
+                            , dueDate = String.fromInt (Date.getDay transaction.date)
                             }
                         )
               }
@@ -154,6 +155,36 @@ update msg model =
                 Nothing ->
                     ( { model | settingsDialog = Nothing }, Cmd.none )
 
+        Msg.SettingsChangeIsExpense isExpense ->
+            case model.settingsDialog of
+                Just (Model.EditRecurring submodel) ->
+                    ( { model | settingsDialog = Just (Model.EditRecurring { submodel | isExpense = isExpense }) }
+                    , Cmd.none
+                    )
+
+                Just other ->
+                    ( { model | settingsDialog = Just other }
+                    , Log.error "invalid context for Msg.SettingsChangeIsExpense"
+                    )
+
+                Nothing ->
+                    ( { model | settingsDialog = Nothing }, Cmd.none )
+
+        Msg.SettingsChangeAmount amount ->
+            case model.settingsDialog of
+                Just (Model.EditRecurring submodel) ->
+                    ( { model | settingsDialog = Just (Model.EditRecurring { submodel | amount = amount }) }
+                    , Cmd.none
+                    )
+
+                Just other ->
+                    ( { model | settingsDialog = Just other }
+                    , Log.error "invalid context for Msg.SettingsChangeAmount"
+                    )
+
+                Nothing ->
+                    ( { model | settingsDialog = Nothing }, Cmd.none )
+
         Msg.SettingsChangeAccount account ->
             case model.settingsDialog of
                 Just (Model.EditRecurring submodel) ->
@@ -164,6 +195,21 @@ update msg model =
                 Just other ->
                     ( { model | settingsDialog = Just other }
                     , Log.error "invalid context for Msg.SettingsChangeAccount"
+                    )
+
+                Nothing ->
+                    ( { model | settingsDialog = Nothing }, Cmd.none )
+
+        Msg.SettingsChangeDueDate day ->
+            case model.settingsDialog of
+                Just (Model.EditRecurring submodel) ->
+                    ( { model | settingsDialog = Just (Model.EditRecurring { submodel | dueDate = day }) }
+                    , Cmd.none
+                    )
+
+                Just other ->
+                    ( { model | settingsDialog = Just other }
+                    , Log.error "invalid context for Msg.SettingsChangeDueDate"
                     )
 
                 Nothing ->
@@ -206,6 +252,23 @@ update msg model =
                         settings =
                             model.settings
 
+                        day =
+                            Maybe.withDefault 1 (String.toInt submodel.dueDate)
+
+                        findNext date =
+                            let
+                                d =
+                                    Date.incrementDay date
+                            in
+                            if Date.getDay d == day then
+                                d
+
+                            else
+                                findNext d
+
+                        dueDate =
+                            findNext model.today
+
                         newSettings =
                             { settings
                                 | recurringTransactions =
@@ -213,10 +276,10 @@ update msg model =
                                         ( submodel.account
                                         , { amount =
                                                 Maybe.withDefault Money.zero
-                                                    (Money.fromInput False submodel.amount)
+                                                    (Money.fromInput submodel.isExpense submodel.amount)
                                           , description = submodel.description
                                           , category = submodel.category
-                                          , date = model.today
+                                          , date = dueDate
                                           , checked = False
                                           }
                                         )
@@ -511,7 +574,13 @@ configRecurring model =
                             (\i ( a, t ) -> ( i, a, t ))
                             model.settings.recurringTransactions
                     , columns =
-                        [ { header = headerTxt "Compte"
+                        [ { header = headerTxt "Echeance"
+                          , width = E.fill
+                          , view =
+                                \( i, a, t ) ->
+                                    E.el [ Font.center, E.centerY ] (E.text (Date.toString t.date))
+                          }
+                        , { header = headerTxt "Compte"
                           , width = E.shrink
                           , view =
                                 \( i, a, t ) ->
@@ -532,12 +601,6 @@ configRecurring model =
                           , view =
                                 \( i, a, t ) ->
                                     E.el [ E.centerY ] (E.text t.description)
-                          }
-                        , { header = headerTxt "Echeance"
-                          , width = E.fill
-                          , view =
-                                \( i, a, t ) ->
-                                    E.el [ Font.center, E.centerY ] (E.text (Date.toString t.date))
                           }
                         , { header = E.none
                           , width = E.shrink
@@ -816,19 +879,102 @@ viewDialog model =
                 ]
                 [ E.el
                     [ E.paddingEach { top = 24, bottom = 24, right = 48, left = 48 } ]
-                    (E.row []
-                        (List.map
-                            (\( k, v ) ->
-                                Ui.radioButton []
-                                    { onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsChangeAccount k)
-                                    , icon = ""
-                                    , label = v
-                                    , active = k == submodel.account
-                                    }
-                            )
-                            (Dict.toList model.accounts)
+                    (Input.text
+                        [ Ui.onEnter (Msg.ForSettingsDialog <| Msg.SettingsConfirm)
+                        , Ui.bigFont
+                        , E.width (E.shrink |> E.minimum 120)
+                        , E.focused
+                            [ Border.shadow
+                                { offset = ( 0, 0 )
+                                , size = 4
+                                , blur = 0
+                                , color = Ui.fgFocus
+                                }
+                            ]
+                        ]
+                        { label =
+                            Input.labelLeft
+                                [ E.width E.shrink
+                                , Font.color Ui.fgTitle
+                                , Ui.normalFont
+                                , Font.bold
+                                , E.paddingEach { right = 24, top = 0, left = 12, bottom = 0 }
+                                , E.pointer
+                                ]
+                                (E.text "Jour du mois: ")
+                        , text = submodel.dueDate
+                        , onChange = \n -> Msg.ForSettingsDialog <| Msg.SettingsChangeDueDate n
+                        , placeholder = Nothing
+                        }
+                    )
+                , E.el
+                    [ E.paddingEach { top = 24, bottom = 24, right = 48, left = 48 } ]
+                    (E.row [ E.spacingXY 24 0 ]
+                        (E.el
+                            [ E.width E.fill
+                            , Font.color Ui.fgTitle
+                            , Ui.normalFont
+                            , E.paddingEach { right = 24, top = 0, left = 12, bottom = 0 }
+                            , Font.bold
+                            ]
+                            (E.el [ Font.bold ] (E.text "Compte: "))
+                            :: List.map
+                                (\( k, v ) ->
+                                    Ui.radioButton []
+                                        { onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsChangeAccount k)
+                                        , icon = ""
+                                        , label = v
+                                        , active = k == submodel.account
+                                        }
+                                )
+                                (Dict.toList model.accounts)
                         )
                     )
+                , E.row
+                    [ E.paddingEach { top = 24, bottom = 24, right = 48, left = 48 }
+                    , E.spacingXY 24 0
+                    ]
+                    [ E.el
+                        [ Font.color Ui.fgTitle
+                        , Ui.normalFont
+                        , E.paddingEach { right = 24, top = 0, left = 12, bottom = 0 }
+                        , Font.bold
+                        ]
+                        (E.el [ Font.bold ] (E.text "Montant: "))
+                    , E.column [ E.alignBottom ]
+                        [ Ui.radioButton [ E.alignBottom ]
+                            { onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsChangeIsExpense False)
+                            , icon = "\u{F067}"
+                            , label = ""
+                            , active = not submodel.isExpense
+                            }
+                        , Ui.radioButton [ E.alignBottom ]
+                            { onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsChangeIsExpense True)
+                            , icon = "\u{F068}"
+                            , label = ""
+                            , active = submodel.isExpense
+                            }
+                        ]
+                    , Input.text
+                        [ Ui.onEnter (Msg.ForSettingsDialog <| Msg.SettingsConfirm)
+                        , Ui.bigFont
+                        , E.width (E.shrink |> E.minimum 220)
+                        , E.focused
+                            [ Border.shadow
+                                { offset = ( 0, 0 )
+                                , size = 4
+                                , blur = 0
+                                , color = Ui.fgFocus
+                                }
+                            ]
+                        ]
+                        { label =
+                            Input.labelHidden "Montant:"
+                        , text = submodel.amount
+                        , onChange = \n -> Msg.ForSettingsDialog <| Msg.SettingsChangeAmount n
+                        , placeholder = Nothing
+                        }
+                    ]
                 , E.el
                     [ E.paddingEach { top = 24, bottom = 24, right = 48, left = 48 } ]
                     (Input.text

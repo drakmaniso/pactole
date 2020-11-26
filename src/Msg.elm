@@ -49,6 +49,9 @@ type SettingsDialogMsg
     | OpenDeleteCategory Int
     | SettingsChangeName String
     | SettingsChangeAccount Int
+    | SettingsChangeAmount String
+    | SettingsChangeDueDate String
+    | SettingsChangeIsExpense Bool
     | SettingsChangeIcon String
     | SettingsConfirm
     | NewRecurringTransaction
