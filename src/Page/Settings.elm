@@ -70,9 +70,9 @@ update msg model =
         Msg.NewRecurringTransaction ->
             let
                 t =
-                    { date = model.today
+                    { date = Date.findNextDayOfMonth 1 model.today
                     , amount = Money.zero
-                    , description = "Nouvelle operation"
+                    , description = "(operation mensuelle)"
                     , category = 0
                     , checked = False
                     }
@@ -255,19 +255,8 @@ update msg model =
                         day =
                             Maybe.withDefault 1 (String.toInt submodel.dueDate)
 
-                        findNext date =
-                            let
-                                d =
-                                    Date.incrementDay date
-                            in
-                            if Date.getDay d == day then
-                                d
-
-                            else
-                                findNext d
-
                         dueDate =
-                            findNext model.today
+                            Date.findNextDayOfMonth day model.today
 
                         newSettings =
                             { settings

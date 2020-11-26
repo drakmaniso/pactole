@@ -216,7 +216,7 @@ self.addEventListener('message', event => {
 
     case 'store settings':
       setSettings(msg.content)
-        .then(() => broadcast('invalidate settings', msg.content))
+        .then(() => broadcast('update settings', msg.content))
         .catch(err => error(`store settings: ${err}`))
       break
   }

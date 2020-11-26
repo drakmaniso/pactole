@@ -4,6 +4,7 @@ module Date exposing
     , decrementDay
     , decrementMonth
     , default
+    , findNextDayOfMonth
     , firstDayOf
     , fromInt
     , fromParts
@@ -298,6 +299,18 @@ firstDayOf (Date date) =
 
         Nothing ->
             default
+
+
+findNextDayOfMonth day date =
+    let
+        d =
+            incrementDay date
+    in
+    if getDay d == day then
+        d
+
+    else
+        findNextDayOfMonth day d
 
 
 getWeekday (Date date) =

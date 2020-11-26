@@ -1,5 +1,6 @@
 module Database exposing (..)
 
+import Date
 import Dict
 import Json.Decode as Decode
 import Json.Encode as Encode
@@ -221,7 +222,7 @@ msgFromService ( title, content ) model =
         "update settings" ->
             case Decode.decodeValue Model.decodeSettings content of
                 Ok settings ->
-                    ( { model | settings = settings }, Cmd.none )
+                    processRecurringTransactions { model | settings = settings }
 
                 Err e ->
                     --TODO: error
@@ -252,16 +253,52 @@ msgFromService ( title, content ) model =
                 Err e ->
                     ( model, Log.error (Decode.errorToString e) )
 
-        "invalidate settings" ->
-            case Decode.decodeValue Model.decodeSettings content of
-                Ok settings ->
-                    ( { model | settings = settings }
-                    , Cmd.none
-                    )
-
-                Err e ->
-                    ( model, Log.error (Decode.errorToString e) )
-
+        {-
+           "invalidate settings" ->
+               case Decode.decodeValue Model.decodeSettings content of
+                   Ok settings ->
+                       ( { model | settings = settings }
+                       , Cmd.none
+                       )
+            Err e ->
+                ( model, Log.error (Decode.errorToString e) )
+        -}
         _ ->
             --TODO: error
             ( model, Log.error ("in message from service: unknown title \"" ++ title ++ "\"") )
+
+
+processRecurringTransactions model =
+    let
+        settings =
+            model.settings
+
+        recurring =
+            settings.recurringTransactions
+                |> List.map
+                    (\( a, t ) ->
+                        let
+                            d =
+                                if Date.compare t.date model.today /= GT then
+                                    Date.findNextDayOfMonth (Date.getDay t.date) model.today
+
+                                else
+                                    t.date
+                        in
+                        ( a, { t | date = d } )
+                    )
+
+        newSettings =
+            { settings
+                | recurringTransactions = recurring
+            }
+    in
+    ( { model | settings = newSettings }
+    , Cmd.batch
+        (model.settings.recurringTransactions
+            |> List.filter
+                (\( _, t ) -> Date.compare t.date model.today /= GT)
+            |> List.map
+                (\( a, t ) -> createTransaction (Just a) (Debug.log "*****" t))
+        )
+    )
