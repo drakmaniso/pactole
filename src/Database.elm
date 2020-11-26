@@ -292,13 +292,27 @@ processRecurringTransactions model =
             { settings
                 | recurringTransactions = recurring
             }
+
+        createTransacs a t =
+            if Date.compare t.date model.today == GT then
+                []
+
+            else
+                createTransaction (Just a) (Debug.log "*** RECURRING TRANSACTION PROCESSED: " t)
+                    :: createTransacs a { t | date = Date.incrementMonth t.date }
+
+        cmds =
+            model.settings.recurringTransactions
+                |> List.filter
+                    (\( _, t ) -> Date.compare t.date model.today /= GT)
+                |> List.concatMap
+                    (\( a, t ) -> createTransacs a t)
     in
     ( { model | settings = newSettings }
-    , Cmd.batch
-        (model.settings.recurringTransactions
-            |> List.filter
-                (\( _, t ) -> Date.compare t.date model.today /= GT)
-            |> List.map
-                (\( a, t ) -> createTransaction (Just a) (Debug.log "*****" t))
-        )
+    , if List.length cmds > 0 then
+        Cmd.batch
+            (cmds ++ [ storeSettings newSettings ])
+
+      else
+        Cmd.none
     )
