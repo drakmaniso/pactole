@@ -252,8 +252,18 @@ update msg model =
                         settings =
                             model.settings
 
-                        day =
+                        dayInput =
                             Maybe.withDefault 1 (String.toInt submodel.dueDate)
+
+                        day =
+                            if dayInput < 1 then
+                                1
+
+                            else if dayInput > 28 then
+                                28
+
+                            else
+                                dayInput
 
                         dueDate =
                             Date.findNextDayOfMonth day model.today
