@@ -298,7 +298,7 @@ processRecurringTransactions model =
                 []
 
             else
-                createTransaction (Just a) (Debug.log "*** RECURRING TRANSACTION PROCESSED: " t)
+                createTransaction (Just a) t
                     :: createTransacs a { t | date = Date.incrementMonth t.date }
 
         cmds =
