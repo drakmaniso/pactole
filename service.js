@@ -73,18 +73,18 @@ self.addEventListener('fetch', event => {
 self.addEventListener('message', event => {
   const msg = event.data
 
-  log(`Received "${msg.title}" from client.`)
+  log(`Received "${msg.title}".`)
   switch (msg.title) {
-    case 'get account list':
-      getAccountList()
-        .then(accounts => respond(event, 'set account list', accounts))
-        .catch(err => error(`get account list: ${err}`))
+    case 'request accounts':
+      getAccounts()
+        .then(accounts => respond(event, 'update accounts', accounts))
+        .catch(err => error(`request accounts: ${err}`))
       break
 
     case 'create account':
       createAccount(msg.content) 
-        .then(() => getAccountList())
-        .then(accounts => broadcast('set account list', accounts))
+        .then(() => getAccounts())
+        .then(accounts => broadcast('update accounts', accounts))
         .catch(err => error(`create account "${msg.content}": ${err}`))
       break
 
@@ -92,8 +92,8 @@ self.addEventListener('message', event => {
       try {
         const {id, name} = msg.content
         renameAccount(id, name)
-          .then(() => getAccountList())
-          .then(accounts => broadcast('set account list', accounts))
+          .then(() => getAccounts())
+          .then(accounts => broadcast('update accounts', accounts))
           .catch(err => error(`rename account "${id}" to "${name}": ${err}`))
       }
       catch(err) {
@@ -104,8 +104,8 @@ self.addEventListener('message', event => {
     case 'delete account':
       try {
         deleteAccount(msg.content)
-          .then(() => getAccountList())
-          .then(accounts => broadcast('set account list', accounts))
+          .then(() => getAccounts())
+          .then(accounts => broadcast('update accounts', accounts))
           .catch(err => error(`delete account "${msg.content}": ${err}`))
       }
       catch(err) {
@@ -113,18 +113,18 @@ self.addEventListener('message', event => {
       }
       break
 
-    case 'get category list':
-      getCategoryList()
-        .then(accounts => respond(event, 'set category list', accounts))
-        .catch(err => error(`get category list: ${err}`))
+    case 'request categories':
+      getCategories()
+        .then(accounts => respond(event, 'update categories', accounts))
+        .catch(err => error(`request categories: ${err}`))
       break
 
     case 'create category':
       try {
         const {name, icon} = msg.content
         createCategory(name, icon)
-          .then(() => getCategoryList())
-          .then(categories => broadcast('set category list', categories))
+          .then(() => getCategories())
+          .then(categories => broadcast('update categories', categories))
           .catch(err => error(`create category "${name}": ${err}`))
       }
       catch(err) {
@@ -136,8 +136,8 @@ self.addEventListener('message', event => {
       try {
         const {id, name, icon} = msg.content
         renameCategory(id, name, icon)
-          .then(() => getCategoryList())
-          .then(categories => broadcast('set category list', categories))
+          .then(() => getCategories())
+          .then(categories => broadcast('update categories', categories))
           .catch(err => error(`rename category "${id}" to "${name}": ${err}`))
       }
       catch(err) {
@@ -148,8 +148,8 @@ self.addEventListener('message', event => {
     case 'delete category':
       try {
         deleteCategory(msg.content)
-          .then(() => getCategoryList())
-          .then(categories => broadcast('set category list', categories))
+          .then(() => getCategories())
+          .then(categories => broadcast('update categories', categories))
           .catch(err => error(`delete category "${msg.content}": ${err}`))
       }
       catch(err) {
@@ -157,39 +157,39 @@ self.addEventListener('message', event => {
       }
       break
 
-    case 'get ledger':
+    case 'request ledger':
       getLedger(msg.content)
-        .then(transactions => respond(event, 'set ledger', {transactions: transactions}))
-        .catch(err => error(`get ledger: ${err}`))
+        .then(transactions => respond(event, 'update ledger', {transactions: transactions}))
+        .catch(err => error(`request ledger: ${err}`))
       break
 
-    case 'add transaction':
+    case 'create transaction':
       try {
         const {
           account, date, amount, description, category, checked
         } = msg.content
         addTransaction(msg.content)
           .then(() => {
-            broadcast('ledger updated', account)
+            broadcast('invalidate ledger', account)
           })
       }
       catch(err) {
-        error(`add transaction: ${err}`)
+        error(`create transaction: ${err}`)
       }
       break
 
-    case 'put transaction':
+    case 'replace transaction':
       try {
         const {
           account, id, date, amount, description, category, checked
         } = msg.content
         putTransaction(msg.content)
           .then(() => {
-            broadcast('ledger updated', account)
+            broadcast('invalidate ledger', account)
           })
       }
       catch(err) {
-        error(`put transaction: ${err}`)
+        error(`replace transaction: ${err}`)
       }
       break
 
@@ -200,7 +200,7 @@ self.addEventListener('message', event => {
         } = msg.content
         deleteTransaction(id)
           .then(() => {
-            broadcast('ledger updated', account)
+            broadcast('invalidate ledger', account)
           })
       }
       catch(err) {
@@ -208,22 +208,23 @@ self.addEventListener('message', event => {
       }
       break
 
-    case 'get settings':
+    case 'request settings':
       getSettings()
-        .then(settings => respond(event, 'set settings', settings))
-        .catch(err => error(`get settings: ${err}`))
+        .then(settings => respond(event, 'update settings', settings))
+        .catch(err => error(`request settings: ${err}`))
       break
 
-    case 'set settings':
+    case 'store settings':
       setSettings(msg.content)
-        .then(() => broadcast('settings updated', msg.content))
+        .then(() => broadcast('update settings', msg.content))
+        .catch(err => error(`store settings: ${err}`))
       break
   }
 })
 
 
 function respond(event, title, content) {
-  log(`Responding "${title}" to client...`)
+  log(`Responding "${title}"...`)
   event.source.postMessage({ title: title, content: content })
 }
 
@@ -350,7 +351,7 @@ function setSettings(settings) {
 // ACCOUNTS ///////////////////////////////////////////////////////////////////
 
 
-function getAccountList() {
+function getAccounts() {
   return new Promise((resolve, reject) => {
     openDB()
       .then(db => {
@@ -444,7 +445,7 @@ function deleteAccount(id) {
 // CATEGORIES /////////////////////////////////////////////////////////////////
 
 
-function getCategoryList() {
+function getCategories() {
   return new Promise((resolve, reject) => {
     openDB()
       .then(db => {
@@ -580,10 +581,10 @@ function deleteTransaction(id) {
 
 
 function log(msg, ...args) {
-  console.log(`[SW] ${msg}`, ...args)
+  console.log(`[SERVICE] ${msg}`, ...args)
 }
 
 
 function error(msg, ...args) {
-  console.error(`[SW] ${msg}`, ...args)
+  console.error(`[SERVICE] ${msg}`, ...args)
 }

@@ -1,8 +1,13 @@
 module Ledger exposing
     ( Ledger
+    , NewTransaction
     , Transaction
     , decode
+    , decodeNewTransaction
+    , decodeTransaction
     , empty
+    , encodeNewTransaction
+    , encodeTransaction
     , getAllTransactions
     , getBalance
     , getDateTransactions
@@ -21,7 +26,6 @@ import Date
 import Json.Decode as Decode
 import Json.Encode as Encode
 import Money
-import Time
 
 
 
@@ -237,24 +241,16 @@ type alias Transaction =
     }
 
 
-type alias NewTransaction =
-    { date : Date.Date
-    , amount : Money.Money
-    , description : String
-    , category : Int
-    , checked : Bool
-    }
-
-
-encodeTransaction : Transaction -> Encode.Value
-encodeTransaction { id, date, amount, description, category, checked } =
+encodeTransaction : Int -> Transaction -> Encode.Value
+encodeTransaction account transaction =
     Encode.object
-        [ ( "id", Encode.int id )
-        , ( "date", Encode.int (Date.toInt date) )
-        , ( "amount", Money.encoder amount )
-        , ( "description", Encode.string description )
-        , ( "category", Encode.int category )
-        , ( "checked", Encode.bool checked )
+        [ ( "account", Encode.int account )
+        , ( "id", Encode.int transaction.id )
+        , ( "date", Encode.int (Date.toInt transaction.date) )
+        , ( "amount", Money.encoder transaction.amount )
+        , ( "description", Encode.string transaction.description )
+        , ( "category", Encode.int transaction.category )
+        , ( "checked", Encode.bool transaction.checked )
         ]
 
 
@@ -266,6 +262,39 @@ decodeTransaction =
         (Decode.field "description" Decode.string)
         (Decode.field "category" Decode.int)
         (Decode.field "checked" Decode.bool)
+
+
+type alias NewTransaction =
+    { date : Date.Date
+    , amount : Money.Money
+    , description : String
+    , category : Int
+    , checked : Bool
+    }
+
+
+encodeNewTransaction : Int -> NewTransaction -> Encode.Value
+encodeNewTransaction account transaction =
+    Encode.object
+        [ ( "account", Encode.int account )
+        , ( "date", Encode.int (Date.toInt transaction.date) )
+        , ( "amount", Money.encoder transaction.amount )
+        , ( "description", Encode.string transaction.description )
+        , ( "category", Encode.int transaction.category )
+        , ( "checked", Encode.bool transaction.checked )
+        ]
+
+
+decodeNewTransaction =
+    Decode.map2 (\acc tr -> ( acc, tr ))
+        (Decode.field "account" Decode.int)
+        (Decode.map5 NewTransaction
+            (Decode.map Date.fromInt (Decode.field "date" Decode.int))
+            (Decode.field "amount" Money.decoder)
+            (Decode.field "description" Decode.string)
+            (Decode.field "category" Decode.int)
+            (Decode.field "checked" Decode.bool)
+        )
 
 
 

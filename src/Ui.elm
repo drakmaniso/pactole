@@ -1,5 +1,7 @@
 module Ui exposing (..)
 
+--TODO: remove dependency to module Msg
+
 import Date
 import Element as E
 import Element.Background as Background
@@ -10,7 +12,7 @@ import Html.Attributes
 import Html.Events as Events
 import Json.Decode as Decode
 import Money
-import Shared
+import Msg
 
 
 
@@ -208,6 +210,68 @@ iconFont =
 
 
 
+-- ICONS
+
+
+closeIcon attributes =
+    E.el ([ iconFont, normalFont, E.centerX ] ++ attributes)
+        (E.text "\u{F00D}")
+
+
+backIcon attributes =
+    E.el ([ iconFont, normalFont ] ++ attributes)
+        (E.text "\u{F30A}")
+
+
+editIcon attributes =
+    E.el ([ iconFont, normalFont, E.centerX ] ++ attributes)
+        (E.text "\u{F044}")
+
+
+deleteIcon attributes =
+    E.el ([ iconFont, normalFont, E.centerX ] ++ attributes)
+        (E.text "\u{F2ED}")
+
+
+minusIcon attributes =
+    E.el ([ iconFont, normalFont, E.centerX ] ++ attributes)
+        (E.text "\u{F068}")
+
+
+plusIcon attributes =
+    E.el ([ iconFont, normalFont, E.centerX ] ++ attributes)
+        (E.text "\u{F067}")
+
+
+checkIcon attributes =
+    E.el ([ iconFont, normalFont ] ++ attributes)
+        (E.text "\u{F00C}")
+
+
+warningIcon attributes =
+    E.el ([ iconFont, bigFont, E.centerX, E.paddingXY 24 0, Font.color warningColor ] ++ attributes)
+        (E.text "\u{F071}")
+
+
+bigWarningIcon attributes =
+    E.el
+        ([ iconFont, Font.size 48, E.alignLeft, E.padding 12, Font.color warningColor ]
+            ++ attributes
+        )
+        (E.text "\u{F071}")
+
+
+incomeIcon attributes =
+    E.el ([ iconFont, normalFont, E.centerX, Font.color fgIncome ] ++ attributes)
+        (E.text "\u{F067}")
+
+
+expenseIcon attributes =
+    E.el ([ iconFont, normalFont, E.centerX, Font.color fgExpense ] ++ attributes)
+        (E.text "\u{F068}")
+
+
+
 -- CONTAINERS
 
 
@@ -233,6 +297,7 @@ pageWithSidePanel attributes { panel, page } =
         [ E.el
             [ E.width (E.fillPortion 1)
             , E.height E.fill
+            , E.clipY
             , E.paddingXY 0 16
             , E.alignTop
             ]
@@ -321,63 +386,6 @@ configCustom attributes { label, content } =
 
 
 
--- ICONS
-
-
-backIcon attributes =
-    E.el ([ iconFont, normalFont ] ++ attributes)
-        (E.text "\u{F30A}")
-
-
-editIcon attributes =
-    E.el ([ iconFont, normalFont, E.centerX ] ++ attributes)
-        (E.text "\u{F044}")
-
-
-deleteIcon attributes =
-    E.el ([ iconFont, normalFont, E.centerX ] ++ attributes)
-        (E.text "\u{F2ED}")
-
-
-minusIcon attributes =
-    E.el ([ iconFont, normalFont, E.centerX ] ++ attributes)
-        (E.text "\u{F068}")
-
-
-plusIcon attributes =
-    E.el ([ iconFont, normalFont, E.centerX ] ++ attributes)
-        (E.text "\u{F067}")
-
-
-checkIcon attributes =
-    E.el ([ iconFont, normalFont ] ++ attributes)
-        (E.text "\u{F00C}")
-
-
-warningIcon attributes =
-    E.el ([ iconFont, bigFont, E.centerX, E.paddingXY 24 0, Font.color warningColor ] ++ attributes)
-        (E.text "\u{F071}")
-
-
-bigWarningIcon attributes =
-    E.el
-        ([ iconFont, Font.size 48, E.alignLeft, E.padding 12, Font.color warningColor ]
-            ++ attributes
-        )
-        (E.text "\u{F071}")
-
-
-incomeIcon attributes =
-    E.el ([ iconFont, normalFont, E.centerX, Font.color fgIncome ] ++ attributes)
-        (E.text "\u{F067}")
-
-
-expenseIcon attributes =
-    E.el ([ iconFont, normalFont, E.centerX, Font.color fgExpense ] ++ attributes)
-        (E.text "\u{F068}")
-
-
-
 -- ELEMENTS
 
 
@@ -447,7 +455,7 @@ dateNavigationBar model =
                             (E.text (Date.getMonthName (Date.decrementMonth model.date)))
                         , E.el [ E.centerX, iconFont, normalFont ] (E.text "  \u{F060}  ")
                         ]
-                , onPress = Just (Shared.SelectDate (Date.decrementMonth model.date))
+                , onPress = Just (Msg.SelectDate (Date.decrementMonth model.date))
                 }
             )
         , E.el
@@ -498,7 +506,7 @@ dateNavigationBar model =
                             , E.el [ bigFont, Font.color fgTitle, E.centerX ]
                                 (E.text (Date.getMonthName (Date.incrementMonth model.date)))
                             ]
-                    , onPress = Just (Shared.SelectDate (Date.incrementMonth model.date))
+                    , onPress = Just (Msg.SelectDate (Date.incrementMonth model.date))
                     }
 
              else

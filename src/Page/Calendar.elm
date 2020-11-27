@@ -8,9 +8,10 @@ import Element.Font as Font
 import Element.Input as Input
 import Html.Attributes
 import Ledger
+import Model
 import Money
+import Msg
 import Page.Summary as Summary
-import Shared
 import Time
 import Ui
 
@@ -19,7 +20,7 @@ import Ui
 -- VIEW
 
 
-view : Shared.Model -> E.Element Shared.Msg
+view : Model.Model -> E.Element Msg.Msg
 view model =
     Ui.pageWithSidePanel []
         { panel =
@@ -44,7 +45,7 @@ view model =
 -- THE CALENDAR
 
 
-calendar : Shared.Model -> E.Element Shared.Msg
+calendar : Model.Model -> E.Element Msg.Msg
 calendar model =
     let
         findTheFirst date =
@@ -133,7 +134,7 @@ calendarHeader model =
         ]
 
 
-calendarCell : Shared.Model -> Date.Date -> E.Element Shared.Msg
+calendarCell : Model.Model -> Date.Date -> E.Element Msg.Msg
 calendarCell model day =
     let
         sel =
@@ -219,7 +220,7 @@ calendarCell model day =
                             ]
                             (cellContentFor model day)
                         ]
-                , onPress = Just (Shared.SelectDate day)
+                , onPress = Just (Msg.SelectDate day)
                 }
             )
 
@@ -234,7 +235,7 @@ calendarCell model day =
             E.none
 
 
-cellContentFor : Shared.Model -> Date.Date -> List (E.Element Shared.Msg)
+cellContentFor : Model.Model -> Date.Date -> List (E.Element Msg.Msg)
 cellContentFor model day =
     let
         render transaction =
@@ -324,28 +325,25 @@ dayView model =
                 [ E.width (E.fillPortion 2) ]
                 { label = Ui.incomeIcon []
                 , color = Ui.fgIncome
-                , onPress = Just (Shared.NewDialog False model.date)
+                , onPress = Just (Msg.ForDialog <| Msg.NewDialog False model.date)
                 }
             , Ui.coloredButton
                 [ E.width (E.fillPortion 2) ]
                 { label = Ui.expenseIcon []
                 , color = Ui.fgExpense
-                , onPress = Just (Shared.NewDialog True model.date)
+                , onPress = Just (Msg.ForDialog <| Msg.NewDialog True model.date)
                 }
             ]
         ]
 
 
-dayContentFor : Shared.Model -> Date.Date -> List (E.Element Shared.Msg)
+dayContentFor : Model.Model -> Date.Date -> List (E.Element Msg.Msg)
 dayContentFor model day =
     let
         render idx transaction =
             let
-                parts =
-                    Money.toStrings transaction.amount
-
                 category =
-                    Shared.category transaction.category model
+                    Model.category transaction.category model
             in
             E.el
                 [ E.width E.fill
@@ -363,7 +361,7 @@ dayContentFor model day =
                     , Border.color (E.rgba 0 0 0 0)
                     , E.focused [ Border.color Ui.fgFocus ]
                     ]
-                    { onPress = Just (Shared.EditDialog transaction.id)
+                    { onPress = Just (Msg.ForDialog <| Msg.EditDialog transaction.id)
                     , label =
                         E.row
                             [ E.width E.fill

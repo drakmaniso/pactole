@@ -4,6 +4,7 @@ module Date exposing
     , decrementDay
     , decrementMonth
     , default
+    , findNextDayOfMonth
     , firstDayOf
     , fromInt
     , fromParts
@@ -54,24 +55,27 @@ fromParts { year, month, day } =
                 (Calendar.fromRawParts { day = day, month = m, year = year })
 
 
-fromZoneAndPosix : Time.Zone -> Time.Posix -> Date
-fromZoneAndPosix zone time =
-    let
-        y =
-            Time.toYear zone time
 
-        m =
-            Time.toMonth zone time
+{-
+   fromZoneAndPosix : Time.Zone -> Time.Posix -> Date
+   fromZoneAndPosix zone time =
+       let
+           y =
+               Time.toYear zone time
 
-        d =
-            Time.toDay zone time
-    in
-    case Calendar.fromRawParts { day = d, month = m, year = y } of
-        Just date ->
-            Date date
+           m =
+               Time.toMonth zone time
 
-        Nothing ->
-            Date (Calendar.fromPosix (Time.millisToPosix 0))
+           d =
+               Time.toDay zone time
+       in
+       case Calendar.fromRawParts { day = d, month = m, year = y } of
+           Just date ->
+               Date date
+
+           Nothing ->
+               Date (Calendar.fromPosix (Time.millisToPosix 0))
+-}
 
 
 fromPosix : Time.Posix -> Date
@@ -295,6 +299,18 @@ firstDayOf (Date date) =
 
         Nothing ->
             default
+
+
+findNextDayOfMonth day date =
+    let
+        d =
+            incrementDay date
+    in
+    if getDay d == day then
+        d
+
+    else
+        findNextDayOfMonth day d
 
 
 getWeekday (Date date) =

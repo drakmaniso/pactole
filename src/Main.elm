@@ -5,7 +5,9 @@ import Browser
 import Browser.Dom as Dom
 import Browser.Events
 import Browser.Navigation as Navigation
+import Database
 import Date
+import Dict
 import Element as E
 import Element.Background as Background
 import Element.Border as Border
@@ -16,15 +18,17 @@ import Html.Attributes
 import Json.Decode as Decode
 import Json.Encode as Encode
 import Ledger
+import Log
+import Model
 import Money
+import Msg
 import Page.Calendar as Calendar
 import Page.Dialog as Dialog
 import Page.Reconcile as Reconcile
 import Page.Settings as Settings
 import Page.Statistics as Statistics
 import Page.Tabular as Tabular
-import Ports
-import Shared
+import Process
 import Task
 import Time
 import Ui
@@ -41,38 +45,78 @@ main =
         , update = update
         , view = view
         , subscriptions = subscriptions
-        , onUrlChange = Shared.UrlChanged
-        , onUrlRequest = Shared.LinkClicked
+        , onUrlChange = \_ -> Msg.NoOp
+        , onUrlRequest = \_ -> Msg.NoOp
         }
 
 
 
--- MODEL
+-- INIT
 
 
-type alias Model =
-    { shared : Shared.Model
-    , dialog : Maybe Dialog.Model
-    , settingsDialog : Maybe Settings.Dialog
-    }
-
-
-init : Decode.Value -> Url.Url -> Navigation.Key -> ( Model, Cmd Shared.Msg )
+init : Decode.Value -> Url.Url -> Navigation.Key -> ( Model.Model, Cmd Msg.Msg )
 init flags _ _ =
     let
-        ( shared, commonCmd ) =
-            Shared.init flags
+        day =
+            case Decode.decodeValue (Decode.at [ "today", "day" ] Decode.int) flags of
+                Ok v ->
+                    v
+
+                Err _ ->
+                    --TODO
+                    0
+
+        month =
+            case Decode.decodeValue (Decode.at [ "today", "month" ] Decode.int) flags of
+                Ok v ->
+                    v
+
+                Err _ ->
+                    --TODO
+                    0
+
+        year =
+            case Decode.decodeValue (Decode.at [ "today", "year" ] Decode.int) flags of
+                Ok v ->
+                    v
+
+                Err _ ->
+                    --TODO
+                    0
+
+        ( today, cmd ) =
+            case Date.fromParts { day = day, month = month, year = year } of
+                Just d ->
+                    ( d, Cmd.none )
+
+                Nothing ->
+                    ( Date.default, Log.error "init flags: invalid date for today" )
     in
-    ( { shared = shared
+    ( { settings =
+            { categoriesEnabled = False
+            , defaultMode = Model.InCalendar
+            , reconciliationEnabled = False
+            , summaryEnabled = False
+            , balanceWarning = 100
+            , recurringTransactions = []
+            }
+      , today = today
+      , date = today
+      , ledger = Ledger.empty
+      , accounts = Dict.empty
+      , account = Nothing
+      , categories = Dict.empty
+      , showAdvanced = False
+      , advancedCounter = 0
+      , showFocus = False
+      , page = Model.MainPage
       , dialog = Nothing
       , settingsDialog = Nothing
       }
-    , Cmd.batch
-        [ commonCmd
-        ]
+    , cmd
       {-
          , Cmd.batch
-             [ Task.perform Shared.Today (Task.map2 Date.fromZoneAndPosix Time.here Time.now)
+             [ Task.perform Msg.Today (Task.map2 Date.fromZoneAndPosix Time.here Time.now)
              ]
       -}
     )
@@ -82,165 +126,77 @@ init flags _ _ =
 -- UPDATE
 
 
-update : Shared.Msg -> Model -> ( Model, Cmd Shared.Msg )
+update : Msg.Msg -> Model.Model -> ( Model.Model, Cmd Msg.Msg )
 update msg model =
-    let
-        sharedMsg handler =
-            let
-                ( shared, cmd ) =
-                    handler model.shared
-            in
-            ( { model | shared = shared }, cmd )
-
-        dialogMsg handler =
-            let
-                ( shared, dialog, cmd ) =
-                    handler model.shared model.dialog
-            in
-            ( { model | shared = shared, dialog = dialog }, cmd )
-
-        settingsMsg handler =
-            let
-                ( settings, cmd ) =
-                    handler model.settingsDialog
-            in
-            ( { model | settingsDialog = settings }, cmd )
-    in
     case msg of
-        Shared.Today d ->
-            sharedMsg (Shared.msgToday d)
+        Msg.ChangePage page ->
+            ( { model | page = page }
+            , Task.attempt (\_ -> Msg.NoOp) (Dom.blur "unfocus-on-page-change")
+            )
 
-        Shared.LinkClicked req ->
-            case req of
-                Browser.Internal url ->
-                    ( model, Cmd.none )
+        Msg.AttemptSettings ->
+            ( { model
+                | advancedCounter =
+                    if model.advancedCounter > 3 then
+                        3
 
-                Browser.External href ->
-                    ( model, Cmd.none )
+                    else
+                        model.advancedCounter + 1
+                , showAdvanced = model.advancedCounter >= 3
+              }
+            , Task.perform
+                (\_ -> Msg.AttemptTimeout)
+                (Process.sleep 3000.0
+                    |> Task.andThen (\_ -> Task.succeed ())
+                )
+            )
 
-        Shared.UrlChanged url ->
-            ( model, Cmd.none )
+        Msg.AttemptTimeout ->
+            ( { model
+                | advancedCounter =
+                    if model.advancedCounter <= 0 then
+                        0
 
-        Shared.FromService ( title, json ) ->
-            sharedMsg (Shared.msgFromService ( title, json ))
+                    else
+                        model.advancedCounter - 1
+                , showAdvanced = model.advancedCounter <= 0
+              }
+            , Cmd.none
+            )
 
-        Shared.ChangePage page ->
-            sharedMsg (Shared.msgChangePage page)
-
-        Shared.AttemptSettings ->
-            sharedMsg Shared.msgAttemptSettings
-
-        Shared.AttemptTimeout ->
-            sharedMsg Shared.msgAttemptTimeout
-
-        Shared.Close ->
+        Msg.Close ->
             --TODO: delegate to Dialog?
             ( { model | dialog = Nothing, settingsDialog = Nothing }, Cmd.none )
 
-        Shared.SelectDate date ->
-            sharedMsg (Shared.msgSelectDate date)
+        Msg.SelectDate date ->
+            ( { model | date = date }, Cmd.none )
 
-        Shared.SelectAccount account ->
-            sharedMsg (Shared.msgSelectAccount account)
+        Msg.SelectAccount accountID ->
+            ( { model | account = Just accountID }, Database.requestLedger accountID )
 
-        Shared.KeyDown string ->
+        Msg.KeyDown string ->
             if string == "Alt" || string == "Control" || string == "Shift" then
-                sharedMsg (Shared.msgShowAdvanced True)
+                ( { model | showAdvanced = True }, Cmd.none )
 
             else if string == "Tab" then
-                sharedMsg (Shared.msgShowFocus True)
+                ( { model | showFocus = True }, Cmd.none )
 
             else
                 ( model, Cmd.none )
 
-        Shared.KeyUp string ->
-            sharedMsg (Shared.msgShowAdvanced False)
+        Msg.KeyUp string ->
+            ( { model | showAdvanced = False }, Cmd.none )
 
-        Shared.NewDialog isExpense date ->
-            dialogMsg (Dialog.msgNewDialog isExpense date)
+        Msg.ForDatabase m ->
+            Database.update m model
 
-        Shared.EditDialog id ->
-            dialogMsg (Dialog.msgEditDialog id)
+        Msg.ForDialog m ->
+            Dialog.update m model
 
-        Shared.DialogAmount amount ->
-            dialogMsg (Dialog.msgAmount amount)
+        Msg.ForSettingsDialog m ->
+            Settings.update m model
 
-        Shared.DialogDescription string ->
-            dialogMsg (Dialog.msgDescription string)
-
-        Shared.DialogCategory id ->
-            dialogMsg (Dialog.msgCategory id)
-
-        Shared.DialogConfirm ->
-            dialogMsg Dialog.msgConfirm
-
-        Shared.DialogDelete ->
-            dialogMsg Dialog.msgDelete
-
-        Shared.CreateAccount name ->
-            sharedMsg (Shared.msgCreateAccount name)
-
-        Shared.OpenRenameAccount id ->
-            ( { model
-                | settingsDialog =
-                    Just (Settings.openRenameAccount id model.shared)
-              }
-            , Cmd.none
-            )
-
-        Shared.OpenDeleteAccount id ->
-            ( { model
-                | settingsDialog =
-                    Just (Settings.openDeleteAccount id model.shared)
-              }
-            , Cmd.none
-            )
-
-        Shared.CreateCategory name icon ->
-            sharedMsg (Shared.msgCreateCategory name icon)
-
-        Shared.OpenRenameCategory id ->
-            ( { model
-                | settingsDialog =
-                    Just (Settings.openRenameCategory id model.shared)
-              }
-            , Cmd.none
-            )
-
-        Shared.OpenDeleteCategory id ->
-            ( { model
-                | settingsDialog =
-                    Just (Settings.openDeleteCategory id model.shared)
-              }
-            , Cmd.none
-            )
-
-        Shared.SettingsChangeName name ->
-            settingsMsg (Settings.msgChangeName name)
-
-        Shared.SettingsChangeIcon icon ->
-            settingsMsg (Settings.msgChangeIcon icon)
-
-        Shared.SetSettings settings ->
-            sharedMsg (Shared.msgSetSettings settings)
-
-        Shared.SettingsConfirm ->
-            settingsMsg Settings.msgConfirm
-
-        Shared.CheckTransaction transaction checked ->
-            ( model
-            , Ports.putTransaction
-                { account = model.shared.account
-                , id = transaction.id
-                , date = transaction.date
-                , amount = transaction.amount
-                , description = transaction.description
-                , category = transaction.category
-                , checked = checked
-                }
-            )
-
-        Shared.NoOp ->
+        Msg.NoOp ->
             ( model, Cmd.none )
 
 
@@ -248,16 +204,16 @@ update msg model =
 -- SUBSCRIPTIONS
 
 
-subscriptions : Model -> Sub Shared.Msg
+subscriptions : Model.Model -> Sub Msg.Msg
 subscriptions _ =
     Sub.batch
-        [ Ports.receive Shared.FromService
-        , Browser.Events.onKeyDown (keyDecoder Shared.KeyDown)
-        , Browser.Events.onKeyUp (keyDecoder Shared.KeyUp)
+        [ Database.receive
+        , Browser.Events.onKeyDown (keyDecoder Msg.KeyDown)
+        , Browser.Events.onKeyUp (keyDecoder Msg.KeyUp)
         ]
 
 
-keyDecoder : (String -> Shared.Msg) -> Decode.Decoder Shared.Msg
+keyDecoder : (String -> Msg.Msg) -> Decode.Decoder Msg.Msg
 keyDecoder msg =
     Decode.field "key" Decode.string
         |> Decode.map msg
@@ -267,7 +223,7 @@ keyDecoder msg =
 -- VIEW
 
 
-view : Model -> Browser.Document Shared.Msg
+view : Model.Model -> Browser.Document Msg.Msg
 view model =
     { title = "Pactole"
     , body =
@@ -277,7 +233,7 @@ view model =
                     { borderColor = Nothing
                     , backgroundColor = Nothing
                     , shadow =
-                        if model.shared.showFocus then
+                        if model.showFocus then
                             Just
                                 { color = Ui.fgFocus
                                 , offset = ( 0, 0 )
@@ -305,15 +261,17 @@ view model =
                             , E.padding 16
                             , E.scrollbarY
                             , E.behindContent
-                                (E.el
+                                (Input.button
                                     [ E.width E.fill
                                     , E.height E.fill
                                     , Background.color (E.rgba 0 0 0 0.6)
                                     ]
-                                    E.none
+                                    { label = E.none
+                                    , onPress = Just Msg.Close
+                                    }
                                 )
                             ]
-                            (Dialog.view model.shared dialog)
+                            (Dialog.view model)
                         )
                     ]
 
@@ -334,38 +292,35 @@ view model =
                                             , Background.color (E.rgba 0 0 0 0.6)
                                             ]
                                             { label = E.none
-                                            , onPress = Just Shared.Close
+                                            , onPress = Just Msg.Close
                                             }
                                         )
                                     ]
-                                    (Settings.viewDialog dialog)
+                                    (Settings.viewDialog model)
                                 )
                             ]
 
                         Nothing ->
-                            [ E.width E.fill
-                            , E.height E.fill
-                            , E.scrollbarY
-                            , E.inFront (E.column [] [])
+                            [ E.inFront (E.column [] [])
                             ]
             )
-            (case model.shared.page of
-                Shared.SettingsPage ->
-                    Settings.view model.shared
+            (case model.page of
+                Model.SettingsPage ->
+                    Settings.view model
 
-                Shared.StatsPage ->
-                    Statistics.view model.shared
+                Model.StatsPage ->
+                    Statistics.view model
 
-                Shared.ReconcilePage ->
-                    Reconcile.view model.shared
+                Model.ReconcilePage ->
+                    Reconcile.view model
 
-                Shared.MainPage ->
-                    case model.shared.settings.defaultMode of
-                        Shared.InCalendar ->
-                            Calendar.view model.shared
+                Model.MainPage ->
+                    case model.settings.defaultMode of
+                        Model.InCalendar ->
+                            Calendar.view model
 
-                        Shared.InTabular ->
-                            Tabular.view model.shared
+                        Model.InTabular ->
+                            Tabular.view model
             )
         ]
     }

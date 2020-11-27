@@ -1,238 +1,216 @@
 module Page.Dialog exposing
-    ( Model
-    , msgAmount
-    , msgCategory
-    , msgConfirm
-    , msgDelete
-    , msgDescription
-    , msgEditDialog
-    , msgNewDialog
+    ( update
     , view
     )
 
 import Browser.Dom as Dom
-import Date
+import Database
 import Dict
-import Element exposing (..)
+import Element as E
 import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
 import Element.Input as Input
 import Html.Attributes as HtmlAttr
-import Json.Encode as Encode
 import Ledger
+import Log
+import Model
 import Money
-import Ports
-import Shared
+import Msg
 import Task
 import Ui
-
-
-
--- MODEL
-
-
-type alias Model =
-    { id : Maybe Int
-    , isExpense : Bool
-    , date : Date.Date
-    , amount : String
-    , amountError : String
-    , description : String
-    , category : Int
-    }
 
 
 
 -- UPDATE
 
 
-msgNewDialog : Bool -> Date.Date -> Shared.Model -> Maybe Model -> ( Shared.Model, Maybe Model, Cmd Shared.Msg )
-msgNewDialog isExpense date shared _ =
-    ( shared
-    , Just
-        { id = Nothing
-        , isExpense = isExpense
-        , date = date
-        , amount = ""
-        , amountError = ""
-        , description = ""
-        , category = 0
-        }
-    , Task.attempt (\_ -> Shared.NoOp) (Dom.focus "dialog-amount")
-    )
-
-
-msgEditDialog : Int -> Shared.Model -> Maybe Model -> ( Shared.Model, Maybe Model, Cmd Shared.Msg )
-msgEditDialog id shared _ =
-    case Ledger.getTransaction id shared.ledger of
-        Nothing ->
-            ( shared, Nothing, Ports.error "msgEditDialog: unable to get transaction" )
-
-        Just t ->
-            ( shared
-            , Just
-                { id = Just t.id
-                , isExpense = Money.isExpense t.amount
-                , date = t.date
-                , amount = Money.toInput t.amount
-                , amountError = Money.validate (Money.toInput t.amount)
-                , description = t.description
-                , category = t.category
-                }
-            , Cmd.none
-            )
-
-
-msgAmount : String -> Shared.Model -> Maybe Model -> ( Shared.Model, Maybe Model, Cmd Shared.Msg )
-msgAmount amount shared model =
-    case model of
-        Just dialog ->
-            ( shared
-            , Just
-                { dialog
-                    | amount = amount
-                    , amountError = Money.validate amount
-                }
-            , Cmd.none
-            )
-
-        Nothing ->
-            ( shared, Nothing, Cmd.none )
-
-
-msgDescription : String -> Shared.Model -> Maybe Model -> ( Shared.Model, Maybe Model, Cmd Shared.Msg )
-msgDescription string shared model =
-    case model of
-        Just dialog ->
-            ( shared
-            , Just
-                { dialog
-                    | description =
-                        String.filter (\c -> c /= Char.fromCode 13 && c /= Char.fromCode 10) string
-                }
-            , Cmd.none
-            )
-
-        Nothing ->
-            ( shared, model, Cmd.none )
-
-
-msgCategory : Int -> Shared.Model -> Maybe Model -> ( Shared.Model, Maybe Model, Cmd Shared.Msg )
-msgCategory id shared model =
-    case model of
-        Just dialog ->
-            ( shared
-            , Just
-                { dialog | category = id }
-            , Cmd.none
-            )
-
-        Nothing ->
-            ( shared, model, Cmd.none )
-
-
-msgConfirm : Shared.Model -> Maybe Model -> ( Shared.Model, Maybe Model, Cmd Shared.Msg )
-msgConfirm shared model =
-    case model of
-        Just dialog ->
-            case ( dialog.id, Money.fromInput dialog.isExpense dialog.amount ) of
-                ( Just id, Just amount ) ->
-                    ( shared
-                    , Nothing
-                    , Ports.putTransaction
-                        { account = shared.account
-                        , id = id
-                        , date = dialog.date
-                        , amount = amount
-                        , description = dialog.description
-                        , category = dialog.category
-                        , checked = False
+update : Msg.DialogMsg -> Model.Model -> ( Model.Model, Cmd Msg.Msg )
+update msg model =
+    case msg of
+        Msg.NewDialog isExpense date ->
+            ( { model
+                | dialog =
+                    Just
+                        { id = Nothing
+                        , isExpense = isExpense
+                        , date = date
+                        , amount = ""
+                        , amountError = ""
+                        , description = ""
+                        , category = 0
                         }
+              }
+            , Task.attempt (\_ -> Msg.NoOp) (Dom.focus "dialog-amount")
+            )
+
+        Msg.EditDialog id ->
+            case Ledger.getTransaction id model.ledger of
+                Nothing ->
+                    ( model, Log.error "msgEditDialog: unable to get transaction" )
+
+                Just t ->
+                    ( { model
+                        | dialog =
+                            Just
+                                { id = Just t.id
+                                , isExpense = Money.isExpense t.amount
+                                , date = t.date
+                                , amount = Money.toInput t.amount
+                                , amountError = Money.validate (Money.toInput t.amount)
+                                , description = t.description
+                                , category = t.category
+                                }
+                      }
+                    , Cmd.none
                     )
 
-                ( Nothing, Just amount ) ->
-                    ( shared
-                    , Nothing
-                    , Ports.addTransaction
-                        { account = shared.account
-                        , date = dialog.date
-                        , amount = amount
-                        , description = dialog.description
-                        , category = dialog.category
-                        , checked = False
-                        }
-                    )
-
-                ( _, Nothing ) ->
-                    ( shared, model, Cmd.none )
-
-        _ ->
-            ( shared, model, Ports.error "impossible Confirm message" )
-
-
-msgDelete : Shared.Model -> Maybe Model -> ( Shared.Model, Maybe Model, Cmd Shared.Msg )
-msgDelete shared model =
-    case model of
-        Just dialog ->
-            case dialog.id of
-                Just id ->
-                    ( shared
-                    , Nothing
-                    , Ports.deleteTransaction
-                        { account = shared.account
-                        , id = id
-                        }
+        Msg.DialogAmount amount ->
+            case model.dialog of
+                Just dialog ->
+                    ( { model
+                        | dialog =
+                            Just
+                                { dialog
+                                    | amount = amount
+                                    , amountError = Money.validate amount
+                                }
+                      }
+                    , Cmd.none
                     )
 
                 Nothing ->
-                    ( shared, model, Ports.error "impossible Delete message" )
+                    ( model, Cmd.none )
 
-        Nothing ->
-            ( shared, model, Ports.error "impossible Delete message" )
+        Msg.DialogDescription string ->
+            case model.dialog of
+                Just dialog ->
+                    ( { model
+                        | dialog =
+                            Just
+                                { dialog
+                                    | description =
+                                        String.filter (\c -> c /= Char.fromCode 13 && c /= Char.fromCode 10) string
+                                }
+                      }
+                    , Cmd.none
+                    )
+
+                Nothing ->
+                    ( model, Cmd.none )
+
+        Msg.DialogCategory id ->
+            case model.dialog of
+                Just dialog ->
+                    ( { model
+                        | dialog =
+                            Just
+                                { dialog | category = id }
+                      }
+                    , Cmd.none
+                    )
+
+                Nothing ->
+                    ( model, Cmd.none )
+
+        Msg.DialogConfirm ->
+            case model.dialog of
+                Just dialog ->
+                    case ( dialog.id, Money.fromInput dialog.isExpense dialog.amount ) of
+                        ( Just id, Just amount ) ->
+                            ( { model | dialog = Nothing }
+                            , Database.replaceTransaction
+                                model.account
+                                { id = id
+                                , date = dialog.date
+                                , amount = amount
+                                , description = dialog.description
+                                , category = dialog.category
+                                , checked = False
+                                }
+                            )
+
+                        ( Nothing, Just amount ) ->
+                            ( { model | dialog = Nothing }
+                            , Database.createTransaction
+                                model.account
+                                { date = dialog.date
+                                , amount = amount
+                                , description = dialog.description
+                                , category = dialog.category
+                                , checked = False
+                                }
+                            )
+
+                        ( _, Nothing ) ->
+                            ( model, Cmd.none )
+
+                _ ->
+                    ( model, Log.error "impossible Confirm message" )
+
+        Msg.DialogDelete ->
+            case model.dialog of
+                Just dialog ->
+                    case dialog.id of
+                        Just id ->
+                            ( { model | dialog = Nothing }
+                            , Database.deleteTransaction model.account id
+                            )
+
+                        Nothing ->
+                            ( model, Log.error "impossible Delete message" )
+
+                Nothing ->
+                    ( model, Log.error "impossible Delete message" )
 
 
 
 -- VIEW
 
 
-view : Shared.Model -> Model -> Element Shared.Msg
-view shared dialog =
-    column
-        [ centerX
-        , centerY
-        , width (px 960)
-        , height shrink
-        , paddingXY 0 0
-        , spacing 0
-        , scrollbarY
-        , Background.color Ui.bgWhite
-        , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 32, color = rgba 0 0 0 0.75 }
-        ]
-        [ titleRow dialog
-        , amountRow dialog
-        , descriptionRow dialog
-        , if dialog.isExpense && shared.settings.categoriesEnabled then
-            categoryRow shared dialog
+view : Model.Model -> E.Element Msg.Msg
+view model =
+    case model.dialog of
+        Just dialog ->
+            E.column
+                [ E.centerX
+                , E.centerY
+                , E.width (E.px 960)
+                , E.height E.shrink
+                , E.paddingXY 0 0
+                , E.spacing 0
+                , E.scrollbarY
+                , Background.color Ui.bgWhite
+                , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 32, color = E.rgba 0 0 0 0.75 }
+                ]
+                [ titleRow dialog
+                , amountRow dialog
+                , descriptionRow dialog
+                , if dialog.isExpense && model.settings.categoriesEnabled then
+                    categoryRow model dialog
 
-          else
-            none
-        , el [ height fill, Background.color Ui.bgWhite ] none
-        , buttonsRow dialog
-        ]
+                  else
+                    E.none
+                , E.el [ E.height E.fill, Background.color Ui.bgWhite ] E.none
+                , buttonsRow dialog
+                ]
+
+        Nothing ->
+            E.none
 
 
 titleRow dialog =
-    row
-        [ alignLeft
-        , width fill
-        , paddingEach { top = 24, bottom = 24, right = 48, left = 48 }
-        , spacing 12
+    E.row
+        [ E.alignLeft
+        , E.width E.fill
+        , E.paddingEach { top = 24, bottom = 24, right = 24, left = 24 }
+        , E.spacing 12
         , Background.color (Ui.bgTransaction dialog.isExpense)
         ]
-        [ el
-            [ width fill, Font.center, Ui.bigFont, Font.bold, Font.color Ui.bgWhite ]
-            (text
+        [ E.el [ E.width (E.px 48) ] E.none
+        , E.el
+            [ E.width E.fill, Font.center, Ui.bigFont, Font.bold, Font.color Ui.bgWhite ]
+            (E.text
                 (if dialog.isExpense then
                     "Dépense"
 
@@ -244,24 +222,24 @@ titleRow dialog =
 
 
 amountRow dialog =
-    row
-        [ alignLeft
-        , centerY
-        , width fill
-        , paddingEach { top = 48, bottom = 24, right = 64, left = 64 }
-        , spacing 12
+    E.row
+        [ E.alignLeft
+        , E.centerY
+        , E.width E.fill
+        , E.paddingEach { top = 48, bottom = 24, right = 64, left = 64 }
+        , E.spacing 12
         , Background.color Ui.bgWhite
-        , centerY
+        , E.centerY
         ]
         [ Input.text
-            [ Ui.onEnter Shared.DialogConfirm
+            [ Ui.onEnter (Msg.ForDialog <| Msg.DialogConfirm)
             , Ui.bigFont
-            , paddingXY 8 12
-            , width (shrink |> minimum 220)
-            , alignLeft
+            , E.paddingXY 8 12
+            , E.width (E.shrink |> E.minimum 220)
+            , E.alignLeft
             , Border.width 1
             , Border.color Ui.bgDark
-            , focused
+            , E.focused
                 [ Border.shadow
                     { offset = ( 0, 0 )
                     , size = 4
@@ -269,59 +247,59 @@ amountRow dialog =
                     , color = Ui.fgFocus
                     }
                 ]
-            , htmlAttribute <| HtmlAttr.id "dialog-amount"
+            , E.htmlAttribute <| HtmlAttr.id "dialog-amount"
             ]
             { label =
                 Input.labelAbove
-                    [ width shrink
-                    , alignLeft
-                    , height fill
+                    [ E.width E.shrink
+                    , E.alignLeft
+                    , E.height E.fill
                     , Font.color Ui.fgTitle
                     , Ui.normalFont
                     , Font.bold
-                    , paddingEach { top = 0, bottom = 0, left = 12, right = 0 }
-                    , pointer
+                    , E.paddingEach { top = 0, bottom = 0, left = 12, right = 0 }
+                    , E.pointer
                     ]
-                    (text "Somme:")
+                    (E.text "Somme:")
             , text = dialog.amount
             , placeholder = Nothing
-            , onChange = Shared.DialogAmount
+            , onChange = Msg.ForDialog << Msg.DialogAmount
             }
-        , el
+        , E.el
             [ Ui.bigFont
             , Font.color Ui.fgBlack
-            , paddingXY 0 12
-            , width shrink
-            , alignLeft
-            , alignBottom
+            , E.paddingXY 0 12
+            , E.width E.shrink
+            , E.alignLeft
+            , E.alignBottom
             , Border.width 1
-            , Border.color (rgba 0 0 0 0)
+            , Border.color (E.rgba 0 0 0 0)
             ]
-            (text "€")
+            (E.text "€")
         , if dialog.amountError /= "" then
             Ui.warningParagraph
-                [ width fill ]
-                [ text dialog.amountError ]
+                [ E.width E.fill ]
+                [ E.text dialog.amountError ]
 
           else
-            el [] none
+            E.el [] E.none
         ]
 
 
 descriptionRow dialog =
-    row
-        [ width fill
-        , paddingEach { top = 24, bottom = 24, right = 64, left = 64 }
-        , spacing 12
+    E.row
+        [ E.width E.fill
+        , E.paddingEach { top = 24, bottom = 24, right = 64, left = 64 }
+        , E.spacing 12
         , Background.color Ui.bgWhite
         ]
         [ Input.multiline
-            [ Ui.onEnter Shared.DialogConfirm
+            [ Ui.onEnter (Msg.ForDialog <| Msg.DialogConfirm)
             , Ui.bigFont
-            , paddingXY 8 12
+            , E.paddingXY 8 12
             , Border.width 1
             , Border.color Ui.bgDark
-            , focused
+            , E.focused
                 [ Border.shadow
                     { offset = ( 0, 0 )
                     , size = 4
@@ -329,29 +307,29 @@ descriptionRow dialog =
                     , color = Ui.fgFocus
                     }
                 ]
-            , width fill
-            , scrollbarY
+            , E.width E.fill
+            , E.scrollbarY
             ]
             { label =
                 Input.labelAbove
-                    [ width shrink
-                    , height fill
+                    [ E.width E.shrink
+                    , E.height E.fill
                     , Font.color Ui.fgTitle
                     , Ui.normalFont
                     , Font.bold
-                    , paddingEach { top = 0, bottom = 0, left = 12, right = 0 }
-                    , pointer
+                    , E.paddingEach { top = 0, bottom = 0, left = 12, right = 0 }
+                    , E.pointer
                     ]
-                    (text "Description:")
+                    (E.text "Description:")
             , text = dialog.description
             , placeholder = Nothing
-            , onChange = Shared.DialogDescription
+            , onChange = Msg.ForDialog << Msg.DialogDescription
             , spellcheck = True
             }
         ]
 
 
-categoryRow shared dialog =
+categoryRow model dialog =
     let
         groupBy3 accum list =
             let
@@ -365,7 +343,7 @@ categoryRow shared dialog =
                 groupBy3 (group :: accum) (List.drop 3 list)
 
         categories =
-            shared.categories
+            model.categories
                 |> Dict.toList
                 |> (\l ->
                         ( 0, { name = "Aucune", icon = "" } )
@@ -374,75 +352,75 @@ categoryRow shared dialog =
                             |> List.reverse
                    )
     in
-    column
-        [ width fill
-        , height shrink
-        , paddingEach { top = 24, bottom = 24, right = 64, left = 64 }
-        , spacing 6
+    E.column
+        [ E.width E.fill
+        , E.height E.shrink
+        , E.paddingEach { top = 24, bottom = 24, right = 64, left = 64 }
+        , E.spacing 6
         , Background.color Ui.bgWhite
         ]
-        [ el
-            [ width shrink
-            , height fill
+        [ E.el
+            [ E.width E.shrink
+            , E.height E.fill
             , Font.color Ui.fgTitle
             , Ui.normalFont
             , Font.bold
-            , paddingEach { top = 0, bottom = 12, left = 12, right = 0 }
-            , pointer
+            , E.paddingEach { top = 0, bottom = 12, left = 12, right = 0 }
+            , E.pointer
             ]
-            (text "Catégorie:")
-        , table
-            [ width fill
-            , spacing 12
-            , paddingXY 64 0
+            (E.text "Catégorie:")
+        , E.table
+            [ E.width E.fill
+            , E.spacing 12
+            , E.paddingXY 64 0
 
             --BUGGY: , scrollbarY
             ]
             { data = categories
             , columns =
-                [ { header = none
-                  , width = fill
+                [ { header = E.none
+                  , width = E.fill
                   , view =
                         \row ->
                             case List.head row of
                                 Nothing ->
-                                    none
+                                    E.none
 
                                 Just ( k, v ) ->
                                     Ui.radioButton []
-                                        { onPress = Just (Shared.DialogCategory k)
+                                        { onPress = Just (Msg.ForDialog <| Msg.DialogCategory k)
                                         , icon = v.icon
                                         , label = v.name
                                         , active = k == dialog.category
                                         }
                   }
-                , { header = none
-                  , width = fill
+                , { header = E.none
+                  , width = E.fill
                   , view =
                         \row ->
                             case List.head (List.drop 1 row) of
                                 Nothing ->
-                                    none
+                                    E.none
 
                                 Just ( k, v ) ->
                                     Ui.radioButton []
-                                        { onPress = Just (Shared.DialogCategory k)
+                                        { onPress = Just (Msg.ForDialog <| Msg.DialogCategory k)
                                         , icon = v.icon
                                         , label = v.name
                                         , active = k == dialog.category
                                         }
                   }
-                , { header = none
-                  , width = fill
+                , { header = E.none
+                  , width = E.fill
                   , view =
                         \row ->
                             case List.head (List.drop 2 row) of
                                 Nothing ->
-                                    none
+                                    E.none
 
                                 Just ( k, v ) ->
                                     Ui.radioButton []
-                                        { onPress = Just (Shared.DialogCategory k)
+                                        { onPress = Just (Msg.ForDialog <| Msg.DialogCategory k)
                                         , icon = v.icon
                                         , label = v.name
                                         , active = k == dialog.category
@@ -454,25 +432,25 @@ categoryRow shared dialog =
 
 
 buttonsRow dialog =
-    row
-        [ width fill
-        , spacing 24
-        , paddingEach { top = 64, bottom = 24, left = 64, right = 64 }
+    E.row
+        [ E.width E.fill
+        , E.spacing 24
+        , E.paddingEach { top = 64, bottom = 24, left = 64, right = 64 }
         , Background.color Ui.bgWhite
         ]
         [ Ui.simpleButton
-            [ alignRight ]
-            { label = text "Annuler", onPress = Just Shared.Close }
+            [ E.alignRight ]
+            { label = E.text "Annuler", onPress = Just Msg.Close }
         , case dialog.id of
             Just _ ->
                 Ui.simpleButton
                     []
-                    { label = text "Supprimer", onPress = Just Shared.DialogDelete }
+                    { label = E.text "Supprimer", onPress = Just (Msg.ForDialog <| Msg.DialogDelete) }
 
             Nothing ->
-                none
-        , Ui.mainButton [ width shrink ]
-            { label = text "OK"
-            , onPress = Just Shared.DialogConfirm
+                E.none
+        , Ui.mainButton [ E.width E.shrink ]
+            { label = E.text "OK"
+            , onPress = Just (Msg.ForDialog <| Msg.DialogConfirm)
             }
         ]
