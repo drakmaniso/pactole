@@ -72,7 +72,7 @@ update msg model =
                 t =
                     { date = Date.findNextDayOfMonth 1 model.today
                     , amount = Money.zero
-                    , description = "(operation mensuelle)"
+                    , description = "(opération mensuelle)"
                     , category = 0
                     , checked = False
                     }
@@ -308,103 +308,98 @@ view : Model.Model -> E.Element Msg.Msg
 view model =
     Ui.pageWithSidePanel []
         { panel =
-            E.row
-                [ E.centerX ]
-                [ Ui.simpleButton []
-                    { onPress = Just (Msg.ChangePage Model.MainPage)
-                    , label =
-                        E.row []
-                            [ Ui.backIcon []
-                            , E.text "  Retour"
-                            ]
-                    }
-                ]
-        , page =
             E.column
                 [ E.width E.fill
                 , E.height E.fill
-                , E.paddingXY 48 0
-                , E.scrollbarY
+                , E.clipX
+                , E.clipY
                 ]
-                [ Ui.pageTitle [ E.centerY, Font.color Ui.fgTitle ]
-                    (E.text "Configuration")
-                , E.row
-                    [ E.width E.fill ]
-                    [ E.paragraph
-                        [ E.width (E.fillPortion 4)
-                        , E.paddingEach { top = 24, bottom = 24, left = 12, right = 12 }
-                        ]
-                        [ E.text "Rappel: l'application enregistre ses données uniquement sur cet ordinateur; "
-                        , E.text "rien n'est envoyé sur internet."
-                        ]
-                    , E.el [ E.width (E.fillPortion 2) ] E.none
+                [ E.el
+                    [ E.centerX ]
+                    (Ui.simpleButton []
+                        { onPress = Just (Msg.ChangePage Model.MainPage)
+                        , label =
+                            E.row []
+                                [ Ui.backIcon []
+                                , E.text "  Retour"
+                                ]
+                        }
+                    )
+                , E.el
+                    [ E.width E.fill, E.height E.fill ]
+                    E.none
+                ]
+        , page =
+            E.column
+                -- This extra column is necessary to circumvent a
+                -- scrollbar-related bug in elm-ui
+                [ E.width E.fill
+                , E.height E.fill
+                , E.clipY
+                ]
+                [ E.column
+                    [ E.width E.fill
+                    , E.height E.fill
+                    , E.paddingXY 48 0
+                    , E.scrollbarY
                     ]
-                , Ui.configCustom []
-                    { label = "Personnes utilisant l'application:"
-                    , content =
-                        E.column [ E.spacing 24 ]
-                            [ E.table [ E.spacing 6 ]
-                                { data = Dict.toList model.accounts
-                                , columns =
-                                    [ { header = E.none
-                                      , width = E.fill
-                                      , view = \a -> E.el [ E.centerY ] (E.text (Tuple.second a))
-                                      }
-                                    , { header = E.none
-                                      , width = E.shrink
-                                      , view =
-                                            \a ->
-                                                Ui.iconButton []
-                                                    { icon = Ui.editIcon []
-                                                    , onPress = Just (Msg.ForSettingsDialog <| Msg.OpenRenameAccount (Tuple.first a))
-                                                    }
-                                      }
-                                    , { header = E.none
-                                      , width = E.shrink
-                                      , view =
-                                            \a ->
-                                                Ui.iconButton []
-                                                    { icon = Ui.deleteIcon []
-                                                    , onPress = Just (Msg.ForSettingsDialog <| Msg.OpenDeleteAccount (Tuple.first a))
-                                                    }
-                                      }
-                                    ]
-                                }
-                            , Ui.simpleButton []
-                                { onPress = Just (Msg.ForDatabase <| Msg.CreateAccount (newAccountName (Dict.values model.accounts) 1))
-                                , label = E.row [] [ Ui.plusIcon [], E.text "  Ajouter" ]
-                                }
+                    [ Ui.pageTitle [ E.centerY, Font.color Ui.fgTitle ]
+                        (E.text "Configuration")
+                    , E.row
+                        [ E.width E.fill ]
+                        [ E.paragraph
+                            [ E.width (E.fillPortion 4)
+                            , E.paddingEach { top = 24, bottom = 24, left = 12, right = 12 }
                             ]
-                    }
-
-                {-
-                   , Ui.configRadio []
-                       { onChange =
-                           \o ->
-                               let
-                                   settings =
-                                       model.settings
-                               in
-                               case o of
-                                   Msg.InCalendar ->
-                                       Msg.SetSettings { settings | defaultMode = Msg.InCalendar }
-
-                                   Msg.InTabular ->
-                                       Msg.SetSettings { settings | defaultMode = Msg.InTabular }
-                       , label = "Affichage les opérations par:"
-                       , options =
-                           [ Ui.radioRowOption Msg.InCalendar (E.text "Calendrier")
-                           , Ui.radioRowOption Msg.InTabular (E.text "Liste")
-                           ]
-                       , selected = Just model.settings.defaultMode
-                       }
-                -}
-                , configWarning model
-                , configSummary model
-                , configReconciliation model
-                , configCategoriesEnabled model
-                , configCategories model
-                , configRecurring model
+                            [ E.text "Rappel: l'application enregistre ses données uniquement sur cet ordinateur; "
+                            , E.text "rien n'est envoyé sur internet."
+                            ]
+                        , E.el [ E.width (E.fillPortion 2) ] E.none
+                        ]
+                    , Ui.configCustom []
+                        { label = "Personnes utilisant l'application:"
+                        , content =
+                            E.column [ E.spacing 24 ]
+                                [ E.table [ E.spacing 6 ]
+                                    { data = Dict.toList model.accounts
+                                    , columns =
+                                        [ { header = E.none
+                                          , width = E.fill
+                                          , view = \a -> E.el [ E.centerY ] (E.text (Tuple.second a))
+                                          }
+                                        , { header = E.none
+                                          , width = E.shrink
+                                          , view =
+                                                \a ->
+                                                    Ui.iconButton []
+                                                        { icon = Ui.editIcon []
+                                                        , onPress = Just (Msg.ForSettingsDialog <| Msg.OpenRenameAccount (Tuple.first a))
+                                                        }
+                                          }
+                                        , { header = E.none
+                                          , width = E.shrink
+                                          , view =
+                                                \a ->
+                                                    Ui.iconButton []
+                                                        { icon = Ui.deleteIcon []
+                                                        , onPress = Just (Msg.ForSettingsDialog <| Msg.OpenDeleteAccount (Tuple.first a))
+                                                        }
+                                          }
+                                        ]
+                                    }
+                                , Ui.simpleButton []
+                                    { onPress = Just (Msg.ForDatabase <| Msg.CreateAccount (newAccountName (Dict.values model.accounts) 1))
+                                    , label = E.row [] [ Ui.plusIcon [], E.text "  Ajouter" ]
+                                    }
+                                ]
+                        }
+                    , configWarning model
+                    , configSummary model
+                    , configReconciliation model
+                    , configCategoriesEnabled model
+                    , configCategories model
+                    , configRecurring model
+                    ]
                 ]
         }
 
@@ -564,7 +559,7 @@ configRecurring model =
             E.el [ Font.center, Ui.smallFont, Font.color Ui.fgDark ] (E.text txt)
     in
     Ui.configCustom []
-        { label = "Operations recurrentes:"
+        { label = "Opérations mensuelles:"
         , content =
             E.column [ E.spacing 24 ]
                 [ E.table [ E.spacingXY 12 6 ]
@@ -573,7 +568,7 @@ configRecurring model =
                             (\i ( a, t ) -> ( i, a, t ))
                             model.settings.recurringTransactions
                     , columns =
-                        [ { header = headerTxt "Echeance"
+                        [ { header = headerTxt "Échéance"
                           , width = E.fill
                           , view =
                                 \( i, a, t ) ->

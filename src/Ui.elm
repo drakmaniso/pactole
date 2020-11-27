@@ -297,6 +297,7 @@ pageWithSidePanel attributes { panel, page } =
         [ E.el
             [ E.width (E.fillPortion 1)
             , E.height E.fill
+            , E.clipY
             , E.paddingXY 0 16
             , E.alignTop
             ]
