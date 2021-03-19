@@ -49,12 +49,13 @@ getAllTransactions (Ledger ledger) =
     ledger.transactions
 
 
-getBalance : Ledger -> Money.Money
-getBalance (Ledger ledger) =
-    List.foldl
-        (\t accum -> Money.add accum t.amount)
-        Money.zero
-        ledger.transactions
+getBalance : Ledger -> Date.Date -> Money.Money
+getBalance (Ledger ledger) today =
+    ledger.transactions
+        |> List.filter (\t -> Date.compare t.date today /= GT)
+        |> List.foldl
+            (\t accum -> Money.add accum t.amount)
+            Money.zero
 
 
 getReconciled : Ledger -> Money.Money

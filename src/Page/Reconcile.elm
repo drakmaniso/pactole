@@ -110,7 +110,7 @@ viewTransactions shared =
                         Background.color Ui.bgOddRow
                     ]
                     [ colReconciled transaction
-                    , colAmount transaction
+                    , colAmount transaction shared.today
                     , colDate transaction
                     , colDescription transaction
                     ]
@@ -150,11 +150,15 @@ colDate transaction =
         (E.text (Date.toString transaction.date))
 
 
-colAmount : { a | amount : Money.Money } -> E.Element msg
-colAmount transaction =
+colAmount : { a | date : Date.Date, amount : Money.Money } -> Date.Date -> E.Element msg
+colAmount transaction today =
+    let
+        future =
+            Date.compare transaction.date today == GT
+    in
     E.el
         [ E.width (E.fillPortion 1) ]
-        (Ui.viewMoney transaction.amount)
+        (Ui.viewMoney transaction.amount future)
 
 
 colDescription : { a | description : String } -> E.Element msg

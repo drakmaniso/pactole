@@ -113,7 +113,7 @@ balanceRow : Model.Model -> E.Element msg
 balanceRow model =
     let
         balance =
-            Ledger.getBalance model.ledger
+            Ledger.getBalance model.ledger model.today
 
         parts =
             Money.toStrings balance

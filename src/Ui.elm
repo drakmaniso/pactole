@@ -102,6 +102,11 @@ fgDark =
     E.rgb 0.7 0.7 0.65
 
 
+fgDarker : E.Color
+fgDarker =
+    E.rgb 0.5 0.5 0.45
+
+
 fgTransaction : Bool -> E.Color
 fgTransaction isExpense =
     if isExpense then
@@ -526,57 +531,55 @@ dateNavigationBar model =
             [ E.width (E.fillPortion 2)
             , E.height E.fill
             ]
-            (if
-                (Date.getYear model.date /= Date.getYear model.today)
-                    || (Date.getMonth model.date /= Date.getMonth model.today)
-             then
-                Input.button
-                    [ E.width E.fill
-                    , E.height E.fill
-                    , Border.roundEach { topLeft = 0, bottomLeft = 32, topRight = 0, bottomRight = 0 }
-                    , Font.color fgTitle
-                    , Border.widthEach { top = 0, bottom = 2, left = 2, right = 0 }
-                    , Background.color bgWhite
-                    , Border.color bgDark
-                    , E.paddingEach { top = 4, bottom = 8, left = 0, right = 0 }
-                    , if model.showFocus then
-                        E.focused
-                            [ Border.color fgFocus
-                            , Border.shadow { offset = ( 0, 0 ), size = 0, blur = 0, color = E.rgba 0 0 0 0 }
-                            ]
+            (Input.button
+                [ E.width E.fill
+                , E.height E.fill
+                , Border.roundEach { topLeft = 0, bottomLeft = 32, topRight = 0, bottomRight = 0 }
+                , Font.color fgTitle
+                , Border.widthEach { top = 0, bottom = 2, left = 2, right = 0 }
+                , Background.color bgWhite
+                , Border.color bgDark
+                , E.paddingEach { top = 4, bottom = 8, left = 0, right = 0 }
+                , if model.showFocus then
+                    E.focused
+                        [ Border.color fgFocus
+                        , Border.shadow { offset = ( 0, 0 ), size = 0, blur = 0, color = E.rgba 0 0 0 0 }
+                        ]
 
-                      else
-                        E.focused []
-                    , E.mouseDown [ Background.color bgMouseDown ]
-                    ]
-                    { label =
-                        E.row
-                            [ E.width E.fill ]
-                            [ E.el [ E.centerX, iconFont, normalFont ] (E.text "  \u{F061}  ")
-                            , E.el [ bigFont, Font.color fgTitle, E.centerX ]
-                                (E.text (Date.getMonthName (Date.incrementMonth model.date)))
-                            ]
-                    , onPress = Just (Msg.SelectDate (Date.incrementMonth model.date))
-                    }
-
-             else
-                E.el
-                    [ E.width E.fill
-                    , E.height E.fill
-                    , Border.roundEach { topLeft = 0, bottomLeft = 32, topRight = 0, bottomRight = 0 }
-                    , Border.widthEach { top = 0, bottom = 2, left = 2, right = 0 }
-                    , Background.color bgWhite
-                    , Border.color bgDark
-                    , E.paddingEach { top = 4, bottom = 8, left = 0, right = 0 }
-                    ]
-                    E.none
+                  else
+                    E.focused []
+                , E.mouseDown [ Background.color bgMouseDown ]
+                ]
+                { label =
+                    E.row
+                        [ E.width E.fill ]
+                        [ E.el [ E.centerX, iconFont, normalFont ] (E.text "  \u{F061}  ")
+                        , E.el [ bigFont, Font.color fgTitle, E.centerX ]
+                            (E.text (Date.getMonthName (Date.incrementMonth model.date)))
+                        ]
+                , onPress = Just (Msg.SelectDate (Date.incrementMonth model.date))
+                }
             )
         ]
 
 
-viewMoney : Money.Money -> E.Element msg
-viewMoney money =
+viewMoney : Money.Money -> Bool -> E.Element msg
+viewMoney money future =
     let
+        openpar =
+            if future then
+                "("
+
+            else
+                ""
+
+        closepar =
+            if future then
+                ")"
+
+            else
+                ""
+
         parts =
             Money.toStrings money
 
@@ -590,7 +593,10 @@ viewMoney money =
         [ E.width E.fill
         , E.height E.shrink
         , E.paddingEach { top = 0, bottom = 0, left = 0, right = 16 }
-        , if isExpense then
+        , if future then
+            Font.color fgDarker
+
+          else if isExpense then
             Font.color fgExpense
 
           else if isZero then
@@ -611,16 +617,24 @@ viewMoney money =
                 , Font.bold
                 , Font.alignRight
                 ]
-                (E.text (parts.sign ++ parts.units))
-            , E.el
-                [ E.width (E.fillPortion 25)
-                , Font.bold
-                , smallFont
-                , Font.alignLeft
-                , E.alignBottom
-                , E.paddingXY 0 1
+                (E.text (openpar ++ parts.sign ++ parts.units))
+            , E.row
+                [ E.width (E.fillPortion 25) ]
+                [ E.el
+                    [ Font.bold
+                    , smallFont
+                    , Font.alignLeft
+                    , E.alignBottom
+                    , E.paddingXY 0 1
+                    ]
+                    (E.text ("," ++ parts.cents))
+                , E.el
+                    [ normalFont
+                    , Font.bold
+                    , Font.alignRight
+                    ]
+                    (E.text closepar)
                 ]
-                (E.text ("," ++ parts.cents))
             ]
         )
 

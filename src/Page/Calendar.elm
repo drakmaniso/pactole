@@ -241,14 +241,38 @@ cellContentFor model day =
     let
         render transaction =
             let
+                future =
+                    Date.compare day model.today == GT
+
+                openpar =
+                    if future then
+                        "("
+
+                    else
+                        ""
+
+                closepar =
+                    if future then
+                        ")"
+
+                    else
+                        ""
+
                 parts =
                     Money.toStrings transaction.amount
             in
             E.row
                 [ E.paddingEach { top = 3, bottom = 4, left = 6, right = 8 }
                 , Ui.smallFont
-                , Font.color (E.rgb 1 1 1)
-                , if Money.isExpense transaction.amount then
+                , if future then
+                    Font.color Ui.fgDarker
+
+                  else
+                    Font.color (E.rgb 1 1 1)
+                , if future then
+                    Background.color Ui.transparent
+
+                  else if Money.isExpense transaction.amount then
                     Background.color Ui.bgExpense
 
                   else
@@ -257,13 +281,14 @@ cellContentFor model day =
                 , Border.width 0
                 , E.htmlAttribute <| Html.Attributes.style "display" "inline-flex"
                 ]
-                [ E.el [ Ui.smallFont, Font.medium ] (E.text (parts.sign ++ parts.units))
+                [ E.el [ Ui.smallFont, Font.medium ] (E.text (openpar ++ parts.sign ++ parts.units))
                 , E.el
                     [ Ui.smallerFont
                     , E.alignBottom
                     , E.paddingXY 0 1
                     ]
                     (E.text ("," ++ parts.cents))
+                , E.el [ Ui.smallFont, Font.medium ] (E.text closepar)
                 ]
     in
     List.map
@@ -342,6 +367,9 @@ dayView model =
 dayContentFor : Model.Model -> Date.Date -> List (E.Element Msg.Msg)
 dayContentFor model day =
     let
+        future =
+            Date.compare day model.today == GT
+
         render idx transaction =
             let
                 category =
@@ -374,7 +402,7 @@ dayContentFor model day =
                                 ]
                                 (E.column
                                     [ E.width E.fill ]
-                                    [ Ui.viewMoney transaction.amount
+                                    [ Ui.viewMoney transaction.amount future
                                     , E.el [ E.height E.fill ] E.none
                                     ]
                                 )

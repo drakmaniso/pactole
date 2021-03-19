@@ -6,10 +6,10 @@ import Element.Border as Border
 import Element.Font as Font
 import Ledger
 import Model
+import Money
 import Msg
 import Page.Summary as Summary
 import Ui
-import Money
 
 
 
@@ -124,6 +124,6 @@ viewItem icon description money =
             , E.el [ Ui.iconFont, Font.center ] (E.text icon)
             , E.el [ Ui.normalFont, Font.alignRight ] (E.text description)
             ]
-        , Ui.viewMoney money
+        , Ui.viewMoney money False
         , E.el [ E.width (E.fillPortion 2) ] E.none
         ]
