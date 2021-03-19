@@ -35,11 +35,13 @@ import Money
 type Ledger
     = Ledger
         { transactions : List Transaction
+        , valid : Bool --TODO
         }
 
 
+empty : Ledger
 empty =
-    Ledger { transactions = [] }
+    Ledger { transactions = [], valid = False }
 
 
 getAllTransactions : Ledger -> List Transaction
@@ -216,12 +218,14 @@ getTransaction id (Ledger ledger) =
 -}
 
 
+decode : Decode.Decoder Ledger
 decode =
     let
         toLedger t =
             Ledger
                 { transactions =
                     List.sortWith (\a b -> Date.compare a.date b.date) t
+                , valid = True
                 }
     in
     Decode.map toLedger (Decode.field "transactions" (Decode.list decodeTransaction))
@@ -254,6 +258,7 @@ encodeTransaction account transaction =
         ]
 
 
+decodeTransaction : Decode.Decoder Transaction
 decodeTransaction =
     Decode.map6 Transaction
         (Decode.field "id" Decode.int)
@@ -285,6 +290,7 @@ encodeNewTransaction account transaction =
         ]
 
 
+decodeNewTransaction : Decode.Decoder ( Int, NewTransaction )
 decodeNewTransaction =
     Decode.map2 (\acc tr -> ( acc, tr ))
         (Decode.field "account" Decode.int)
@@ -301,6 +307,7 @@ decodeNewTransaction =
 -- DESCRIPTION
 
 
+getDescriptionDisplay : { a | description : String, amount : Money.Money } -> String
 getDescriptionDisplay transaction =
     if transaction.description == "" then
         if Money.isExpense transaction.amount then

@@ -199,6 +199,7 @@ view model =
             E.none
 
 
+titleRow : Model.Dialog -> E.Element msg
 titleRow dialog =
     E.row
         [ E.alignLeft
@@ -221,6 +222,7 @@ titleRow dialog =
         ]
 
 
+amountRow : Model.Dialog -> E.Element Msg.Msg
 amountRow dialog =
     E.row
         [ E.alignLeft
@@ -286,6 +288,7 @@ amountRow dialog =
         ]
 
 
+descriptionRow : Model.Dialog -> E.Element Msg.Msg
 descriptionRow dialog =
     E.row
         [ E.width E.fill
@@ -329,6 +332,7 @@ descriptionRow dialog =
         ]
 
 
+categoryRow : Model.Model -> Model.Dialog -> E.Element Msg.Msg
 categoryRow model dialog =
     let
         groupBy3 accum list =
@@ -431,6 +435,7 @@ categoryRow model dialog =
         ]
 
 
+buttonsRow : Model.Dialog -> E.Element Msg.Msg
 buttonsRow dialog =
     E.row
         [ E.width E.fill

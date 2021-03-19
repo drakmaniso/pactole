@@ -12,7 +12,6 @@ import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
 import Element.Input as Input
-import Ledger
 import Log
 import Model
 import Money
@@ -404,6 +403,7 @@ view model =
         }
 
 
+configWarning : Model.Model -> E.Element Msg.Msg
 configWarning model =
     let
         settings =
@@ -431,6 +431,7 @@ configWarning model =
         }
 
 
+configSummary : Model.Model -> E.Element Msg.Msg
 configSummary model =
     Ui.configRadio []
         { onChange =
@@ -439,11 +440,9 @@ configSummary model =
                     settings =
                         model.settings
                 in
-                case o of
-                    True ->
-                        Msg.ForDatabase <| Msg.StoreSettings { settings | summaryEnabled = True }
-
-                    False ->
+                if o then 
+                    Msg.ForDatabase <| Msg.StoreSettings { settings | summaryEnabled = True }
+                else
                         Msg.ForDatabase <| Msg.StoreSettings { settings | summaryEnabled = False }
         , label = "Activer la page de bilan:"
         , options =
@@ -454,6 +453,7 @@ configSummary model =
         }
 
 
+configReconciliation : Model.Model -> E.Element Msg.Msg
 configReconciliation model =
     Ui.configRadio []
         { onChange =
@@ -462,11 +462,9 @@ configReconciliation model =
                     settings =
                         model.settings
                 in
-                case o of
-                    True ->
+                if o then
                         Msg.ForDatabase <| Msg.StoreSettings { settings | reconciliationEnabled = True }
-
-                    False ->
+                else
                         Msg.ForDatabase <| Msg.StoreSettings { settings | reconciliationEnabled = False }
         , label = "Activer la page de pointage:"
         , options =
@@ -477,6 +475,7 @@ configReconciliation model =
         }
 
 
+configCategoriesEnabled : Model.Model -> E.Element Msg.Msg
 configCategoriesEnabled model =
     Ui.configRadio []
         { onChange =
@@ -485,11 +484,9 @@ configCategoriesEnabled model =
                     settings =
                         model.settings
                 in
-                case o of
-                    True ->
+                if o then
                         Msg.ForDatabase <| Msg.StoreSettings { settings | categoriesEnabled = True }
-
-                    False ->
+                else
                         Msg.ForDatabase <| Msg.StoreSettings { settings | categoriesEnabled = False }
         , label = "Activer les catégories:"
         , options =
@@ -500,6 +497,7 @@ configCategoriesEnabled model =
         }
 
 
+configCategories : Model.Model -> E.Element Msg.Msg
 configCategories model =
     Ui.configCustom []
         { label =
@@ -571,19 +569,19 @@ configRecurring model =
                         [ { header = headerTxt "Échéance"
                           , width = E.fill
                           , view =
-                                \( i, a, t ) ->
+                                \( _, _, t ) ->
                                     E.el [ Font.center, E.centerY ] (E.text (Date.toString t.date))
                           }
                         , { header = headerTxt "Compte"
                           , width = E.shrink
                           , view =
-                                \( i, a, t ) ->
+                                \( _, a, _ ) ->
                                     E.el [ Font.center, E.centerY ] (E.text (Model.account a model))
                           }
                         , { header = headerTxt "Montant"
                           , width = E.shrink
                           , view =
-                                \( i, a, t ) ->
+                                \( _, _, t ) ->
                                     let
                                         m =
                                             Money.toStrings t.amount
@@ -593,7 +591,7 @@ configRecurring model =
                         , { header = headerTxt "Description"
                           , width = E.fill
                           , view =
-                                \( i, a, t ) ->
+                                \( _, _, t ) ->
                                     E.el [ E.centerY ] (E.text t.description)
                           }
                         , { header = E.none
@@ -1037,6 +1035,7 @@ newAccountName accounts number =
 -- ICONS
 
 
+iconChoice : List String
 iconChoice =
     [ ""
     , "\u{F6BE}" -- cat

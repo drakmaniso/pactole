@@ -109,6 +109,7 @@ calendar model =
         )
 
 
+calendarHeader : Model.Model -> E.Element Msg.Msg
 calendarHeader model =
     E.column
         [ E.width E.fill
@@ -275,6 +276,7 @@ cellContentFor model day =
 -- DAY VIEW
 
 
+dayView : Model.Model -> E.Element Msg.Msg
 dayView model =
     E.column
         [ E.width E.fill

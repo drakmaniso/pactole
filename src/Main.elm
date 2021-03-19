@@ -1,6 +1,5 @@
 module Main exposing (..)
 
-import Array
 import Browser
 import Browser.Dom as Dom
 import Browser.Events
@@ -10,17 +9,11 @@ import Date
 import Dict
 import Element as E
 import Element.Background as Background
-import Element.Border as Border
-import Element.Font as Font
 import Element.Input as Input
-import Html
-import Html.Attributes
 import Json.Decode as Decode
-import Json.Encode as Encode
 import Ledger
 import Log
 import Model
-import Money
 import Msg
 import Page.Calendar as Calendar
 import Page.Dialog as Dialog
@@ -30,7 +23,6 @@ import Page.Statistics as Statistics
 import Page.Tabular as Tabular
 import Process
 import Task
-import Time
 import Ui
 import Url
 
@@ -39,6 +31,7 @@ import Url
 -- MAIN
 
 
+main : Program Decode.Value Model.Model Msg.Msg
 main =
     Browser.application
         { init = init
@@ -184,7 +177,7 @@ update msg model =
             else
                 ( model, Cmd.none )
 
-        Msg.KeyUp string ->
+        Msg.KeyUp _ ->
             ( { model | showAdvanced = False }, Cmd.none )
 
         Msg.ForDatabase m ->
@@ -252,7 +245,7 @@ view model =
                 ]
             }
             (case model.dialog of
-                Just dialog ->
+                Just _ ->
                     [ E.inFront
                         (E.el
                             [ E.width E.fill
@@ -277,7 +270,7 @@ view model =
 
                 Nothing ->
                     case model.settingsDialog of
-                        Just dialog ->
+                        Just _ ->
                             [ E.inFront
                                 (E.el
                                     [ E.width E.fill

@@ -19,14 +19,17 @@ import Msg
 -- CONSTANTS
 
 
+borderWidth : number
 borderWidth =
     2
 
 
+roundCorners : E.Attribute msg
 roundCorners =
     Border.rounded 24
 
 
+notSelectable : E.Attribute msg
 notSelectable =
     E.htmlAttribute (Html.Attributes.style "user-select" "none")
 
@@ -35,14 +38,17 @@ notSelectable =
 -- COLORS
 
 
+transparent : E.Color
 transparent =
     E.rgba 0 0 0 0
 
 
+warningColor : E.Color
 warningColor =
     E.rgb 0.82 0.47 0.0
 
 
+fgFocus : E.Color
 fgFocus =
     --rgb 0.98 0.62 0.05
     --rgb 0.15 0.76 0.98
@@ -50,6 +56,7 @@ fgFocus =
     E.rgb 1.0 0.7 0
 
 
+bgPage : E.Color
 bgPage =
     --rgb 0.85 0.82 0.75
     --rgb 0.76 0.73 0.65
@@ -57,37 +64,45 @@ bgPage =
     E.rgb 1 1 1
 
 
+bgLight : E.Color
 bgLight =
     -- rgb 0.94 0.92 0.87
     --E.rgb 0.86 0.86 0.86
     E.rgb 0.9 0.9 0.89
 
 
+bgDark : E.Color
 bgDark =
     -- rgb 0.72 0.71 0.68
     E.rgb 0.7 0.7 0.65
 
 
+bgWhite : E.Color
 bgWhite =
     E.rgb 1.0 1.0 1.0
 
 
+fgWhite : E.Color
 fgWhite =
     E.rgb 1.0 1.0 1.0
 
 
+fgBlack : E.Color
 fgBlack =
     E.rgb 0 0 0
 
 
+fgRed : E.Color
 fgRed =
     E.rgb 0.84 0.22 0.0
 
 
+fgDark : E.Color
 fgDark =
     E.rgb 0.7 0.7 0.65
 
 
+fgTransaction : Bool -> E.Color
 fgTransaction isExpense =
     if isExpense then
         fgExpense
@@ -96,6 +111,7 @@ fgTransaction isExpense =
         fgIncome
 
 
+bgTransaction : Bool -> E.Color
 bgTransaction isExpense =
     if isExpense then
         bgExpense
@@ -104,35 +120,42 @@ bgTransaction isExpense =
         bgIncome
 
 
+bgExpense : E.Color
 bgExpense =
     -- rgb 0.8 0.25 0.2
     E.rgb 0.64 0.12 0.0
 
 
+fgExpense : E.Color
 fgExpense =
     -- rgb 0.6 0.125 0
     bgExpense
 
 
+fgOnExpense : E.Color
 fgOnExpense =
     E.rgb 1.0 1.0 1.0
 
 
+bgIncome : E.Color
 bgIncome =
     -- rgb255 44 136 32
     -- rgb255 22 102 0
     E.rgb 0.1 0.44 0
 
 
+fgIncome : E.Color
 fgIncome =
     -- rgb255 22 68 0
     bgIncome
 
 
+fgOnIncome : E.Color
 fgOnIncome =
     E.rgb 1.0 1.0 1.0
 
 
+bgTitle : E.Color
 bgTitle =
     --rgb 0.3 0.6 0.7
     --rgb 0.12 0.51 0.65
@@ -140,28 +163,34 @@ bgTitle =
     E.rgb 0.08 0.26 0.42
 
 
+bgEvenRow : E.Color
 bgEvenRow =
     --E.rgb 0.99 0.98 0.9
     E.rgb 0.96 0.96 0.95
 
 
+bgOddRow : E.Color
 bgOddRow =
     --E.rgb 0.96 0.95 0.74
     E.rgb 0.9 0.9 0.89
 
 
+bgMouseOver : E.Color
 bgMouseOver =
     E.rgb 0.85 0.92 0.98
 
 
+bgMouseDown : E.Color
 bgMouseDown =
     E.rgb 0.7 0.7 0.65
 
 
+fgTitle : E.Color
 fgTitle =
     bgTitle
 
 
+fgOnTitle : E.Color
 fgOnTitle =
     E.rgb 1 1 1
 
@@ -170,6 +199,7 @@ fgOnTitle =
 -- FONTS
 
 
+fontFamily : E.Attribute msg
 fontFamily =
     Font.family
         [ Font.typeface "Work Sans"
@@ -177,34 +207,42 @@ fontFamily =
         ]
 
 
+biggestFont : E.Attr decorative msg
 biggestFont =
     Font.size 48
 
 
+biggerFont : E.Attr decorative msg
 biggerFont =
     Font.size 36
 
 
+bigFont : E.Attr decorative msg
 bigFont =
     Font.size 32
 
 
+normalFont : E.Attr decorative msg
 normalFont =
     Font.size 26
 
 
+smallFont : E.Attr decorative msg
 smallFont =
     Font.size 20
 
 
+smallerFont : E.Attr decorative msg
 smallerFont =
     Font.size 14
 
 
+verySmallFont : E.Attr decorative msg
 verySmallFont =
     Font.size 16
 
 
+iconFont : E.Attribute msg
 iconFont =
     Font.family [ Font.typeface "Font Awesome 5 Free" ]
 
@@ -213,46 +251,55 @@ iconFont =
 -- ICONS
 
 
+closeIcon : List (E.Attribute msg) -> E.Element msg
 closeIcon attributes =
     E.el ([ iconFont, normalFont, E.centerX ] ++ attributes)
         (E.text "\u{F00D}")
 
 
+backIcon : List (E.Attribute msg) -> E.Element msg
 backIcon attributes =
     E.el ([ iconFont, normalFont ] ++ attributes)
         (E.text "\u{F30A}")
 
 
+editIcon : List (E.Attribute msg) -> E.Element msg
 editIcon attributes =
     E.el ([ iconFont, normalFont, E.centerX ] ++ attributes)
         (E.text "\u{F044}")
 
 
+deleteIcon : List (E.Attribute msg) -> E.Element msg
 deleteIcon attributes =
     E.el ([ iconFont, normalFont, E.centerX ] ++ attributes)
         (E.text "\u{F2ED}")
 
 
+minusIcon : List (E.Attribute msg) -> E.Element msg
 minusIcon attributes =
     E.el ([ iconFont, normalFont, E.centerX ] ++ attributes)
         (E.text "\u{F068}")
 
 
+plusIcon : List (E.Attribute msg) -> E.Element msg
 plusIcon attributes =
     E.el ([ iconFont, normalFont, E.centerX ] ++ attributes)
         (E.text "\u{F067}")
 
 
+checkIcon : List (E.Attribute msg) -> E.Element msg
 checkIcon attributes =
     E.el ([ iconFont, normalFont ] ++ attributes)
         (E.text "\u{F00C}")
 
 
+warningIcon : List (E.Attribute msg) -> E.Element msg
 warningIcon attributes =
     E.el ([ iconFont, bigFont, E.centerX, E.paddingXY 24 0, Font.color warningColor ] ++ attributes)
         (E.text "\u{F071}")
 
 
+bigWarningIcon : List (E.Attribute msg) -> E.Element msg
 bigWarningIcon attributes =
     E.el
         ([ iconFont, Font.size 48, E.alignLeft, E.padding 12, Font.color warningColor ]
@@ -261,11 +308,13 @@ bigWarningIcon attributes =
         (E.text "\u{F071}")
 
 
+incomeIcon : List (E.Attribute msg) -> E.Element msg
 incomeIcon attributes =
     E.el ([ iconFont, normalFont, E.centerX, Font.color fgIncome ] ++ attributes)
         (E.text "\u{F067}")
 
 
+expenseIcon : List (E.Attribute msg) -> E.Element msg
 expenseIcon attributes =
     E.el ([ iconFont, normalFont, E.centerX, Font.color fgExpense ] ++ attributes)
         (E.text "\u{F068}")
@@ -322,7 +371,7 @@ configRadio :
         , onChange : option -> msg
         }
     -> E.Element msg
-configRadio attributes { label, options, selected, onChange } =
+configRadio _ { label, options, selected, onChange } =
     Input.radioRow
         [ E.paddingEach { top = 12, bottom = 24, left = 12 + 64, right = 12 }
         , E.width E.fill
@@ -371,7 +420,7 @@ configCustom :
         , content : E.Element msg
         }
     -> E.Element msg
-configCustom attributes { label, content } =
+configCustom _ { label, content } =
     E.column
         [ E.paddingEach { top = 48, bottom = 24, left = 12, right = 12 }
         , E.width E.fill
@@ -418,6 +467,7 @@ warningParagraph attributes elements =
         ]
 
 
+dateNavigationBar : { a | showFocus : Bool, date : Date.Date, today : Date.Date } -> E.Element Msg.Msg
 dateNavigationBar model =
     E.row
         [ E.width E.fill
@@ -524,6 +574,7 @@ dateNavigationBar model =
         ]
 
 
+viewMoney : Money.Money -> E.Element msg
 viewMoney money =
     let
         parts =
@@ -574,6 +625,7 @@ viewMoney money =
         )
 
 
+viewSum : Money.Money -> E.Element msg
 viewSum money =
     let
         parts =
@@ -704,6 +756,7 @@ iconButton attributes { onPress, icon } =
         }
 
 
+radioButton : List (E.Attr () msg) -> { a | onPress : Maybe msg, icon : String, label : String, active : Bool } -> E.Element msg
 radioButton attributes { onPress, icon, label, active } =
     Input.button
         ([ normalFont

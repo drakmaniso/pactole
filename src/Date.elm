@@ -32,10 +32,12 @@ type Date
     = Date Calendar.Date
 
 
+default : Date
 default =
     Date (Calendar.fromPosix (Time.millisToPosix 0))
 
 
+toString : Date -> String
 toString (Date date) =
     String.padLeft 2 '0' (String.fromInt (Calendar.getDay date))
         ++ "/"
@@ -46,13 +48,12 @@ toString (Date date) =
 
 fromParts : { year : Int, month : Int, day : Int } -> Maybe Date
 fromParts { year, month, day } =
-    case Array.get month Calendar.months of
-        Nothing ->
-            Nothing
-
-        Just m ->
-            Maybe.map Date
-                (Calendar.fromRawParts { day = day, month = m, year = year })
+    Array.get month Calendar.months
+        |> Maybe.andThen
+            (\m ->
+                Maybe.map Date
+                    (Calendar.fromRawParts { day = day, month = m, year = year })
+            )
 
 
 
@@ -83,6 +84,7 @@ fromPosix time =
     Date (Calendar.fromPosix time)
 
 
+incrementWeek : Date -> Date
 incrementWeek (Date date) =
     Date
         (date
@@ -180,6 +182,7 @@ getMonthName (Date d) =
             "Décembre"
 
 
+getWeekdayName : Date -> String
 getWeekdayName (Date d) =
     case Calendar.getWeekday d of
         Time.Mon ->
@@ -204,7 +207,8 @@ getWeekdayName (Date d) =
             "Dimanche"
 
 
-getMonthFullName (Date today) (Date d) =
+getMonthFullName : Date -> Date -> String
+getMonthFullName (Date _) (Date d) =
     let
         n =
             getMonthName (Date d)
@@ -233,6 +237,7 @@ toInt (Date date) =
     d + 100 * m + 10000 * y
 
 
+fromInt : Int -> Date
 fromInt n =
     let
         y =
@@ -248,16 +253,15 @@ fromInt n =
             Array.get (m - 1) Calendar.months
 
         raw =
-            case mm of
-                Nothing ->
-                    Nothing
-
-                Just mmm ->
-                    Calendar.fromRawParts
-                        { year = y
-                        , month = mmm
-                        , day = d
-                        }
+            mm
+                |> Maybe.andThen
+                    (\mmm ->
+                        Calendar.fromRawParts
+                            { year = y
+                            , month = mmm
+                            , day = d
+                            }
+                    )
     in
     case raw of
         Nothing ->
@@ -268,30 +272,37 @@ fromInt n =
             Date date
 
 
+decrementMonth : Date -> Date
 decrementMonth (Date date) =
     Date (Calendar.decrementMonth date)
 
 
+incrementMonth : Date -> Date
 incrementMonth (Date date) =
     Date (Calendar.incrementMonth date)
 
 
+getDay : Date -> Int
 getDay (Date date) =
     Calendar.getDay date
 
 
+decrementDay : Date -> Date
 decrementDay (Date date) =
     Date (Calendar.decrementDay date)
 
 
+incrementDay : Date -> Date
 incrementDay (Date date) =
     Date (Calendar.incrementDay date)
 
 
+lastDayOf : Date -> Int
 lastDayOf (Date date) =
     Calendar.lastDayOf date
 
 
+firstDayOf : Date -> Date
 firstDayOf (Date date) =
     case Calendar.setDay 1 date of
         Just d ->
@@ -301,6 +312,7 @@ firstDayOf (Date date) =
             default
 
 
+findNextDayOfMonth : Int -> Date -> Date
 findNextDayOfMonth day date =
     let
         d =
@@ -313,17 +325,21 @@ findNextDayOfMonth day date =
         findNextDayOfMonth day d
 
 
+getWeekday : Date -> Time.Weekday
 getWeekday (Date date) =
     Calendar.getWeekday date
 
 
+compare : Date -> Date -> Order
 compare (Date a) (Date b) =
     Calendar.compare a b
 
 
+getMonth : Date -> Time.Month
 getMonth (Date date) =
     Calendar.getMonth date
 
 
+getYear : Date -> Int
 getYear (Date date) =
     Calendar.getYear date

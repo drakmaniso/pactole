@@ -21,6 +21,7 @@ type Money
     = Money Int -- Money (units*100 + cents)
 
 
+zero : Money
 zero =
     Money 0
 
@@ -107,6 +108,7 @@ validate input =
                 "Utiliser une seule virgule."
 
 
+fromInput : Bool -> String -> Maybe Money
 fromInput expense input =
     if validate input == "" then
         let

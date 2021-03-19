@@ -7,7 +7,6 @@ import Json.Encode as Encode
 import Ledger
 import Log
 import Model
-import Money
 import Msg
 import Ports
 
@@ -49,10 +48,12 @@ update msg model =
 -- TO THE SERVICE WORKER
 
 
+requestAccounts : Cmd msg
 requestAccounts =
     Ports.send ( "request accounts", Encode.object [] )
 
 
+createAccount : String -> Cmd msg
 createAccount name =
     Ports.send ( "create account", Encode.string name )
 
@@ -76,10 +77,12 @@ deleteAccount account =
         )
 
 
+requestCategories : Cmd msg
 requestCategories =
     Ports.send ( "request categories", Encode.object [] )
 
 
+createCategory : String -> String -> Cmd msg
 createCategory name icon =
     Ports.send
         ( "create category"
@@ -157,6 +160,7 @@ deleteTransaction account id =
             Log.error "delete transaction: no current account"
 
 
+requestSettings : Cmd msg
 requestSettings =
     Ports.send ( "request settings", Encode.object [] )
 
@@ -268,6 +272,7 @@ msgFromService ( title, content ) model =
             ( model, Log.error ("in message from service: unknown title \"" ++ title ++ "\"") )
 
 
+processRecurringTransactions : Model.Model -> ( Model.Model, Cmd Msg.Msg )
 processRecurringTransactions model =
     let
         settings =

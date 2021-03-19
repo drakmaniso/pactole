@@ -7,6 +7,7 @@ import Element.Border as Border
 import Element.Font as Font
 import Ledger
 import Model
+import Money
 import Msg
 import Page.Summary as Summary
 import Ui
@@ -46,6 +47,7 @@ view shared =
         }
 
 
+viewReconciled : Model.Model -> E.Element msg
 viewReconciled shared =
     let
         prevMonth =
@@ -74,6 +76,7 @@ viewReconciled shared =
         ]
 
 
+viewTransactions : Model.Model -> E.Element Msg.Msg
 viewTransactions shared =
     {-
        E.table
@@ -116,6 +119,7 @@ viewTransactions shared =
         )
 
 
+colReconciled : { id : Int, date : Date.Date, amount : Money.Money, description : String, category : Int, checked : Bool } -> E.Element Msg.Msg
 colReconciled transaction =
     E.el
         [ E.width (E.fillPortion 1) ]
@@ -139,18 +143,21 @@ colReconciled transaction =
         )
 
 
+colDate : { a | date : Date.Date } -> E.Element msg
 colDate transaction =
     E.el
         [ E.width (E.fillPortion 1) ]
         (E.text (Date.toString transaction.date))
 
 
+colAmount : { a | amount : Money.Money } -> E.Element msg
 colAmount transaction =
     E.el
         [ E.width (E.fillPortion 1) ]
         (Ui.viewMoney transaction.amount)
 
 
+colDescription : { a | description : String } -> E.Element msg
 colDescription transaction =
     E.el
         [ E.width (E.fillPortion 4) ]

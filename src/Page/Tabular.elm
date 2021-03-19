@@ -43,6 +43,7 @@ transactionView model =
         )
 
 
+makeRow : Ledger.Transaction -> ( Maybe Date.Date, List (Element msg) ) -> ( Maybe Date.Date, List (Element msg) )
 makeRow transaction ( prevDate, accum ) =
     let
         dateTxt =

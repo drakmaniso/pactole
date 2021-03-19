@@ -9,6 +9,7 @@ import Model
 import Msg
 import Page.Summary as Summary
 import Ui
+import Money
 
 
 
@@ -76,6 +77,7 @@ view shared =
         }
 
 
+viewMonthBalance : Model.Model -> E.Element msg
 viewMonthBalance shared =
     let
         monthBal =
@@ -111,6 +113,7 @@ viewCategories shared =
         )
 
 
+viewItem : String -> String -> Money.Money -> E.Element msg
 viewItem icon description money =
     E.row
         [ E.width E.fill

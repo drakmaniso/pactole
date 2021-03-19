@@ -1,4 +1,18 @@
-module Model exposing (..)
+module Model exposing
+    ( Category
+    , Dialog
+    , Mode(..)
+    , Model
+    , Page(..)
+    , Settings
+    , SettingsDialog(..)
+    , account
+    , category
+    , decodeAccount
+    , decodeCategory
+    , decodeSettings
+    , encodeSettings
+    )
 
 import Date
 import Dict
@@ -45,12 +59,14 @@ type alias Category =
     }
 
 
+category : Int -> Model -> { name : String, icon : String }
 category categoryID model =
     Maybe.withDefault
         { name = "CATEGORIE_" ++ String.fromInt categoryID, icon = "" }
         (Dict.get categoryID model.categories)
 
 
+decodeCategory : Decode.Decoder ( Int, { name : String, icon : String } )
 decodeCategory =
     Decode.map3 (\id name icon -> ( id, { name = name, icon = icon } ))
         (Decode.field "id" Decode.int)
@@ -62,12 +78,14 @@ decodeCategory =
 -- TYPE ACCOUNT
 
 
+decodeAccount : Decode.Decoder ( Int, String )
 decodeAccount =
     Decode.map2 Tuple.pair
         (Decode.field "id" Decode.int)
         (Decode.field "name" Decode.string)
 
 
+account : Int -> Model -> String
 account accountID model =
     Maybe.withDefault
         ("COMPTE_" ++ String.fromInt accountID)
@@ -93,6 +111,7 @@ type Mode
     | InTabular
 
 
+encodeSettings : Settings -> Decode.Value
 encodeSettings settings =
     let
         modeString =
@@ -116,6 +135,7 @@ encodeSettings settings =
         ]
 
 
+decodeSettings : Decode.Decoder { categoriesEnabled : Bool, defaultMode : Mode, reconciliationEnabled : Bool, summaryEnabled : Bool, balanceWarning : Int, recurringTransactions : List ( Int, Ledger.NewTransaction ) }
 decodeSettings =
     let
         decodeMode =

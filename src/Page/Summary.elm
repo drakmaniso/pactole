@@ -18,6 +18,7 @@ import Ui
 -- SUMMARY VIEW
 
 
+view : Model.Model -> E.Element Msg.Msg
 view model =
     E.column
         [ E.width E.fill
@@ -108,6 +109,7 @@ accountOption accountID model state =
         (E.text (Model.account accountID model))
 
 
+balanceRow : Model.Model -> E.Element msg
 balanceRow model =
     let
         balance =
@@ -165,6 +167,7 @@ balanceRow model =
         ]
 
 
+buttonRow : Model.Model -> E.Element Msg.Msg
 buttonRow model =
     E.row
         [ E.width E.fill, E.spacing 12 ]
@@ -212,6 +215,7 @@ buttonRow model =
         ]
 
 
+settingsButton : Model.Model -> E.Element Msg.Msg
 settingsButton model =
     if model.showAdvanced then
         Input.button
