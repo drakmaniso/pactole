@@ -9,6 +9,7 @@ module Date exposing
     , fromInt
     , fromParts
     , getDay
+    , getDayDiff
     , getMonth
     , getMonthFullName
     , getMonthName
@@ -343,3 +344,8 @@ getMonth (Date date) =
 getYear : Date -> Int
 getYear (Date date) =
     Calendar.getYear date
+
+
+getDayDiff : Date -> Date -> Int
+getDayDiff (Date date1) (Date date2) =
+    Calendar.getDayDiff date1 date2

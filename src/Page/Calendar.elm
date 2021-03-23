@@ -303,6 +303,10 @@ cellContentFor model day =
 
 dayView : Model.Model -> E.Element Msg.Msg
 dayView model =
+    let
+        dayDiff =
+            Date.getDayDiff model.today model.date
+    in
     E.column
         [ E.width E.fill
         , E.height E.fill
@@ -321,7 +325,18 @@ dayView model =
             , Border.color Ui.bgDark
             , Ui.notSelectable
             ]
-            [ E.el [ E.width E.fill, Font.bold ]
+            [ if model.date == model.today then
+                E.el [ E.width E.fill, Ui.normalFont ] (E.text "— Aujourd'hui —")
+
+              else if dayDiff == 1 then
+                E.el [ E.width E.fill, Ui.normalFont ] (E.text "— dans 1 jour —")
+
+              else if dayDiff > 1 then
+                E.el [ E.width E.fill, Ui.normalFont ] (E.text ("— dans " ++ String.fromInt dayDiff ++ " jours —"))
+
+              else
+                E.none
+            , E.el [ E.width E.fill, Font.bold, E.paddingEach { top = 0, bottom = 12, right = 0, left = 0 } ]
                 (E.text
                     (Date.getWeekdayName model.date
                         ++ " "
@@ -330,11 +345,6 @@ dayView model =
                         ++ Date.getMonthName model.date
                     )
                 )
-            , if model.date == model.today then
-                E.el [ E.width E.fill ] (E.text "— Aujourd'hui —")
-
-              else
-                E.none
             ]
         , E.column
             [ E.width E.fill
