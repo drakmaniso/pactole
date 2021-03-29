@@ -115,7 +115,7 @@ viewTransactions shared =
                     , colDescription transaction
                     ]
             )
-            (Ledger.getMonthTransactions shared.ledger shared.date)
+            (Ledger.getMonthTransactions shared.ledger shared.date shared.today)
         )
 
 

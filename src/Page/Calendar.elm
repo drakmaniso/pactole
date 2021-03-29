@@ -121,7 +121,7 @@ calendarHeader model =
             , E.alignBottom
             , Background.color Ui.bgWhite
             , Ui.smallFont
-            , Font.color Ui.fgDark
+            , Font.color Ui.fgDarker
             , Ui.notSelectable
             ]
             [ E.el [ E.width E.fill ] (E.el [ E.centerX ] (E.text "Lundi"))
@@ -475,7 +475,7 @@ dayContentFor model day =
             [ E.el
                 [ E.width E.fill
                 , Font.center
-                , Font.color Ui.fgDark
+                , Font.color Ui.fgDarker
                 , Ui.normalFont
                 , E.paddingXY 8 32
                 ]

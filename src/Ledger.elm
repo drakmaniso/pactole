@@ -87,35 +87,29 @@ getDateTransactions date (Ledger ledger) =
         ledger.transactions
 
 
-getMonthTransactions : Ledger -> Date.Date -> List Transaction
-getMonthTransactions (Ledger ledger) date =
-    let
-        year =
-            Date.getYear date
-
-        month =
-            Date.getMonth date
-    in
+getMonthTransactions : Ledger -> Date.Date -> Date.Date -> List Transaction
+getMonthTransactions (Ledger ledger) date today =
     ledger.transactions
         --TODO
         |> List.filter
             (\t ->
-                (Date.getYear t.date == year)
-                    && (Date.getMonth t.date == month)
+                (Date.compare t.date today /= GT)
+                    && (Date.getYear t.date == Date.getYear date)
+                    && (Date.getMonth t.date == Date.getMonth date)
             )
 
 
-getMonthlyTotal : Ledger -> Date.Date -> Money.Money
-getMonthlyTotal ledger date =
-    getMonthTransactions ledger date
+getMonthlyTotal : Ledger -> Date.Date -> Date.Date -> Money.Money
+getMonthlyTotal ledger date today =
+    getMonthTransactions ledger date today
         |> List.foldl
             (\t accum -> Money.add accum t.amount)
             Money.zero
 
 
-getMonthlyIncome : Ledger -> Date.Date -> Money.Money
-getMonthlyIncome ledger date =
-    getMonthTransactions ledger date
+getMonthlyIncome : Ledger -> Date.Date -> Date.Date -> Money.Money
+getMonthlyIncome ledger date today =
+    getMonthTransactions ledger date today
         |> List.filter
             (\t -> not (Money.isExpense t.amount))
         |> List.foldl
@@ -123,9 +117,9 @@ getMonthlyIncome ledger date =
             Money.zero
 
 
-getMonthlyExpense : Ledger -> Date.Date -> Money.Money
-getMonthlyExpense ledger date =
-    getMonthTransactions ledger date
+getMonthlyExpense : Ledger -> Date.Date -> Date.Date -> Money.Money
+getMonthlyExpense ledger date today =
+    getMonthTransactions ledger date today
         |> List.filter
             (\t -> Money.isExpense t.amount)
         |> List.foldl
@@ -133,9 +127,9 @@ getMonthlyExpense ledger date =
             Money.zero
 
 
-getMonthlyCategory : Ledger -> Date.Date -> Int -> Money.Money
-getMonthlyCategory ledger date catID =
-    getMonthTransactions ledger date
+getMonthlyCategory : Ledger -> Date.Date -> Date.Date -> Int -> Money.Money
+getMonthlyCategory ledger date today catID =
+    getMonthTransactions ledger date today
         |> List.filter
             (\t -> Money.isExpense t.amount)
         |> List.filter

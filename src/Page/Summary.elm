@@ -72,7 +72,7 @@ view model =
             , E.paddingEach { top = 0, bottom = 6, left = 0, right = 0 }
             , E.width E.fill
             , Font.center
-            , Font.color Ui.fgDark
+            , Font.color Ui.fgDarker
             , Ui.notSelectable
             ]
             (E.text "Solde actuel:")
