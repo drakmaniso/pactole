@@ -291,9 +291,9 @@ cellContentFor model day =
                 , E.el [ Ui.smallFont, Font.medium ] (E.text closepar)
                 ]
     in
-    List.map
-        render
-        (Ledger.getDateTransactions day model.ledger)
+    (List.map render (Ledger.getDateTransactions day model.ledger)
+        ++ List.map render (Model.getRecurringTransactionsFor model day)
+    )
         |> List.intersperse (E.text " ")
 
 
@@ -380,6 +380,30 @@ dayContentFor model day =
         future =
             Date.compare day model.today == GT
 
+        transactions =
+            (Ledger.getDateTransactions day model.ledger
+                |> List.map
+                    (\t ->
+                        { id = Just t.id
+                        , date = t.date
+                        , amount = t.amount
+                        , description = t.description
+                        , category = t.category
+                        }
+                    )
+            )
+                ++ (Model.getRecurringTransactionsFor model day
+                        |> List.map
+                            (\t ->
+                                { id = Nothing
+                                , date = t.date
+                                , amount = t.amount
+                                , description = t.description
+                                , category = t.category
+                                }
+                            )
+                   )
+
         render idx transaction =
             let
                 category =
@@ -401,7 +425,13 @@ dayContentFor model day =
                     , Border.color (E.rgba 0 0 0 0)
                     , E.focused [ Border.color Ui.fgFocus ]
                     ]
-                    { onPress = Just (Msg.ForDialog <| Msg.EditDialog transaction.id)
+                    { onPress =
+                        case transaction.id of
+                            Nothing ->
+                                Nothing
+
+                            Just id ->
+                                Just (Msg.ForDialog <| Msg.EditDialog id)
                     , label =
                         E.row
                             [ E.width E.fill
@@ -440,7 +470,7 @@ dayContentFor model day =
                     }
                 )
     in
-    case Ledger.getDateTransactions day model.ledger of
+    case transactions of
         [] ->
             [ E.el
                 [ E.width E.fill
