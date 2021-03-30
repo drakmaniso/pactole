@@ -56,7 +56,7 @@ calendar model =
                 findTheFirst (Date.decrementDay date)
 
         findTheLast date =
-            if Date.getDay date == Date.lastDayOf date then
+            if Date.getDay date == Date.getDay (Date.lastDayOf date) then
                 date
 
             else

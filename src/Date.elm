@@ -3,6 +3,7 @@ module Date exposing
     , compare
     , decrementDay
     , decrementMonth
+    , decrementMonthUI
     , default
     , findNextDayOfMonth
     , firstDayOf
@@ -18,6 +19,7 @@ module Date exposing
     , getYear
     , incrementDay
     , incrementMonth
+    , incrementMonthUI
     , incrementWeek
     , lastDayOf
     , toInt
@@ -278,9 +280,51 @@ decrementMonth (Date date) =
     Date (Calendar.decrementMonth date)
 
 
+decrementMonthUI : Date -> Date -> Date
+decrementMonthUI (Date date) today =
+    let
+        d =
+            Date (Calendar.decrementMonth date)
+    in
+    if
+        getYear d
+            == getYear today
+            && getMonth d
+            == getMonth today
+    then
+        today
+
+    else if compare d today == LT then
+        lastDayOf d
+
+    else
+        firstDayOf d
+
+
 incrementMonth : Date -> Date
 incrementMonth (Date date) =
     Date (Calendar.incrementMonth date)
+
+
+incrementMonthUI : Date -> Date -> Date
+incrementMonthUI (Date date) today =
+    let
+        d =
+            Date (Calendar.incrementMonth date)
+    in
+    if
+        getYear d
+            == getYear today
+            && getMonth d
+            == getMonth today
+    then
+        today
+
+    else if compare d today == LT then
+        lastDayOf d
+
+    else
+        firstDayOf d
 
 
 getDay : Date -> Int
@@ -298,9 +342,14 @@ incrementDay (Date date) =
     Date (Calendar.incrementDay date)
 
 
-lastDayOf : Date -> Int
+lastDayOf : Date -> Date
 lastDayOf (Date date) =
-    Calendar.lastDayOf date
+    case Calendar.setDay (Calendar.lastDayOf date) date of
+        Just d ->
+            Date d
+
+        Nothing ->
+            default
 
 
 firstDayOf : Date -> Date
