@@ -12,6 +12,7 @@ module Model exposing
     , decodeCategory
     , decodeSettings
     , encodeSettings
+    , getMonthRecurringTransactionsTotal
     , getRecurringTransactionsFor
     )
 
@@ -20,6 +21,7 @@ import Dict
 import Json.Decode as Decode
 import Json.Encode as Encode
 import Ledger
+import Money
 
 
 
@@ -177,8 +179,17 @@ getRecurringTransactionsFor : Model -> Date.Date -> List Ledger.NewTransaction
 getRecurringTransactionsFor model date =
     model.settings.recurringTransactions
         |> List.filter (\( accountID, _ ) -> accountID == Maybe.withDefault -1 model.account)
-        |> List.filter (\( _, transaction ) -> Date.compare transaction.date date == EQ)
-        |> List.map (\( _, transaction ) -> transaction)
+        |> List.map Tuple.second
+        |> List.filter (\t -> Date.compare t.date date == EQ)
+
+
+getMonthRecurringTransactionsTotal : Model -> Date.Date -> Money.Money
+getMonthRecurringTransactionsTotal model date =
+    model.settings.recurringTransactions
+        |> List.filter (\( accountID, _ ) -> accountID == Maybe.withDefault -1 model.account)
+        |> List.map Tuple.second
+        |> List.filter (\t -> Date.getMonth t.date == Date.getMonth date)
+        |> List.foldl (\t accum -> Money.add accum t.amount) Money.zero
 
 
 

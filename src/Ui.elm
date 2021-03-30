@@ -649,20 +649,21 @@ viewSum money =
         [ E.width E.shrink
         , E.height E.shrink
         , E.paddingEach { top = 0, bottom = 0, left = 16, right = 16 }
-        , Font.color fgBlack
         ]
         [ E.el
             [ E.width (E.fillPortion 75)
-            , biggestFont
+            , biggerFont
             , Font.alignRight
+            , Font.bold
             ]
             (E.text (parts.sign ++ parts.units))
         , E.el
             [ E.width (E.fillPortion 25)
-            , biggerFont
+            , normalFont
             , Font.alignLeft
             , E.alignBottom
             , E.paddingXY 0 1
+            , Font.bold
             ]
             (E.text ("," ++ parts.cents))
         ]
