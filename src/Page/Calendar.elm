@@ -426,12 +426,15 @@ dayContentFor model day =
                     , E.focused [ Border.color Ui.fgFocus ]
                     ]
                     { onPress =
-                        case transaction.id of
-                            Nothing ->
-                                Nothing
+                        Maybe.map (Msg.ForDialog << Msg.EditDialog) transaction.id
 
-                            Just id ->
-                                Just (Msg.ForDialog <| Msg.EditDialog id)
+                    {- case transaction.id of
+                       Nothing ->
+                           Nothing
+
+                       Just id ->
+                           Just (Msg.ForDialog <| Msg.EditDialog id)
+                    -}
                     , label =
                         E.row
                             [ E.width E.fill
