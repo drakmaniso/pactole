@@ -265,12 +265,12 @@ cellContentFor model day =
                 [ E.paddingEach { top = 3, bottom = 4, left = 6, right = 8 }
                 , Ui.smallFont
                 , if future then
-                    Font.color Ui.fgDarker
+                    Font.color Ui.fgWhite
 
                   else
                     Font.color (E.rgb 1 1 1)
                 , if future then
-                    Background.color Ui.transparent
+                    Background.color Ui.bgDark
 
                   else if Money.isExpense transaction.amount then
                     Background.color Ui.bgExpense
@@ -281,14 +281,15 @@ cellContentFor model day =
                 , Border.width 0
                 , E.htmlAttribute <| Html.Attributes.style "display" "inline-flex"
                 ]
-                [ E.el [ Ui.smallFont, Font.medium ] (E.text (openpar ++ parts.sign ++ parts.units))
+                [ E.el [ Ui.smallFont, Font.medium ] (E.text (parts.sign ++ parts.units))
                 , E.el
                     [ Ui.smallerFont
                     , E.alignBottom
                     , E.paddingXY 0 1
                     ]
                     (E.text ("," ++ parts.cents))
-                , E.el [ Ui.smallFont, Font.medium ] (E.text closepar)
+
+                --, E.el [ Ui.smallFont, Font.medium ] (E.text closepar)
                 ]
     in
     (List.map render (Ledger.getDateTransactions day model.ledger)
@@ -329,7 +330,7 @@ dayView model =
                 E.el [ E.width E.fill, Ui.normalFont ] (E.text "— Aujourd'hui —")
 
               else if dayDiff == 1 then
-                E.el [ E.width E.fill, Ui.normalFont ] (E.text "— dans 1 jour —")
+                E.el [ E.width E.fill, Ui.normalFont ] (E.text "— demain —")
 
               else if dayDiff > 1 then
                 E.el [ E.width E.fill, Ui.normalFont ] (E.text ("— dans " ++ String.fromInt dayDiff ++ " jours —"))
@@ -427,14 +428,6 @@ dayContentFor model day =
                     ]
                     { onPress =
                         Maybe.map (Msg.ForDialog << Msg.EditDialog) transaction.id
-
-                    {- case transaction.id of
-                       Nothing ->
-                           Nothing
-
-                       Just id ->
-                           Just (Msg.ForDialog <| Msg.EditDialog id)
-                    -}
                     , label =
                         E.row
                             [ E.width E.fill
