@@ -244,20 +244,6 @@ cellContentFor model day =
                 future =
                     Date.compare day model.today == GT
 
-                openpar =
-                    if future then
-                        "("
-
-                    else
-                        ""
-
-                closepar =
-                    if future then
-                        ")"
-
-                    else
-                        ""
-
                 parts =
                     Money.toStrings transaction.amount
             in
