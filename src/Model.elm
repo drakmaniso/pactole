@@ -12,8 +12,8 @@ module Model exposing
     , decodeCategory
     , decodeSettings
     , encodeSettings
-    , getMonthRecurringTransactionsTotal
     , getRecurringTransactionsFor
+    , hasRecurringTransactionsForMonth
     )
 
 import Date
@@ -183,13 +183,16 @@ getRecurringTransactionsFor model date =
         |> List.filter (\t -> Date.compare t.date date == EQ)
 
 
-getMonthRecurringTransactionsTotal : Model -> Date.Date -> Money.Money
-getMonthRecurringTransactionsTotal model date =
+hasRecurringTransactionsForMonth : Model -> Date.Date -> Bool
+hasRecurringTransactionsForMonth model date =
     model.settings.recurringTransactions
-        |> List.filter (\( accountID, _ ) -> accountID == Maybe.withDefault -1 model.account)
-        |> List.map Tuple.second
-        |> List.filter (\t -> Date.getMonth t.date == Date.getMonth date)
-        |> List.foldl (\t accum -> Money.add accum t.amount) Money.zero
+        |> List.any
+            (\( accountID, t ) ->
+                accountID
+                    == Maybe.withDefault -1 model.account
+                    && Date.getMonth t.date
+                    == Date.getMonth date
+            )
 
 
 

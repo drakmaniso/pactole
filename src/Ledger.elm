@@ -19,6 +19,7 @@ module Ledger exposing
     , getMonthlyTotal
     , getReconciled
     , getTransaction
+    , hasFutureTransactionsForMonth
     , uncheckedBeforeMonth
     )
 
@@ -105,6 +106,17 @@ getMonthlyTotal ledger date today =
         |> List.foldl
             (\t accum -> Money.add accum t.amount)
             Money.zero
+
+
+hasFutureTransactionsForMonth : Ledger -> Date.Date -> Date.Date -> Bool
+hasFutureTransactionsForMonth (Ledger ledger) date today =
+    ledger.transactions
+        |> List.any
+            (\t ->
+                (Date.compare t.date today == GT)
+                    && (Date.getYear t.date == Date.getYear date)
+                    && (Date.getMonth t.date == Date.getMonth date)
+            )
 
 
 getMonthlyIncome : Ledger -> Date.Date -> Date.Date -> Money.Money

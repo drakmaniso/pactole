@@ -42,7 +42,7 @@ view shared =
                 ]
                 [ Ui.dateNavigationBar shared
                 , viewMonthBalance shared
-                , viewMonthRecurringBalance shared
+                , viewMonthFutureWarning shared
                 , E.column
                     [ E.width E.fill
                     , E.height E.fill
@@ -98,32 +98,27 @@ viewMonthBalance shared =
         ]
 
 
-viewMonthRecurringBalance : Model.Model -> E.Element msg
-viewMonthRecurringBalance shared =
-    let
-        monthRecBal =
-            Model.getMonthRecurringTransactionsTotal shared shared.date
-    in
-    if Money.isZero monthRecBal then
-        E.none
-
-    else
+viewMonthFutureWarning : Model.Model -> E.Element msg
+viewMonthFutureWarning shared =
+    if
+        Model.hasRecurringTransactionsForMonth shared shared.date
+            && Ledger.hasFutureTransactionsForMonth shared.ledger shared.date shared.today
+    then
         E.row
             [ E.width E.fill
             , E.paddingEach { top = 0, bottom = 24, left = 48, right = 48 }
-            , Ui.biggerFont
+            , Ui.normalFont
             , Font.color Ui.fgDarker
             ]
             [ E.el [ E.width (E.fillPortion 2) ] E.none
             , E.el
                 [ Font.alignRight ]
-                (E.text "(et")
-            , Ui.viewSum monthRecBal
-            , E.el
-                [ Font.alignRight ]
-                (E.text "d'ici la fin du mois)")
+                (E.text "(sans compter les futures opérations)")
             , E.el [ E.width (E.fillPortion 2) ] E.none
             ]
+
+    else
+        E.none
 
 
 viewCategories : Model.Model -> E.Element Msg.Msg
