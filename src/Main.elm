@@ -20,7 +20,6 @@ import Page.Dialog as Dialog
 import Page.Reconcile as Reconcile
 import Page.Settings as Settings
 import Page.Statistics as Statistics
-import Page.Tabular as Tabular
 import Process
 import Task
 import Ui
@@ -87,7 +86,6 @@ init flags _ _ =
     in
     ( { settings =
             { categoriesEnabled = False
-            , defaultMode = Model.InCalendar
             , reconciliationEnabled = False
             , summaryEnabled = False
             , balanceWarning = 100
@@ -308,12 +306,7 @@ view model =
                     Reconcile.view model
 
                 Model.MainPage ->
-                    case model.settings.defaultMode of
-                        Model.InCalendar ->
-                            Calendar.view model
-
-                        Model.InTabular ->
-                            Tabular.view model
+                    Calendar.view model
             )
         ]
     }

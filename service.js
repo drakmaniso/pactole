@@ -52,12 +52,12 @@ self.addEventListener('activate', event => {
       .then(names => {
         return Promise.all(
           names
-            .filter(n =>  n != staticCacheName)
+            .filter(n => n != staticCacheName)
             .map(n => caches.delete(n))
         )
       })
       .catch(err => error(err))
-    )
+  )
 })
 
 
@@ -82,7 +82,7 @@ self.addEventListener('message', event => {
       break
 
     case 'create account':
-      createAccount(msg.content) 
+      createAccount(msg.content)
         .then(() => getAccounts())
         .then(accounts => broadcast('update accounts', accounts))
         .catch(err => error(`create account "${msg.content}": ${err}`))
@@ -90,13 +90,13 @@ self.addEventListener('message', event => {
 
     case 'rename account':
       try {
-        const {id, name} = msg.content
+        const { id, name } = msg.content
         renameAccount(id, name)
           .then(() => getAccounts())
           .then(accounts => broadcast('update accounts', accounts))
           .catch(err => error(`rename account "${id}" to "${name}": ${err}`))
       }
-      catch(err) {
+      catch (err) {
         error(`rename account: ${err}`)
       }
       break
@@ -108,7 +108,7 @@ self.addEventListener('message', event => {
           .then(accounts => broadcast('update accounts', accounts))
           .catch(err => error(`delete account "${msg.content}": ${err}`))
       }
-      catch(err) {
+      catch (err) {
         error(`delete account: ${err}`)
       }
       break
@@ -121,26 +121,26 @@ self.addEventListener('message', event => {
 
     case 'create category':
       try {
-        const {name, icon} = msg.content
+        const { name, icon } = msg.content
         createCategory(name, icon)
           .then(() => getCategories())
           .then(categories => broadcast('update categories', categories))
           .catch(err => error(`create category "${name}": ${err}`))
       }
-      catch(err) {
+      catch (err) {
         error(`create category: ${err}`)
       }
       break
 
     case 'rename category':
       try {
-        const {id, name, icon} = msg.content
+        const { id, name, icon } = msg.content
         renameCategory(id, name, icon)
           .then(() => getCategories())
           .then(categories => broadcast('update categories', categories))
           .catch(err => error(`rename category "${id}" to "${name}": ${err}`))
       }
-      catch(err) {
+      catch (err) {
         error(`rename category: ${err}`)
       }
       break
@@ -152,14 +152,14 @@ self.addEventListener('message', event => {
           .then(categories => broadcast('update categories', categories))
           .catch(err => error(`delete category "${msg.content}": ${err}`))
       }
-      catch(err) {
+      catch (err) {
         error(`delete category: ${err}`)
       }
       break
 
     case 'request ledger':
       getLedger(msg.content)
-        .then(transactions => respond(event, 'update ledger', {transactions: transactions}))
+        .then(transactions => respond(event, 'update ledger', { transactions: transactions }))
         .catch(err => error(`request ledger: ${err}`))
       break
 
@@ -173,7 +173,7 @@ self.addEventListener('message', event => {
             broadcast('invalidate ledger', account)
           })
       }
-      catch(err) {
+      catch (err) {
         error(`create transaction: ${err}`)
       }
       break
@@ -188,7 +188,7 @@ self.addEventListener('message', event => {
             broadcast('invalidate ledger', account)
           })
       }
-      catch(err) {
+      catch (err) {
         error(`replace transaction: ${err}`)
       }
       break
@@ -203,7 +203,7 @@ self.addEventListener('message', event => {
             broadcast('invalidate ledger', account)
           })
       }
-      catch(err) {
+      catch (err) {
         error(`delete transaction: ${err}`)
       }
       break
@@ -265,32 +265,29 @@ function openDB() {
       // Settings Store
       {
         const os = db.createObjectStore('settings')
-        os.add('calendar', 'defaultMode')
-        os.add(false, 'categoriesEnabled')
-        os.add(false, 'reconciliationEnabled')
-        os.add(false, 'summaryEnabled')
+        //os.add({}, 'settings')
       }
 
       // Accounts Store
       {
-        const os = db.createObjectStore('accounts', {keyPath: 'id', autoIncrement: true})
+        const os = db.createObjectStore('accounts', { keyPath: 'id', autoIncrement: true })
       }
 
       // Categories Store
       {
-        const os = db.createObjectStore('categories', {keyPath: 'id', autoIncrement: true})
-        os.add({name: 'Maison', icon: '\u{F015}'})
-        os.add({name: 'Santé', icon: '\u{F0F1}'})
-        os.add({name: 'Nourriture', icon: '\u{F2E7}'})
-        os.add({name: 'Vêtements', icon: '\u{F553}'})
-        os.add({name: 'Transports', icon: '\u{F5E4}'})
-        os.add({name: 'Loisirs', icon: '\u{F5CA}'})
-        os.add({name: 'Banque', icon: '\u{F19C}'})
+        const os = db.createObjectStore('categories', { keyPath: 'id', autoIncrement: true })
+        os.add({ name: 'Maison', icon: '\u{F015}' })
+        os.add({ name: 'Santé', icon: '\u{F0F1}' })
+        os.add({ name: 'Nourriture', icon: '\u{F2E7}' })
+        os.add({ name: 'Vêtements', icon: '\u{F553}' })
+        os.add({ name: 'Transports', icon: '\u{F5E4}' })
+        os.add({ name: 'Loisirs', icon: '\u{F5CA}' })
+        os.add({ name: 'Banque', icon: '\u{F19C}' })
       }
 
       // Ledger Store
       {
-        const os = db.createObjectStore('ledger', {keyPath: 'id', autoIncrement: true})
+        const os = db.createObjectStore('ledger', { keyPath: 'id', autoIncrement: true })
         os.createIndex('account', 'account') //TODO: remove?
         os.createIndex('account date', ['account', 'date'])
         os.createIndex('account category', ['account', 'category'])
@@ -335,17 +332,17 @@ function getSettings() {
 
 
 function setSettings(settings) {
-    return new Promise((resolve, reject) => {
-      openDB()
-        .then(db => {
-          const tr = db.transaction(['settings'], 'readwrite')
-          tr.onerror = () => reject(tr.error)
-          tr.oncomplete = () => resolve()
-          const os = tr.objectStore('settings')
-          os.put(settings, 'settings')
-        })
-        .catch(err => reject(err))
-    })
+  return new Promise((resolve, reject) => {
+    openDB()
+      .then(db => {
+        const tr = db.transaction(['settings'], 'readwrite')
+        tr.onerror = () => reject(tr.error)
+        tr.oncomplete = () => resolve()
+        const os = tr.objectStore('settings')
+        os.put(settings, 'settings')
+      })
+      .catch(err => reject(err))
+  })
 }
 
 // ACCOUNTS ///////////////////////////////////////////////////////////////////
@@ -361,13 +358,13 @@ function getAccounts() {
         const req = os.getAll()
         req.onerror = () => reject(req.error)
         req.onsuccess = () => {
-          if(req.result.length == 0) {
+          if (req.result.length == 0) {
             const tr = db.transaction(['accounts'], 'readwrite')
             tr.onerror = () => reject(tr.error)
             const os = tr.objectStore('accounts')
-            const req = os.put({name: 'Compte'})
+            const req = os.put({ name: 'Compte' })
             req.onerror = () => reject(req.error)
-            req.onsuccess = () => resolve([{id: req.result, name: 'Compte'}])
+            req.onsuccess = () => resolve([{ id: req.result, name: 'Compte' }])
           } else {
             resolve(req.result)
           }
@@ -385,7 +382,7 @@ function createAccount(name) {
         const tr = db.transaction(['accounts'], 'readwrite')
         tr.onerror = () => reject(tr.error)
         const os = tr.objectStore('accounts')
-        const req = os.add({name: name})
+        const req = os.add({ name: name })
         req.onerror = () => reject(req.error)
         req.onsuccess = () => resolve(req.result)
       })
@@ -401,7 +398,7 @@ function renameAccount(id, name) {
         const tr = db.transaction(['accounts'], 'readwrite')
         tr.onerror = () => reject(tr.error)
         const os = tr.objectStore('accounts')
-        const req = os.put({id: id, name: name})
+        const req = os.put({ id: id, name: name })
         req.onerror = () => reject(req.error)
         req.onsuccess = () => resolve(req.result)
       })
@@ -423,7 +420,7 @@ function deleteAccount(id) {
         req.onerror = () => reject(req.error)
         req.onsuccess = () => {
           const cursor = req.result
-          if(cursor) {
+          if (cursor) {
             log(`deleting key "${cursor.key}"`)
             cursor.delete()
             cursor.continue()
@@ -468,7 +465,7 @@ function createCategory(name, icon) {
         const tr = db.transaction(['categories'], 'readwrite')
         tr.onerror = () => reject(tr.error)
         const os = tr.objectStore('categories')
-        const req = os.add({name: name, icon: icon})
+        const req = os.add({ name: name, icon: icon })
         req.onerror = () => reject(req.error)
         req.onsuccess = () => resolve(req.result)
       })
@@ -484,7 +481,7 @@ function renameCategory(id, name, icon) {
         const tr = db.transaction(['categories'], 'readwrite')
         tr.onerror = () => reject(tr.error)
         const os = tr.objectStore('categories')
-        const req = os.put({id: id, name: name, icon: icon})
+        const req = os.put({ id: id, name: name, icon: icon })
         req.onerror = () => reject(req.error)
         req.onsuccess = () => resolve(req.result)
       })

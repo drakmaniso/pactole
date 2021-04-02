@@ -1,7 +1,6 @@
 module Model exposing
     ( Category
     , Dialog
-    , Mode(..)
     , Model
     , Page(..)
     , Settings
@@ -100,7 +99,6 @@ account accountID model =
 
 type alias Settings =
     { categoriesEnabled : Bool
-    , defaultMode : Mode
     , reconciliationEnabled : Bool
     , summaryEnabled : Bool
     , balanceWarning : Int
@@ -108,28 +106,14 @@ type alias Settings =
     }
 
 
-type Mode
-    = InCalendar
-    | InTabular
-
-
 encodeSettings : Settings -> Decode.Value
 encodeSettings settings =
     let
-        modeString =
-            case settings.defaultMode of
-                InCalendar ->
-                    "calendar"
-
-                InTabular ->
-                    "tabular"
-
         encodeRecurring ( accountID, transaction ) =
             Ledger.encodeNewTransaction accountID transaction
     in
     Encode.object
         [ ( "categoriesEnabled", Encode.bool settings.categoriesEnabled )
-        , ( "defaultMode", Encode.string modeString )
         , ( "reconciliationEnabled", Encode.bool settings.reconciliationEnabled )
         , ( "summaryEnabled", Encode.bool settings.summaryEnabled )
         , ( "balanceWarning", Encode.int settings.balanceWarning )
@@ -137,25 +121,11 @@ encodeSettings settings =
         ]
 
 
-decodeSettings : Decode.Decoder { categoriesEnabled : Bool, defaultMode : Mode, reconciliationEnabled : Bool, summaryEnabled : Bool, balanceWarning : Int, recurringTransactions : List ( Int, Ledger.NewTransaction ) }
+decodeSettings : Decode.Decoder Settings
 decodeSettings =
-    let
-        decodeMode =
-            Decode.map
-                (\str ->
-                    case str of
-                        "calendar" ->
-                            InCalendar
-
-                        _ ->
-                            InTabular
-                )
-                Decode.string
-    in
-    Decode.map6
-        (\cat mod rec summ balwarn rectrans ->
+    Decode.map5
+        (\cat rec summ balwarn rectrans ->
             { categoriesEnabled = cat
-            , defaultMode = mod
             , reconciliationEnabled = rec
             , summaryEnabled = summ
             , balanceWarning = balwarn
@@ -163,7 +133,6 @@ decodeSettings =
             }
         )
         (Decode.oneOf [ Decode.field "categoriesEnabled" Decode.bool, Decode.succeed False ])
-        (Decode.oneOf [ Decode.field "defaultMode" decodeMode, Decode.succeed InCalendar ])
         (Decode.oneOf [ Decode.field "reconciliationEnabled" Decode.bool, Decode.succeed False ])
         (Decode.oneOf [ Decode.field "summaryEnabled" Decode.bool, Decode.succeed False ])
         (Decode.oneOf [ Decode.field "balanceWarning" Decode.int, Decode.succeed 100 ])
