@@ -27,7 +27,7 @@ self.addEventListener('install', event => {
     caches
       .open(staticCacheName)
       .then(cache => {
-        log('...installing cache...')
+        log('    Installing cache')
         return cache.addAll(
           files.map(f => {
             return new Request(f, { cache: 'no-store' })
@@ -259,22 +259,25 @@ function openDB() {
     req.onblocked = () => log('database blocked...')
 
     req.onupgradeneeded = () => {
-      log(`Upgrading database...`)
+      log(`    Upgrading database...`)
       const db = req.result
 
       // Settings Store
-      {
+      if (!db.objectStoreNames.contains('settings')) {
+        log(`        Creating settings object store...`)
         const os = db.createObjectStore('settings')
         //os.add({}, 'settings')
       }
 
       // Accounts Store
-      {
+      if (!db.objectStoreNames.contains('accounts')) {
+        log(`        Creating accounts object store...`)
         const os = db.createObjectStore('accounts', { keyPath: 'id', autoIncrement: true })
       }
 
       // Categories Store
-      {
+      if (!db.objectStoreNames.contains('categories')) {
+        log(`        Creating categories object store...`)
         const os = db.createObjectStore('categories', { keyPath: 'id', autoIncrement: true })
         os.add({ name: 'Maison', icon: '\u{F015}' })
         os.add({ name: 'Santé', icon: '\u{F0F1}' })
@@ -286,14 +289,15 @@ function openDB() {
       }
 
       // Ledger Store
-      {
+      if (!db.objectStoreNames.contains('ledger')) {
+        log(`        Creating ledger object store...`)
         const os = db.createObjectStore('ledger', { keyPath: 'id', autoIncrement: true })
-        os.createIndex('account', 'account') //TODO: remove?
-        os.createIndex('account date', ['account', 'date'])
-        os.createIndex('account category', ['account', 'category'])
+        //os.createIndex('account', 'account') //TODO: remove?
+        //os.createIndex('account date', ['account', 'date'])
+        //os.createIndex('account category', ['account', 'category'])
       }
 
-      log(`...database upgraded.`)
+      log(`    ...database upgraded.`)
     }
 
     req.onsuccess = () => {
@@ -578,6 +582,11 @@ function deleteTransaction(id) {
 
 function log(msg, ...args) {
   console.log(`[SERVICE] ${msg}`, ...args)
+}
+
+
+function warn(msg, ...args) {
+  console.warn(`[SERVICE] ${msg}`, ...args)
 }
 
 
