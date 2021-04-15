@@ -15,27 +15,29 @@
   <!--link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;700&display=swap" rel="stylesheet"-->
 
   <style>
-  @font-face {
-    font-family: 'Font Awesome 5 Free';
-    font-style: normal;
-    font-weight: 900;
-    font-display: swap;
-    src: url("fonts/fa-solid-900.woff2");
-  }
-  @font-face {
-    font-family: 'Work Sans';
-    font-style: normal;
-    font-weight: 400;
-    font-display: swap;
-    src: url("fonts/work-sans-v7-latin-regular.woff2");
-  }
-  @font-face {
-    font-family: 'Work Sans';
-    font-style: normal;
-    font-weight: 700;
-    font-display: swap;
-    src: url("fonts/work-sans-v7-latin-700.woff2");
-  }
+    @font-face {
+      font-family: 'Font Awesome 5 Free';
+      font-style: normal;
+      font-weight: 900;
+      font-display: swap;
+      src: url("fonts/fa-solid-900.woff2");
+    }
+
+    @font-face {
+      font-family: 'Work Sans';
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+      src: url("fonts/work-sans-v7-latin-regular.woff2");
+    }
+
+    @font-face {
+      font-family: 'Work Sans';
+      font-style: normal;
+      font-weight: 700;
+      font-display: swap;
+      src: url("fonts/work-sans-v7-latin-700.woff2");
+    }
   </style>
   <script src="elm.js"></script>
 </head>
@@ -60,7 +62,7 @@
             log(
               `Persistent storage: usage = ${Math.round(
                 info.usage / 1024,
-              )} kb, (quota = ${Math.round(info.quota / (1024*1024))} Mb).`,
+              )} kb, (quota = ${Math.round(info.quota / (1024 * 1024))} Mb).`,
             )
           })
         } else {
@@ -117,52 +119,49 @@
     });
 
 
-    navigator.serviceWorker
-      .ready
-      .then(registration => {
+    // ELM STUFF //////////////////////////////////////////////////////////////
+
+
+    let app
+
+    navigator.serviceWorker.ready
+      .then(_ => {
+        let today = new Date()
+        let flags = {
+          today: {
+            year: today.getFullYear(),
+            month: today.getMonth(),
+            day: today.getDate()
+          }
+        }
+        app = Elm.Main.init({ flags: flags })
+
+        app.ports.send.subscribe(function (args) {
+          [title, content] = args
+          if (title == "error") {
+            console.error(`[ELM] ${content}`)
+            return
+          }
+          log(`Sending "${title}"...`)
+          const sw = navigator.serviceWorker.controller
+          if (sw) {
+            sw.postMessage({ title: title, content: content })
+          } else {
+            error(`Unable to send message "${title}" to service: the page has no controller`)
+            //TODO: what?
+          }
+        })
+
         log(`Starting application.`)
         navigator.serviceWorker.onmessage = event => {
           log(`Received "${event.data.title}".`)
           app.ports.receive.send([event.data.title, event.data.content])
         }
         app.ports.receive.send(["start application", null])
+
       })
       .catch(err => error(`Service worker not ready: ${err}`))
 
-
-    // ELM STUFF //////////////////////////////////////////////////////////////
-
-
-    let app
-    {
-      let today = new Date ()
-
-      let flags = {
-        today: {
-          year: today.getFullYear (),
-          month: today.getMonth (),
-          day: today.getDate ()
-        }
-      }
-      app = Elm.Main.init({flags: flags})
-    }
- 
-
-    app.ports.send.subscribe(function(args) {
-      [title, content] = args
-      if (title == "error") {
-        console.error (`[ELM] ${content}`)
-        return
-      }
-      log(`Sending "${title}"...`)
-      const sw = navigator.serviceWorker.controller
-      if (sw) {
-        sw.postMessage({ title: title, content: content })
-      } else {
-        error(`Unable to send message "${title}" to service: the page has no controller`)
-        //TODO: what?
-      }
-    })
 
 
     // UTILITIES //////////////////////////////////////////////////////////////
@@ -185,6 +184,12 @@
 
 
   </script>
+
+  <div style="width: 100%; height: 100%;">
+    <h1
+      style="width: 100%; position: absolute; top: 30%; text-align: center; font-family: 'Work Sans'; font-size: 4em; color: #ddd;">
+      Pactole</h1>
+  </div>
 </body>
 
 </html>
