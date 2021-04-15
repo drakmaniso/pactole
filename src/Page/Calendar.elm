@@ -278,7 +278,7 @@ cellContentFor model day =
                 --, E.el [ Ui.smallFont, Font.medium ] (E.text closepar)
                 ]
     in
-    (List.map render (Ledger.getTransactionsForDate day model.ledger)
+    (List.map render (Ledger.getTransactionsForDate model.ledger model.account day)
         ++ List.map render (Model.getRecurringTransactionsFor model day)
     )
         |> List.intersperse (E.text " ")
@@ -368,7 +368,7 @@ dayContentFor model day =
             Date.compare day model.today == GT
 
         transactions =
-            (Ledger.getTransactionsForDate day model.ledger
+            (Ledger.getTransactionsForDate model.ledger model.account day
                 |> List.map
                     (\t ->
                         { id = Just t.id

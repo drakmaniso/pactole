@@ -54,7 +54,7 @@ view shared =
                     , viewItem
                         ""
                         "Entrées d'argent: "
-                        (Ledger.getIncomeForMonth shared.ledger shared.date shared.today)
+                        (Ledger.getIncomeForMonth shared.ledger shared.account shared.date shared.today)
                     , if shared.settings.categoriesEnabled then
                         viewCategories shared
 
@@ -64,13 +64,13 @@ view shared =
                         viewItem
                             ""
                             "Sans catégorie: "
-                            (Ledger.getCategoryTotalForMonth shared.ledger shared.date shared.today 0)
+                            (Ledger.getCategoryTotalForMonth shared.ledger shared.account shared.date shared.today 0)
 
                       else
                         viewItem
                             ""
                             "Dépenses: "
-                            (Ledger.getExpenseForMonth shared.ledger shared.date shared.today)
+                            (Ledger.getExpenseForMonth shared.ledger shared.account shared.date shared.today)
                     , E.text " "
                     , E.el [ E.height E.fill ] E.none
                     ]
@@ -82,7 +82,7 @@ viewMonthBalance : Model.Model -> E.Element msg
 viewMonthBalance shared =
     let
         monthBal =
-            Ledger.getTotalForMonth shared.ledger shared.date shared.today
+            Ledger.getTotalForMonth shared.ledger shared.account shared.date shared.today
     in
     E.row
         [ E.width E.fill
@@ -102,7 +102,7 @@ viewMonthFutureWarning : Model.Model -> E.Element msg
 viewMonthFutureWarning shared =
     if
         Model.hasRecurringTransactionsForMonth shared shared.date
-            && Ledger.hasFutureTransactionsForMonth shared.ledger shared.date shared.today
+            && Ledger.hasFutureTransactionsForMonth shared.ledger shared.account shared.date shared.today
     then
         E.row
             [ E.width E.fill
@@ -133,7 +133,7 @@ viewCategories shared =
                     viewItem
                         category.icon
                         (category.name ++ ": ")
-                        (Ledger.getCategoryTotalForMonth shared.ledger shared.date shared.today catID)
+                        (Ledger.getCategoryTotalForMonth shared.ledger shared.account shared.date shared.today catID)
                 )
         )
 

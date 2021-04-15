@@ -158,7 +158,7 @@ self.addEventListener('message', event => {
       break
 
     case 'request ledger':
-      getLedger(msg.content)
+      getLedger()
         .then(transactions => respond(event, 'update ledger', transactions))
         .catch(err => error(`request ledger: ${err}`))
       break
@@ -170,7 +170,7 @@ self.addEventListener('message', event => {
         } = msg.content
         addTransaction(msg.content)
           .then(() => {
-            broadcast('invalidate ledger', account)
+            broadcast('invalidate ledger', null)
           })
       }
       catch (err) {
@@ -185,7 +185,7 @@ self.addEventListener('message', event => {
         } = msg.content
         putTransaction(msg.content)
           .then(() => {
-            broadcast('invalidate ledger', account)
+            broadcast('invalidate ledger', null)
           })
       }
       catch (err) {
@@ -196,11 +196,11 @@ self.addEventListener('message', event => {
     case 'delete transaction':
       try {
         const {
-          account, id
+          id
         } = msg.content
         deleteTransaction(id)
           .then(() => {
-            broadcast('invalidate ledger', account)
+            broadcast('invalidate ledger', null)
           })
       }
       catch (err) {
@@ -509,15 +509,14 @@ function deleteCategory(id) {
 // LEDGER /////////////////////////////////////////////////////////////////////
 
 
-function getLedger(accountID) {
+function getLedger() {
   return new Promise((resolve, reject) => {
     openDB()
       .then(db => {
         const tr = db.transaction(['ledger'], 'readonly')
         tr.onerror = () => reject(tr.error)
         const os = tr.objectStore('ledger')
-        const idx = os.index('account')
-        const req = idx.getAll(accountID)
+        const req = os.getAll()
         req.onerror = () => reject(req.error)
         req.onsuccess = () => resolve(req.result)
       })

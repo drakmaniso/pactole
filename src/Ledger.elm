@@ -4,7 +4,6 @@ module Ledger exposing
     , Transaction
     , decode
     , decodeNewTransaction
-    , decodeTransaction
     , empty
     , encodeNewTransaction
     , encodeTransaction
@@ -38,6 +37,17 @@ type Ledger
 
 type alias Transaction =
     { id : Int
+    , account : Int
+    , date : Date.Date
+    , amount : Money.Money
+    , description : String
+    , category : Int
+    , checked : Bool
+    }
+
+
+type alias NewTransaction =
+    { account : Int
     , date : Date.Date
     , amount : Money.Money
     , description : String
@@ -51,48 +61,52 @@ empty =
     Ledger []
 
 
-getBalance : Ledger -> Date.Date -> Money.Money
-getBalance (Ledger transactions) today =
+getBalance : Ledger -> Int -> Date.Date -> Money.Money
+getBalance (Ledger transactions) account today =
     transactions
+        |> List.filter (\t -> t.account == account)
         |> List.filter (\t -> Date.compare t.date today /= GT)
         |> List.foldl
             (\t accum -> Money.add accum t.amount)
             Money.zero
 
 
-getReconciled : Ledger -> Money.Money
-getReconciled (Ledger transactions) =
+getReconciled : Ledger -> Int -> Money.Money
+getReconciled (Ledger transactions) account =
     transactions
+        |> List.filter (\t -> t.account == account)
         |> List.filter (\t -> t.checked == True)
         |> List.foldl
             (\t accum -> Money.add accum t.amount)
             Money.zero
 
 
-getNotReconciledBeforeMonth : Ledger -> Date.Date -> Bool
-getNotReconciledBeforeMonth (Ledger transactions) date =
+getNotReconciledBeforeMonth : Ledger -> Int -> Date.Date -> Bool
+getNotReconciledBeforeMonth (Ledger transactions) account date =
     let
         d =
             Date.firstDayOf date
     in
     transactions
+        |> List.filter (\t -> t.account == account)
         |> List.filter
             (\t -> Date.compare t.date d == LT)
         |> List.any
             (\t -> not t.checked)
 
 
-getTransactionsForDate : Date.Date -> Ledger -> List Transaction
-getTransactionsForDate date (Ledger transactions) =
-    List.filter
-        (\t -> t.date == date)
-        transactions
+getTransactionsForDate : Ledger -> Int -> Date.Date -> List Transaction
+getTransactionsForDate (Ledger transactions) account date =
+    transactions
+        |> List.filter (\t -> t.account == account)
+        |> List.filter (\t -> t.date == date)
 
 
-getTransactionsForMonth : Ledger -> Date.Date -> Date.Date -> List Transaction
-getTransactionsForMonth (Ledger transactions) date today =
+getTransactionsForMonth : Ledger -> Int -> Date.Date -> Date.Date -> List Transaction
+getTransactionsForMonth (Ledger transactions) account date today =
     transactions
         --TODO
+        |> List.filter (\t -> t.account == account)
         |> List.filter
             (\t ->
                 (Date.compare t.date today /= GT)
@@ -101,17 +115,18 @@ getTransactionsForMonth (Ledger transactions) date today =
             )
 
 
-getTotalForMonth : Ledger -> Date.Date -> Date.Date -> Money.Money
-getTotalForMonth ledger date today =
-    getTransactionsForMonth ledger date today
+getTotalForMonth : Ledger -> Int -> Date.Date -> Date.Date -> Money.Money
+getTotalForMonth ledger account date today =
+    getTransactionsForMonth ledger account date today
         |> List.foldl
             (\t accum -> Money.add accum t.amount)
             Money.zero
 
 
-hasFutureTransactionsForMonth : Ledger -> Date.Date -> Date.Date -> Bool
-hasFutureTransactionsForMonth (Ledger transactions) date today =
+hasFutureTransactionsForMonth : Ledger -> Int -> Date.Date -> Date.Date -> Bool
+hasFutureTransactionsForMonth (Ledger transactions) account date today =
     transactions
+        |> List.filter (\t -> t.account == account)
         |> List.any
             (\t ->
                 (Date.compare t.date today == GT)
@@ -120,33 +135,29 @@ hasFutureTransactionsForMonth (Ledger transactions) date today =
             )
 
 
-getIncomeForMonth : Ledger -> Date.Date -> Date.Date -> Money.Money
-getIncomeForMonth ledger date today =
-    getTransactionsForMonth ledger date today
-        |> List.filter
-            (\t -> not (Money.isExpense t.amount))
+getIncomeForMonth : Ledger -> Int -> Date.Date -> Date.Date -> Money.Money
+getIncomeForMonth ledger account date today =
+    getTransactionsForMonth ledger account date today
+        |> List.filter (\t -> not (Money.isExpense t.amount))
         |> List.foldl
             (\t accum -> Money.add accum t.amount)
             Money.zero
 
 
-getExpenseForMonth : Ledger -> Date.Date -> Date.Date -> Money.Money
-getExpenseForMonth ledger date today =
-    getTransactionsForMonth ledger date today
-        |> List.filter
-            (\t -> Money.isExpense t.amount)
+getExpenseForMonth : Ledger -> Int -> Date.Date -> Date.Date -> Money.Money
+getExpenseForMonth ledger account date today =
+    getTransactionsForMonth ledger account date today
+        |> List.filter (\t -> Money.isExpense t.amount)
         |> List.foldl
             (\t accum -> Money.add accum t.amount)
             Money.zero
 
 
-getCategoryTotalForMonth : Ledger -> Date.Date -> Date.Date -> Int -> Money.Money
-getCategoryTotalForMonth ledger date today catID =
-    getTransactionsForMonth ledger date today
-        |> List.filter
-            (\t -> Money.isExpense t.amount)
-        |> List.filter
-            (\t -> t.category == catID)
+getCategoryTotalForMonth : Ledger -> Int -> Date.Date -> Date.Date -> Int -> Money.Money
+getCategoryTotalForMonth ledger account date today catID =
+    getTransactionsForMonth ledger account date today
+        |> List.filter (\t -> Money.isExpense t.amount)
+        |> List.filter (\t -> t.category == catID)
         |> List.foldl
             (\t accum -> Money.add accum t.amount)
             Money.zero
@@ -248,10 +259,10 @@ decode =
     Decode.map Ledger (Decode.list decodeTransaction)
 
 
-encodeTransaction : Int -> Transaction -> Encode.Value
-encodeTransaction account transaction =
+encodeTransaction : Transaction -> Encode.Value
+encodeTransaction transaction =
     Encode.object
-        [ ( "account", Encode.int account )
+        [ ( "account", Encode.int transaction.account )
         , ( "id", Encode.int transaction.id )
         , ( "date", Encode.int (Date.toInt transaction.date) )
         , ( "amount", Money.encoder transaction.amount )
@@ -263,8 +274,9 @@ encodeTransaction account transaction =
 
 decodeTransaction : Decode.Decoder Transaction
 decodeTransaction =
-    Decode.map6 Transaction
+    Decode.map7 Transaction
         (Decode.field "id" Decode.int)
+        (Decode.field "account" Decode.int)
         (Decode.map Date.fromInt (Decode.field "date" Decode.int))
         (Decode.field "amount" Money.decoder)
         (Decode.field "description" Decode.string)
@@ -272,19 +284,10 @@ decodeTransaction =
         (Decode.field "checked" Decode.bool)
 
 
-type alias NewTransaction =
-    { date : Date.Date
-    , amount : Money.Money
-    , description : String
-    , category : Int
-    , checked : Bool
-    }
-
-
-encodeNewTransaction : Int -> NewTransaction -> Encode.Value
-encodeNewTransaction account transaction =
+encodeNewTransaction : NewTransaction -> Encode.Value
+encodeNewTransaction transaction =
     Encode.object
-        [ ( "account", Encode.int account )
+        [ ( "account", Encode.int transaction.account )
         , ( "date", Encode.int (Date.toInt transaction.date) )
         , ( "amount", Money.encoder transaction.amount )
         , ( "description", Encode.string transaction.description )
@@ -293,14 +296,12 @@ encodeNewTransaction account transaction =
         ]
 
 
-decodeNewTransaction : Decode.Decoder ( Int, NewTransaction )
+decodeNewTransaction : Decode.Decoder NewTransaction
 decodeNewTransaction =
-    Decode.map2 (\acc tr -> ( acc, tr ))
+    Decode.map6 NewTransaction
         (Decode.field "account" Decode.int)
-        (Decode.map5 NewTransaction
-            (Decode.map Date.fromInt (Decode.field "date" Decode.int))
-            (Decode.field "amount" Money.decoder)
-            (Decode.field "description" Decode.string)
-            (Decode.field "category" Decode.int)
-            (Decode.field "checked" Decode.bool)
-        )
+        (Decode.map Date.fromInt (Decode.field "date" Decode.int))
+        (Decode.field "amount" Money.decoder)
+        (Decode.field "description" Decode.string)
+        (Decode.field "category" Decode.int)
+        (Decode.field "checked" Decode.bool)

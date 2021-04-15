@@ -59,10 +59,10 @@ viewReconciled shared =
             [ E.width E.fill ]
             [ E.el [ E.width E.fill ] E.none
             , E.el [ Ui.biggerFont ] (E.text "Total pointé: ")
-            , Ui.viewSum (Ledger.getReconciled shared.ledger)
+            , Ui.viewSum (Ledger.getReconciled shared.ledger shared.account)
             , E.el [ E.width E.fill ] E.none
             ]
-        , if Ledger.getNotReconciledBeforeMonth shared.ledger shared.date then
+        , if Ledger.getNotReconciledBeforeMonth shared.ledger shared.account shared.date then
             E.el
                 [ E.width E.fill, Font.center ]
                 (E.paragraph []
@@ -115,11 +115,11 @@ viewTransactions shared =
                     , colDescription transaction
                     ]
             )
-            (Ledger.getTransactionsForMonth shared.ledger shared.date shared.today)
+            (Ledger.getTransactionsForMonth shared.ledger shared.account shared.date shared.today)
         )
 
 
-colReconciled : { id : Int, date : Date.Date, amount : Money.Money, description : String, category : Int, checked : Bool } -> E.Element Msg.Msg
+colReconciled : Ledger.Transaction -> E.Element Msg.Msg
 colReconciled transaction =
     E.el
         [ E.width (E.fillPortion 1) ]

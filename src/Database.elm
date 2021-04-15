@@ -33,8 +33,8 @@ update msg model =
         Msg.DbCheckTransaction transaction checked ->
             ( model
             , replaceTransaction
-                model.account
                 { id = transaction.id
+                , account = transaction.account
                 , date = transaction.date
                 , amount = transaction.amount
                 , description = transaction.description
@@ -113,51 +113,35 @@ deleteCategory id =
         )
 
 
-requestLedger : Int -> Cmd msg
-requestLedger account =
-    Ports.send ( "request ledger", Encode.int account )
+requestLedger : () -> Cmd msg
+requestLedger () =
+    Ports.send ( "request ledger", Encode.null )
 
 
-createTransaction : Maybe Int -> Ledger.NewTransaction -> Cmd msg
-createTransaction maybeAccount transaction =
-    case maybeAccount of
-        Just account ->
-            Ports.send
-                ( "create transaction"
-                , Ledger.encodeNewTransaction account transaction
-                )
-
-        Nothing ->
-            Log.error "create transaction: no current account"
+createTransaction : Ledger.NewTransaction -> Cmd msg
+createTransaction transaction =
+    Ports.send
+        ( "create transaction"
+        , Ledger.encodeNewTransaction transaction
+        )
 
 
-replaceTransaction : Maybe Int -> Ledger.Transaction -> Cmd msg
-replaceTransaction maybeAccount transaction =
-    case maybeAccount of
-        Just account ->
-            Ports.send
-                ( "replace transaction"
-                , Ledger.encodeTransaction account transaction
-                )
-
-        Nothing ->
-            Log.error "replace transaction: no current account"
+replaceTransaction : Ledger.Transaction -> Cmd msg
+replaceTransaction transaction =
+    Ports.send
+        ( "replace transaction"
+        , Ledger.encodeTransaction transaction
+        )
 
 
-deleteTransaction : Maybe Int -> Int -> Cmd msg
-deleteTransaction account id =
-    case account of
-        Just acc ->
-            Ports.send
-                ( "delete transaction"
-                , Encode.object
-                    [ ( "account", Encode.int acc )
-                    , ( "id", Encode.int id )
-                    ]
-                )
-
-        Nothing ->
-            Log.error "delete transaction: no current account"
+deleteTransaction : Int -> Cmd msg
+deleteTransaction id =
+    Ports.send
+        ( "delete transaction"
+        , Encode.object
+            [ ( "id", Encode.int id )
+            ]
+        )
 
 
 requestSettings : Cmd msg
@@ -202,8 +186,8 @@ msgFromService ( title, content ) model =
                             --TODO: use current account if set
                             Tuple.first head
                     in
-                    ( { model | accounts = Dict.fromList accounts, account = Just accountID }
-                    , requestLedger accountID
+                    ( { model | accounts = Dict.fromList accounts, account = accountID }
+                    , requestLedger ()
                     )
 
                 Err e ->
@@ -233,19 +217,7 @@ msgFromService ( title, content ) model =
                     ( model, Log.error ("while decoding settings: " ++ Decode.errorToString e) )
 
         "invalidate ledger" ->
-            case ( model.account, Decode.decodeValue Decode.int content ) of
-                ( Just currentID, Ok updatedID ) ->
-                    if updatedID == currentID then
-                        ( model, requestLedger updatedID )
-
-                    else
-                        ( model, Cmd.none )
-
-                ( Nothing, _ ) ->
-                    ( model, Cmd.none )
-
-                ( _, Err e ) ->
-                    ( model, Log.error (Decode.errorToString e) )
+            ( model, requestLedger () )
 
         "update ledger" ->
             case Decode.decodeValue Ledger.decode content of
@@ -281,7 +253,7 @@ processRecurringTransactions model =
         recurring =
             settings.recurringTransactions
                 |> List.map
-                    (\( a, t ) ->
+                    (\t ->
                         let
                             d =
                                 if Date.compare t.date model.today /= GT then
@@ -290,7 +262,7 @@ processRecurringTransactions model =
                                 else
                                     t.date
                         in
-                        ( a, { t | date = d } )
+                        { t | date = d }
                     )
 
         newSettings =
@@ -298,20 +270,20 @@ processRecurringTransactions model =
                 | recurringTransactions = recurring
             }
 
-        createTransacs a t =
+        createTransacs t =
             if Date.compare t.date model.today == GT then
                 []
 
             else
-                createTransaction (Just a) t
-                    :: createTransacs a { t | date = Date.incrementMonth t.date }
+                createTransaction t
+                    :: createTransacs { t | date = Date.incrementMonth t.date }
 
         cmds =
             model.settings.recurringTransactions
                 |> List.filter
-                    (\( _, t ) -> Date.compare t.date model.today /= GT)
+                    (\t -> Date.compare t.date model.today /= GT)
                 |> List.concatMap
-                    (\( a, t ) -> createTransacs a t)
+                    (\t -> createTransacs t)
     in
     ( { model | settings = newSettings }
     , if List.length cmds > 0 then

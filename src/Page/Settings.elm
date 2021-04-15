@@ -70,6 +70,7 @@ update msg model =
             let
                 t =
                     { date = Date.findNextDayOfMonth 1 model.today
+                    , account = model.account
                     , amount = Money.zero
                     , description = "(opération mensuelle)"
                     , category = 0
@@ -79,18 +80,10 @@ update msg model =
                 settings =
                     model.settings
 
-                account =
-                    case model.account of
-                        Just a ->
-                            a
-
-                        Nothing ->
-                            0
-
                 newSettings =
                     { settings
                         | recurringTransactions =
-                            settings.recurringTransactions ++ [ ( account, t ) ]
+                            settings.recurringTransactions ++ [ t ]
                     }
             in
             ( model, Database.storeSettings newSettings )
@@ -271,16 +264,15 @@ update msg model =
                             { settings
                                 | recurringTransactions =
                                     replace submodel.idx
-                                        ( submodel.account
-                                        , { amount =
-                                                Maybe.withDefault Money.zero
-                                                    (Money.fromInput submodel.isExpense submodel.amount)
-                                          , description = submodel.description
-                                          , category = submodel.category
-                                          , date = dueDate
-                                          , checked = False
-                                          }
-                                        )
+                                        { account = submodel.account
+                                        , amount =
+                                            Maybe.withDefault Money.zero
+                                                (Money.fromInput submodel.isExpense submodel.amount)
+                                        , description = submodel.description
+                                        , category = submodel.category
+                                        , date = dueDate
+                                        , checked = False
+                                        }
                                         settings.recurringTransactions
                             }
                     in
@@ -566,25 +558,25 @@ configRecurring model =
                 [ E.table [ E.spacingXY 12 6 ]
                     { data =
                         List.indexedMap
-                            (\i ( a, t ) -> ( i, a, t ))
+                            (\i t -> ( i, t ))
                             model.settings.recurringTransactions
                     , columns =
                         [ { header = headerTxt "Échéance"
                           , width = E.fill
                           , view =
-                                \( _, _, t ) ->
+                                \( _, t ) ->
                                     E.el [ Font.center, E.centerY ] (E.text (Date.toString t.date))
                           }
                         , { header = headerTxt "Compte"
                           , width = E.shrink
                           , view =
-                                \( _, a, _ ) ->
-                                    E.el [ Font.center, E.centerY ] (E.text (Model.account a model))
+                                \( _, t ) ->
+                                    E.el [ Font.center, E.centerY ] (E.text (Model.account t.account model))
                           }
                         , { header = headerTxt "Montant"
                           , width = E.shrink
                           , view =
-                                \( _, _, t ) ->
+                                \( _, t ) ->
                                     let
                                         m =
                                             Money.toStrings t.amount
@@ -594,26 +586,26 @@ configRecurring model =
                         , { header = headerTxt "Description"
                           , width = E.fill
                           , view =
-                                \( _, _, t ) ->
+                                \( _, t ) ->
                                     E.el [ E.centerY ] (E.text t.description)
                           }
                         , { header = E.none
                           , width = E.shrink
                           , view =
-                                \( i, a, t ) ->
+                                \( i, t ) ->
                                     Ui.iconButton []
                                         { icon = Ui.editIcon []
                                         , onPress =
                                             Just
                                                 (Msg.ForSettingsDialog <|
-                                                    Msg.SettingsEditRecurring i a t
+                                                    Msg.SettingsEditRecurring i t.account t
                                                 )
                                         }
                           }
                         , { header = E.none
                           , width = E.shrink
                           , view =
-                                \( i, _, _ ) ->
+                                \( i, _ ) ->
                                     Ui.iconButton []
                                         { icon = Ui.deleteIcon []
                                         , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsDeleteRecurring i)

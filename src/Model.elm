@@ -32,7 +32,7 @@ type alias Model =
     , date : Date.Date
     , ledger : Ledger.Ledger
     , accounts : Dict.Dict Int String
-    , account : Maybe Int
+    , account : Int
     , categories : Dict.Dict Int Category
     , showAdvanced : Bool
     , advancedCounter : Int
@@ -102,22 +102,18 @@ type alias Settings =
     , reconciliationEnabled : Bool
     , summaryEnabled : Bool
     , balanceWarning : Int
-    , recurringTransactions : List ( Int, Ledger.NewTransaction )
+    , recurringTransactions : List Ledger.NewTransaction
     }
 
 
 encodeSettings : Settings -> Decode.Value
 encodeSettings settings =
-    let
-        encodeRecurring ( accountID, transaction ) =
-            Ledger.encodeNewTransaction accountID transaction
-    in
     Encode.object
         [ ( "categoriesEnabled", Encode.bool settings.categoriesEnabled )
         , ( "reconciliationEnabled", Encode.bool settings.reconciliationEnabled )
         , ( "summaryEnabled", Encode.bool settings.summaryEnabled )
         , ( "balanceWarning", Encode.int settings.balanceWarning )
-        , ( "recurringTransactions", Encode.list encodeRecurring settings.recurringTransactions )
+        , ( "recurringTransactions", Encode.list Ledger.encodeNewTransaction settings.recurringTransactions )
         ]
 
 
@@ -146,8 +142,7 @@ decodeSettings =
 getRecurringTransactionsFor : Model -> Date.Date -> List Ledger.NewTransaction
 getRecurringTransactionsFor model date =
     model.settings.recurringTransactions
-        |> List.filter (\( accountID, _ ) -> accountID == Maybe.withDefault -1 model.account)
-        |> List.map Tuple.second
+        |> List.filter (\t -> t.account == model.account)
         |> List.filter (\t -> Date.compare t.date date == EQ)
 
 
@@ -155,9 +150,9 @@ hasRecurringTransactionsForMonth : Model -> Date.Date -> Bool
 hasRecurringTransactionsForMonth model date =
     model.settings.recurringTransactions
         |> List.any
-            (\( accountID, t ) ->
-                accountID
-                    == Maybe.withDefault -1 model.account
+            (\t ->
+                t.account
+                    == model.account
                     && Date.getMonth t.date
                     == Date.getMonth date
             )

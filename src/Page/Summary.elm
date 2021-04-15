@@ -53,7 +53,7 @@ view model =
                         ]
                 ]
                 { onChange = Msg.SelectAccount
-                , selected = model.account
+                , selected = Just model.account
                 , label = Input.labelHidden "Compte"
                 , options =
                     List.map
@@ -76,11 +76,7 @@ view model =
             , Ui.notSelectable
             ]
             (E.text "Solde actuel:")
-        , if model.account /= Nothing then
-            balanceRow model
-
-          else
-            E.none
+        , balanceRow model
         , E.row [ E.height (E.fillPortion 1) ] [ E.none ]
         , buttonRow model
         , E.row [ E.height (E.fillPortion 2) ] [ E.none ]
@@ -113,7 +109,7 @@ balanceRow : Model.Model -> E.Element msg
 balanceRow model =
     let
         balance =
-            Ledger.getBalance model.ledger model.today
+            Ledger.getBalance model.ledger model.account model.today
 
         parts =
             Money.toStrings balance

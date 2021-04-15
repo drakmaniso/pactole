@@ -95,7 +95,7 @@ init flags _ _ =
       , date = today
       , ledger = Ledger.empty
       , accounts = Dict.empty
-      , account = Nothing
+      , account = -1 --TODO!!!
       , categories = Dict.empty
       , showAdvanced = False
       , advancedCounter = 0
@@ -163,7 +163,7 @@ update msg model =
             ( { model | date = date }, Cmd.none )
 
         Msg.SelectAccount accountID ->
-            ( { model | account = Just accountID }, Database.requestLedger accountID )
+            ( { model | account = accountID }, Cmd.none )
 
         Msg.KeyDown string ->
             if string == "Alt" || string == "Control" || string == "Shift" then
