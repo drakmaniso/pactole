@@ -114,8 +114,8 @@
 
     navigator.serviceWorker.addEventListener("controllerchange", (event) => {
       log("Service workder controller changed.");
-      log(`Restarting application.`)
-      app.ports.receive.send(["start application", null])
+      //log(`Restarting application.`)
+      //app.ports.receive.send(["start application", null])
     });
 
 
