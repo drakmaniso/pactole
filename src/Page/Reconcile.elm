@@ -62,7 +62,7 @@ viewReconciled shared =
             , Ui.viewSum (Ledger.getReconciled shared.ledger)
             , E.el [ E.width E.fill ] E.none
             ]
-        , if Ledger.uncheckedBeforeMonth shared.ledger shared.date then
+        , if Ledger.getNotReconciledBeforeMonth shared.ledger shared.date then
             E.el
                 [ E.width E.fill, Font.center ]
                 (E.paragraph []
@@ -115,7 +115,7 @@ viewTransactions shared =
                     , colDescription transaction
                     ]
             )
-            (Ledger.getMonthTransactions shared.ledger shared.date shared.today)
+            (Ledger.getTransactionsForMonth shared.ledger shared.date shared.today)
         )
 
 
@@ -138,7 +138,7 @@ colReconciled transaction =
 
                 else
                     E.none
-            , onPress = Just (Msg.ForDatabase <| Msg.CheckTransaction transaction (not transaction.checked))
+            , onPress = Just (Msg.ForDatabase <| Msg.DbCheckTransaction transaction (not transaction.checked))
             }
         )
 

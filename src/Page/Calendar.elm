@@ -278,7 +278,7 @@ cellContentFor model day =
                 --, E.el [ Ui.smallFont, Font.medium ] (E.text closepar)
                 ]
     in
-    (List.map render (Ledger.getDateTransactions day model.ledger)
+    (List.map render (Ledger.getTransactionsForDate day model.ledger)
         ++ List.map render (Model.getRecurringTransactionsFor model day)
     )
         |> List.intersperse (E.text " ")
@@ -349,13 +349,13 @@ dayView model =
                 [ E.width (E.fillPortion 2) ]
                 { label = Ui.incomeIcon []
                 , color = Ui.fgIncome
-                , onPress = Just (Msg.ForDialog <| Msg.NewDialog False model.date)
+                , onPress = Just (Msg.ForDialog <| Msg.DialogNewTransaction False model.date)
                 }
             , Ui.coloredButton
                 [ E.width (E.fillPortion 2) ]
                 { label = Ui.expenseIcon []
                 , color = Ui.fgExpense
-                , onPress = Just (Msg.ForDialog <| Msg.NewDialog True model.date)
+                , onPress = Just (Msg.ForDialog <| Msg.DialogNewTransaction True model.date)
                 }
             ]
         ]
@@ -368,7 +368,7 @@ dayContentFor model day =
             Date.compare day model.today == GT
 
         transactions =
-            (Ledger.getDateTransactions day model.ledger
+            (Ledger.getTransactionsForDate day model.ledger
                 |> List.map
                     (\t ->
                         { id = Just t.id
@@ -413,7 +413,7 @@ dayContentFor model day =
                     , E.focused [ Border.color Ui.fgFocus ]
                     ]
                     { onPress =
-                        Maybe.map (Msg.ForDialog << Msg.EditDialog) transaction.id
+                        Maybe.map (Msg.ForDialog << Msg.DialogEditTransaction) transaction.id
                     , label =
                         E.row
                             [ E.width E.fill
@@ -434,7 +434,7 @@ dayContentFor model day =
                                 , Ui.normalFont
                                 , Font.color (E.rgb 0 0 0)
                                 ]
-                                (E.paragraph [] [ E.text (Ledger.getDescriptionDisplay transaction) ])
+                                (E.paragraph [] [ E.text (Ledger.getTransactionDescription transaction) ])
                             , E.el
                                 [ E.width (E.fillPortion 1)
                                 , E.alignTop

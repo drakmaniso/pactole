@@ -159,7 +159,7 @@ self.addEventListener('message', event => {
 
     case 'request ledger':
       getLedger(msg.content)
-        .then(transactions => respond(event, 'update ledger', { transactions: transactions }))
+        .then(transactions => respond(event, 'update ledger', transactions))
         .catch(err => error(`request ledger: ${err}`))
       break
 

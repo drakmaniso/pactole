@@ -18,19 +18,19 @@ import Ports
 update : Msg.DatabaseMsg -> Model.Model -> ( Model.Model, Cmd Msg.Msg )
 update msg model =
     case msg of
-        Msg.FromService ( title, json ) ->
+        Msg.DbFromService ( title, json ) ->
             msgFromService ( title, json ) model
 
-        Msg.CreateAccount name ->
+        Msg.DbCreateAccount name ->
             ( model, createAccount name )
 
-        Msg.CreateCategory name icon ->
+        Msg.DbCreateCategory name icon ->
             ( model, createCategory name icon )
 
-        Msg.StoreSettings settings ->
+        Msg.DbStoreSettings settings ->
             ( model, storeSettings settings )
 
-        Msg.CheckTransaction transaction checked ->
+        Msg.DbCheckTransaction transaction checked ->
             ( model
             , replaceTransaction
                 model.account
@@ -176,7 +176,7 @@ storeSettings settings =
 
 receive : Sub Msg.Msg
 receive =
-    Ports.receive (Msg.ForDatabase << Msg.FromService)
+    Ports.receive (Msg.ForDatabase << Msg.DbFromService)
 
 
 msgFromService : ( String, Decode.Value ) -> Model.Model -> ( Model.Model, Cmd Msg.Msg )

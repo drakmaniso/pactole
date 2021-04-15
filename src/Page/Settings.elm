@@ -26,7 +26,7 @@ import Ui
 update : Msg.SettingsDialogMsg -> Model.Model -> ( Model.Model, Cmd Msg.Msg )
 update msg model =
     case msg of
-        Msg.OpenRenameAccount id ->
+        Msg.SettingsRenameAccount id ->
             let
                 name =
                     Maybe.withDefault "ERROR"
@@ -36,7 +36,7 @@ update msg model =
             , Cmd.none
             )
 
-        Msg.OpenDeleteAccount id ->
+        Msg.SettingsDeleteAccount id ->
             let
                 name =
                     Maybe.withDefault "ERROR"
@@ -46,7 +46,7 @@ update msg model =
             , Cmd.none
             )
 
-        Msg.OpenRenameCategory id ->
+        Msg.SettingsRenameCategory id ->
             let
                 { name, icon } =
                     Maybe.withDefault { name = "ERROR", icon = "" }
@@ -56,7 +56,7 @@ update msg model =
             , Cmd.none
             )
 
-        Msg.OpenDeleteCategory id ->
+        Msg.SettingsDeleteCategory id ->
             let
                 { name, icon } =
                     Maybe.withDefault { name = "ERROR", icon = "" }
@@ -66,7 +66,7 @@ update msg model =
             , Cmd.none
             )
 
-        Msg.NewRecurringTransaction ->
+        Msg.SettingsNewRecurring ->
             let
                 t =
                     { date = Date.findNextDayOfMonth 1 model.today
@@ -95,7 +95,7 @@ update msg model =
             in
             ( model, Database.storeSettings newSettings )
 
-        Msg.OpenEditRecurring idx account transaction ->
+        Msg.SettingsEditRecurring idx account transaction ->
             ( { model
                 | settingsDialog =
                     Just
@@ -113,7 +113,7 @@ update msg model =
             , Cmd.none
             )
 
-        Msg.DeleteRecurring idx ->
+        Msg.SettingsDeleteRecurring idx ->
             let
                 remove i xs =
                     List.take i xs ++ List.drop (i + 1) xs
@@ -372,7 +372,7 @@ view model =
                                                 \a ->
                                                     Ui.iconButton []
                                                         { icon = Ui.editIcon []
-                                                        , onPress = Just (Msg.ForSettingsDialog <| Msg.OpenRenameAccount (Tuple.first a))
+                                                        , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsRenameAccount (Tuple.first a))
                                                         }
                                           }
                                         , { header = E.none
@@ -381,13 +381,13 @@ view model =
                                                 \a ->
                                                     Ui.iconButton []
                                                         { icon = Ui.deleteIcon []
-                                                        , onPress = Just (Msg.ForSettingsDialog <| Msg.OpenDeleteAccount (Tuple.first a))
+                                                        , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsDeleteAccount (Tuple.first a))
                                                         }
                                           }
                                         ]
                                     }
                                 , Ui.simpleButton []
-                                    { onPress = Just (Msg.ForDatabase <| Msg.CreateAccount (newAccountName (Dict.values model.accounts) 1))
+                                    { onPress = Just (Msg.ForDatabase <| Msg.DbCreateAccount (newAccountName (Dict.values model.accounts) 1))
                                     , label = E.row [] [ Ui.plusIcon [], E.text "  Ajouter" ]
                                     }
                                 ]
@@ -416,7 +416,7 @@ configWarning model =
                 [ Ui.iconButton [ Border.color Ui.fgDark, Border.width Ui.borderWidth ]
                     { icon = Ui.minusIcon []
                     , onPress =
-                        Just (Msg.ForDatabase <| Msg.StoreSettings { settings | balanceWarning = settings.balanceWarning - 10 })
+                        Just (Msg.ForDatabase <| Msg.DbStoreSettings { settings | balanceWarning = settings.balanceWarning - 10 })
                     }
                 , E.el [ Ui.bigFont ]
                     (E.text (String.fromInt model.settings.balanceWarning))
@@ -425,7 +425,7 @@ configWarning model =
                 , Ui.iconButton [ Border.color Ui.fgDark, Border.width Ui.borderWidth ]
                     { icon = Ui.plusIcon []
                     , onPress =
-                        Just (Msg.ForDatabase <| Msg.StoreSettings { settings | balanceWarning = settings.balanceWarning + 10 })
+                        Just (Msg.ForDatabase <| Msg.DbStoreSettings { settings | balanceWarning = settings.balanceWarning + 10 })
                     }
                 ]
         }
@@ -440,10 +440,11 @@ configSummary model =
                     settings =
                         model.settings
                 in
-                if o then 
-                    Msg.ForDatabase <| Msg.StoreSettings { settings | summaryEnabled = True }
+                if o then
+                    Msg.ForDatabase <| Msg.DbStoreSettings { settings | summaryEnabled = True }
+
                 else
-                        Msg.ForDatabase <| Msg.StoreSettings { settings | summaryEnabled = False }
+                    Msg.ForDatabase <| Msg.DbStoreSettings { settings | summaryEnabled = False }
         , label = "Activer la page de bilan:"
         , options =
             [ Ui.radioRowOption True (E.text "Oui")
@@ -463,9 +464,10 @@ configReconciliation model =
                         model.settings
                 in
                 if o then
-                        Msg.ForDatabase <| Msg.StoreSettings { settings | reconciliationEnabled = True }
+                    Msg.ForDatabase <| Msg.DbStoreSettings { settings | reconciliationEnabled = True }
+
                 else
-                        Msg.ForDatabase <| Msg.StoreSettings { settings | reconciliationEnabled = False }
+                    Msg.ForDatabase <| Msg.DbStoreSettings { settings | reconciliationEnabled = False }
         , label = "Activer la page de pointage:"
         , options =
             [ Ui.radioRowOption True (E.text "Oui")
@@ -485,9 +487,10 @@ configCategoriesEnabled model =
                         model.settings
                 in
                 if o then
-                        Msg.ForDatabase <| Msg.StoreSettings { settings | categoriesEnabled = True }
+                    Msg.ForDatabase <| Msg.DbStoreSettings { settings | categoriesEnabled = True }
+
                 else
-                        Msg.ForDatabase <| Msg.StoreSettings { settings | categoriesEnabled = False }
+                    Msg.ForDatabase <| Msg.DbStoreSettings { settings | categoriesEnabled = False }
         , label = "Activer les catégories:"
         , options =
             [ Ui.radioRowOption True (E.text "Oui")
@@ -528,7 +531,7 @@ configCategories model =
                                 \a ->
                                     Ui.iconButton []
                                         { icon = Ui.editIcon []
-                                        , onPress = Just (Msg.ForSettingsDialog <| Msg.OpenRenameCategory (Tuple.first a))
+                                        , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsRenameCategory (Tuple.first a))
                                         }
                           }
                         , { header = E.none
@@ -537,13 +540,13 @@ configCategories model =
                                 \a ->
                                     Ui.iconButton []
                                         { icon = Ui.deleteIcon []
-                                        , onPress = Just (Msg.ForSettingsDialog <| Msg.OpenDeleteCategory (Tuple.first a))
+                                        , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsDeleteCategory (Tuple.first a))
                                         }
                           }
                         ]
                     }
                 , Ui.simpleButton []
-                    { onPress = Just (Msg.ForDatabase <| Msg.CreateCategory "Nouvelle catégorie" "")
+                    { onPress = Just (Msg.ForDatabase <| Msg.DbCreateCategory "Nouvelle catégorie" "")
                     , label = E.row [] [ Ui.plusIcon [], E.text "  Ajouter" ]
                     }
                 ]
@@ -603,7 +606,7 @@ configRecurring model =
                                         , onPress =
                                             Just
                                                 (Msg.ForSettingsDialog <|
-                                                    Msg.OpenEditRecurring i a t
+                                                    Msg.SettingsEditRecurring i a t
                                                 )
                                         }
                           }
@@ -613,13 +616,13 @@ configRecurring model =
                                 \( i, _, _ ) ->
                                     Ui.iconButton []
                                         { icon = Ui.deleteIcon []
-                                        , onPress = Just (Msg.ForSettingsDialog <| Msg.DeleteRecurring i)
+                                        , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsDeleteRecurring i)
                                         }
                           }
                         ]
                     }
                 , Ui.simpleButton []
-                    { onPress = Just (Msg.ForSettingsDialog <| Msg.NewRecurringTransaction)
+                    { onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsNewRecurring)
                     , label = E.row [] [ Ui.plusIcon [], E.text "  Ajouter" ]
                     }
                 ]

@@ -54,7 +54,7 @@ view shared =
                     , viewItem
                         ""
                         "Entrées d'argent: "
-                        (Ledger.getMonthlyIncome shared.ledger shared.date shared.today)
+                        (Ledger.getIncomeForMonth shared.ledger shared.date shared.today)
                     , if shared.settings.categoriesEnabled then
                         viewCategories shared
 
@@ -64,13 +64,13 @@ view shared =
                         viewItem
                             ""
                             "Sans catégorie: "
-                            (Ledger.getMonthlyCategory shared.ledger shared.date shared.today 0)
+                            (Ledger.getCategoryTotalForMonth shared.ledger shared.date shared.today 0)
 
                       else
                         viewItem
                             ""
                             "Dépenses: "
-                            (Ledger.getMonthlyExpense shared.ledger shared.date shared.today)
+                            (Ledger.getExpenseForMonth shared.ledger shared.date shared.today)
                     , E.text " "
                     , E.el [ E.height E.fill ] E.none
                     ]
@@ -82,7 +82,7 @@ viewMonthBalance : Model.Model -> E.Element msg
 viewMonthBalance shared =
     let
         monthBal =
-            Ledger.getMonthlyTotal shared.ledger shared.date shared.today
+            Ledger.getTotalForMonth shared.ledger shared.date shared.today
     in
     E.row
         [ E.width E.fill
@@ -133,7 +133,7 @@ viewCategories shared =
                     viewItem
                         category.icon
                         (category.name ++ ": ")
-                        (Ledger.getMonthlyCategory shared.ledger shared.date shared.today catID)
+                        (Ledger.getCategoryTotalForMonth shared.ledger shared.date shared.today catID)
                 )
         )
 

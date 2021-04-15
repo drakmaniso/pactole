@@ -28,7 +28,7 @@ import Ui
 update : Msg.DialogMsg -> Model.Model -> ( Model.Model, Cmd Msg.Msg )
 update msg model =
     case msg of
-        Msg.NewDialog isExpense date ->
+        Msg.DialogNewTransaction isExpense date ->
             ( { model
                 | dialog =
                     Just
@@ -44,7 +44,7 @@ update msg model =
             , Task.attempt (\_ -> Msg.NoOp) (Dom.focus "dialog-amount")
             )
 
-        Msg.EditDialog id ->
+        Msg.DialogEditTransaction id ->
             case Ledger.getTransaction id model.ledger of
                 Nothing ->
                     ( model, Log.error "msgEditDialog: unable to get transaction" )
@@ -65,7 +65,7 @@ update msg model =
                     , Cmd.none
                     )
 
-        Msg.DialogAmount amount ->
+        Msg.DialogChangeAmount amount ->
             case model.dialog of
                 Just dialog ->
                     ( { model
@@ -82,7 +82,7 @@ update msg model =
                 Nothing ->
                     ( model, Cmd.none )
 
-        Msg.DialogDescription string ->
+        Msg.DialogChangeDescription string ->
             case model.dialog of
                 Just dialog ->
                     ( { model
@@ -99,7 +99,7 @@ update msg model =
                 Nothing ->
                     ( model, Cmd.none )
 
-        Msg.DialogCategory id ->
+        Msg.DialogChangeCategory id ->
             case model.dialog of
                 Just dialog ->
                     ( { model
@@ -265,7 +265,7 @@ amountRow dialog =
                     (E.text "Somme:")
             , text = dialog.amount
             , placeholder = Nothing
-            , onChange = Msg.ForDialog << Msg.DialogAmount
+            , onChange = Msg.ForDialog << Msg.DialogChangeAmount
             }
         , E.el
             [ Ui.bigFont
@@ -326,7 +326,7 @@ descriptionRow dialog =
                     (E.text "Description:")
             , text = dialog.description
             , placeholder = Nothing
-            , onChange = Msg.ForDialog << Msg.DialogDescription
+            , onChange = Msg.ForDialog << Msg.DialogChangeDescription
             , spellcheck = True
             }
         ]
@@ -392,7 +392,7 @@ categoryRow model dialog =
 
                                 Just ( k, v ) ->
                                     Ui.radioButton []
-                                        { onPress = Just (Msg.ForDialog <| Msg.DialogCategory k)
+                                        { onPress = Just (Msg.ForDialog <| Msg.DialogChangeCategory k)
                                         , icon = v.icon
                                         , label = v.name
                                         , active = k == dialog.category
@@ -408,7 +408,7 @@ categoryRow model dialog =
 
                                 Just ( k, v ) ->
                                     Ui.radioButton []
-                                        { onPress = Just (Msg.ForDialog <| Msg.DialogCategory k)
+                                        { onPress = Just (Msg.ForDialog <| Msg.DialogChangeCategory k)
                                         , icon = v.icon
                                         , label = v.name
                                         , active = k == dialog.category
@@ -424,7 +424,7 @@ categoryRow model dialog =
 
                                 Just ( k, v ) ->
                                     Ui.radioButton []
-                                        { onPress = Just (Msg.ForDialog <| Msg.DialogCategory k)
+                                        { onPress = Just (Msg.ForDialog <| Msg.DialogChangeCategory k)
                                         , icon = v.icon
                                         , label = v.name
                                         , active = k == dialog.category
