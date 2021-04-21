@@ -16,7 +16,10 @@ const files = [
 ]
 
 
-const version = 1
+// Database version
+// - version 1 had recurring transactions stored inside settings
+const version = 2
+
 const staticCacheName = "pactole-cache-1"
 
 
@@ -75,6 +78,22 @@ self.addEventListener('message', event => {
 
   log(`Received "${msg.title}".`)
   switch (msg.title) {
+    // Settings
+
+    case 'request settings':
+      getSettings()
+        .then(settings => respond(event, 'update settings', settings))
+        .catch(err => error(`request settings: ${err}`))
+      break
+
+    case 'store settings':
+      setSettings(msg.content)
+        .then(() => broadcast('update settings', msg.content))
+        .catch(err => error(`store settings: ${err}`))
+      break
+
+    // Accounts
+
     case 'request accounts':
       getAccounts()
         .then(accounts => respond(event, 'update accounts', accounts))
@@ -112,6 +131,8 @@ self.addEventListener('message', event => {
         error(`delete account: ${err}`)
       }
       break
+
+    // Categories
 
     case 'request categories':
       getCategories()
@@ -157,8 +178,10 @@ self.addEventListener('message', event => {
       }
       break
 
+    // Ledger Transactions
+
     case 'request ledger':
-      getLedger()
+      getLedger('ledger')
         .then(transactions => respond(event, 'update ledger', transactions))
         .catch(err => error(`request ledger: ${err}`))
       break
@@ -168,9 +191,11 @@ self.addEventListener('message', event => {
         const {
           account, date, amount, description, category, checked
         } = msg.content
-        addTransaction(msg.content)
+        addTransaction('ledger', msg.content)
           .then(() => {
-            broadcast('invalidate ledger', null)
+            getLedger('ledger')
+              .then(transactions => broadcast('update ledger', transactions))
+              .catch(err => error(`create transaction: ${err}`))
           })
       }
       catch (err) {
@@ -183,9 +208,11 @@ self.addEventListener('message', event => {
         const {
           account, id, date, amount, description, category, checked
         } = msg.content
-        putTransaction(msg.content)
+        putTransaction('ledger', msg.content)
           .then(() => {
-            broadcast('invalidate ledger', null)
+            getLedger('ledger')
+              .then(transactions => broadcast('update ledger', transactions))
+              .catch(err => error(`replace transaction: ${err}`))
           })
       }
       catch (err) {
@@ -198,9 +225,11 @@ self.addEventListener('message', event => {
         const {
           id
         } = msg.content
-        deleteTransaction(id)
+        deleteTransaction('ledger', id)
           .then(() => {
-            broadcast('invalidate ledger', null)
+            getLedger('ledger')
+              .then(transactions => broadcast('update ledger', transactions))
+              .catch(err => error(`delete transaction: ${err}`))
           })
       }
       catch (err) {
@@ -208,16 +237,63 @@ self.addEventListener('message', event => {
       }
       break
 
-    case 'request settings':
-      getSettings()
-        .then(settings => respond(event, 'update settings', settings))
-        .catch(err => error(`request settings: ${err}`))
+    // Recurring Transactions
+
+    case 'request recurring transactions':
+      getLedger('recurring')
+        .then(transactions => respond(event, 'update recurring transactions', transactions))
+        .catch(err => error(`request recurring transactions: ${err}`))
       break
 
-    case 'store settings':
-      setSettings(msg.content)
-        .then(() => broadcast('update settings', msg.content))
-        .catch(err => error(`store settings: ${err}`))
+    case 'create recurring transaction':
+      try {
+        const {
+          account, date, amount, description, category, checked
+        } = msg.content
+        addTransaction('recurring', msg.content)
+          .then(() => {
+            getLedger('recurring')
+              .then(transactions => broadcast('update recurring transactions', transactions))
+              .catch(err => error(`create recurring transaction: ${err}`))
+          })
+      }
+      catch (err) {
+        error(`create recurring transaction: ${err}`)
+      }
+      break
+
+    case 'replace recurring transaction':
+      try {
+        const {
+          account, id, date, amount, description, category, checked
+        } = msg.content
+        putTransaction('recurring', msg.content)
+          .then(() => {
+            getLedger('recurring')
+              .then(transactions => broadcast('update recurring transactions', transactions))
+              .catch(err => error(`replace recurring transaction: ${err}`))
+          })
+      }
+      catch (err) {
+        error(`replace recurring transaction: ${err}`)
+      }
+      break
+
+    case 'delete recurring transaction':
+      try {
+        const {
+          id
+        } = msg.content
+        deleteTransaction('recurring', id)
+          .then(() => {
+            getLedger('recurring')
+              .then(transactions => broadcast('update recurring transactions', transactions))
+              .catch(err => error(`delete recurring transaction: ${err}`))
+          })
+      }
+      catch (err) {
+        error(`delete recurring transaction: ${err}`)
+      }
       break
   }
 })
@@ -295,6 +371,12 @@ function openDB() {
         //os.createIndex('account', 'account') //TODO: remove?
         //os.createIndex('account date', ['account', 'date'])
         //os.createIndex('account category', ['account', 'category'])
+      }
+
+      // Recurring Transactions Store
+      if (!db.objectStoreNames.contains('recurring')) {
+        log(`        Creating recurring transactions object store...`)
+        const os = db.createObjectStore('recurring', { keyPath: 'id', autoIncrement: true })
       }
 
       log(`    ...database upgraded.`)
@@ -510,16 +592,16 @@ function deleteCategory(id) {
 }
 
 
-// LEDGER /////////////////////////////////////////////////////////////////////
+// TRANSACTIONS ///////////////////////////////////////////////////////////////
 
 
-function getLedger() {
+function getLedger(storeName) {
   return new Promise((resolve, reject) => {
     openDB()
       .then(db => {
-        const tr = db.transaction(['ledger'], 'readonly')
+        const tr = db.transaction([storeName], 'readonly')
         tr.onerror = () => reject(tr.error)
-        const os = tr.objectStore('ledger')
+        const os = tr.objectStore(storeName)
         const req = os.getAll()
         req.onerror = () => reject(req.error)
         req.onsuccess = () => resolve(req.result)
@@ -530,13 +612,13 @@ function getLedger() {
 
 
 //TODO
-function addTransaction(transaction) {
+function addTransaction(storeName, transaction) {
   return new Promise((resolve, reject) => {
     openDB()
       .then(db => {
-        const tr = db.transaction(['ledger'], 'readwrite')
+        const tr = db.transaction([storeName], 'readwrite')
         tr.onerror = () => reject(tr.error)
-        const os = tr.objectStore('ledger')
+        const os = tr.objectStore(storeName)
         const req = os.add(transaction)
         req.onerror = () => reject(req.error)
         req.onsuccess = () => resolve(req.result)
@@ -546,13 +628,13 @@ function addTransaction(transaction) {
 
 
 //TODO
-function putTransaction(transaction) {
+function putTransaction(storeName, transaction) {
   return new Promise((resolve, reject) => {
     openDB()
       .then(db => {
-        const tr = db.transaction(['ledger'], 'readwrite')
+        const tr = db.transaction([storeName], 'readwrite')
         tr.onerror = () => reject(tr.error)
-        const os = tr.objectStore('ledger')
+        const os = tr.objectStore(storeName)
         const req = os.put(transaction)
         req.onerror = () => reject(req.error)
         req.onsuccess = () => resolve(req.result)
@@ -562,13 +644,13 @@ function putTransaction(transaction) {
 
 
 //TODO
-function deleteTransaction(id) {
+function deleteTransaction(storeName, id) {
   return new Promise((resolve, reject) => {
     openDB()
       .then(db => {
-        const tr = db.transaction(['ledger'], 'readwrite')
+        const tr = db.transaction([storeName], 'readwrite')
         tr.onerror = () => reject(tr.error)
-        const os = tr.objectStore('ledger')
+        const os = tr.objectStore(storeName)
         const req = os.delete(id)
         req.onerror = () => reject(req.error)
         req.onsuccess = () => resolve(req.result)

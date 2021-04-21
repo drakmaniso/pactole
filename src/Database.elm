@@ -216,9 +216,6 @@ msgFromService ( title, content ) model =
                     --TODO: error
                     ( model, Log.error ("while decoding settings: " ++ Decode.errorToString e) )
 
-        "invalidate ledger" ->
-            ( model, requestLedger () )
-
         "update ledger" ->
             case Decode.decodeValue Ledger.decode content of
                 Ok ledger ->
@@ -229,16 +226,6 @@ msgFromService ( title, content ) model =
                 Err e ->
                     ( model, Log.error (Decode.errorToString e) )
 
-        {-
-           "invalidate settings" ->
-               case Decode.decodeValue Model.decodeSettings content of
-                   Ok settings ->
-                       ( { model | settings = settings }
-                       , Cmd.none
-                       )
-            Err e ->
-                ( model, Log.error (Decode.errorToString e) )
-        -}
         _ ->
             --TODO: error
             ( model, Log.error ("in message from service: unknown title \"" ++ title ++ "\"") )
