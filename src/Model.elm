@@ -31,6 +31,7 @@ type alias Model =
     , today : Date.Date
     , date : Date.Date
     , ledger : Ledger.Ledger
+    , recurring : Ledger.Ledger
     , accounts : Dict.Dict Int String
     , account : Int
     , categories : Dict.Dict Int Category

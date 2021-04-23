@@ -7,6 +7,8 @@ module Ledger exposing
     , empty
     , encodeNewTransaction
     , encodeTransaction
+    , getActivatedRecurringTransactions
+    , getAllTransactions
     , getBalance
     , getCategoryTotalForMonth
     , getExpenseForMonth
@@ -19,6 +21,7 @@ module Ledger exposing
     , getTransactionsForDate
     , getTransactionsForMonth
     , hasFutureTransactionsForMonth
+    , newTransactionFromRecurring
     )
 
 import Date
@@ -161,6 +164,28 @@ getCategoryTotalForMonth ledger account date today catID =
         |> List.foldl
             (\t accum -> Money.add accum t.amount)
             Money.zero
+
+
+getActivatedRecurringTransactions : Ledger -> Date.Date -> List Transaction
+getActivatedRecurringTransactions (Ledger transactions) today =
+    transactions
+        |> List.filter (\t -> Date.compare t.date today /= GT)
+
+
+newTransactionFromRecurring : Transaction -> NewTransaction
+newTransactionFromRecurring transaction =
+    { account = transaction.account
+    , date = transaction.date
+    , amount = transaction.amount
+    , description = transaction.description
+    , category = transaction.category
+    , checked = transaction.checked
+    }
+
+
+getAllTransactions : Ledger -> List Transaction
+getAllTransactions (Ledger transactions) =
+    transactions
 
 
 getTransaction : Int -> Ledger -> Maybe Transaction

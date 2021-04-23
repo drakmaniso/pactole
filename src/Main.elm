@@ -94,6 +94,7 @@ init flags _ _ =
       , today = today
       , date = today
       , ledger = Ledger.empty
+      , recurring = Ledger.empty
       , accounts = Dict.empty
       , account = -1 --TODO!!!
       , categories = Dict.empty

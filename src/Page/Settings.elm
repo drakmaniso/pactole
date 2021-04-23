@@ -12,6 +12,7 @@ import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
 import Element.Input as Input
+import Ledger
 import Log
 import Model
 import Money
@@ -67,26 +68,38 @@ update msg model =
             )
 
         Msg.SettingsNewRecurring ->
-            let
-                t =
-                    { date = Date.findNextDayOfMonth 1 model.today
-                    , account = model.account
-                    , amount = Money.zero
-                    , description = "(opération mensuelle)"
-                    , category = 0
-                    , checked = False
-                    }
+            {-
+               let
+                   t =
+                       { date = Date.findNextDayOfMonth 1 model.today
+                       , account = model.account
+                       , amount = Money.zero
+                       , description = "(opération mensuelle)"
+                       , category = 0
+                       , checked = False
+                       }
 
-                settings =
-                    model.settings
+                   settings =
+                       model.settings
 
-                newSettings =
-                    { settings
-                        | recurringTransactions =
-                            settings.recurringTransactions ++ [ t ]
-                    }
-            in
-            ( model, Database.storeSettings newSettings )
+                   newSettings =
+                       { settings
+                           | recurringTransactions =
+                               settings.recurringTransactions ++ [ t ]
+                       }
+               in
+               ( model, Database.storeSettings newSettings )
+            -}
+            ( model
+            , Database.createRecurringTransaction
+                { date = Date.findNextDayOfMonth 1 model.today
+                , account = model.account
+                , amount = Money.zero
+                , description = "(opération mensuelle)"
+                , category = 0
+                , checked = False
+                }
+            )
 
         Msg.SettingsEditRecurring idx account transaction ->
             ( { model
@@ -556,27 +569,24 @@ configRecurring model =
         , content =
             E.column [ E.spacing 24 ]
                 [ E.table [ E.spacingXY 12 6 ]
-                    { data =
-                        List.indexedMap
-                            (\i t -> ( i, t ))
-                            model.settings.recurringTransactions
+                    { data = Ledger.getAllTransactions model.recurring
                     , columns =
                         [ { header = headerTxt "Échéance"
                           , width = E.fill
                           , view =
-                                \( _, t ) ->
+                                \t ->
                                     E.el [ Font.center, E.centerY ] (E.text (Date.toString t.date))
                           }
                         , { header = headerTxt "Compte"
                           , width = E.shrink
                           , view =
-                                \( _, t ) ->
+                                \t ->
                                     E.el [ Font.center, E.centerY ] (E.text (Model.account t.account model))
                           }
                         , { header = headerTxt "Montant"
                           , width = E.shrink
                           , view =
-                                \( _, t ) ->
+                                \t ->
                                     let
                                         m =
                                             Money.toStrings t.amount
@@ -586,29 +596,29 @@ configRecurring model =
                         , { header = headerTxt "Description"
                           , width = E.fill
                           , view =
-                                \( _, t ) ->
+                                \t ->
                                     E.el [ E.centerY ] (E.text t.description)
                           }
                         , { header = E.none
                           , width = E.shrink
                           , view =
-                                \( i, t ) ->
+                                \t ->
                                     Ui.iconButton []
                                         { icon = Ui.editIcon []
                                         , onPress =
                                             Just
                                                 (Msg.ForSettingsDialog <|
-                                                    Msg.SettingsEditRecurring i t.account t
+                                                    Msg.SettingsEditRecurring t.id t.account t
                                                 )
                                         }
                           }
                         , { header = E.none
                           , width = E.shrink
                           , view =
-                                \( i, _ ) ->
+                                \t ->
                                     Ui.iconButton []
                                         { icon = Ui.deleteIcon []
-                                        , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsDeleteRecurring i)
+                                        , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsDeleteRecurring t.id)
                                         }
                           }
                         ]

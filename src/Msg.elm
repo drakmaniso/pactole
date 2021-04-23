@@ -52,5 +52,5 @@ type SettingsDialogMsg
     | SettingsChangeIcon String
     | SettingsConfirm
     | SettingsNewRecurring
-    | SettingsEditRecurring Int Int Ledger.NewTransaction
+    | SettingsEditRecurring Int Int Ledger.Transaction
     | SettingsDeleteRecurring Int
