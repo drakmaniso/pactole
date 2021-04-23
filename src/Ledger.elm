@@ -15,6 +15,7 @@ module Ledger exposing
     , getIncomeForMonth
     , getNotReconciledBeforeMonth
     , getReconciled
+    , getRecurringTransactionsForDate
     , getTotalForMonth
     , getTransaction
     , getTransactionDescription
@@ -181,6 +182,13 @@ newTransactionFromRecurring transaction =
     , category = transaction.category
     , checked = transaction.checked
     }
+
+
+getRecurringTransactionsForDate : Ledger -> Int -> Date.Date -> List Transaction
+getRecurringTransactionsForDate (Ledger transactions) account date =
+    transactions
+        |> List.filter (\t -> t.account == account)
+        |> List.filter (\t -> Date.getDay t.date == Date.getDay date && Date.compare t.date date /= GT)
 
 
 getAllTransactions : Ledger -> List Transaction

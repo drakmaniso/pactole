@@ -279,7 +279,7 @@ cellContentFor model day =
                 ]
     in
     (List.map render (Ledger.getTransactionsForDate model.ledger model.account day)
-        ++ List.map render (Ledger.getTransactionsForDate model.recurring model.account day)
+        ++ List.map render (Ledger.getRecurringTransactionsForDate model.recurring model.account day)
     )
         |> List.intersperse (E.text " ")
 
@@ -379,7 +379,7 @@ dayContentFor model day =
                         }
                     )
             )
-                ++ (Ledger.getTransactionsForDate model.recurring model.account day
+                ++ (Ledger.getRecurringTransactionsForDate model.recurring model.account day
                         |> List.map
                             (\t ->
                                 { id = Nothing
