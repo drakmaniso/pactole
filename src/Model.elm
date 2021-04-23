@@ -11,8 +11,6 @@ module Model exposing
     , decodeCategory
     , decodeSettings
     , encodeSettings
-    , getRecurringTransactionsFor
-    , hasRecurringTransactionsForMonth
     )
 
 import Date
@@ -138,25 +136,6 @@ decodeSettings =
             , Decode.succeed []
             ]
         )
-
-
-getRecurringTransactionsFor : Model -> Date.Date -> List Ledger.NewTransaction
-getRecurringTransactionsFor model date =
-    model.settings.recurringTransactions
-        |> List.filter (\t -> t.account == model.account)
-        |> List.filter (\t -> Date.compare t.date date == EQ)
-
-
-hasRecurringTransactionsForMonth : Model -> Date.Date -> Bool
-hasRecurringTransactionsForMonth model date =
-    model.settings.recurringTransactions
-        |> List.any
-            (\t ->
-                t.account
-                    == model.account
-                    && Date.getMonth t.date
-                    == Date.getMonth date
-            )
 
 
 

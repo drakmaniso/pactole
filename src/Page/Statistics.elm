@@ -101,8 +101,8 @@ viewMonthBalance shared =
 viewMonthFutureWarning : Model.Model -> E.Element msg
 viewMonthFutureWarning shared =
     if
-        Model.hasRecurringTransactionsForMonth shared shared.date
-            && Ledger.hasFutureTransactionsForMonth shared.ledger shared.account shared.date shared.today
+        Ledger.hasFutureTransactionsForMonth shared.recurring shared.account shared.date shared.today
+            || Ledger.hasFutureTransactionsForMonth shared.ledger shared.account shared.date shared.today
     then
         E.row
             [ E.width E.fill

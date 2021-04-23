@@ -120,20 +120,7 @@ update msg model =
             )
 
         Msg.SettingsDeleteRecurring idx ->
-            let
-                remove i xs =
-                    List.take i xs ++ List.drop (i + 1) xs
-
-                settings =
-                    model.settings
-
-                newSettings =
-                    { settings
-                        | recurringTransactions =
-                            remove idx settings.recurringTransactions
-                    }
-            in
-            ( model, Database.storeSettings newSettings )
+            ( model, Database.deleteRecurringTransaction idx )
 
         Msg.SettingsChangeName name ->
             case model.settingsDialog of
@@ -251,12 +238,6 @@ update msg model =
 
                 Just (Model.EditRecurring submodel) ->
                     let
-                        replace i x xs =
-                            List.take i xs ++ (x :: List.drop (i + 1) xs)
-
-                        settings =
-                            model.settings
-
                         dayInput =
                             Maybe.withDefault 1 (String.toInt submodel.dueDate)
 
@@ -272,34 +253,21 @@ update msg model =
 
                         dueDate =
                             Date.findNextDayOfMonth day model.today
-
-                        newSettings =
-                            { settings
-                                | recurringTransactions =
-                                    replace submodel.idx
-                                        { account = submodel.account
-                                        , amount =
-                                            Maybe.withDefault Money.zero
-                                                (Money.fromInput submodel.isExpense submodel.amount)
-                                        , description = submodel.description
-                                        , category = submodel.category
-                                        , date = dueDate
-                                        , checked = False
-                                        }
-                                        settings.recurringTransactions
-                            }
                     in
                     ( { model | settingsDialog = Nothing }
-                    , Database.storeSettings newSettings
+                    , Database.replaceRecurringTransaction
+                        { id = submodel.idx
+                        , account = submodel.account
+                        , amount =
+                            Maybe.withDefault Money.zero
+                                (Money.fromInput submodel.isExpense submodel.amount)
+                        , description = submodel.description
+                        , category = submodel.category
+                        , date = dueDate
+                        , checked = False
+                        }
                     )
 
-                {-
-                   Just other ->
-                       ( { model | settingsDialog = Just other }
-                         -- TODO
-                       , Log.error "invalid context for Msg.SettingsChangeConfirm"
-                       )
-                -}
                 Nothing ->
                     ( { model | settingsDialog = Nothing }, Cmd.none )
 
