@@ -145,6 +145,7 @@ decodeSettings =
 type alias Dialog =
     { id : Maybe Int
     , isExpense : Bool
+    , isRecurring : Bool
     , date : Date.Date
     , amount : String
     , amountError : String

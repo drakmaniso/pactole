@@ -32,6 +32,7 @@ type DatabaseMsg
 type DialogMsg
     = DialogNewTransaction Bool Date.Date -- isExpense date
     | DialogEditTransaction Int
+    | DialogShowRecurring Int
     | DialogChangeAmount String
     | DialogChangeDescription String
     | DialogChangeCategory Int

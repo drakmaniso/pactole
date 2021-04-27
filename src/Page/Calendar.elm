@@ -371,7 +371,8 @@ dayContentFor model day =
             (Ledger.getTransactionsForDate model.ledger model.account day
                 |> List.map
                     (\t ->
-                        { id = Just t.id
+                        { id = t.id
+                        , isRecurring = False
                         , date = t.date
                         , amount = t.amount
                         , description = t.description
@@ -382,7 +383,8 @@ dayContentFor model day =
                 ++ (Ledger.getRecurringTransactionsForDate model.recurring model.account day
                         |> List.map
                             (\t ->
-                                { id = Nothing
+                                { id = t.id
+                                , isRecurring = True
                                 , date = t.date
                                 , amount = t.amount
                                 , description = t.description
@@ -413,7 +415,13 @@ dayContentFor model day =
                     , E.focused [ Border.color Ui.fgFocus ]
                     ]
                     { onPress =
-                        Maybe.map (Msg.ForDialog << Msg.DialogEditTransaction) transaction.id
+                        Just
+                            (if transaction.isRecurring then
+                                (Msg.ForDialog << Msg.DialogShowRecurring) transaction.id
+
+                             else
+                                (Msg.ForDialog << Msg.DialogEditTransaction) transaction.id
+                            )
                     , label =
                         E.row
                             [ E.width E.fill

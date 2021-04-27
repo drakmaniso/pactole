@@ -35,6 +35,7 @@ update msg model =
                     Just
                         { id = Nothing
                         , isExpense = isExpense
+                        , isRecurring = False
                         , date = date
                         , amount = ""
                         , amountError = ""
@@ -48,7 +49,7 @@ update msg model =
         Msg.DialogEditTransaction id ->
             case Ledger.getTransaction id model.ledger of
                 Nothing ->
-                    ( model, Log.error "msgEditDialog: unable to get transaction" )
+                    ( model, Log.error "DialogEditTransaction: unable to get transaction" )
 
                 Just t ->
                     ( { model
@@ -56,6 +57,29 @@ update msg model =
                             Just
                                 { id = Just t.id
                                 , isExpense = Money.isExpense t.amount
+                                , isRecurring = False
+                                , date = t.date
+                                , amount = Money.toInput t.amount
+                                , amountError = Money.validate (Money.toInput t.amount)
+                                , description = t.description
+                                , category = t.category
+                                }
+                      }
+                    , Cmd.none
+                    )
+
+        Msg.DialogShowRecurring id ->
+            case Ledger.getTransaction id model.recurring of
+                Nothing ->
+                    ( model, Log.error "DialogShowRecurring: unable to get recurring transaction" )
+
+                Just t ->
+                    ( { model
+                        | dialog =
+                            Just
+                                { id = Just t.id
+                                , isExpense = Money.isExpense t.amount
+                                , isRecurring = True
                                 , date = t.date
                                 , amount = Money.toInput t.amount
                                 , amountError = Money.validate (Money.toInput t.amount)
@@ -185,9 +209,17 @@ view model =
                 , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 32, color = E.rgba 0 0 0 0.75 }
                 ]
                 [ titleRow model dialog
-                , amountRow dialog
-                , descriptionRow dialog
-                , if dialog.isExpense && model.settings.categoriesEnabled then
+                , if dialog.isRecurring then
+                    amountShow dialog
+
+                  else
+                    amountRow dialog
+                , if dialog.isRecurring then
+                    descriptionShow dialog
+
+                  else
+                    descriptionRow dialog
+                , if not dialog.isRecurring && dialog.isExpense && model.settings.categoriesEnabled then
                     categoryRow model dialog
 
                   else
@@ -213,12 +245,25 @@ titleRow model dialog =
             else
                 Ui.bgTransaction dialog.isExpense
 
-        prefix =
-            if isFuture then
-                "Future "
+        text =
+            case ( dialog.isRecurring, isFuture, dialog.isExpense ) of
+                ( True, _, True ) ->
+                    "Dépense mensuelle"
 
-            else
-                ""
+                ( True, _, False ) ->
+                    "Entrée d'argent mensuelle"
+
+                ( False, True, True ) ->
+                    "Future dépense"
+
+                ( False, True, False ) ->
+                    "Future entrée d'argent"
+
+                ( False, False, True ) ->
+                    "Dépense"
+
+                ( False, False, False ) ->
+                    "Entrée d'argent"
     in
     E.row
         [ E.alignLeft
@@ -230,12 +275,46 @@ titleRow model dialog =
         [ E.el [ E.width (E.px 48) ] E.none
         , E.el
             [ E.width E.fill, Font.center, Ui.bigFont, Font.bold, Font.color Ui.bgWhite ]
-            (E.text
-                (if dialog.isExpense then
-                    prefix ++ "Dépense"
+            (E.text text)
+        ]
 
-                 else
-                    prefix ++ "Entrée d'argent"
+
+amountShow : Model.Dialog -> E.Element Msg.Msg
+amountShow dialog =
+    E.column
+        [ E.width E.fill
+        , E.height E.shrink
+        , E.paddingEach { top = 24, bottom = 24, right = 64, left = 64 }
+        , E.spacing 6
+        , Background.color Ui.bgWhite
+        ]
+        [ E.el
+            [ E.width E.shrink
+            , E.height E.fill
+            , Font.color Ui.fgTitle
+            , Ui.normalFont
+            , Font.bold
+            , E.paddingEach { top = 0, bottom = 0, left = 0, right = 0 }
+            , E.pointer
+            ]
+            (E.text "Somme:")
+        , E.el
+            [ Ui.bigFont
+            , E.paddingXY 8 12
+            , E.width (E.shrink |> E.minimum 220)
+            , E.alignLeft
+            , Border.width 1
+            , Border.color Ui.transparent
+            ]
+            (E.text
+                ((if dialog.isExpense then
+                    "-"
+
+                  else
+                    "+"
+                 )
+                    ++ dialog.amount
+                    ++ " €"
                 )
             )
         ]
@@ -328,6 +407,36 @@ amountRow dialog =
               else
                 E.el [] E.none
             ]
+        ]
+
+
+descriptionShow : Model.Dialog -> E.Element Msg.Msg
+descriptionShow dialog =
+    E.column
+        [ E.width E.fill
+        , E.paddingEach { top = 24, bottom = 24, right = 64, left = 64 }
+        , E.spacing 6
+        , Background.color Ui.bgWhite
+        ]
+        [ E.el
+            [ E.width E.shrink
+            , E.height E.fill
+            , Font.color Ui.fgTitle
+            , Ui.normalFont
+            , Font.bold
+            , E.paddingEach { top = 0, bottom = 12, left = 0, right = 0 }
+            , E.pointer
+            ]
+            (E.text "Description:")
+        , E.el
+            [ Ui.onEnter (Msg.ForDialog <| Msg.DialogConfirm)
+            , Ui.bigFont
+            , E.paddingXY 8 12
+            , Border.width 1
+            , Border.color Ui.transparent
+            , E.width E.fill
+            ]
+            (E.text dialog.description)
         ]
 
 
@@ -480,25 +589,39 @@ categoryRow model dialog =
 
 buttonsRow : Model.Dialog -> E.Element Msg.Msg
 buttonsRow dialog =
-    E.row
-        [ E.width E.fill
-        , E.spacing 24
-        , E.paddingEach { top = 64, bottom = 24, left = 64, right = 64 }
-        , Background.color Ui.bgWhite
-        ]
-        [ Ui.simpleButton
-            [ E.alignRight ]
-            { label = E.text "Annuler", onPress = Just Msg.Close }
-        , case dialog.id of
-            Just _ ->
-                Ui.simpleButton
-                    []
-                    { label = E.text "Supprimer", onPress = Just (Msg.ForDialog <| Msg.DialogDelete) }
+    if dialog.isRecurring then
+        E.row
+            [ E.width E.fill
+            , E.spacing 24
+            , E.paddingEach { top = 64, bottom = 24, left = 64, right = 64 }
+            , Background.color Ui.bgWhite
+            ]
+            [ Ui.mainButton [ E.alignRight, E.width E.shrink ]
+                { label = E.text "OK"
+                , onPress = Just Msg.Close
+                }
+            ]
 
-            Nothing ->
-                E.none
-        , Ui.mainButton [ E.width E.shrink ]
-            { label = E.text "OK"
-            , onPress = Just (Msg.ForDialog <| Msg.DialogConfirm)
-            }
-        ]
+    else
+        E.row
+            [ E.width E.fill
+            , E.spacing 24
+            , E.paddingEach { top = 64, bottom = 24, left = 64, right = 64 }
+            , Background.color Ui.bgWhite
+            ]
+            [ Ui.simpleButton
+                [ E.alignRight ]
+                { label = E.text "Annuler", onPress = Just Msg.Close }
+            , case dialog.id of
+                Just _ ->
+                    Ui.simpleButton
+                        []
+                        { label = E.text "Supprimer", onPress = Just (Msg.ForDialog <| Msg.DialogDelete) }
+
+                Nothing ->
+                    E.none
+            , Ui.mainButton [ E.width E.shrink ]
+                { label = E.text "OK"
+                , onPress = Just (Msg.ForDialog <| Msg.DialogConfirm)
+                }
+            ]
