@@ -112,8 +112,14 @@
     }
 
 
+    var isRefreshing = false
     navigator.serviceWorker.addEventListener("controllerchange", (event) => {
-      log("Service workder controller changed.");
+      log("Service workder controller changed.")
+      if (isRefreshing) {
+        return
+      }
+      isRefreshing = true
+      window.location.reload()
       //log(`Restarting application.`)
       //app.ports.receive.send(["start application", null])
     });

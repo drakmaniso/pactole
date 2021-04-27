@@ -24,7 +24,7 @@ const staticCacheName = "pactole-cache-1"
 
 
 self.addEventListener('install', event => {
-  log('Installing service worker...')
+  log('Installing service worker...!')
   event.waitUntil(self.skipWaiting())
   event.waitUntil(
     caches
@@ -67,6 +67,7 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   //log(`fetch: ${event.request.url}...`)
   //TODO: handle favicon?
+  //log(`FETCH REQUEST CACHE = ${event.request.cache}`)
   event.respondWith(
     caches.match(event.request)
   )
