@@ -5,6 +5,7 @@ module Page.Dialog exposing
 
 import Browser.Dom as Dom
 import Database
+import Date
 import Dict
 import Element as E
 import Element.Background as Background
@@ -183,7 +184,7 @@ view model =
                 , Background.color Ui.bgWhite
                 , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 32, color = E.rgba 0 0 0 0.75 }
                 ]
-                [ titleRow dialog
+                [ titleRow model dialog
                 , amountRow dialog
                 , descriptionRow dialog
                 , if dialog.isExpense && model.settings.categoriesEnabled then
@@ -199,24 +200,42 @@ view model =
             E.none
 
 
-titleRow : Model.Dialog -> E.Element msg
-titleRow dialog =
+titleRow : Model.Model -> Model.Dialog -> E.Element msg
+titleRow model dialog =
+    let
+        isFuture =
+            Date.compare dialog.date model.today == GT
+
+        bgTitle =
+            if isFuture then
+                Ui.bgDark
+
+            else
+                Ui.bgTransaction dialog.isExpense
+
+        prefix =
+            if isFuture then
+                "Future "
+
+            else
+                ""
+    in
     E.row
         [ E.alignLeft
         , E.width E.fill
         , E.paddingEach { top = 24, bottom = 24, right = 24, left = 24 }
         , E.spacing 12
-        , Background.color (Ui.bgTransaction dialog.isExpense)
+        , Background.color bgTitle
         ]
         [ E.el [ E.width (E.px 48) ] E.none
         , E.el
             [ E.width E.fill, Font.center, Ui.bigFont, Font.bold, Font.color Ui.bgWhite ]
             (E.text
                 (if dialog.isExpense then
-                    "Dépense"
+                    prefix ++ "Dépense"
 
                  else
-                    "Entrée d'argent"
+                    prefix ++ "Entrée d'argent"
                 )
             )
         ]
@@ -224,79 +243,113 @@ titleRow dialog =
 
 amountRow : Model.Dialog -> E.Element Msg.Msg
 amountRow dialog =
-    E.row
-        [ E.alignLeft
-        , E.centerY
-        , E.width E.fill
-        , E.paddingEach { top = 48, bottom = 24, right = 64, left = 64 }
-        , E.spacing 12
+    E.column
+        [ E.width E.fill
+        , E.height E.shrink
+        , E.paddingEach { top = 24, bottom = 24, right = 64, left = 64 }
+        , E.spacing 6
         , Background.color Ui.bgWhite
-        , E.centerY
         ]
-        [ Input.text
-            [ Ui.onEnter (Msg.ForDialog <| Msg.DialogConfirm)
-            , Ui.bigFont
-            , E.paddingXY 8 12
-            , E.width (E.shrink |> E.minimum 220)
-            , E.alignLeft
-            , Border.width 1
-            , Border.color Ui.bgDark
-            , E.focused
-                [ Border.shadow
-                    { offset = ( 0, 0 )
-                    , size = 4
-                    , blur = 0
-                    , color = Ui.fgFocus
-                    }
+        [ E.el
+            [ E.width E.shrink
+            , E.height E.fill
+            , Font.color Ui.fgTitle
+            , Ui.normalFont
+            , Font.bold
+            , E.paddingEach { top = 0, bottom = 0, left = 0, right = 0 }
+            , E.pointer
+            ]
+            (E.text "Somme:")
+        , E.row
+            [ E.alignLeft
+            , E.centerY
+            , E.width E.fill
+            , E.height (E.shrink |> E.minimum 96)
+            , E.spacing 12
+            , E.paddingEach { top = 0, bottom = 0, left = 12, right = 0 }
+            , Background.color Ui.bgWhite
+            , E.centerY
+            ]
+            [ E.el
+                [ Ui.bigFont
+                , Font.color Ui.fgBlack
+                , E.paddingXY 0 12
+                , E.width E.shrink
+                , E.alignLeft
+                , Border.width 1
+                , Border.color (E.rgba 0 0 0 0)
                 ]
-            , E.htmlAttribute <| HtmlAttr.id "dialog-amount"
-            ]
-            { label =
-                Input.labelAbove
-                    [ E.width E.shrink
-                    , E.alignLeft
-                    , E.height E.fill
-                    , Font.color Ui.fgTitle
-                    , Ui.normalFont
-                    , Font.bold
-                    , E.paddingEach { top = 0, bottom = 0, left = 12, right = 0 }
-                    , E.pointer
-                    ]
-                    (E.text "Somme:")
-            , text = dialog.amount
-            , placeholder = Nothing
-            , onChange = Msg.ForDialog << Msg.DialogChangeAmount
-            }
-        , E.el
-            [ Ui.bigFont
-            , Font.color Ui.fgBlack
-            , E.paddingXY 0 12
-            , E.width E.shrink
-            , E.alignLeft
-            , E.alignBottom
-            , Border.width 1
-            , Border.color (E.rgba 0 0 0 0)
-            ]
-            (E.text "€")
-        , if dialog.amountError /= "" then
-            Ui.warningParagraph
-                [ E.width E.fill ]
-                [ E.text dialog.amountError ]
+                (E.text
+                    (if dialog.isExpense then
+                        "-"
 
-          else
-            E.el [] E.none
+                     else
+                        "+"
+                    )
+                )
+            , Input.text
+                [ Ui.onEnter (Msg.ForDialog <| Msg.DialogConfirm)
+                , Ui.bigFont
+                , E.paddingXY 8 12
+                , E.width (E.shrink |> E.minimum 220)
+                , E.alignLeft
+                , Border.width 1
+                , Border.color Ui.bgDark
+                , E.focused
+                    [ Border.shadow
+                        { offset = ( 0, 0 )
+                        , size = 4
+                        , blur = 0
+                        , color = Ui.fgFocus
+                        }
+                    ]
+                , E.htmlAttribute <| HtmlAttr.id "dialog-amount"
+                ]
+                { label = Input.labelHidden "Somme"
+                , text = dialog.amount
+                , placeholder = Nothing
+                , onChange = Msg.ForDialog << Msg.DialogChangeAmount
+                }
+            , E.el
+                [ Ui.bigFont
+                , Font.color Ui.fgBlack
+                , E.paddingXY 0 12
+                , E.width E.shrink
+                , E.alignLeft
+                , Border.width 1
+                , Border.color (E.rgba 0 0 0 0)
+                ]
+                (E.text "€")
+            , if dialog.amountError /= "" then
+                Ui.warningParagraph
+                    [ E.width E.fill ]
+                    [ E.text dialog.amountError ]
+
+              else
+                E.el [] E.none
+            ]
         ]
 
 
 descriptionRow : Model.Dialog -> E.Element Msg.Msg
 descriptionRow dialog =
-    E.row
+    E.column
         [ E.width E.fill
         , E.paddingEach { top = 24, bottom = 24, right = 64, left = 64 }
-        , E.spacing 12
+        , E.spacing 6
         , Background.color Ui.bgWhite
         ]
-        [ Input.multiline
+        [ E.el
+            [ E.width E.shrink
+            , E.height E.fill
+            , Font.color Ui.fgTitle
+            , Ui.normalFont
+            , Font.bold
+            , E.paddingEach { top = 0, bottom = 12, left = 0, right = 0 }
+            , E.pointer
+            ]
+            (E.text "Description:")
+        , Input.multiline
             [ Ui.onEnter (Msg.ForDialog <| Msg.DialogConfirm)
             , Ui.bigFont
             , E.paddingXY 8 12
@@ -313,17 +366,7 @@ descriptionRow dialog =
             , E.width E.fill
             , E.scrollbarY
             ]
-            { label =
-                Input.labelAbove
-                    [ E.width E.shrink
-                    , E.height E.fill
-                    , Font.color Ui.fgTitle
-                    , Ui.normalFont
-                    , Font.bold
-                    , E.paddingEach { top = 0, bottom = 0, left = 12, right = 0 }
-                    , E.pointer
-                    ]
-                    (E.text "Description:")
+            { label = Input.labelHidden "Description:"
             , text = dialog.description
             , placeholder = Nothing
             , onChange = Msg.ForDialog << Msg.DialogChangeDescription
@@ -369,7 +412,7 @@ categoryRow model dialog =
             , Font.color Ui.fgTitle
             , Ui.normalFont
             , Font.bold
-            , E.paddingEach { top = 0, bottom = 12, left = 12, right = 0 }
+            , E.paddingEach { top = 0, bottom = 12, left = 0, right = 0 }
             , E.pointer
             ]
             (E.text "Catégorie:")
