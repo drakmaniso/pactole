@@ -201,39 +201,32 @@ view model =
                 [ E.centerX
                 , E.centerY
                 , E.width (E.px 960)
-                , E.height E.shrink
+
+                --, E.clip
+                , E.scrollbarY
                 , E.paddingXY 0 0
                 , E.spacing 0
-                , E.scrollbarY
                 , Background.color Ui.bgWhite
                 , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 32, color = E.rgba 0 0 0 0.75 }
                 ]
-                [ titleRow model dialog
-                , if dialog.isRecurring then
-                    amountShow dialog
-
-                  else
-                    amountRow dialog
-                , if dialog.isRecurring then
-                    descriptionShow dialog
-
-                  else
-                    descriptionRow dialog
-                , if not dialog.isRecurring && dialog.isExpense && model.settings.categoriesEnabled then
-                    categoryRow model dialog
-
-                  else
-                    E.none
-                , E.el [ E.height E.fill, Background.color Ui.bgWhite ] E.none
-                , buttonsRow dialog
+                [ viewTitle model dialog
+                , E.column
+                    [-- E.scrollbarY
+                    ]
+                    [ viewAmount dialog
+                    , viewDescription dialog
+                    , viewCategories model dialog
+                    , E.el [ E.height E.fill, Background.color Ui.bgWhite ] E.none
+                    ]
+                , viewButtons dialog
                 ]
 
         Nothing ->
             E.none
 
 
-titleRow : Model.Model -> Model.Dialog -> E.Element msg
-titleRow model dialog =
+viewTitle : Model.Model -> Model.Dialog -> E.Element msg
+viewTitle model dialog =
     let
         isFuture =
             Date.compare dialog.date model.today == GT
@@ -279,80 +272,38 @@ titleRow model dialog =
         ]
 
 
-amountShow : Model.Dialog -> E.Element Msg.Msg
-amountShow dialog =
-    E.column
-        [ E.width E.fill
-        , E.height E.shrink
-        , E.paddingEach { top = 24, bottom = 24, right = 64, left = 64 }
-        , E.spacing 6
-        , Background.color Ui.bgWhite
-        ]
-        [ E.el
-            [ E.width E.shrink
-            , E.height E.fill
-            , Font.color Ui.fgTitle
-            , Ui.normalFont
-            , Font.bold
-            , E.paddingEach { top = 0, bottom = 0, left = 0, right = 0 }
-            , E.pointer
-            ]
-            (E.text "Somme:")
-        , E.el
-            [ Ui.bigFont
-            , E.paddingXY 8 12
-            , E.width (E.shrink |> E.minimum 220)
-            , E.alignLeft
-            , Border.width 1
-            , Border.color Ui.transparent
-            ]
-            (E.text
-                ((if dialog.isExpense then
-                    "-"
+viewAmount : Model.Dialog -> E.Element Msg.Msg
+viewAmount dialog =
+    if dialog.isRecurring then
+        Ui.titledRow "Somme:"
+            []
+            [ E.el
+                [ Ui.bigFont
+                , E.width (E.shrink |> E.minimum 220)
+                , E.alignLeft
+                , Border.width 1
+                , Border.color Ui.transparent
+                ]
+                (E.text
+                    ((if dialog.isExpense then
+                        "-"
 
-                  else
-                    "+"
-                 )
-                    ++ dialog.amount
-                    ++ " €"
+                      else
+                        "+"
+                     )
+                        ++ dialog.amount
+                        ++ " €"
+                    )
                 )
-            )
-        ]
-
-
-amountRow : Model.Dialog -> E.Element Msg.Msg
-amountRow dialog =
-    E.column
-        [ E.width E.fill
-        , E.height E.shrink
-        , E.paddingEach { top = 24, bottom = 24, right = 64, left = 64 }
-        , E.spacing 6
-        , Background.color Ui.bgWhite
-        ]
-        [ E.el
-            [ E.width E.shrink
-            , E.height E.fill
-            , Font.color Ui.fgTitle
-            , Ui.normalFont
-            , Font.bold
-            , E.paddingEach { top = 0, bottom = 0, left = 0, right = 0 }
-            , E.pointer
             ]
-            (E.text "Somme:")
-        , E.row
-            [ E.alignLeft
-            , E.centerY
-            , E.width E.fill
-            , E.height (E.shrink |> E.minimum 96)
-            , E.spacing 12
-            , E.paddingEach { top = 0, bottom = 0, left = 12, right = 0 }
-            , Background.color Ui.bgWhite
-            , E.centerY
-            ]
+
+    else
+        Ui.titledRow "Somme:"
+            []
             [ E.el
                 [ Ui.bigFont
                 , Font.color Ui.fgBlack
-                , E.paddingXY 0 12
+                , E.paddingEach { top = 12, bottom = 12, left = 0, right = 6 }
                 , E.width E.shrink
                 , E.alignLeft
                 , Border.width 1
@@ -383,6 +334,7 @@ amountRow dialog =
                         }
                     ]
                 , E.htmlAttribute <| HtmlAttr.id "dialog-amount"
+                , E.htmlAttribute <| HtmlAttr.autocomplete False
                 ]
                 { label = Input.labelHidden "Somme"
                 , text = dialog.amount
@@ -392,7 +344,7 @@ amountRow dialog =
             , E.el
                 [ Ui.bigFont
                 , Font.color Ui.fgBlack
-                , E.paddingXY 0 12
+                , E.paddingEach { top = 12, bottom = 12, left = 6, right = 24 }
                 , E.width E.shrink
                 , E.alignLeft
                 , Border.width 1
@@ -401,194 +353,148 @@ amountRow dialog =
                 (E.text "€")
             , if dialog.amountError /= "" then
                 Ui.warningParagraph
-                    [ E.width E.fill ]
+                    [ E.width E.fill, E.height (E.shrink |> E.minimum 48) ]
                     [ E.text dialog.amountError ]
 
               else
-                E.el [] E.none
+                E.el [ E.height (E.shrink |> E.minimum 48) ] E.none
             ]
-        ]
 
 
-descriptionShow : Model.Dialog -> E.Element Msg.Msg
-descriptionShow dialog =
-    E.column
-        [ E.width E.fill
-        , E.paddingEach { top = 24, bottom = 24, right = 64, left = 64 }
-        , E.spacing 6
-        , Background.color Ui.bgWhite
-        ]
-        [ E.el
-            [ E.width E.shrink
-            , E.height E.fill
-            , Font.color Ui.fgTitle
-            , Ui.normalFont
-            , Font.bold
-            , E.paddingEach { top = 0, bottom = 12, left = 0, right = 0 }
-            , E.pointer
-            ]
-            (E.text "Description:")
-        , E.el
-            [ Ui.onEnter (Msg.ForDialog <| Msg.DialogConfirm)
-            , Ui.bigFont
-            , E.paddingXY 8 12
-            , Border.width 1
-            , Border.color Ui.transparent
-            , E.width E.fill
-            ]
-            (E.text dialog.description)
-        ]
-
-
-descriptionRow : Model.Dialog -> E.Element Msg.Msg
-descriptionRow dialog =
-    E.column
-        [ E.width E.fill
-        , E.paddingEach { top = 24, bottom = 24, right = 64, left = 64 }
-        , E.spacing 6
-        , Background.color Ui.bgWhite
-        ]
-        [ E.el
-            [ E.width E.shrink
-            , E.height E.fill
-            , Font.color Ui.fgTitle
-            , Ui.normalFont
-            , Font.bold
-            , E.paddingEach { top = 0, bottom = 12, left = 0, right = 0 }
-            , E.pointer
-            ]
-            (E.text "Description:")
-        , Input.multiline
-            [ Ui.onEnter (Msg.ForDialog <| Msg.DialogConfirm)
-            , Ui.bigFont
-            , E.paddingXY 8 12
-            , Border.width 1
-            , Border.color Ui.bgDark
-            , E.focused
-                [ Border.shadow
-                    { offset = ( 0, 0 )
-                    , size = 4
-                    , blur = 0
-                    , color = Ui.fgFocus
-                    }
+viewDescription : Model.Dialog -> E.Element Msg.Msg
+viewDescription dialog =
+    if dialog.isRecurring then
+        Ui.titledRow "Description:"
+            []
+            [ E.el
+                [ Ui.bigFont
+                , Border.width 1
+                , Border.color Ui.transparent
                 ]
-            , E.width E.fill
-            , E.scrollbarY
+                (E.text dialog.description)
             ]
-            { label = Input.labelHidden "Description:"
-            , text = dialog.description
-            , placeholder = Nothing
-            , onChange = Msg.ForDialog << Msg.DialogChangeDescription
-            , spellcheck = True
-            }
-        ]
 
-
-categoryRow : Model.Model -> Model.Dialog -> E.Element Msg.Msg
-categoryRow model dialog =
-    let
-        groupBy3 accum list =
-            let
-                group =
-                    List.take 3 list
-            in
-            if List.isEmpty group then
-                accum
-
-            else
-                groupBy3 (group :: accum) (List.drop 3 list)
-
-        categories =
-            model.categories
-                |> Dict.toList
-                |> (\l ->
-                        ( 0, { name = "Aucune", icon = "" } )
-                            :: l
-                            |> groupBy3 []
-                            |> List.reverse
-                   )
-    in
-    E.column
-        [ E.width E.fill
-        , E.height E.shrink
-        , E.paddingEach { top = 24, bottom = 24, right = 64, left = 64 }
-        , E.spacing 6
-        , Background.color Ui.bgWhite
-        ]
-        [ E.el
-            [ E.width E.shrink
-            , E.height E.fill
-            , Font.color Ui.fgTitle
-            , Ui.normalFont
-            , Font.bold
-            , E.paddingEach { top = 0, bottom = 12, left = 0, right = 0 }
-            , E.pointer
-            ]
-            (E.text "Catégorie:")
-        , E.table
-            [ E.width E.fill
-            , E.spacing 12
-            , E.paddingXY 64 0
-
-            --BUGGY: , scrollbarY
-            ]
-            { data = categories
-            , columns =
-                [ { header = E.none
-                  , width = E.fill
-                  , view =
-                        \row ->
-                            case List.head row of
-                                Nothing ->
-                                    E.none
-
-                                Just ( k, v ) ->
-                                    Ui.radioButton []
-                                        { onPress = Just (Msg.ForDialog <| Msg.DialogChangeCategory k)
-                                        , icon = v.icon
-                                        , label = v.name
-                                        , active = k == dialog.category
-                                        }
-                  }
-                , { header = E.none
-                  , width = E.fill
-                  , view =
-                        \row ->
-                            case List.head (List.drop 1 row) of
-                                Nothing ->
-                                    E.none
-
-                                Just ( k, v ) ->
-                                    Ui.radioButton []
-                                        { onPress = Just (Msg.ForDialog <| Msg.DialogChangeCategory k)
-                                        , icon = v.icon
-                                        , label = v.name
-                                        , active = k == dialog.category
-                                        }
-                  }
-                , { header = E.none
-                  , width = E.fill
-                  , view =
-                        \row ->
-                            case List.head (List.drop 2 row) of
-                                Nothing ->
-                                    E.none
-
-                                Just ( k, v ) ->
-                                    Ui.radioButton []
-                                        { onPress = Just (Msg.ForDialog <| Msg.DialogChangeCategory k)
-                                        , icon = v.icon
-                                        , label = v.name
-                                        , active = k == dialog.category
-                                        }
-                  }
+    else
+        Ui.titledRow "Description:"
+            []
+            [ Input.multiline
+                [ Ui.onEnter (Msg.ForDialog <| Msg.DialogConfirm)
+                , Ui.bigFont
+                , Border.width 1
+                , Border.color Ui.bgDark
+                , E.focused
+                    [ Border.shadow
+                        { offset = ( 0, 0 )
+                        , size = 4
+                        , blur = 0
+                        , color = Ui.fgFocus
+                        }
+                    ]
+                , E.width E.fill
                 ]
-            }
-        ]
+                { label = Input.labelHidden "Description:"
+                , text = dialog.description
+                , placeholder = Nothing
+                , onChange = Msg.ForDialog << Msg.DialogChangeDescription
+                , spellcheck = True
+                }
+            ]
 
 
-buttonsRow : Model.Dialog -> E.Element Msg.Msg
-buttonsRow dialog =
+viewCategories : Model.Model -> Model.Dialog -> E.Element Msg.Msg
+viewCategories model dialog =
+    if dialog.isRecurring || not dialog.isExpense || not model.settings.categoriesEnabled then
+        E.none
+
+    else
+        let
+            groupBy3 accum list =
+                let
+                    group =
+                        List.take 3 list
+                in
+                if List.isEmpty group then
+                    accum
+
+                else
+                    groupBy3 (group :: accum) (List.drop 3 list)
+
+            categories =
+                model.categories
+                    |> Dict.toList
+                    |> (\l ->
+                            ( 0, { name = "Aucune", icon = "" } )
+                                :: l
+                                |> groupBy3 []
+                                |> List.reverse
+                       )
+        in
+        Ui.titledRow "Catégorie:"
+            []
+            [ E.table
+                [ E.width E.fill
+                , E.spacing 12
+                , E.paddingEach { top = 0, bottom = 0, left = 0, right = 0 }
+
+                --BUGGY: , scrollbarY
+                ]
+                { data = categories
+                , columns =
+                    [ { header = E.none
+                      , width = E.fill
+                      , view =
+                            \row ->
+                                case List.head row of
+                                    Nothing ->
+                                        E.none
+
+                                    Just ( k, v ) ->
+                                        Ui.radioButton []
+                                            { onPress = Just (Msg.ForDialog <| Msg.DialogChangeCategory k)
+                                            , icon = v.icon
+                                            , label = v.name
+                                            , active = k == dialog.category
+                                            }
+                      }
+                    , { header = E.none
+                      , width = E.fill
+                      , view =
+                            \row ->
+                                case List.head (List.drop 1 row) of
+                                    Nothing ->
+                                        E.none
+
+                                    Just ( k, v ) ->
+                                        Ui.radioButton []
+                                            { onPress = Just (Msg.ForDialog <| Msg.DialogChangeCategory k)
+                                            , icon = v.icon
+                                            , label = v.name
+                                            , active = k == dialog.category
+                                            }
+                      }
+                    , { header = E.none
+                      , width = E.fill
+                      , view =
+                            \row ->
+                                case List.head (List.drop 2 row) of
+                                    Nothing ->
+                                        E.none
+
+                                    Just ( k, v ) ->
+                                        Ui.radioButton []
+                                            { onPress = Just (Msg.ForDialog <| Msg.DialogChangeCategory k)
+                                            , icon = v.icon
+                                            , label = v.name
+                                            , active = k == dialog.category
+                                            }
+                      }
+                    ]
+                }
+            ]
+
+
+viewButtons : Model.Dialog -> E.Element Msg.Msg
+viewButtons dialog =
     if dialog.isRecurring then
         E.row
             [ E.width E.fill

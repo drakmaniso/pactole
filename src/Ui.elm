@@ -307,7 +307,7 @@ warningIcon attributes =
 bigWarningIcon : List (E.Attribute msg) -> E.Element msg
 bigWarningIcon attributes =
     E.el
-        ([ iconFont, Font.size 48, E.alignLeft, E.padding 12, Font.color warningColor ]
+        ([ iconFont, Font.size 48, E.alignLeft, E.padding 0, Font.color warningColor ]
             ++ attributes
         )
         (E.text "\u{F071}")
@@ -364,6 +364,35 @@ pageWithSidePanel attributes { panel, page } =
             , Border.color bgDark
             ]
             page
+        ]
+
+
+titledRow : String -> List (E.Attribute msg) -> List (E.Element msg) -> E.Element msg
+titledRow title attrs elems =
+    E.column
+        [ E.width E.fill
+        , E.height E.shrink
+        , E.paddingEach { top = 24, bottom = 24, right = 64, left = 64 }
+        , E.spacing 6
+        , Background.color bgWhite
+        ]
+        [ E.el
+            [ E.width E.shrink
+            , E.height E.fill
+            , Font.color fgTitle
+            , normalFont
+            , Font.bold
+            , E.paddingEach { top = 0, bottom = 12, left = 0, right = 0 }
+            , E.pointer
+            ]
+            (E.text title)
+        , E.row
+            ([ E.width E.fill
+             , E.paddingEach { top = 0, bottom = 0, left = 24, right = 0 }
+             ]
+                ++ attrs
+            )
+            elems
         ]
 
 
