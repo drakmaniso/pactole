@@ -209,7 +209,7 @@ msgFromService ( title, content ) model =
         "update settings" ->
             case Decode.decodeValue Model.decodeSettings content of
                 Ok settings ->
-                    processRecurringTransactions { model | settings = settings }
+                    ( { model | settings = settings }, Cmd.none )
 
                 Err e ->
                     --TODO: error
