@@ -264,6 +264,7 @@ viewTitle model dialog =
         , E.paddingEach { top = 24, bottom = 24, right = 24, left = 24 }
         , E.spacing 12
         , Background.color bgTitle
+        , Ui.notSelectable
         ]
         [ E.el [ E.width (E.px 48) ] E.none
         , E.el
@@ -308,6 +309,7 @@ viewAmount dialog =
                 , E.alignLeft
                 , Border.width 1
                 , Border.color (E.rgba 0 0 0 0)
+                , Ui.notSelectable
                 ]
                 (E.text
                     (if dialog.isExpense then
@@ -349,6 +351,7 @@ viewAmount dialog =
                 , E.alignLeft
                 , Border.width 1
                 , Border.color (E.rgba 0 0 0 0)
+                , Ui.notSelectable
                 ]
                 (E.text "€")
             , if dialog.amountError /= "" then

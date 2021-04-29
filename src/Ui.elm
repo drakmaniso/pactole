@@ -383,7 +383,7 @@ titledRow title attrs elems =
             , normalFont
             , Font.bold
             , E.paddingEach { top = 0, bottom = 12, left = 0, right = 0 }
-            , E.pointer
+            , notSelectable
             ]
             (E.text title)
         , E.row

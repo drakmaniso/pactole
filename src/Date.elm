@@ -23,6 +23,7 @@ module Date exposing
     , incrementWeek
     , lastDayOf
     , toInt
+    , toShortString
     , toString
     )
 
@@ -47,6 +48,13 @@ toString (Date date) =
         ++ String.padLeft 2 '0' (String.fromInt (getMonthNumber (Calendar.getMonth date)))
         ++ "/"
         ++ String.fromInt (Calendar.getYear date)
+
+
+toShortString : Date -> String
+toShortString (Date date) =
+    String.padLeft 2 '0' (String.fromInt (Calendar.getDay date))
+        ++ "/"
+        ++ String.padLeft 2 '0' (String.fromInt (getMonthNumber (Calendar.getMonth date)))
 
 
 fromParts : { year : Int, month : Int, day : Int } -> Maybe Date
