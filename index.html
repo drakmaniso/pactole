@@ -148,21 +148,16 @@
             console.error(`[ELM] ${content}`)
             return
           }
-          log(`Sending "${title}"...`)
-          const sw = navigator.serviceWorker.controller
-          if (sw) {
-            sw.postMessage({ title: title, content: content })
-          } else {
-            error(`Unable to send message "${title}" to service: the page has no controller`)
-            //TODO: what?
-          }
+          sendToServiceWorker(title, content)
         })
 
-        log(`Starting application.`)
         navigator.serviceWorker.onmessage = event => {
           log(`Received "${event.data.title}".`)
           app.ports.receive.send([event.data.title, event.data.content])
         }
+
+        log(`Starting application.`)
+        //sendToServiceWorker("request whole database", null)
         app.ports.receive.send(["start application", null])
 
       })
@@ -172,6 +167,17 @@
 
     // UTILITIES //////////////////////////////////////////////////////////////
 
+
+    function sendToServiceWorker(title, content) {
+      log(`Sending "${title}"...`)
+      const sw = navigator.serviceWorker.controller
+      if (sw) {
+        sw.postMessage({ title: title, content: content })
+      } else {
+        error(`Unable to send message "${title}" to service: the page has no controller`)
+        //TODO: what?
+      }
+    }
 
     function log(msg) {
       console.log(`[CLIENT] ${msg}`)

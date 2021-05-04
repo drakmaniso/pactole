@@ -48,19 +48,14 @@ update msg model =
 -- TO THE SERVICE WORKER
 
 
-requestSettings : Cmd msg
-requestSettings =
-    Ports.send ( "request settings", Encode.object [] )
+requestWholeDatabase : Cmd msg
+requestWholeDatabase =
+    Ports.send ( "request whole database", Encode.null )
 
 
 storeSettings : Model.Settings -> Cmd msg
 storeSettings settings =
     Ports.send ( "store settings", Model.encodeSettings settings )
-
-
-requestAccounts : Cmd msg
-requestAccounts =
-    Ports.send ( "request accounts", Encode.object [] )
 
 
 createAccount : String -> Cmd msg
@@ -85,11 +80,6 @@ deleteAccount account =
         ( "delete account"
         , Encode.int account
         )
-
-
-requestCategories : Cmd msg
-requestCategories =
-    Ports.send ( "request categories", Encode.object [] )
 
 
 createCategory : String -> String -> Cmd msg
@@ -123,11 +113,6 @@ deleteCategory id =
         )
 
 
-requestLedger : () -> Cmd msg
-requestLedger () =
-    Ports.send ( "request ledger", Encode.null )
-
-
 createTransaction : Ledger.NewTransaction -> Cmd msg
 createTransaction transaction =
     Ports.send
@@ -152,11 +137,6 @@ deleteTransaction id =
             [ ( "id", Encode.int id )
             ]
         )
-
-
-requestRecurringTransactions : () -> Cmd msg
-requestRecurringTransactions () =
-    Ports.send ( "request recurring transactions", Encode.null )
 
 
 createRecurringTransaction : Ledger.NewTransaction -> Cmd msg
@@ -198,13 +178,24 @@ msgFromService : ( String, Decode.Value ) -> Model.Model -> ( Model.Model, Cmd M
 msgFromService ( title, content ) model =
     case title of
         "start application" ->
-            ( model
-            , Cmd.batch
-                [ requestSettings
-                , requestAccounts
-                , requestCategories
-                ]
-            )
+            ( model, Ports.send ( "request whole database", Encode.null ) )
+
+        "update whole database" ->
+            case Decode.decodeValue decodeDB content of
+                Ok db ->
+                    processRecurringTransactions
+                        { model
+                            | settings = db.settings
+                            , accounts = Dict.fromList db.accounts
+                            , account = firstAccount db.accounts
+                            , categories = Dict.fromList db.categories
+                            , ledger = db.ledger
+                            , recurring = db.recurring
+                        }
+
+                Err e ->
+                    --TODO: error
+                    ( model, Log.error ("while decoding whole database: " ++ Decode.errorToString e) )
 
         "update settings" ->
             case Decode.decodeValue Model.decodeSettings content of
@@ -227,7 +218,7 @@ msgFromService ( title, content ) model =
                             Tuple.first head
                     in
                     ( { model | accounts = Dict.fromList accounts, account = accountID }
-                    , requestLedger ()
+                    , Cmd.none
                     )
 
                 Err e ->
@@ -251,7 +242,7 @@ msgFromService ( title, content ) model =
             case Decode.decodeValue Ledger.decode content of
                 Ok ledger ->
                     ( { model | ledger = ledger }
-                    , requestRecurringTransactions ()
+                    , Cmd.none
                     )
 
                 Err e ->
@@ -260,7 +251,7 @@ msgFromService ( title, content ) model =
         "update recurring transactions" ->
             case Decode.decodeValue Ledger.decode content of
                 Ok recurring ->
-                    processRecurringTransactions { model | recurring = recurring }
+                    ( { model | recurring = recurring }, Cmd.none )
 
                 Err e ->
                     ( model, Log.error (Decode.errorToString e) )
@@ -268,6 +259,38 @@ msgFromService ( title, content ) model =
         _ ->
             --TODO: error
             ( model, Log.error ("in message from service: unknown title \"" ++ title ++ "\"") )
+
+
+
+-- UTILITIES
+
+
+decodeDB : Decode.Decoder { settings : Model.Settings, accounts : List ( Int, String ), categories : List ( Int, { name : String, icon : String } ), ledger : Ledger.Ledger, recurring : Ledger.Ledger }
+decodeDB =
+    Decode.map5
+        (\s a c l r ->
+            { settings = s
+            , accounts = a
+            , categories = c
+            , ledger = l
+            , recurring = r
+            }
+        )
+        (Decode.field "settings" Model.decodeSettings)
+        (Decode.field "accounts" (Decode.list Model.decodeAccount))
+        (Decode.field "categories" (Decode.list Model.decodeCategory))
+        (Decode.field "ledger" Ledger.decode)
+        (Decode.field "recurring" Ledger.decode)
+
+
+firstAccount : List ( Int, String ) -> Int
+firstAccount accounts =
+    case accounts of
+        head :: _ ->
+            Tuple.first head
+
+        _ ->
+            -1
 
 
 processRecurringTransactions : Model.Model -> ( Model.Model, Cmd Msg.Msg )

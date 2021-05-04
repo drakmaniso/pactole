@@ -79,13 +79,39 @@ self.addEventListener('message', event => {
 
   log(`Received "${msg.title}".`)
   switch (msg.title) {
-    // Settings
 
-    case 'request settings':
+    // Initialization
+
+    case 'request whole database':
       getSettings()
-        .then(settings => respond(event, 'update settings', settings))
-        .catch(err => error(`request settings: ${err}`))
+        .then(settings =>
+          getAccounts()
+            .then(accounts =>
+              getCategories()
+                .then(categories =>
+                  getLedger('ledger')
+                    .then(ledger =>
+                      getLedger('recurring')
+                        .then(recurring => {
+                          //TODO not broadcast!
+                          let db = {
+                            settings: settings,
+                            accounts: accounts,
+                            categories: categories,
+                            ledger: ledger,
+                            recurring: recurring
+                          }
+                          respond(event, 'update whole database', db)
+                        })
+                    )
+
+                )
+            )
+        )
+        .catch(err => error(`request whole database: ${err}`))
       break
+
+    // Settings
 
     case 'store settings':
       setSettings(msg.content)
@@ -94,12 +120,6 @@ self.addEventListener('message', event => {
       break
 
     // Accounts
-
-    case 'request accounts':
-      getAccounts()
-        .then(accounts => respond(event, 'update accounts', accounts))
-        .catch(err => error(`request accounts: ${err}`))
-      break
 
     case 'create account':
       createAccount(msg.content)
@@ -125,7 +145,11 @@ self.addEventListener('message', event => {
       try {
         deleteAccount(msg.content)
           .then(() => getAccounts())
-          .then(accounts => broadcast('update accounts', accounts))
+          .then(accounts => {
+            broadcast('update accounts', accounts)
+            getLedger('ledger')
+              .then(transactions => broadcast('update ledger', transactions))
+          })
           .catch(err => error(`delete account "${msg.content}": ${err}`))
       }
       catch (err) {
@@ -134,12 +158,6 @@ self.addEventListener('message', event => {
       break
 
     // Categories
-
-    case 'request categories':
-      getCategories()
-        .then(accounts => respond(event, 'update categories', accounts))
-        .catch(err => error(`request categories: ${err}`))
-      break
 
     case 'create category':
       try {
@@ -180,12 +198,6 @@ self.addEventListener('message', event => {
       break
 
     // Ledger Transactions
-
-    case 'request ledger':
-      getLedger('ledger')
-        .then(transactions => respond(event, 'update ledger', transactions))
-        .catch(err => error(`request ledger: ${err}`))
-      break
 
     case 'create transaction':
       try {
@@ -272,8 +284,8 @@ self.addEventListener('message', event => {
           .then(() => {
             getLedger('recurring')
               .then(transactions => broadcast('update recurring transactions', transactions))
-              .catch(err => error(`replace recurring transaction: ${err}`))
           })
+          .catch(err => error(`replace recurring transaction: ${err}`))
       }
       catch (err) {
         error(`replace recurring transaction: ${err}`)
@@ -296,6 +308,9 @@ self.addEventListener('message', event => {
         error(`delete recurring transaction: ${err}`)
       }
       break
+
+    default:
+      error(`Unknown message \"${msg.title}\" with content: ${msg.content}`)
   }
 })
 
@@ -369,7 +384,7 @@ function openDB() {
       if (!db.objectStoreNames.contains('ledger')) {
         log(`        Creating ledger object store...`)
         const os = db.createObjectStore('ledger', { keyPath: 'id', autoIncrement: true })
-        //os.createIndex('account', 'account') //TODO: remove?
+        os.createIndex('account', 'account')
         //os.createIndex('account date', ['account', 'date'])
         //os.createIndex('account category', ['account', 'category'])
       }
