@@ -268,6 +268,7 @@ msgFromService ( title, content ) model =
 -- UTILITIES
 
 
+upgradeSettingsToV2 : Decode.Value -> ( { a | settings : Model.Settings }, Cmd msg ) -> ( { a | settings : Model.Settings }, Cmd msg )
 upgradeSettingsToV2 json ( model, previousCmds ) =
     let
         decoder =
