@@ -101,7 +101,6 @@ type alias Settings =
     , reconciliationEnabled : Bool
     , summaryEnabled : Bool
     , balanceWarning : Int
-    , recurringTransactions : List Ledger.NewTransaction
     }
 
 
@@ -112,30 +111,23 @@ encodeSettings settings =
         , ( "reconciliationEnabled", Encode.bool settings.reconciliationEnabled )
         , ( "summaryEnabled", Encode.bool settings.summaryEnabled )
         , ( "balanceWarning", Encode.int settings.balanceWarning )
-        , ( "recurringTransactions", Encode.list Ledger.encodeNewTransaction settings.recurringTransactions )
         ]
 
 
 decodeSettings : Decode.Decoder Settings
 decodeSettings =
-    Decode.map5
-        (\cat rec summ balwarn rectrans ->
+    Decode.map4
+        (\cat rec summ balwarn ->
             { categoriesEnabled = cat
             , reconciliationEnabled = rec
             , summaryEnabled = summ
             , balanceWarning = balwarn
-            , recurringTransactions = rectrans
             }
         )
         (Decode.oneOf [ Decode.field "categoriesEnabled" Decode.bool, Decode.succeed False ])
         (Decode.oneOf [ Decode.field "reconciliationEnabled" Decode.bool, Decode.succeed False ])
         (Decode.oneOf [ Decode.field "summaryEnabled" Decode.bool, Decode.succeed False ])
         (Decode.oneOf [ Decode.field "balanceWarning" Decode.int, Decode.succeed 100 ])
-        (Decode.oneOf
-            [ Decode.field "recurringTransactions" (Decode.list Ledger.decodeNewTransaction)
-            , Decode.succeed []
-            ]
-        )
 
 
 

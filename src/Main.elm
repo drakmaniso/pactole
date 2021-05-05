@@ -89,7 +89,6 @@ init flags _ _ =
             , reconciliationEnabled = False
             , summaryEnabled = False
             , balanceWarning = 100
-            , recurringTransactions = []
             }
       , today = today
       , date = today

@@ -183,15 +183,18 @@ msgFromService ( title, content ) model =
         "update whole database" ->
             case Decode.decodeValue decodeDB content of
                 Ok db ->
-                    processRecurringTransactions
-                        { model
-                            | settings = db.settings
-                            , accounts = Dict.fromList db.accounts
-                            , account = firstAccount db.accounts
-                            , categories = Dict.fromList db.categories
-                            , ledger = db.ledger
-                            , recurring = db.recurring
-                        }
+                    ( { model
+                        | settings = db.settings
+                        , accounts = Dict.fromList db.accounts
+                        , account = firstAccount db.accounts
+                        , categories = Dict.fromList db.categories
+                        , ledger = db.ledger
+                        , recurring = db.recurring
+                      }
+                    , Cmd.none
+                    )
+                        |> upgradeSettingsToV2 content
+                        |> processRecurringTransactions
 
                 Err e ->
                     --TODO: error
@@ -265,6 +268,41 @@ msgFromService ( title, content ) model =
 -- UTILITIES
 
 
+upgradeSettingsToV2 json ( model, previousCmds ) =
+    let
+        decoder =
+            Decode.field "settings"
+                (Decode.oneOf
+                    [ Decode.field "recurringTransactions" (Decode.list Ledger.decodeNewTransaction)
+                    , Decode.succeed []
+                    ]
+                )
+    in
+    case Decode.decodeValue decoder json of
+        Ok [] ->
+            ( model, previousCmds )
+
+        Ok recurring ->
+            let
+                cmds =
+                    recurring
+                        |> List.map
+                            (\t ->
+                                createRecurringTransaction t
+                            )
+            in
+            ( model, Cmd.batch (previousCmds :: storeSettings model.settings :: cmds) )
+
+        Err e ->
+            --TODO: error
+            ( model
+            , Cmd.batch
+                [ previousCmds
+                , Log.error ("while decoding whole database: " ++ Decode.errorToString e)
+                ]
+            )
+
+
 decodeDB : Decode.Decoder { settings : Model.Settings, accounts : List ( Int, String ), categories : List ( Int, { name : String, icon : String } ), ledger : Ledger.Ledger, recurring : Ledger.Ledger }
 decodeDB =
     Decode.map5
@@ -293,8 +331,8 @@ firstAccount accounts =
             -1
 
 
-processRecurringTransactions : Model.Model -> ( Model.Model, Cmd Msg.Msg )
-processRecurringTransactions model =
+processRecurringTransactions : ( Model.Model, Cmd Msg.Msg ) -> ( Model.Model, Cmd Msg.Msg )
+processRecurringTransactions ( model, previousCmds ) =
     let
         activated =
             Ledger.getActivatedRecurringTransactions model.recurring model.today
@@ -309,7 +347,7 @@ processRecurringTransactions model =
                                     { t | date = Date.findNextDayOfMonth (Date.getDay t.date) model.today }
                                ]
                     )
-                    []
+                    [ previousCmds ]
 
         createAllDueTransactions t =
             if Date.compare t.date model.today == GT then
