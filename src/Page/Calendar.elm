@@ -84,7 +84,7 @@ calendar model =
                         [ E.width E.fill
                         , E.height E.fill
                         , E.clipY
-                        , E.spacing 2
+                        , E.spacing 0
                         ]
                         (loopThroughWeek date)
                         :: loopThroughMonth (Date.incrementWeek date)
@@ -100,9 +100,10 @@ calendar model =
     E.column
         [ E.width E.fill
         , E.height E.fill
-        , E.spacing 2
+        , E.spacing 0
         , E.padding 0
-        , Background.color Ui.bgDark
+
+        --, Background.color Ui.bgDark
         ]
         (calendarHeader model
             :: loopThroughMonth (findMonday (findTheFirst model.date))
@@ -146,29 +147,32 @@ calendarCell model day =
             -- Need to wrap the button in E.el because of elm-ui E.focused bug
             ([ E.width E.fill
              , E.height E.fill
+             , Border.width 3
              , E.clipY
+             , Ui.transition
              ]
                 ++ (if sel then
                         [ Background.color Ui.bgTitle
                         , Border.color Ui.bgTitle
-                        , Border.rounded 0
-                        , Border.width 4
-                        , E.focused
-                            [ Border.shadow
-                                { offset = ( 0, 0 ), size = 0, blur = 0, color = E.rgba 0 0 0 0 }
-                            ]
+                        , Border.rounded 16
+
+                        --, Ui.smallShadow
+                        -- , E.focused
+                        --     [ Border.shadow
+                        --         { offset = ( 0, 0 ), size = 0, blur = 0, color = E.rgba 0 0 0 0 }
+                        --     ]
                         ]
 
                     else
-                        [ Background.color Ui.bgEvenRow
-                        , Border.color Ui.bgEvenRow -- (E.rgba 0 0 0 0)
-                        , Border.width 4
+                        [ Background.color Ui.bgOddRow
+                        , Border.color Ui.bgWhite -- Ui.bgOddRow -- (E.rgba 0 0 0 0)
                         , Border.rounded 0
                         , E.focused
                             [ Border.color Ui.fgFocus
                             , Border.shadow
                                 { offset = ( 0, 0 ), size = 0, blur = 0, color = E.rgba 0 0 0 0 }
                             ]
+                        , E.mouseOver [ Background.color Ui.bgEvenRow, Border.color Ui.bgWhite ]
                         ]
                    )
             )
@@ -185,7 +189,7 @@ calendarCell model day =
                         ]
                         [ E.el
                             [ E.width E.fill
-                            , E.paddingEach { top = 0, bottom = 4, left = 0, right = 0 }
+                            , E.paddingEach { top = 2, bottom = 4, left = 0, right = 0 }
                             , Ui.smallFont
                             , Font.center
                             , Font.color
@@ -194,6 +198,15 @@ calendarCell model day =
 
                                  else
                                     Ui.fgBlack
+                                )
+                            , Background.color
+                                (if sel then
+                                    Ui.bgTitle
+
+                                 else
+                                    --E.rgba 0 0 0 0
+                                    --Ui.bgEvenRow
+                                    Ui.transparent
                                 )
                             ]
                             (E.text
@@ -216,7 +229,8 @@ calendarCell model day =
 
                                  else
                                     --E.rgba 0 0 0 0
-                                    Ui.bgEvenRow
+                                    --Ui.bgEvenRow
+                                    Ui.transparent
                                 )
                             ]
                             (cellContentFor model day)
@@ -230,8 +244,8 @@ calendarCell model day =
             [ E.width E.fill
             , E.height E.fill
             , Border.color (E.rgba 0 0 0 0)
-            , Border.width 4
-            , Background.color Ui.bgOddRow -- Ui.bgLight
+            , Border.width 3
+            , Background.color Ui.bgWhite --Ui.bgOddRow -- Ui.bgLight
             ]
             E.none
 
@@ -345,16 +359,14 @@ dayView model =
             , E.spacing 24
             , E.paddingXY 24 12
             ]
-            [ Ui.coloredButton
+            [ Ui.incomeButton
                 [ E.width (E.fillPortion 2) ]
-                { label = Ui.incomeIcon []
-                , color = Ui.fgIncome
+                { label = Ui.incomeIcon [ Font.color Ui.fgIncome]
                 , onPress = Just (Msg.ForDialog <| Msg.DialogNewTransaction False model.date)
                 }
-            , Ui.coloredButton
+            , Ui.expenseButton
                 [ E.width (E.fillPortion 2) ]
-                { label = Ui.expenseIcon []
-                , color = Ui.fgExpense
+                { label = Ui.expenseIcon [ Font.color Ui.fgExpense]
                 , onPress = Just (Msg.ForDialog <| Msg.DialogNewTransaction True model.date)
                 }
             ]
@@ -401,18 +413,19 @@ dayContentFor model day =
             E.el
                 [ E.width E.fill
                 , E.padding 0
-                , if Basics.remainderBy 2 idx == 0 then
-                    Background.color Ui.bgEvenRow
 
-                  else
-                    Background.color Ui.bgOddRow
+                -- , if Basics.remainderBy 2 idx == 0 then
+                --     Background.color Ui.bgEvenRow
+                --   else
+                --     Background.color Ui.bgOddRow
                 ]
                 (Input.button
                     [ E.width E.fill
                     , E.paddingEach { top = 8, bottom = 8, left = 12, right = 12 }
                     , Border.width 4
                     , Border.color (E.rgba 0 0 0 0)
-                    , E.focused [ Border.color Ui.fgFocus ]
+                    , E.mouseDown [ Background.color Ui.bgMouseDown ]
+                    , E.mouseOver [ Background.color Ui.bgMouseOver ]
                     ]
                     { onPress =
                         Just

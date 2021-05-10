@@ -211,7 +211,8 @@ view model =
                 ]
                 [ viewTitle model dialog
                 , E.column
-                    [-- E.scrollbarY
+                    [ -- E.scrollbarY
+                      E.width E.fill
                     ]
                     [ viewAmount dialog
                     , viewDescription dialog
@@ -325,15 +326,19 @@ viewAmount dialog =
                 , E.paddingXY 8 12
                 , E.width (E.shrink |> E.minimum 220)
                 , E.alignLeft
-                , Border.width 1
-                , Border.color Ui.bgDark
+                , Border.width 4
+                , Border.color Ui.bgWhite
+                , Background.color Ui.bgEvenRow
+                , Ui.innerShadow
                 , E.focused
-                    [ Border.shadow
-                        { offset = ( 0, 0 )
-                        , size = 4
-                        , blur = 0
-                        , color = Ui.fgFocus
-                        }
+                    [ {- Border.innerShadow
+                         { offset = ( 0, 0 )
+                         , size = 4
+                         , blur = 0
+                         , color = Ui.fgFocus
+                         }
+                      -}
+                      Border.color Ui.fgFocus
                     ]
                 , E.htmlAttribute <| HtmlAttr.id "dialog-amount"
                 , E.htmlAttribute <| HtmlAttr.autocomplete False
@@ -383,15 +388,19 @@ viewDescription dialog =
             [ Input.multiline
                 [ Ui.onEnter (Msg.ForDialog <| Msg.DialogConfirm)
                 , Ui.bigFont
-                , Border.width 1
-                , Border.color Ui.bgDark
+                , Border.width 4
+                , Border.color Ui.bgWhite
+                , Background.color Ui.bgEvenRow
+                , Ui.innerShadow
                 , E.focused
-                    [ Border.shadow
-                        { offset = ( 0, 0 )
-                        , size = 4
-                        , blur = 0
-                        , color = Ui.fgFocus
-                        }
+                    [ {- Border.shadow
+                         { offset = ( 0, 0 )
+                         , size = 4
+                         , blur = 0
+                         , color = Ui.fgFocus
+                         }
+                      -}
+                      Border.color Ui.fgFocus
                     ]
                 , E.width E.fill
                 ]

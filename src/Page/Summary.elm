@@ -93,13 +93,23 @@ accountOption accountID model state =
          ]
             ++ (case state of
                     Input.Idle ->
-                        [ Font.color Ui.fgTitle ]
+                        [ Font.color Ui.fgTitle
+                        , E.mouseDown [ Background.color Ui.bgMouseDown ]
+                        , E.mouseOver [ Background.color Ui.bgMouseOver ]
+                        ]
 
                     Input.Focused ->
-                        []
+                        [ E.mouseDown [ Background.color Ui.bgMouseDown ]
+                        , E.mouseOver [ Background.color Ui.bgMouseOver ]
+                        ]
 
                     Input.Selected ->
-                        [ Font.color (E.rgb 1 1 1), Background.color Ui.bgTitle ]
+                        [ Font.color (E.rgb 1 1 1)
+                        , Background.color Ui.bgMainButton
+                        , Ui.smallShadow
+                        , Ui.mouseDown [ Background.color Ui.bgMainButtonDown ]
+                        , Ui.mouseOver [ Background.color Ui.bgMainButton ]
+                        ]
                )
         )
         (E.text (Model.account accountID model))

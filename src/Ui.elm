@@ -149,6 +149,36 @@ bgIncome =
     E.rgb 0.1 0.44 0
 
 
+bgIncomeButton : E.Color
+bgIncomeButton =
+    E.rgb 0.92 0.94 0.86
+
+
+bgIncomeButtonOver : E.Color
+bgIncomeButtonOver =
+    E.rgb 0.98 1 0.96
+
+
+bgIncomeButtonDown : E.Color
+bgIncomeButtonDown =
+    E.rgb 0.7 0.8 0.6
+
+
+bgExpenseButton : E.Color
+bgExpenseButton =
+    E.rgb 0.94 0.87 0.87
+
+
+bgExpenseButtonOver : E.Color
+bgExpenseButtonOver =
+    E.rgb 1 0.96 0.96
+
+
+bgExpenseButtonDown : E.Color
+bgExpenseButtonDown =
+    E.rgb 0.8 0.6 0.6
+
+
 fgIncome : E.Color
 fgIncome =
     -- rgb255 22 68 0
@@ -160,14 +190,6 @@ fgOnIncome =
     E.rgb 1.0 1.0 1.0
 
 
-bgTitle : E.Color
-bgTitle =
-    --rgb 0.3 0.6 0.7
-    --rgb 0.12 0.51 0.65
-    --rgb 0.06 0.25 0.32
-    E.rgb 0.08 0.26 0.42
-
-
 bgEvenRow : E.Color
 bgEvenRow =
     --E.rgb 0.99 0.98 0.9
@@ -177,17 +199,59 @@ bgEvenRow =
 bgOddRow : E.Color
 bgOddRow =
     --E.rgb 0.96 0.95 0.74
+    --E.rgb 0.9 0.9 0.89
+    E.rgb 0.92 0.92 0.91
+
+
+bgButton : E.Color
+bgButton =
+    --E.rgb 0.85 0.9 0.94
+    E.rgb 0.94 0.94 0.93
+
+
+bgButtonOver : E.Color
+bgButtonOver =
+    --E.rgb 0.98 0.99 1
+    E.rgb 1 1 1
+
+
+bgButtonDown : E.Color
+bgButtonDown =
+    --E.rgb 0.7 0.75 0.79
     E.rgb 0.9 0.9 0.89
 
 
 bgMouseOver : E.Color
 bgMouseOver =
-    E.rgb 0.85 0.92 0.98
+    E.rgb 0.94 0.94 0.93
 
 
 bgMouseDown : E.Color
 bgMouseDown =
-    E.rgb 0.7 0.7 0.65
+    E.rgb 0.9 0.9 0.89
+
+
+bgMainButton : E.Color
+bgMainButton =
+    bgTitle
+
+
+bgMainButtonOver : E.Color
+bgMainButtonOver =
+    E.rgb 0.18 0.52 0.66
+
+
+bgMainButtonDown : E.Color
+bgMainButtonDown =
+    E.rgb 0.08 0.19 0.3
+
+
+bgTitle : E.Color
+bgTitle =
+    --rgb 0.3 0.6 0.7
+    --rgb 0.12 0.51 0.65
+    --rgb 0.06 0.25 0.32
+    E.rgb 0.08 0.26 0.42
 
 
 fgTitle : E.Color
@@ -198,6 +262,41 @@ fgTitle =
 fgOnTitle : E.Color
 fgOnTitle =
     E.rgb 1 1 1
+
+
+
+-- STYLES FOR INTERACTIVE ELEMENTS
+
+
+transition =
+    E.htmlAttribute (Html.Attributes.style "transition" "background 0.05s, box-shadow 0.1s, border-color 0.1s, border-radius 0.1s")
+
+
+defaultShadow =
+    Border.shadow { offset = ( 0, 5 ), size = 0, blur = 8, color = E.rgba 0 0 0 0.5 }
+
+
+smallShadow =
+    Border.shadow { offset = ( 0, 2 ), size = 0, blur = 6, color = E.rgba 0 0 0 0.5 }
+
+
+innerShadow =
+    Border.innerShadow { offset = ( 0, 1 ), size = 0, blur = 4, color = E.rgba 0 0 0 0.5 }
+
+
+bigInnerShadow =
+    Border.innerShadow { offset = ( 0, 1 ), size = 0, blur = 6, color = E.rgba 0 0 0 0.7 }
+
+
+mouseDown attr =
+    E.mouseDown
+        (Border.shadow { offset = ( 0, 1 ), size = 0, blur = 3, color = E.rgba 0 0 0 0.4 }
+            :: attr
+        )
+
+
+mouseOver attr =
+    E.mouseOver attr
 
 
 
@@ -315,13 +414,13 @@ bigWarningIcon attributes =
 
 incomeIcon : List (E.Attribute msg) -> E.Element msg
 incomeIcon attributes =
-    E.el ([ iconFont, normalFont, E.centerX, Font.color fgIncome ] ++ attributes)
+    E.el ([ iconFont, normalFont, E.centerX ] ++ attributes)
         (E.text "\u{F067}")
 
 
 expenseIcon : List (E.Attribute msg) -> E.Element msg
 expenseIcon attributes =
-    E.el ([ iconFont, normalFont, E.centerX, Font.color fgExpense ] ++ attributes)
+    E.el ([ iconFont, normalFont, E.centerX ] ++ attributes)
         (E.text "\u{F068}")
 
 
@@ -361,7 +460,7 @@ pageWithSidePanel attributes { panel, page } =
             , E.height E.fill
             , E.clipY
             , Border.widthEach { top = 0, left = borderWidth, bottom = 0, right = 0 }
-            , Border.color bgDark
+            , Border.color bgWhite -- bgDark
             ]
             page
         ]
@@ -430,17 +529,27 @@ radioRowOption value element =
                  , E.paddingXY 16 7
                  , Border.rounded 3
                  , bigFont
-                 , E.mouseDown [ Background.color bgMouseDown ]
+                 , transition
                  ]
                     ++ (case state of
                             Input.Idle ->
-                                [ Font.color fgTitle ]
+                                [ Font.color fgTitle
+                                , E.mouseDown [ Background.color bgMouseDown ]
+                                , E.mouseOver [ Background.color bgMouseOver ]
+                                ]
 
                             Input.Focused ->
-                                []
+                                [ E.mouseDown [ Background.color bgMouseDown ]
+                                , E.mouseOver [ Background.color bgMouseOver ]
+                                ]
 
                             Input.Selected ->
-                                [ Font.color (E.rgb 1 1 1), Background.color bgTitle ]
+                                [ Font.color (E.rgb 1 1 1)
+                                , Background.color bgMainButton
+                                , smallShadow
+                                , mouseDown [ Background.color bgMainButtonDown ]
+                                , mouseOver [ Background.color bgMainButton ]
+                                ]
                        )
                 )
                 element
@@ -506,7 +615,7 @@ dateNavigationBar model =
     E.row
         [ E.width E.fill
         , E.alignTop
-        , E.paddingEach { top = 0, bottom = 8, left = 0, right = 0 }
+        , E.paddingEach { top = 0, bottom = 8, left = 8, right = 8 }
         , Background.color bgWhite
         ]
         [ E.el
@@ -518,19 +627,22 @@ dateNavigationBar model =
                 , E.height E.fill
                 , Border.roundEach { topLeft = 0, bottomLeft = 0, topRight = 0, bottomRight = 32 }
                 , Font.color fgTitle
-                , Border.widthEach { top = 0, bottom = 2, left = 0, right = 2 }
-                , Background.color bgWhite
+                , Border.widthEach { top = 0, bottom = 0, left = 0, right = 0 }
+                , Background.color bgButton
                 , Border.color bgDark
                 , E.paddingEach { top = 4, bottom = 8, left = 0, right = 0 }
-                , if model.showFocus then
-                    E.focused
-                        [ Border.color fgFocus
-                        , Border.shadow { offset = ( 0, 0 ), size = 0, blur = 0, color = E.rgba 0 0 0 0 }
-                        ]
 
-                  else
-                    E.focused []
-                , E.mouseDown [ Background.color bgMouseDown ]
+                -- , if model.showFocus then
+                --     E.focused
+                --         [ Border.color fgFocus
+                --         , Border.shadow { offset = ( 0, 0 ), size = 0, blur = 0, color = E.rgba 0 0 0 0 }
+                --         ]
+                --   else
+                --     E.focused []
+                , smallShadow
+                , transition
+                , mouseDown [ Background.color bgButtonDown ]
+                , mouseOver [ Background.color bgButtonOver ]
                 ]
                 { label =
                     E.row
@@ -565,19 +677,22 @@ dateNavigationBar model =
                 , E.height E.fill
                 , Border.roundEach { topLeft = 0, bottomLeft = 32, topRight = 0, bottomRight = 0 }
                 , Font.color fgTitle
-                , Border.widthEach { top = 0, bottom = 2, left = 2, right = 0 }
-                , Background.color bgWhite
+                , Border.widthEach { top = 0, bottom = 0, left = 0, right = 0 }
+                , Background.color bgButton
                 , Border.color bgDark
                 , E.paddingEach { top = 4, bottom = 8, left = 0, right = 0 }
-                , if model.showFocus then
-                    E.focused
-                        [ Border.color fgFocus
-                        , Border.shadow { offset = ( 0, 0 ), size = 0, blur = 0, color = E.rgba 0 0 0 0 }
-                        ]
 
-                  else
-                    E.focused []
-                , E.mouseDown [ Background.color bgMouseDown ]
+                -- , if model.showFocus then
+                --     E.focused
+                --         [ Border.color fgFocus
+                --         , Border.shadow { offset = ( 0, 0 ), size = 0, blur = 0, color = E.rgba 0 0 0 0 }
+                --         ]
+                --   else
+                --     E.focused []
+                , smallShadow
+                , transition
+                , mouseDown [ Background.color bgButtonDown ]
+                , mouseOver [ Background.color bgButtonOver ]
                 ]
                 { label =
                     E.row
@@ -708,17 +823,23 @@ simpleButton :
     -> E.Element msg
 simpleButton attributes { onPress, label } =
     Input.button
-        ([ Background.color bgPage
+        ([ Background.color bgButton --bgPage
          , normalFont
          , Font.color fgTitle
          , Font.center
          , roundCorners
-         , Border.width borderWidth
+         , Border.width 0 --borderWidth
          , Border.color fgDark
-         , E.paddingXY 24 8
 
-         --, E.mouseOver [ Background.color bgMouseOver ]
-         , E.mouseDown [ Background.color bgMouseDown ]
+         --, Border.shadow { offset = ( 0, 2 ), size = 0, blur = 4, color = E.rgba 0 0 0 0.3 }
+         , defaultShadow
+
+         --, E.htmlAttribute (Html.Attributes.style "box-shadow" "0px 3px 6px rgba(1, 0, 0, 0.16), 0px 3px 6px rgba(1, 0, 0, 0.23)")
+         --, E.htmlAttribute (Html.Attributes.style "box-shadow" "rgba(60, 64, 67, 0.4) 0px 2px 4px 0px, rgba(60, 64, 67, 0.15) 0px 3px 9px 3px")
+         , transition
+         , E.paddingXY 24 8
+         , mouseDown [ Background.color bgButtonDown ]
+         , mouseOver [ Background.color bgButtonOver ]
          ]
             ++ attributes
         )
@@ -740,8 +861,11 @@ mainButton attributes { onPress, label } =
          , roundCorners
          , Border.width borderWidth
          , Border.color bgTitle
+         , defaultShadow
+         , transition
          , E.paddingXY 24 8
-         , E.mouseDown [ Background.color bgMouseDown ]
+         , mouseDown [ Background.color bgMainButtonDown, Border.color bgMainButtonDown ]
+         , mouseOver [ Background.color bgMainButtonOver, Border.color bgMainButtonOver ]
          ]
             ++ attributes
         )
@@ -763,10 +887,61 @@ coloredButton attributes { onPress, label, color } =
          , roundCorners
          , Border.width borderWidth
          , Border.color color
+         , defaultShadow
+         , transition
          , E.paddingXY 24 8
+         , mouseDown [ Background.color color ]
+         , mouseOver [ Background.color color, Font.color bgPage ]
+         ]
+            ++ attributes
+        )
+        { onPress = onPress
+        , label = label
+        }
 
-         --, E.mouseOver [ Background.color bgMouseOver ]
-         , E.mouseDown [ Background.color bgMouseDown ]
+
+incomeButton :
+    List (E.Attribute msg)
+    -> { onPress : Maybe msg, label : E.Element msg }
+    -> E.Element msg
+incomeButton attributes { onPress, label } =
+    Input.button
+        ([ Background.color bgIncomeButton
+         , normalFont
+         , Font.center
+         , roundCorners
+         , Border.width borderWidth
+         , Border.color bgIncomeButton
+         , defaultShadow
+         , transition
+         , E.paddingXY 24 8
+         , mouseDown [ Background.color bgIncomeButtonDown, Border.color bgIncomeButtonDown ]
+         , mouseOver [ Background.color bgIncomeButtonOver, Border.color bgIncomeButtonOver ]
+         ]
+            ++ attributes
+        )
+        { onPress = onPress
+        , label = label
+        }
+
+
+expenseButton :
+    List (E.Attribute msg)
+    -> { onPress : Maybe msg, label : E.Element msg }
+    -> E.Element msg
+expenseButton attributes { onPress, label } =
+    Input.button
+        ([ Background.color bgExpenseButton
+         , normalFont
+         , Font.center
+         , roundCorners
+         , Border.width borderWidth
+         , Border.color bgExpenseButton
+         , defaultShadow
+         , transition
+         , E.paddingXY 24 8
+         , mouseDown [ Background.color bgExpenseButtonDown, Border.color bgExpenseButtonDown ]
+         , mouseOver [ Background.color bgExpenseButtonOver, Border.color bgExpenseButtonOver ]
          ]
             ++ attributes
         )
@@ -789,9 +964,8 @@ iconButton attributes { onPress, icon } =
          , E.padding 8
          , E.width (E.px 48)
          , E.height (E.px 48)
-
-         --, E.mouseOver [ Background.color bgMouseOver ]
          , E.mouseDown [ Background.color bgMouseDown ]
+         , E.mouseOver [ Background.color bgMouseOver ]
          ]
             ++ attributes
         )
@@ -806,15 +980,21 @@ radioButton attributes { onPress, icon, label, active } =
         ([ normalFont
          , Border.rounded 4
          , E.paddingXY 24 8
+         , transition
          ]
             ++ (if active then
                     [ Font.color fgWhite
-                    , Background.color bgTitle
+                    , Background.color bgMainButton
+                    , smallShadow
+                    , mouseDown [ Background.color bgMainButtonDown ]
+                    , mouseOver [ Background.color bgMainButton ]
                     ]
 
                 else
                     [ Font.color fgTitle
                     , Background.color bgWhite
+                    , E.mouseDown [ Background.color bgMouseDown ]
+                    , E.mouseOver [ Background.color bgMouseOver ]
                     ]
                )
             ++ attributes
