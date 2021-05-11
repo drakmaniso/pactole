@@ -7,7 +7,6 @@ import Element.Border as Border
 import Element.Font as Font
 import Element.Input as Input
 import Element.Keyed as Keyed
-import Html.Attributes as HtmlAttr
 import Ledger
 import Model
 import Money
@@ -192,49 +191,56 @@ balanceRow model =
 
 buttonRow : Model.Model -> E.Element Msg.Msg
 buttonRow model =
-    E.row
-        [ E.width E.fill, E.spacing 12 ]
-        [ E.el [ E.width E.fill ] E.none
-        , if model.page == Model.MainPage && model.settings.summaryEnabled then
-            Ui.simpleButton
-                [ E.width (E.fillPortion 3)
-                , E.htmlAttribute <| HtmlAttr.id "unfocus-on-page-change"
-                ]
-                { onPress = Just (Msg.ChangePage Model.StatsPage)
-                , label = E.text "Bilan"
-                }
+    Keyed.row
+        [ E.width E.fill
+        , E.spacing 12
 
-          else
-            E.none
-        , if model.page == Model.MainPage && model.settings.reconciliationEnabled then
-            Ui.simpleButton
-                [ E.width (E.fillPortion 3)
-                , E.htmlAttribute <| HtmlAttr.id "unfocus-on-page-change"
-                ]
-                { onPress = Just (Msg.ChangePage Model.ReconcilePage)
-                , label = E.text "Pointer"
-                }
+        --, E.htmlAttribute <| HtmlAttr.id "unfocus-on-page-change"
+        ]
+        [ ( "blank left", E.el [ E.width E.fill ] E.none )
+        , ( "stats button"
+          , if model.page == Model.MainPage && model.settings.summaryEnabled then
+                Ui.simpleButton
+                    [ E.width (E.fillPortion 3)
+                    ]
+                    { onPress = Just (Msg.ChangePage Model.StatsPage)
+                    , label = E.text "Bilan"
+                    }
 
-          else
-            E.none
-        , if model.page /= Model.MainPage then
-            Ui.simpleButton
-                [ E.width (E.fillPortion 3)
-                , E.htmlAttribute <| HtmlAttr.id "unfocus-on-page-change"
-                ]
-                { onPress = Just (Msg.ChangePage Model.MainPage)
-                , label =
-                    E.row [ Font.center, E.width E.fill ]
-                        [ E.el [ E.width E.fill ] E.none
-                        , Ui.backIcon []
-                        , E.text "  Retour"
-                        , E.el [ E.width E.fill ] E.none
-                        ]
-                }
+            else
+                E.none
+          )
+        , ( "reconcile button"
+          , if model.page == Model.MainPage && model.settings.reconciliationEnabled then
+                Ui.simpleButton
+                    [ E.width (E.fillPortion 3)
+                    ]
+                    { onPress = Just (Msg.ChangePage Model.ReconcilePage)
+                    , label = E.text "Pointer"
+                    }
 
-          else
-            E.none
-        , E.el [ E.width E.fill ] E.none
+            else
+                E.none
+          )
+        , ( "back button"
+          , if model.page /= Model.MainPage then
+                Ui.simpleButton
+                    [ E.width (E.fillPortion 3)
+                    ]
+                    { onPress = Just (Msg.ChangePage Model.MainPage)
+                    , label =
+                        E.row [ Font.center, E.width E.fill ]
+                            [ E.el [ E.width E.fill ] E.none
+                            , Ui.backIcon []
+                            , E.text "  Retour"
+                            , E.el [ E.width E.fill ] E.none
+                            ]
+                    }
+
+            else
+                E.none
+          )
+        , ( "blank right", E.el [ E.width E.fill ] E.none )
         ]
 
 
