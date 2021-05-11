@@ -93,7 +93,7 @@ viewTransactions shared =
         , E.height E.fill
         , E.scrollbarY
         , Border.widthEach { top = Ui.borderWidth, bottom = 0, right = 0, left = 0 }
-        , Border.color Ui.fgDark
+        , Border.color Ui.transparent
         ]
         (List.indexedMap
             (\idx transaction ->

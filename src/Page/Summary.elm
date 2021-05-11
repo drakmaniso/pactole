@@ -6,6 +6,7 @@ import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
 import Element.Input as Input
+import Element.Keyed as Keyed
 import Html.Attributes as HtmlAttr
 import Ledger
 import Model
@@ -20,41 +21,44 @@ import Ui
 
 view : Model.Model -> E.Element Msg.Msg
 view model =
-    E.column
-        [ E.width E.fill
-        , E.height E.fill
-        , E.centerX
-        ]
-        [ E.row
+    Keyed.el [ E.width E.fill, E.height E.fill ]
+        ( "summary"
+        , E.column
             [ E.width E.fill
+            , E.height E.fill
+            , E.centerX
             ]
-            [ E.el [ E.paddingXY 6 0, E.width E.fill ]
-                (settingsButton model)
-            , case Dict.values model.accounts of
-                [ singleAccount ] ->
-                    E.el [ Ui.bigFont, Font.color Ui.fgTitle, Ui.notSelectable ]
-                        (E.text singleAccount)
+            [ E.row
+                [ E.width E.fill
+                ]
+                [ E.el [ E.paddingXY 6 0, E.width E.fill ]
+                    (settingsButton model)
+                , case Dict.values model.accounts of
+                    [ singleAccount ] ->
+                        E.el [ Ui.bigFont, Font.color Ui.fgTitle, Ui.notSelectable ]
+                            (E.text singleAccount)
 
-                _ ->
-                    accountsRow model
-            , E.el [ E.width E.fill ]
-                E.none
+                    _ ->
+                        accountsRow model
+                , E.el [ E.width E.fill ]
+                    E.none
+                ]
+            , E.row [ E.height (E.fillPortion 1) ] [ E.none ]
+            , E.el
+                [ Ui.smallFont
+                , E.paddingEach { top = 0, bottom = 6, left = 0, right = 0 }
+                , E.width E.fill
+                , Font.center
+                , Font.color Ui.fgDarker
+                , Ui.notSelectable
+                ]
+                (E.text "Solde actuel:")
+            , balanceRow model
+            , E.row [ E.height (E.fillPortion 1) ] [ E.none ]
+            , buttonRow model
+            , E.row [ E.height (E.fillPortion 2) ] [ E.none ]
             ]
-        , E.row [ E.height (E.fillPortion 1) ] [ E.none ]
-        , E.el
-            [ Ui.smallFont
-            , E.paddingEach { top = 0, bottom = 6, left = 0, right = 0 }
-            , E.width E.fill
-            , Font.center
-            , Font.color Ui.fgDarker
-            , Ui.notSelectable
-            ]
-            (E.text "Solde actuel:")
-        , balanceRow model
-        , E.row [ E.height (E.fillPortion 1) ] [ E.none ]
-        , buttonRow model
-        , E.row [ E.height (E.fillPortion 2) ] [ E.none ]
-        ]
+        )
 
 
 accountsRow : Model.Model -> E.Element Msg.Msg

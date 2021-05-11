@@ -2,6 +2,7 @@ module Page.Statistics exposing (view)
 
 import Dict
 import Element as E
+import Element.Keyed as Keyed
 import Element.Border as Border
 import Element.Font as Font
 import Ledger

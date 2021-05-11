@@ -287,7 +287,7 @@ view model =
                 , E.clipY
                 ]
                 [ E.el
-                    [ E.centerX ]
+                    [ E.centerX, E.padding 12 ]
                     (Ui.simpleButton []
                         { onPress = Just (Msg.ChangePage Model.MainPage)
                         , label =

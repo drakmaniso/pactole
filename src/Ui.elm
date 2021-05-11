@@ -8,6 +8,7 @@ import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
 import Element.Input as Input
+import Element.Keyed as Keyed
 import Html.Attributes
 import Html.Events as Events
 import Json.Decode as Decode
@@ -459,7 +460,7 @@ pageWithSidePanel attributes { panel, page } =
             [ E.width (E.fillPortion 3)
             , E.height E.fill
             , E.clipY
-            , E.paddingEach {top = 0, left = 6, bottom = 3, right = 6}
+            , E.paddingEach { top = 0, left = 6, bottom = 3, right = 6 }
             , Border.widthEach { top = 0, left = borderWidth, bottom = 0, right = 0 }
             , Border.color bgWhite -- bgDark
             ]
@@ -613,98 +614,104 @@ warningParagraph attributes elements =
 
 dateNavigationBar : { a | showFocus : Bool, date : Date.Date, today : Date.Date } -> E.Element Msg.Msg
 dateNavigationBar model =
-    E.row
+    Keyed.row
         [ E.width E.fill
         , E.alignTop
         , E.paddingEach { top = 0, bottom = 8, left = 8, right = 8 }
         , Background.color bgWhite
         ]
-        [ E.el
-            [ E.width (E.fillPortion 2)
-            , E.height E.fill
-            ]
-            (Input.button
-                [ E.width E.fill
+        [ ( "previous month button"
+          , E.el
+                [ E.width (E.fillPortion 2)
                 , E.height E.fill
-                , Border.roundEach { topLeft = 0, bottomLeft = 0, topRight = 0, bottomRight = 32 }
-                , Font.color fgTitle
-                , Border.widthEach { top = 0, bottom = 0, left = 0, right = 0 }
-                , Background.color bgButton
-                , Border.color bgDark
-                , E.paddingEach { top = 4, bottom = 8, left = 0, right = 0 }
+                ]
+                (Input.button
+                    [ E.width E.fill
+                    , E.height E.fill
+                    , Border.roundEach { topLeft = 0, bottomLeft = 0, topRight = 0, bottomRight = 32 }
+                    , Font.color fgTitle
+                    , Border.widthEach { top = 0, bottom = 0, left = 0, right = 0 }
+                    , Background.color bgButton
+                    , Border.color bgDark
+                    , E.paddingEach { top = 4, bottom = 8, left = 0, right = 0 }
 
-                -- , if model.showFocus then
-                --     E.focused
-                --         [ Border.color fgFocus
-                --         , Border.shadow { offset = ( 0, 0 ), size = 0, blur = 0, color = E.rgba 0 0 0 0 }
-                --         ]
-                --   else
-                --     E.focused []
-                , smallShadow
-                , transition
-                , mouseDown [ Background.color bgButtonDown ]
-                , mouseOver [ Background.color bgButtonOver ]
-                ]
-                { label =
-                    E.row
-                        [ E.width E.fill ]
-                        [ E.el [ bigFont, Font.color fgTitle, E.centerX ]
-                            (E.text (Date.getMonthName (Date.decrementMonth model.date)))
-                        , E.el [ E.centerX, iconFont, normalFont ] (E.text "  \u{F060}  ")
-                        ]
-                , onPress = Just (Msg.SelectDate (Date.decrementMonthUI model.date model.today))
-                }
-            )
-        , E.el
-            [ E.width (E.fillPortion 3)
-            , E.height E.fill
-            , E.paddingEach { top = 4, bottom = 8, left = 0, right = 0 }
-            , notSelectable
-            ]
-            (E.el
-                [ E.centerX
-                , Font.bold
-                , bigFont
-                ]
-                (E.text (Date.getMonthFullName model.today model.date))
-            )
-        , E.el
-            -- needed to circumvent focus bug in elm-ui
-            [ E.width (E.fillPortion 2)
-            , E.height E.fill
-            ]
-            (Input.button
-                [ E.width E.fill
+                    -- , if model.showFocus then
+                    --     E.focused
+                    --         [ Border.color fgFocus
+                    --         , Border.shadow { offset = ( 0, 0 ), size = 0, blur = 0, color = E.rgba 0 0 0 0 }
+                    --         ]
+                    --   else
+                    --     E.focused []
+                    , smallShadow
+                    , transition
+                    , mouseDown [ Background.color bgButtonDown ]
+                    , mouseOver [ Background.color bgButtonOver ]
+                    ]
+                    { label =
+                        E.row
+                            [ E.width E.fill ]
+                            [ E.el [ bigFont, Font.color fgTitle, E.centerX ]
+                                (E.text (Date.getMonthName (Date.decrementMonth model.date)))
+                            , E.el [ E.centerX, iconFont, normalFont ] (E.text "  \u{F060}  ")
+                            ]
+                    , onPress = Just (Msg.SelectDate (Date.decrementMonthUI model.date model.today))
+                    }
+                )
+          )
+        , ( "current month header"
+          , E.el
+                [ E.width (E.fillPortion 3)
                 , E.height E.fill
-                , Border.roundEach { topLeft = 0, bottomLeft = 32, topRight = 0, bottomRight = 0 }
-                , Font.color fgTitle
-                , Border.widthEach { top = 0, bottom = 0, left = 0, right = 0 }
-                , Background.color bgButton
-                , Border.color bgDark
                 , E.paddingEach { top = 4, bottom = 8, left = 0, right = 0 }
-
-                -- , if model.showFocus then
-                --     E.focused
-                --         [ Border.color fgFocus
-                --         , Border.shadow { offset = ( 0, 0 ), size = 0, blur = 0, color = E.rgba 0 0 0 0 }
-                --         ]
-                --   else
-                --     E.focused []
-                , smallShadow
-                , transition
-                , mouseDown [ Background.color bgButtonDown ]
-                , mouseOver [ Background.color bgButtonOver ]
+                , notSelectable
                 ]
-                { label =
-                    E.row
-                        [ E.width E.fill ]
-                        [ E.el [ E.centerX, iconFont, normalFont ] (E.text "  \u{F061}  ")
-                        , E.el [ bigFont, Font.color fgTitle, E.centerX ]
-                            (E.text (Date.getMonthName (Date.incrementMonth model.date)))
-                        ]
-                , onPress = Just (Msg.SelectDate (Date.incrementMonthUI model.date model.today))
-                }
-            )
+                (E.el
+                    [ E.centerX
+                    , Font.bold
+                    , bigFont
+                    ]
+                    (E.text (Date.getMonthFullName model.today model.date))
+                )
+          )
+        , ( "next month button"
+          , E.el
+                -- needed to circumvent focus bug in elm-ui
+                [ E.width (E.fillPortion 2)
+                , E.height E.fill
+                ]
+                (Input.button
+                    [ E.width E.fill
+                    , E.height E.fill
+                    , Border.roundEach { topLeft = 0, bottomLeft = 32, topRight = 0, bottomRight = 0 }
+                    , Font.color fgTitle
+                    , Border.widthEach { top = 0, bottom = 0, left = 0, right = 0 }
+                    , Background.color bgButton
+                    , Border.color bgDark
+                    , E.paddingEach { top = 4, bottom = 8, left = 0, right = 0 }
+
+                    -- , if model.showFocus then
+                    --     E.focused
+                    --         [ Border.color fgFocus
+                    --         , Border.shadow { offset = ( 0, 0 ), size = 0, blur = 0, color = E.rgba 0 0 0 0 }
+                    --         ]
+                    --   else
+                    --     E.focused []
+                    , smallShadow
+                    , transition
+                    , mouseDown [ Background.color bgButtonDown ]
+                    , mouseOver [ Background.color bgButtonOver ]
+                    ]
+                    { label =
+                        E.row
+                            [ E.width E.fill ]
+                            [ E.el [ E.centerX, iconFont, normalFont ] (E.text "  \u{F061}  ")
+                            , E.el [ bigFont, Font.color fgTitle, E.centerX ]
+                                (E.text (Date.getMonthName (Date.incrementMonth model.date)))
+                            ]
+                    , onPress = Just (Msg.SelectDate (Date.incrementMonthUI model.date model.today))
+                    }
+                )
+          )
         ]
 
 
