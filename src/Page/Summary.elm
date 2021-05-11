@@ -30,39 +30,13 @@ view model =
             ]
             [ E.el [ E.paddingXY 6 0, E.width E.fill ]
                 (settingsButton model)
-            , Input.radioRow
-                [ E.width E.shrink
-                , if model.showFocus then
-                    E.focused
-                        [ Border.shadow
-                            { offset = ( 0, 0 )
-                            , size = 4
-                            , blur = 0
-                            , color = Ui.fgFocus
-                            }
-                        ]
+            , case Dict.values model.accounts of
+                [ singleAccount ] ->
+                    E.el [ Ui.bigFont, Font.color Ui.fgTitle, Ui.notSelectable ]
+                        (E.text singleAccount)
 
-                  else
-                    E.focused
-                        [ Border.shadow
-                            { offset = ( 0, 0 )
-                            , size = 0
-                            , blur = 0
-                            , color = Ui.transparent
-                            }
-                        ]
-                ]
-                { onChange = Msg.SelectAccount
-                , selected = Just model.account
-                , label = Input.labelHidden "Compte"
-                , options =
-                    List.map
-                        (\account ->
-                            Input.optionWith account
-                                (accountOption account model)
-                        )
-                        (Dict.keys model.accounts)
-                }
+                _ ->
+                    accountsRow model
             , E.el [ E.width E.fill ]
                 E.none
             ]
@@ -83,6 +57,43 @@ view model =
         ]
 
 
+accountsRow : Model.Model -> E.Element Msg.Msg
+accountsRow model =
+    Input.radioRow
+        [ E.width E.shrink
+        , if model.showFocus then
+            E.focused
+                [ Border.shadow
+                    { offset = ( 0, 0 )
+                    , size = 4
+                    , blur = 0
+                    , color = Ui.fgFocus
+                    }
+                ]
+
+          else
+            E.focused
+                [ Border.shadow
+                    { offset = ( 0, 0 )
+                    , size = 0
+                    , blur = 0
+                    , color = Ui.transparent
+                    }
+                ]
+        ]
+        { onChange = Msg.SelectAccount
+        , selected = Just model.account
+        , label = Input.labelHidden "Compte"
+        , options =
+            List.map
+                (\account ->
+                    Input.optionWith account
+                        (accountOption account model)
+                )
+                (Dict.keys model.accounts)
+        }
+
+
 accountOption : Int -> Model.Model -> Input.OptionState -> E.Element msg
 accountOption accountID model state =
     E.el
@@ -90,6 +101,8 @@ accountOption accountID model state =
          , E.paddingXY 16 7
          , Border.rounded 3
          , Ui.bigFont
+         , Ui.transition
+         , Ui.notSelectable
          ]
             ++ (case state of
                     Input.Idle ->

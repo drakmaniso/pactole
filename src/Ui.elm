@@ -269,7 +269,7 @@ fgOnTitle =
 
 
 transition =
-    E.htmlAttribute (Html.Attributes.style "transition" "background 0.2s, box-shadow 0.2s, border-color 0.2s, border-radius 0.2s")
+    E.htmlAttribute (Html.Attributes.style "transition" "background 0.2s, color 0.1s, box-shadow 0.2s, border-color 0.2s, border-radius 0.2s")
 
 
 defaultShadow =
@@ -451,7 +451,7 @@ pageWithSidePanel attributes { panel, page } =
             [ E.width (E.fillPortion 1)
             , E.height E.fill
             , E.clipY
-            , E.paddingXY 0 16
+            , E.paddingXY 6 12
             , E.alignTop
             ]
             panel
@@ -459,6 +459,7 @@ pageWithSidePanel attributes { panel, page } =
             [ E.width (E.fillPortion 3)
             , E.height E.fill
             , E.clipY
+            , E.paddingEach {top = 0, left = 6, bottom = 3, right = 6}
             , Border.widthEach { top = 0, left = borderWidth, bottom = 0, right = 0 }
             , Border.color bgWhite -- bgDark
             ]
