@@ -147,15 +147,16 @@ calendarCell model day =
             -- Need to wrap the button in E.el because of elm-ui E.focused bug
             ([ E.width E.fill
              , E.height E.fill
-             , Border.width 3
+
+             --  , Border.width 3
              , E.clipY
-             , Ui.transition
+             , E.htmlAttribute (Html.Attributes.style "transition" "background 0.4s")
              ]
                 ++ (if sel then
-                        [ Background.color Ui.bgTitle
-                        , Border.color Ui.bgTitle
-                        , Border.rounded 16
+                        [ Background.color Ui.bgWhite
 
+                        -- , Border.color Ui.bgTitle
+                        -- , Border.rounded 24
                         --, Ui.smallShadow
                         -- , E.focused
                         --     [ Border.shadow
@@ -165,8 +166,9 @@ calendarCell model day =
 
                     else
                         [ Background.color Ui.bgOddRow
-                        , Border.color Ui.bgWhite -- Ui.bgOddRow -- (E.rgba 0 0 0 0)
-                        , Border.rounded 0
+
+                        -- , Border.color Ui.bgWhite -- Ui.bgOddRow -- (E.rgba 0 0 0 0)
+                        -- , Border.rounded 0
                         , E.focused
                             [ Border.color Ui.fgFocus
                             , Border.shadow
@@ -190,8 +192,29 @@ calendarCell model day =
                         [ E.el
                             [ E.width E.fill
                             , E.paddingEach { top = 2, bottom = 4, left = 0, right = 0 }
+                            , Border.widthEach { left = 3, top = 3, right = 3, bottom = 0 }
                             , Ui.smallFont
                             , Font.center
+
+                            -- , Border.widthEach {bottom = 3, top = 0, left = 0, right = 0}
+                            , Border.color
+                                (if sel then
+                                    Ui.fgTitle
+
+                                 else
+                                    Ui.bgWhite
+                                )
+                            , if sel then
+                                Border.roundEach { topLeft = 24, topRight = 24, bottomLeft = 0, bottomRight = 0 }
+
+                              else
+                                Border.rounded 0
+                            , Ui.transition
+
+                            -- , if sel then
+                            --     Font.bold
+                            --   else
+                            --     Font.regular
                             , Font.color
                                 (if sel then
                                     Ui.fgWhite
@@ -201,6 +224,7 @@ calendarCell model day =
                                 )
                             , Background.color
                                 (if sel then
+                                    -- Ui.transparent
                                     Ui.bgTitle
 
                                  else
@@ -223,9 +247,23 @@ calendarCell model day =
                             , E.paddingXY 2 8
                             , E.spacing 12
                             , E.scrollbarY
+                            , Border.widthEach { left = 3, bottom = 3, right = 3, top = 0 }
+                            , Border.color
+                                (if sel then
+                                    Ui.fgTitle
+
+                                 else
+                                    Ui.bgWhite
+                                )
+                            , if sel then
+                                Border.roundEach { topLeft = 0, topRight = 0, bottomLeft = 24, bottomRight = 24 }
+
+                              else
+                                Border.rounded 0
+                            , Ui.transition
                             , Background.color
                                 (if sel then
-                                    Ui.bgWhite
+                                    Ui.transparent
 
                                  else
                                     --E.rgba 0 0 0 0
@@ -244,7 +282,6 @@ calendarCell model day =
             [ E.width E.fill
             , E.height E.fill
             , Border.color (E.rgba 0 0 0 0)
-            , Border.width 3
             , Background.color Ui.bgWhite --Ui.bgOddRow -- Ui.bgLight
             ]
             E.none
@@ -361,12 +398,12 @@ dayView model =
             ]
             [ Ui.incomeButton
                 [ E.width (E.fillPortion 2) ]
-                { label = Ui.incomeIcon [ Font.color Ui.fgIncome]
+                { label = Ui.incomeIcon [ Font.color Ui.fgIncome ]
                 , onPress = Just (Msg.ForDialog <| Msg.DialogNewTransaction False model.date)
                 }
             , Ui.expenseButton
                 [ E.width (E.fillPortion 2) ]
-                { label = Ui.expenseIcon [ Font.color Ui.fgExpense]
+                { label = Ui.expenseIcon [ Font.color Ui.fgExpense ]
                 , onPress = Just (Msg.ForDialog <| Msg.DialogNewTransaction True model.date)
                 }
             ]
@@ -426,6 +463,7 @@ dayContentFor model day =
                     , Border.color (E.rgba 0 0 0 0)
                     , E.mouseDown [ Background.color Ui.bgMouseDown ]
                     , E.mouseOver [ Background.color Ui.bgMouseOver ]
+                    , E.htmlAttribute (Html.Attributes.style "transition" "background 0.4s")
                     ]
                     { onPress =
                         Just
