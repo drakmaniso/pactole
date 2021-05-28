@@ -269,26 +269,32 @@ fgOnTitle =
 -- STYLES FOR INTERACTIVE ELEMENTS
 
 
+transition : E.Attribute msg
 transition =
     E.htmlAttribute (Html.Attributes.style "transition" "background 0.2s, color 0.1s, box-shadow 0.2s, border-color 0.2s, border-radius 0.2s")
 
 
+defaultShadow : E.Attr decorative msg
 defaultShadow =
     Border.shadow { offset = ( 0, 5 ), size = 0, blur = 8, color = E.rgba 0 0 0 0.5 }
 
 
+smallShadow : E.Attr decorative msg
 smallShadow =
     Border.shadow { offset = ( 0, 2 ), size = 0, blur = 6, color = E.rgba 0 0 0 0.5 }
 
 
+innerShadow : E.Attr decorative msg
 innerShadow =
     Border.innerShadow { offset = ( 0, 1 ), size = 0, blur = 4, color = E.rgba 0 0 0 0.5 }
 
 
+bigInnerShadow : E.Attr decorative msg
 bigInnerShadow =
     Border.innerShadow { offset = ( 0, 1 ), size = 0, blur = 6, color = E.rgba 0 0 0 0.7 }
 
 
+mouseDown : List (E.Attr Never Never) -> E.Attribute msg
 mouseDown attr =
     E.mouseDown
         (Border.shadow { offset = ( 0, 1 ), size = 0, blur = 3, color = E.rgba 0 0 0 0.4 }
@@ -296,6 +302,7 @@ mouseDown attr =
         )
 
 
+mouseOver : List E.Decoration -> E.Attribute msg
 mouseOver attr =
     E.mouseOver attr
 
@@ -634,14 +641,6 @@ dateNavigationBar model =
                     , Background.color bgButton
                     , Border.color bgDark
                     , E.paddingEach { top = 4, bottom = 8, left = 0, right = 0 }
-
-                    -- , if model.showFocus then
-                    --     E.focused
-                    --         [ Border.color fgFocus
-                    --         , Border.shadow { offset = ( 0, 0 ), size = 0, blur = 0, color = E.rgba 0 0 0 0 }
-                    --         ]
-                    --   else
-                    --     E.focused []
                     , smallShadow
                     , transition
                     , mouseDown [ Background.color bgButtonDown ]
@@ -688,14 +687,6 @@ dateNavigationBar model =
                     , Background.color bgButton
                     , Border.color bgDark
                     , E.paddingEach { top = 4, bottom = 8, left = 0, right = 0 }
-
-                    -- , if model.showFocus then
-                    --     E.focused
-                    --         [ Border.color fgFocus
-                    --         , Border.shadow { offset = ( 0, 0 ), size = 0, blur = 0, color = E.rgba 0 0 0 0 }
-                    --         ]
-                    --   else
-                    --     E.focused []
                     , smallShadow
                     , transition
                     , mouseDown [ Background.color bgButtonDown ]
@@ -831,19 +822,14 @@ simpleButton :
     -> E.Element msg
 simpleButton attributes { onPress, label } =
     Input.button
-        ([ Background.color bgButton --bgPage
+        ([ Background.color bgButton
          , normalFont
          , Font.color fgTitle
          , Font.center
          , roundCorners
-         , Border.width 0 --borderWidth
+         , Border.width 0
          , Border.color fgDark
-
-         --, Border.shadow { offset = ( 0, 2 ), size = 0, blur = 4, color = E.rgba 0 0 0 0.3 }
          , defaultShadow
-
-         --, E.htmlAttribute (Html.Attributes.style "box-shadow" "0px 3px 6px rgba(1, 0, 0, 0.16), 0px 3px 6px rgba(1, 0, 0, 0.23)")
-         --, E.htmlAttribute (Html.Attributes.style "box-shadow" "rgba(60, 64, 67, 0.4) 0px 2px 4px 0px, rgba(60, 64, 67, 0.15) 0px 3px 9px 3px")
          , transition
          , E.paddingXY 24 8
          , mouseDown [ Background.color bgButtonDown ]

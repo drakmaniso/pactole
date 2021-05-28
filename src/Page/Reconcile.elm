@@ -78,14 +78,6 @@ viewReconciled shared =
 
 viewTransactions : Model.Model -> E.Element Msg.Msg
 viewTransactions shared =
-    {-
-       E.table
-           [ E.paddingXY 48 24, E.spacing 24 ]
-           { data = Ledger.getMonthTransactions shared.ledger shared.date
-           , columns =
-               [ colAmount, colDate, colDescription ]
-           }
-    -}
     E.column
         [ E.padding 0
         , E.spacing 0
@@ -100,9 +92,6 @@ viewTransactions shared =
                 E.row
                     [ E.width E.fill
                     , E.paddingXY 12 18
-
-                    -- , E.mouseOver [ Background.color Ui.bgMouseOver ]
-                    --, E.pointer
                     , if Basics.remainderBy 2 idx == 0 then
                         Background.color Ui.bgEvenRow
 

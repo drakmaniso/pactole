@@ -102,8 +102,6 @@ calendar model =
         , E.height E.fill
         , E.spacing 0
         , E.padding 0
-
-        --, Background.color Ui.bgDark
         ]
         (calendarHeader model
             :: loopThroughMonth (findMonday (findTheFirst model.date))
@@ -147,28 +145,18 @@ calendarCell model day =
             -- Need to wrap the button in E.el because of elm-ui E.focused bug
             ([ E.width E.fill
              , E.height E.fill
-
-             --  , Border.width 3
              , E.clipY
              , E.htmlAttribute (Html.Attributes.style "transition" "background 0.4s")
              ]
                 ++ (if sel then
                         [ Background.color Ui.bgWhite
-
-                        -- , Border.color Ui.bgTitle
-                        -- , Border.rounded 24
-                        --, Ui.smallShadow
-                        -- , E.focused
-                        --     [ Border.shadow
-                        --         { offset = ( 0, 0 ), size = 0, blur = 0, color = E.rgba 0 0 0 0 }
-                        --     ]
+                        , E.focused
+                            [ Border.color Ui.fgFocus
+                            ]
                         ]
 
                     else
                         [ Background.color Ui.bgOddRow
-
-                        -- , Border.color Ui.bgWhite -- Ui.bgOddRow -- (E.rgba 0 0 0 0)
-                        -- , Border.rounded 0
                         , E.focused
                             [ Border.color Ui.fgFocus
                             , Border.shadow
@@ -195,8 +183,6 @@ calendarCell model day =
                             , Border.widthEach { left = 3, top = 3, right = 3, bottom = 0 }
                             , Ui.smallFont
                             , Font.center
-
-                            -- , Border.widthEach {bottom = 3, top = 0, left = 0, right = 0}
                             , Border.color
                                 (if sel then
                                     Ui.fgTitle
@@ -210,11 +196,6 @@ calendarCell model day =
                               else
                                 Border.rounded 0
                             , Ui.transition
-
-                            -- , if sel then
-                            --     Font.bold
-                            --   else
-                            --     Font.regular
                             , Font.color
                                 (if sel then
                                     Ui.fgWhite
@@ -224,14 +205,18 @@ calendarCell model day =
                                 )
                             , Background.color
                                 (if sel then
-                                    -- Ui.transparent
                                     Ui.bgTitle
 
                                  else
-                                    --E.rgba 0 0 0 0
-                                    --Ui.bgEvenRow
                                     Ui.transparent
                                 )
+                            , if sel then
+                                E.focused []
+
+                              else
+                                E.focused
+                                    [ Border.color Ui.fgFocus
+                                    ]
                             ]
                             (E.text
                                 (if day == model.today then
@@ -266,10 +251,15 @@ calendarCell model day =
                                     Ui.transparent
 
                                  else
-                                    --E.rgba 0 0 0 0
-                                    --Ui.bgEvenRow
                                     Ui.transparent
                                 )
+                            , if sel then
+                                E.focused []
+
+                              else
+                                E.focused
+                                    [ Border.color Ui.fgFocus
+                                    ]
                             ]
                             (cellContentFor model day)
                         ]
@@ -282,7 +272,7 @@ calendarCell model day =
             [ E.width E.fill
             , E.height E.fill
             , Border.color (E.rgba 0 0 0 0)
-            , Background.color Ui.bgWhite --Ui.bgOddRow -- Ui.bgLight
+            , Background.color Ui.bgWhite
             ]
             E.none
 
@@ -325,8 +315,6 @@ cellContentFor model day =
                     , E.paddingXY 0 1
                     ]
                     (E.text ("," ++ parts.cents))
-
-                --, E.el [ Ui.smallFont, Font.medium ] (E.text closepar)
                 ]
     in
     (List.map render (Ledger.getTransactionsForDate model.ledger model.account day)
@@ -442,7 +430,7 @@ dayContentFor model day =
                             )
                    )
 
-        render idx transaction =
+        render _ transaction =
             let
                 category =
                     Model.category transaction.category model
@@ -450,11 +438,6 @@ dayContentFor model day =
             E.el
                 [ E.width E.fill
                 , E.padding 0
-
-                -- , if Basics.remainderBy 2 idx == 0 then
-                --     Background.color Ui.bgEvenRow
-                --   else
-                --     Background.color Ui.bgOddRow
                 ]
                 (Input.button
                     [ E.width E.fill

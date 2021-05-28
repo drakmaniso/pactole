@@ -234,13 +234,6 @@ view model =
 
                         else
                             Nothing
-
-                    --Just { offset = ( 0, 2 ), size = 0, blur = 4, color = E.rgba 0 0 0 0.3 }
-                    -- { color = E.rgba 0 0 0 0
-                    -- , offset = ( 0, 0 )
-                    -- , blur = 0
-                    -- , size = 0
-                    -- }
                     }
                 ]
             }

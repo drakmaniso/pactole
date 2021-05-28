@@ -194,8 +194,6 @@ buttonRow model =
     Keyed.row
         [ E.width E.fill
         , E.spacing 12
-
-        --, E.htmlAttribute <| HtmlAttr.id "unfocus-on-page-change"
         ]
         [ ( "blank left", E.el [ E.width E.fill ] E.none )
         , ( "stats button"

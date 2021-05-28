@@ -68,28 +68,6 @@ update msg model =
             )
 
         Msg.SettingsNewRecurring ->
-            {-
-               let
-                   t =
-                       { date = Date.findNextDayOfMonth 1 model.today
-                       , account = model.account
-                       , amount = Money.zero
-                       , description = "(opération mensuelle)"
-                       , category = 0
-                       , checked = False
-                       }
-
-                   settings =
-                       model.settings
-
-                   newSettings =
-                       { settings
-                           | recurringTransactions =
-                               settings.recurringTransactions ++ [ t ]
-                       }
-               in
-               ( model, Database.storeSettings newSettings )
-            -}
             ( model
             , Database.createRecurringTransaction
                 { date = Date.findNextDayOfMonth 1 model.today
@@ -747,17 +725,6 @@ viewDialog model =
                         [ E.paddingEach { top = 24, bottom = 24, right = 48, left = 48 }
                         , E.spacing 6
                         ]
-                        {- label =
-                           Input.labelAbove
-                               [ E.width E.shrink
-                               , Font.color Ui.fgTitle
-                               , Ui.normalFont
-                               , Font.bold
-                               , E.paddingEach { top = 12, bottom = 0, left = 12, right = 0 }
-                               , E.pointer
-                               ]
-                               (E.text "Choisir une icône: ")
-                        -}
                         (List.map
                             (\icon ->
                                 Ui.radioButton
