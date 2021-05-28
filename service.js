@@ -22,6 +22,8 @@ const version = 2
 
 const staticCacheName = "pactole-cache-1"
 
+const serviceMinorVersion = 2 // used to force an update on client-side
+
 
 self.addEventListener('install', event => {
   log('Installing service worker...!')

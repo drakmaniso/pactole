@@ -58,7 +58,7 @@ viewReconciled shared =
         [ E.row
             [ E.width E.fill ]
             [ E.el [ E.width E.fill ] E.none
-            , E.el [ Ui.biggerFont ] (E.text "Total pointé: ")
+            , E.el [ Ui.biggerFont ] (E.text "Solde bancaire: ")
             , Ui.viewSum (Ledger.getReconciled shared.ledger shared.account)
             , E.el [ E.width E.fill ] E.none
             ]
