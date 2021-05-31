@@ -7,7 +7,6 @@ import Json.Encode as Encode
 import Ledger
 import Log
 import Model
-import Money
 import Msg
 import Ports
 
@@ -19,23 +18,23 @@ import Ports
 update : Msg.DatabaseMsg -> Model.Model -> ( Model.Model, Cmd Msg.Msg )
 update msg model =
     case msg of
-        Msg.FromService ( title, json ) ->
+        Msg.DbFromService ( title, json ) ->
             msgFromService ( title, json ) model
 
-        Msg.CreateAccount name ->
+        Msg.DbCreateAccount name ->
             ( model, createAccount name )
 
-        Msg.CreateCategory name icon ->
+        Msg.DbCreateCategory name icon ->
             ( model, createCategory name icon )
 
-        Msg.StoreSettings settings ->
+        Msg.DbStoreSettings settings ->
             ( model, storeSettings settings )
 
-        Msg.CheckTransaction transaction checked ->
+        Msg.DbCheckTransaction transaction checked ->
             ( model
             , replaceTransaction
-                model.account
                 { id = transaction.id
+                , account = transaction.account
                 , date = transaction.date
                 , amount = transaction.amount
                 , description = transaction.description
@@ -49,10 +48,17 @@ update msg model =
 -- TO THE SERVICE WORKER
 
 
-requestAccounts =
-    Ports.send ( "request accounts", Encode.object [] )
+requestWholeDatabase : Cmd msg
+requestWholeDatabase =
+    Ports.send ( "request whole database", Encode.null )
 
 
+storeSettings : Model.Settings -> Cmd msg
+storeSettings settings =
+    Ports.send ( "store settings", Model.encodeSettings settings )
+
+
+createAccount : String -> Cmd msg
 createAccount name =
     Ports.send ( "create account", Encode.string name )
 
@@ -76,10 +82,7 @@ deleteAccount account =
         )
 
 
-requestCategories =
-    Ports.send ( "request categories", Encode.object [] )
-
-
+createCategory : String -> String -> Cmd msg
 createCategory name icon =
     Ports.send
         ( "create category"
@@ -110,60 +113,56 @@ deleteCategory id =
         )
 
 
-requestLedger : Int -> Cmd msg
-requestLedger account =
-    Ports.send ( "request ledger", Encode.int account )
+createTransaction : Ledger.NewTransaction -> Cmd msg
+createTransaction transaction =
+    Ports.send
+        ( "create transaction"
+        , Ledger.encodeNewTransaction transaction
+        )
 
 
-createTransaction : Maybe Int -> Ledger.NewTransaction -> Cmd msg
-createTransaction maybeAccount transaction =
-    case maybeAccount of
-        Just account ->
-            Ports.send
-                ( "create transaction"
-                , Ledger.encodeNewTransaction account transaction
-                )
-
-        Nothing ->
-            Log.error "create transaction: no current account"
+replaceTransaction : Ledger.Transaction -> Cmd msg
+replaceTransaction transaction =
+    Ports.send
+        ( "replace transaction"
+        , Ledger.encodeTransaction transaction
+        )
 
 
-replaceTransaction : Maybe Int -> Ledger.Transaction -> Cmd msg
-replaceTransaction maybeAccount transaction =
-    case maybeAccount of
-        Just account ->
-            Ports.send
-                ( "replace transaction"
-                , Ledger.encodeTransaction account transaction
-                )
-
-        Nothing ->
-            Log.error "replace transaction: no current account"
+deleteTransaction : Int -> Cmd msg
+deleteTransaction id =
+    Ports.send
+        ( "delete transaction"
+        , Encode.object
+            [ ( "id", Encode.int id )
+            ]
+        )
 
 
-deleteTransaction : Maybe Int -> Int -> Cmd msg
-deleteTransaction account id =
-    case account of
-        Just acc ->
-            Ports.send
-                ( "delete transaction"
-                , Encode.object
-                    [ ( "account", Encode.int acc )
-                    , ( "id", Encode.int id )
-                    ]
-                )
-
-        Nothing ->
-            Log.error "delete transaction: no current account"
+createRecurringTransaction : Ledger.NewTransaction -> Cmd msg
+createRecurringTransaction transaction =
+    Ports.send
+        ( "create recurring transaction"
+        , Ledger.encodeNewTransaction transaction
+        )
 
 
-requestSettings =
-    Ports.send ( "request settings", Encode.object [] )
+replaceRecurringTransaction : Ledger.Transaction -> Cmd msg
+replaceRecurringTransaction transaction =
+    Ports.send
+        ( "replace recurring transaction"
+        , Ledger.encodeTransaction transaction
+        )
 
 
-storeSettings : Model.Settings -> Cmd msg
-storeSettings settings =
-    Ports.send ( "store settings", Model.encodeSettings settings )
+deleteRecurringTransaction : Int -> Cmd msg
+deleteRecurringTransaction id =
+    Ports.send
+        ( "delete recurring transaction"
+        , Encode.object
+            [ ( "id", Encode.int id )
+            ]
+        )
 
 
 
@@ -172,20 +171,43 @@ storeSettings settings =
 
 receive : Sub Msg.Msg
 receive =
-    Ports.receive (Msg.ForDatabase << Msg.FromService)
+    Ports.receive (Msg.ForDatabase << Msg.DbFromService)
 
 
 msgFromService : ( String, Decode.Value ) -> Model.Model -> ( Model.Model, Cmd Msg.Msg )
 msgFromService ( title, content ) model =
     case title of
         "start application" ->
-            ( model
-            , Cmd.batch
-                [ requestAccounts
-                , requestCategories
-                , requestSettings
-                ]
-            )
+            ( model, Ports.send ( "request whole database", Encode.null ) )
+
+        "update whole database" ->
+            case Decode.decodeValue decodeDB content of
+                Ok db ->
+                    ( { model
+                        | settings = db.settings
+                        , accounts = Dict.fromList db.accounts
+                        , account = firstAccount db.accounts
+                        , categories = Dict.fromList db.categories
+                        , ledger = db.ledger
+                        , recurring = db.recurring
+                      }
+                    , Cmd.none
+                    )
+                        |> upgradeSettingsToV2 content
+                        |> processRecurringTransactions
+
+                Err e ->
+                    --TODO: error
+                    ( model, Log.error ("while decoding whole database: " ++ Decode.errorToString e) )
+
+        "update settings" ->
+            case Decode.decodeValue Model.decodeSettings content of
+                Ok settings ->
+                    ( { model | settings = settings }, Cmd.none )
+
+                Err e ->
+                    --TODO: error
+                    ( model, Log.error ("while decoding settings: " ++ Decode.errorToString e) )
 
         "update accounts" ->
             case Decode.decodeValue (Decode.list Model.decodeAccount) content of
@@ -198,8 +220,8 @@ msgFromService ( title, content ) model =
                             --TODO: use current account if set
                             Tuple.first head
                     in
-                    ( { model | accounts = Dict.fromList accounts, account = Just accountID }
-                    , requestLedger accountID
+                    ( { model | accounts = Dict.fromList accounts, account = accountID }
+                    , Cmd.none
                     )
 
                 Err e ->
@@ -219,30 +241,6 @@ msgFromService ( title, content ) model =
                     --TODO: error
                     ( model, Log.error ("while decoding category list: " ++ Decode.errorToString e) )
 
-        "update settings" ->
-            case Decode.decodeValue Model.decodeSettings content of
-                Ok settings ->
-                    processRecurringTransactions { model | settings = settings }
-
-                Err e ->
-                    --TODO: error
-                    ( model, Log.error ("while decoding settings: " ++ Decode.errorToString e) )
-
-        "invalidate ledger" ->
-            case ( model.account, Decode.decodeValue Decode.int content ) of
-                ( Just currentID, Ok updatedID ) ->
-                    if updatedID == currentID then
-                        ( model, requestLedger updatedID )
-
-                    else
-                        ( model, Cmd.none )
-
-                ( Nothing, _ ) ->
-                    ( model, Cmd.none )
-
-                ( _, Err e ) ->
-                    ( model, Log.error (Decode.errorToString e) )
-
         "update ledger" ->
             case Decode.decodeValue Ledger.decode content of
                 Ok ledger ->
@@ -253,66 +251,111 @@ msgFromService ( title, content ) model =
                 Err e ->
                     ( model, Log.error (Decode.errorToString e) )
 
-        {-
-           "invalidate settings" ->
-               case Decode.decodeValue Model.decodeSettings content of
-                   Ok settings ->
-                       ( { model | settings = settings }
-                       , Cmd.none
-                       )
-            Err e ->
-                ( model, Log.error (Decode.errorToString e) )
-        -}
+        "update recurring transactions" ->
+            case Decode.decodeValue Ledger.decode content of
+                Ok recurring ->
+                    ( { model | recurring = recurring }, Cmd.none )
+
+                Err e ->
+                    ( model, Log.error (Decode.errorToString e) )
+
         _ ->
             --TODO: error
             ( model, Log.error ("in message from service: unknown title \"" ++ title ++ "\"") )
 
 
-processRecurringTransactions model =
+
+-- UTILITIES
+
+
+upgradeSettingsToV2 : Decode.Value -> ( { a | settings : Model.Settings }, Cmd msg ) -> ( { a | settings : Model.Settings }, Cmd msg )
+upgradeSettingsToV2 json ( model, previousCmds ) =
     let
-        settings =
-            model.settings
+        decoder =
+            Decode.field "settings"
+                (Decode.oneOf
+                    [ Decode.field "recurringTransactions" (Decode.list Ledger.decodeNewTransaction)
+                    , Decode.succeed []
+                    ]
+                )
+    in
+    case Decode.decodeValue decoder json of
+        Ok [] ->
+            ( model, previousCmds )
 
-        recurring =
-            settings.recurringTransactions
-                |> List.map
-                    (\( a, t ) ->
-                        let
-                            d =
-                                if Date.compare t.date model.today /= GT then
-                                    Date.findNextDayOfMonth (Date.getDay t.date) model.today
+        Ok recurring ->
+            let
+                cmds =
+                    recurring
+                        |> List.map
+                            (\t ->
+                                createRecurringTransaction t
+                            )
+            in
+            ( model, Cmd.batch (previousCmds :: storeSettings model.settings :: cmds) )
 
-                                else
-                                    t.date
-                        in
-                        ( a, { t | date = d } )
-                    )
+        Err e ->
+            --TODO: error
+            ( model
+            , Cmd.batch
+                [ previousCmds
+                , Log.error ("while decoding whole database: " ++ Decode.errorToString e)
+                ]
+            )
 
-        newSettings =
-            { settings
-                | recurringTransactions = recurring
+
+decodeDB : Decode.Decoder { settings : Model.Settings, accounts : List ( Int, String ), categories : List ( Int, { name : String, icon : String } ), ledger : Ledger.Ledger, recurring : Ledger.Ledger }
+decodeDB =
+    Decode.map5
+        (\s a c l r ->
+            { settings = s
+            , accounts = a
+            , categories = c
+            , ledger = l
+            , recurring = r
             }
+        )
+        (Decode.field "settings" Model.decodeSettings)
+        (Decode.field "accounts" (Decode.list Model.decodeAccount))
+        (Decode.field "categories" (Decode.list Model.decodeCategory))
+        (Decode.field "ledger" Ledger.decode)
+        (Decode.field "recurring" Ledger.decode)
 
-        createTransacs a t =
+
+firstAccount : List ( Int, String ) -> Int
+firstAccount accounts =
+    case accounts of
+        head :: _ ->
+            Tuple.first head
+
+        _ ->
+            -1
+
+
+processRecurringTransactions : ( Model.Model, Cmd Msg.Msg ) -> ( Model.Model, Cmd Msg.Msg )
+processRecurringTransactions ( model, previousCmds ) =
+    let
+        activated =
+            Ledger.getActivatedRecurringTransactions model.recurring model.today
+
+        cmds =
+            activated
+                |> List.foldl
+                    (\t cs ->
+                        cs
+                            ++ createAllDueTransactions (Ledger.newTransactionFromRecurring t)
+                            ++ [ replaceRecurringTransaction
+                                    { t | date = Date.findNextDayOfMonth (Date.getDay t.date) model.today }
+                               ]
+                    )
+                    [ previousCmds ]
+
+        createAllDueTransactions t =
             if Date.compare t.date model.today == GT then
                 []
 
             else
-                createTransaction (Just a) t
-                    :: createTransacs a { t | date = Date.incrementMonth t.date }
-
-        cmds =
-            model.settings.recurringTransactions
-                |> List.filter
-                    (\( _, t ) -> Date.compare t.date model.today /= GT)
-                |> List.concatMap
-                    (\( a, t ) -> createTransacs a t)
+                createTransaction t
+                    :: createAllDueTransactions { t | date = Date.incrementMonth t.date }
     in
-    ( { model | settings = newSettings }
-    , if List.length cmds > 0 then
-        Cmd.batch
-            (cmds ++ [ storeSettings newSettings ])
-
-      else
-        Cmd.none
-    )
+    ( model, Cmd.batch cmds )

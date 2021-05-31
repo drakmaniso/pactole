@@ -1,12 +1,9 @@
-module Msg exposing (..)
+module Msg exposing (DatabaseMsg(..), DialogMsg(..), Msg(..), SettingsDialogMsg(..))
 
-import Browser
 import Date
 import Json.Decode as Decode
 import Ledger
 import Model
-import Ports
-import Url
 
 
 type Msg
@@ -25,28 +22,29 @@ type Msg
 
 
 type DatabaseMsg
-    = FromService ( String, Decode.Value )
-    | CreateAccount String
-    | CreateCategory String String
-    | StoreSettings Model.Settings
-    | CheckTransaction Ledger.Transaction Bool
+    = DbFromService ( String, Decode.Value )
+    | DbCreateAccount String
+    | DbCreateCategory String String
+    | DbStoreSettings Model.Settings
+    | DbCheckTransaction Ledger.Transaction Bool
 
 
 type DialogMsg
-    = NewDialog Bool Date.Date -- NewDialog isExpense date
-    | EditDialog Int
-    | DialogAmount String
-    | DialogDescription String
-    | DialogCategory Int
+    = DialogNewTransaction Bool Date.Date -- isExpense date
+    | DialogEditTransaction Int
+    | DialogShowRecurring Int
+    | DialogChangeAmount String
+    | DialogChangeDescription String
+    | DialogChangeCategory Int
     | DialogDelete
     | DialogConfirm
 
 
 type SettingsDialogMsg
-    = OpenRenameAccount Int
-    | OpenDeleteAccount Int
-    | OpenRenameCategory Int
-    | OpenDeleteCategory Int
+    = SettingsRenameAccount Int
+    | SettingsDeleteAccount Int
+    | SettingsRenameCategory Int
+    | SettingsDeleteCategory Int
     | SettingsChangeName String
     | SettingsChangeAccount Int
     | SettingsChangeAmount String
@@ -54,6 +52,6 @@ type SettingsDialogMsg
     | SettingsChangeIsExpense Bool
     | SettingsChangeIcon String
     | SettingsConfirm
-    | NewRecurringTransaction
-    | OpenEditRecurring Int Int Ledger.NewTransaction
-    | DeleteRecurring Int
+    | SettingsNewRecurring
+    | SettingsEditRecurring Int Int Ledger.Transaction
+    | SettingsDeleteRecurring Int

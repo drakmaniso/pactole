@@ -1,6 +1,5 @@
 module Main exposing (..)
 
-import Array
 import Browser
 import Browser.Dom as Dom
 import Browser.Events
@@ -10,27 +9,19 @@ import Date
 import Dict
 import Element as E
 import Element.Background as Background
-import Element.Border as Border
-import Element.Font as Font
 import Element.Input as Input
-import Html
-import Html.Attributes
 import Json.Decode as Decode
-import Json.Encode as Encode
 import Ledger
 import Log
 import Model
-import Money
 import Msg
 import Page.Calendar as Calendar
 import Page.Dialog as Dialog
 import Page.Reconcile as Reconcile
 import Page.Settings as Settings
 import Page.Statistics as Statistics
-import Page.Tabular as Tabular
 import Process
 import Task
-import Time
 import Ui
 import Url
 
@@ -39,6 +30,7 @@ import Url
 -- MAIN
 
 
+main : Program Decode.Value Model.Model Msg.Msg
 main =
     Browser.application
         { init = init
@@ -94,17 +86,16 @@ init flags _ _ =
     in
     ( { settings =
             { categoriesEnabled = False
-            , defaultMode = Model.InCalendar
             , reconciliationEnabled = False
             , summaryEnabled = False
             , balanceWarning = 100
-            , recurringTransactions = []
             }
       , today = today
       , date = today
       , ledger = Ledger.empty
+      , recurring = Ledger.empty
       , accounts = Dict.empty
-      , account = Nothing
+      , account = -1 --TODO!!!
       , categories = Dict.empty
       , showAdvanced = False
       , advancedCounter = 0
@@ -172,7 +163,7 @@ update msg model =
             ( { model | date = date }, Cmd.none )
 
         Msg.SelectAccount accountID ->
-            ( { model | account = Just accountID }, Database.requestLedger accountID )
+            ( { model | account = accountID }, Cmd.none )
 
         Msg.KeyDown string ->
             if string == "Alt" || string == "Control" || string == "Shift" then
@@ -184,7 +175,7 @@ update msg model =
             else
                 ( model, Cmd.none )
 
-        Msg.KeyUp string ->
+        Msg.KeyUp _ ->
             ( { model | showAdvanced = False }, Cmd.none )
 
         Msg.ForDatabase m ->
@@ -242,17 +233,12 @@ view model =
                                 }
 
                         else
-                            Just
-                                { color = E.rgba 0 0 0 0
-                                , offset = ( 0, 0 )
-                                , blur = 0
-                                , size = 0
-                                }
+                            Nothing
                     }
                 ]
             }
             (case model.dialog of
-                Just dialog ->
+                Just _ ->
                     [ E.inFront
                         (E.el
                             [ E.width E.fill
@@ -277,7 +263,7 @@ view model =
 
                 Nothing ->
                     case model.settingsDialog of
-                        Just dialog ->
+                        Just _ ->
                             [ E.inFront
                                 (E.el
                                     [ E.width E.fill
@@ -315,12 +301,7 @@ view model =
                     Reconcile.view model
 
                 Model.MainPage ->
-                    case model.settings.defaultMode of
-                        Model.InCalendar ->
-                            Calendar.view model
-
-                        Model.InTabular ->
-                            Tabular.view model
+                    Calendar.view model
             )
         ]
     }

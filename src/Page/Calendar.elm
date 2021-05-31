@@ -56,7 +56,7 @@ calendar model =
                 findTheFirst (Date.decrementDay date)
 
         findTheLast date =
-            if Date.getDay date == Date.lastDayOf date then
+            if Date.getDay date == Date.getDay (Date.lastDayOf date) then
                 date
 
             else
@@ -84,7 +84,7 @@ calendar model =
                         [ E.width E.fill
                         , E.height E.fill
                         , E.clipY
-                        , E.spacing 2
+                        , E.spacing 0
                         ]
                         (loopThroughWeek date)
                         :: loopThroughMonth (Date.incrementWeek date)
@@ -100,15 +100,15 @@ calendar model =
     E.column
         [ E.width E.fill
         , E.height E.fill
-        , E.spacing 2
+        , E.spacing 0
         , E.padding 0
-        , Background.color Ui.bgDark
         ]
         (calendarHeader model
             :: loopThroughMonth (findMonday (findTheFirst model.date))
         )
 
 
+calendarHeader : Model.Model -> E.Element Msg.Msg
 calendarHeader model =
     E.column
         [ E.width E.fill
@@ -120,7 +120,7 @@ calendarHeader model =
             , E.alignBottom
             , Background.color Ui.bgWhite
             , Ui.smallFont
-            , Font.color Ui.fgDark
+            , Font.color Ui.fgDarker
             , Ui.notSelectable
             ]
             [ E.el [ E.width E.fill ] (E.el [ E.centerX ] (E.text "Lundi"))
@@ -146,28 +146,23 @@ calendarCell model day =
             ([ E.width E.fill
              , E.height E.fill
              , E.clipY
+             , E.htmlAttribute (Html.Attributes.style "transition" "background 0.4s")
              ]
                 ++ (if sel then
-                        [ Background.color Ui.bgTitle
-                        , Border.color Ui.bgTitle
-                        , Border.rounded 0
-                        , Border.width 4
+                        [ Background.color Ui.bgWhite
                         , E.focused
-                            [ Border.shadow
-                                { offset = ( 0, 0 ), size = 0, blur = 0, color = E.rgba 0 0 0 0 }
+                            [ Border.color Ui.fgFocus
                             ]
                         ]
 
                     else
-                        [ Background.color Ui.bgEvenRow
-                        , Border.color Ui.bgEvenRow -- (E.rgba 0 0 0 0)
-                        , Border.width 4
-                        , Border.rounded 0
+                        [ Background.color Ui.bgOddRow
                         , E.focused
                             [ Border.color Ui.fgFocus
                             , Border.shadow
                                 { offset = ( 0, 0 ), size = 0, blur = 0, color = E.rgba 0 0 0 0 }
                             ]
+                        , E.mouseOver [ Background.color Ui.bgEvenRow, Border.color Ui.bgWhite ]
                         ]
                    )
             )
@@ -184,9 +179,23 @@ calendarCell model day =
                         ]
                         [ E.el
                             [ E.width E.fill
-                            , E.paddingEach { top = 0, bottom = 4, left = 0, right = 0 }
+                            , E.paddingEach { top = 2, bottom = 4, left = 0, right = 0 }
+                            , Border.widthEach { left = 3, top = 3, right = 3, bottom = 0 }
                             , Ui.smallFont
                             , Font.center
+                            , Border.color
+                                (if sel then
+                                    Ui.fgTitle
+
+                                 else
+                                    Ui.bgWhite
+                                )
+                            , if sel then
+                                Border.roundEach { topLeft = 24, topRight = 24, bottomLeft = 0, bottomRight = 0 }
+
+                              else
+                                Border.rounded 0
+                            , Ui.transition
                             , Font.color
                                 (if sel then
                                     Ui.fgWhite
@@ -194,6 +203,20 @@ calendarCell model day =
                                  else
                                     Ui.fgBlack
                                 )
+                            , Background.color
+                                (if sel then
+                                    Ui.bgTitle
+
+                                 else
+                                    Ui.transparent
+                                )
+                            , if sel then
+                                E.focused []
+
+                              else
+                                E.focused
+                                    [ Border.color Ui.fgFocus
+                                    ]
                             ]
                             (E.text
                                 (if day == model.today then
@@ -209,14 +232,34 @@ calendarCell model day =
                             , E.paddingXY 2 8
                             , E.spacing 12
                             , E.scrollbarY
-                            , Background.color
+                            , Border.widthEach { left = 3, bottom = 3, right = 3, top = 0 }
+                            , Border.color
                                 (if sel then
-                                    Ui.bgWhite
+                                    Ui.fgTitle
 
                                  else
-                                    --E.rgba 0 0 0 0
-                                    Ui.bgEvenRow
+                                    Ui.bgWhite
                                 )
+                            , if sel then
+                                Border.roundEach { topLeft = 0, topRight = 0, bottomLeft = 24, bottomRight = 24 }
+
+                              else
+                                Border.rounded 0
+                            , Ui.transition
+                            , Background.color
+                                (if sel then
+                                    Ui.transparent
+
+                                 else
+                                    Ui.transparent
+                                )
+                            , if sel then
+                                E.focused []
+
+                              else
+                                E.focused
+                                    [ Border.color Ui.fgFocus
+                                    ]
                             ]
                             (cellContentFor model day)
                         ]
@@ -229,8 +272,7 @@ calendarCell model day =
             [ E.width E.fill
             , E.height E.fill
             , Border.color (E.rgba 0 0 0 0)
-            , Border.width 4
-            , Background.color Ui.bgOddRow -- Ui.bgLight
+            , Background.color Ui.bgWhite
             ]
             E.none
 
@@ -240,14 +282,24 @@ cellContentFor model day =
     let
         render transaction =
             let
+                future =
+                    Date.compare day model.today == GT
+
                 parts =
                     Money.toStrings transaction.amount
             in
             E.row
                 [ E.paddingEach { top = 3, bottom = 4, left = 6, right = 8 }
                 , Ui.smallFont
-                , Font.color (E.rgb 1 1 1)
-                , if Money.isExpense transaction.amount then
+                , if future then
+                    Font.color Ui.fgWhite
+
+                  else
+                    Font.color (E.rgb 1 1 1)
+                , if future then
+                    Background.color Ui.bgDark
+
+                  else if Money.isExpense transaction.amount then
                     Background.color Ui.bgExpense
 
                   else
@@ -265,9 +317,9 @@ cellContentFor model day =
                     (E.text ("," ++ parts.cents))
                 ]
     in
-    List.map
-        render
-        (Ledger.getDateTransactions day model.ledger)
+    (List.map render (Ledger.getTransactionsForDate model.ledger model.account day)
+        ++ List.map render (Ledger.getRecurringTransactionsForDate model.recurring model.account day)
+    )
         |> List.intersperse (E.text " ")
 
 
@@ -275,7 +327,12 @@ cellContentFor model day =
 -- DAY VIEW
 
 
+dayView : Model.Model -> E.Element Msg.Msg
 dayView model =
+    let
+        dayDiff =
+            Date.getDayDiff model.today model.date
+    in
     E.column
         [ E.width E.fill
         , E.height E.fill
@@ -294,7 +351,18 @@ dayView model =
             , Border.color Ui.bgDark
             , Ui.notSelectable
             ]
-            [ E.el [ E.width E.fill, Font.bold ]
+            [ if model.date == model.today then
+                E.el [ E.width E.fill, Ui.normalFont ] (E.text "— Aujourd'hui —")
+
+              else if dayDiff == 1 then
+                E.el [ E.width E.fill, Ui.normalFont ] (E.text "— demain —")
+
+              else if dayDiff > 1 then
+                E.el [ E.width E.fill, Ui.normalFont ] (E.text ("— dans " ++ String.fromInt dayDiff ++ " jours —"))
+
+              else
+                E.none
+            , E.el [ E.width E.fill, Font.bold, E.paddingEach { top = 0, bottom = 12, right = 0, left = 0 } ]
                 (E.text
                     (Date.getWeekdayName model.date
                         ++ " "
@@ -303,11 +371,6 @@ dayView model =
                         ++ Date.getMonthName model.date
                     )
                 )
-            , if model.date == model.today then
-                E.el [ E.width E.fill ] (E.text "— Aujourd'hui —")
-
-              else
-                E.none
             ]
         , E.column
             [ E.width E.fill
@@ -321,17 +384,15 @@ dayView model =
             , E.spacing 24
             , E.paddingXY 24 12
             ]
-            [ Ui.coloredButton
+            [ Ui.incomeButton
                 [ E.width (E.fillPortion 2) ]
-                { label = Ui.incomeIcon []
-                , color = Ui.fgIncome
-                , onPress = Just (Msg.ForDialog <| Msg.NewDialog False model.date)
+                { label = Ui.incomeIcon [ Font.color Ui.fgIncome ]
+                , onPress = Just (Msg.ForDialog <| Msg.DialogNewTransaction False model.date)
                 }
-            , Ui.coloredButton
+            , Ui.expenseButton
                 [ E.width (E.fillPortion 2) ]
-                { label = Ui.expenseIcon []
-                , color = Ui.fgExpense
-                , onPress = Just (Msg.ForDialog <| Msg.NewDialog True model.date)
+                { label = Ui.expenseIcon [ Font.color Ui.fgExpense ]
+                , onPress = Just (Msg.ForDialog <| Msg.DialogNewTransaction True model.date)
                 }
             ]
         ]
@@ -340,7 +401,36 @@ dayView model =
 dayContentFor : Model.Model -> Date.Date -> List (E.Element Msg.Msg)
 dayContentFor model day =
     let
-        render idx transaction =
+        future =
+            Date.compare day model.today == GT
+
+        transactions =
+            (Ledger.getTransactionsForDate model.ledger model.account day
+                |> List.map
+                    (\t ->
+                        { id = t.id
+                        , isRecurring = False
+                        , date = t.date
+                        , amount = t.amount
+                        , description = t.description
+                        , category = t.category
+                        }
+                    )
+            )
+                ++ (Ledger.getRecurringTransactionsForDate model.recurring model.account day
+                        |> List.map
+                            (\t ->
+                                { id = t.id
+                                , isRecurring = True
+                                , date = t.date
+                                , amount = t.amount
+                                , description = t.description
+                                , category = t.category
+                                }
+                            )
+                   )
+
+        render _ transaction =
             let
                 category =
                     Model.category transaction.category model
@@ -348,20 +438,24 @@ dayContentFor model day =
             E.el
                 [ E.width E.fill
                 , E.padding 0
-                , if Basics.remainderBy 2 idx == 0 then
-                    Background.color Ui.bgEvenRow
-
-                  else
-                    Background.color Ui.bgOddRow
                 ]
                 (Input.button
                     [ E.width E.fill
                     , E.paddingEach { top = 8, bottom = 8, left = 12, right = 12 }
                     , Border.width 4
                     , Border.color (E.rgba 0 0 0 0)
-                    , E.focused [ Border.color Ui.fgFocus ]
+                    , E.mouseDown [ Background.color Ui.bgMouseDown ]
+                    , E.mouseOver [ Background.color Ui.bgMouseOver ]
+                    , E.htmlAttribute (Html.Attributes.style "transition" "background 0.4s")
                     ]
-                    { onPress = Just (Msg.ForDialog <| Msg.EditDialog transaction.id)
+                    { onPress =
+                        Just
+                            (if transaction.isRecurring then
+                                (Msg.ForDialog << Msg.DialogShowRecurring) transaction.id
+
+                             else
+                                (Msg.ForDialog << Msg.DialogEditTransaction) transaction.id
+                            )
                     , label =
                         E.row
                             [ E.width E.fill
@@ -372,7 +466,7 @@ dayContentFor model day =
                                 ]
                                 (E.column
                                     [ E.width E.fill ]
-                                    [ Ui.viewMoney transaction.amount
+                                    [ Ui.viewMoney transaction.amount future
                                     , E.el [ E.height E.fill ] E.none
                                     ]
                                 )
@@ -382,7 +476,7 @@ dayContentFor model day =
                                 , Ui.normalFont
                                 , Font.color (E.rgb 0 0 0)
                                 ]
-                                (E.paragraph [] [ E.text (Ledger.getDescriptionDisplay transaction) ])
+                                (E.paragraph [] [ E.text (Ledger.getTransactionDescription transaction) ])
                             , E.el
                                 [ E.width (E.fillPortion 1)
                                 , E.alignTop
@@ -400,12 +494,12 @@ dayContentFor model day =
                     }
                 )
     in
-    case Ledger.getDateTransactions day model.ledger of
+    case transactions of
         [] ->
             [ E.el
                 [ E.width E.fill
                 , Font.center
-                , Font.color Ui.fgDark
+                , Font.color Ui.fgDarker
                 , Ui.normalFont
                 , E.paddingXY 8 32
                 ]

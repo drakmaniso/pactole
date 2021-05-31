@@ -1,4 +1,17 @@
-module Model exposing (..)
+module Model exposing
+    ( Category
+    , Dialog
+    , Model
+    , Page(..)
+    , Settings
+    , SettingsDialog(..)
+    , account
+    , category
+    , decodeAccount
+    , decodeCategory
+    , decodeSettings
+    , encodeSettings
+    )
 
 import Date
 import Dict
@@ -16,8 +29,9 @@ type alias Model =
     , today : Date.Date
     , date : Date.Date
     , ledger : Ledger.Ledger
+    , recurring : Ledger.Ledger
     , accounts : Dict.Dict Int String
-    , account : Maybe Int
+    , account : Int
     , categories : Dict.Dict Int Category
     , showAdvanced : Bool
     , advancedCounter : Int
@@ -45,12 +59,14 @@ type alias Category =
     }
 
 
+category : Int -> Model -> { name : String, icon : String }
 category categoryID model =
     Maybe.withDefault
         { name = "CATEGORIE_" ++ String.fromInt categoryID, icon = "" }
         (Dict.get categoryID model.categories)
 
 
+decodeCategory : Decode.Decoder ( Int, { name : String, icon : String } )
 decodeCategory =
     Decode.map3 (\id name icon -> ( id, { name = name, icon = icon } ))
         (Decode.field "id" Decode.int)
@@ -62,12 +78,14 @@ decodeCategory =
 -- TYPE ACCOUNT
 
 
+decodeAccount : Decode.Decoder ( Int, String )
 decodeAccount =
     Decode.map2 Tuple.pair
         (Decode.field "id" Decode.int)
         (Decode.field "name" Decode.string)
 
 
+account : Int -> Model -> String
 account accountID model =
     Maybe.withDefault
         ("COMPTE_" ++ String.fromInt accountID)
@@ -80,76 +98,36 @@ account accountID model =
 
 type alias Settings =
     { categoriesEnabled : Bool
-    , defaultMode : Mode
     , reconciliationEnabled : Bool
     , summaryEnabled : Bool
     , balanceWarning : Int
-    , recurringTransactions : List ( Int, Ledger.NewTransaction )
     }
 
 
-type Mode
-    = InCalendar
-    | InTabular
-
-
+encodeSettings : Settings -> Decode.Value
 encodeSettings settings =
-    let
-        modeString =
-            case settings.defaultMode of
-                InCalendar ->
-                    "calendar"
-
-                InTabular ->
-                    "tabular"
-
-        encodeRecurring ( accountID, transaction ) =
-            Ledger.encodeNewTransaction accountID transaction
-    in
     Encode.object
         [ ( "categoriesEnabled", Encode.bool settings.categoriesEnabled )
-        , ( "defaultMode", Encode.string modeString )
         , ( "reconciliationEnabled", Encode.bool settings.reconciliationEnabled )
         , ( "summaryEnabled", Encode.bool settings.summaryEnabled )
         , ( "balanceWarning", Encode.int settings.balanceWarning )
-        , ( "recurringTransactions", Encode.list encodeRecurring settings.recurringTransactions )
         ]
 
 
+decodeSettings : Decode.Decoder Settings
 decodeSettings =
-    let
-        decodeMode =
-            Decode.map
-                (\str ->
-                    case str of
-                        "calendar" ->
-                            InCalendar
-
-                        _ ->
-                            InTabular
-                )
-                Decode.string
-    in
-    Decode.map6
-        (\cat mod rec summ balwarn rectrans ->
+    Decode.map4
+        (\cat rec summ balwarn ->
             { categoriesEnabled = cat
-            , defaultMode = mod
             , reconciliationEnabled = rec
             , summaryEnabled = summ
             , balanceWarning = balwarn
-            , recurringTransactions = rectrans
             }
         )
         (Decode.oneOf [ Decode.field "categoriesEnabled" Decode.bool, Decode.succeed False ])
-        (Decode.oneOf [ Decode.field "defaultMode" decodeMode, Decode.succeed InCalendar ])
         (Decode.oneOf [ Decode.field "reconciliationEnabled" Decode.bool, Decode.succeed False ])
         (Decode.oneOf [ Decode.field "summaryEnabled" Decode.bool, Decode.succeed False ])
         (Decode.oneOf [ Decode.field "balanceWarning" Decode.int, Decode.succeed 100 ])
-        (Decode.oneOf
-            [ Decode.field "recurringTransactions" (Decode.list Ledger.decodeNewTransaction)
-            , Decode.succeed []
-            ]
-        )
 
 
 
@@ -159,6 +137,7 @@ decodeSettings =
 type alias Dialog =
     { id : Maybe Int
     , isExpense : Bool
+    , isRecurring : Bool
     , date : Date.Date
     , amount : String
     , amountError : String

@@ -8,6 +8,7 @@ import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
 import Element.Input as Input
+import Element.Keyed as Keyed
 import Html.Attributes
 import Html.Events as Events
 import Json.Decode as Decode
@@ -19,14 +20,17 @@ import Msg
 -- CONSTANTS
 
 
+borderWidth : number
 borderWidth =
     2
 
 
+roundCorners : E.Attribute msg
 roundCorners =
     Border.rounded 24
 
 
+notSelectable : E.Attribute msg
 notSelectable =
     E.htmlAttribute (Html.Attributes.style "user-select" "none")
 
@@ -35,14 +39,17 @@ notSelectable =
 -- COLORS
 
 
+transparent : E.Color
 transparent =
     E.rgba 0 0 0 0
 
 
+warningColor : E.Color
 warningColor =
     E.rgb 0.82 0.47 0.0
 
 
+fgFocus : E.Color
 fgFocus =
     --rgb 0.98 0.62 0.05
     --rgb 0.15 0.76 0.98
@@ -50,6 +57,7 @@ fgFocus =
     E.rgb 1.0 0.7 0
 
 
+bgPage : E.Color
 bgPage =
     --rgb 0.85 0.82 0.75
     --rgb 0.76 0.73 0.65
@@ -57,37 +65,50 @@ bgPage =
     E.rgb 1 1 1
 
 
+bgLight : E.Color
 bgLight =
     -- rgb 0.94 0.92 0.87
     --E.rgb 0.86 0.86 0.86
     E.rgb 0.9 0.9 0.89
 
 
+bgDark : E.Color
 bgDark =
     -- rgb 0.72 0.71 0.68
     E.rgb 0.7 0.7 0.65
 
 
+bgWhite : E.Color
 bgWhite =
     E.rgb 1.0 1.0 1.0
 
 
+fgWhite : E.Color
 fgWhite =
     E.rgb 1.0 1.0 1.0
 
 
+fgBlack : E.Color
 fgBlack =
     E.rgb 0 0 0
 
 
+fgRed : E.Color
 fgRed =
     E.rgb 0.84 0.22 0.0
 
 
+fgDark : E.Color
 fgDark =
     E.rgb 0.7 0.7 0.65
 
 
+fgDarker : E.Color
+fgDarker =
+    E.rgb 0.5 0.5 0.45
+
+
+fgTransaction : Bool -> E.Color
 fgTransaction isExpense =
     if isExpense then
         fgExpense
@@ -96,6 +117,7 @@ fgTransaction isExpense =
         fgIncome
 
 
+bgTransaction : Bool -> E.Color
 bgTransaction isExpense =
     if isExpense then
         bgExpense
@@ -104,35 +126,128 @@ bgTransaction isExpense =
         bgIncome
 
 
+bgExpense : E.Color
 bgExpense =
     -- rgb 0.8 0.25 0.2
     E.rgb 0.64 0.12 0.0
 
 
+fgExpense : E.Color
 fgExpense =
     -- rgb 0.6 0.125 0
     bgExpense
 
 
+fgOnExpense : E.Color
 fgOnExpense =
     E.rgb 1.0 1.0 1.0
 
 
+bgIncome : E.Color
 bgIncome =
     -- rgb255 44 136 32
     -- rgb255 22 102 0
     E.rgb 0.1 0.44 0
 
 
+bgIncomeButton : E.Color
+bgIncomeButton =
+    E.rgb 0.92 0.94 0.86
+
+
+bgIncomeButtonOver : E.Color
+bgIncomeButtonOver =
+    E.rgb 0.98 1 0.96
+
+
+bgIncomeButtonDown : E.Color
+bgIncomeButtonDown =
+    E.rgb 0.7 0.8 0.6
+
+
+bgExpenseButton : E.Color
+bgExpenseButton =
+    E.rgb 0.94 0.87 0.87
+
+
+bgExpenseButtonOver : E.Color
+bgExpenseButtonOver =
+    E.rgb 1 0.96 0.96
+
+
+bgExpenseButtonDown : E.Color
+bgExpenseButtonDown =
+    E.rgb 0.8 0.6 0.6
+
+
+fgIncome : E.Color
 fgIncome =
     -- rgb255 22 68 0
     bgIncome
 
 
+fgOnIncome : E.Color
 fgOnIncome =
     E.rgb 1.0 1.0 1.0
 
 
+bgEvenRow : E.Color
+bgEvenRow =
+    --E.rgb 0.99 0.98 0.9
+    E.rgb 0.96 0.96 0.95
+
+
+bgOddRow : E.Color
+bgOddRow =
+    --E.rgb 0.96 0.95 0.74
+    --E.rgb 0.9 0.9 0.89
+    E.rgb 0.92 0.92 0.91
+
+
+bgButton : E.Color
+bgButton =
+    --E.rgb 0.85 0.9 0.94
+    E.rgb 0.94 0.94 0.93
+
+
+bgButtonOver : E.Color
+bgButtonOver =
+    --E.rgb 0.98 0.99 1
+    E.rgb 1 1 1
+
+
+bgButtonDown : E.Color
+bgButtonDown =
+    --E.rgb 0.7 0.75 0.79
+    E.rgb 0.9 0.9 0.89
+
+
+bgMouseOver : E.Color
+bgMouseOver =
+    E.rgb 0.94 0.94 0.93
+
+
+bgMouseDown : E.Color
+bgMouseDown =
+    E.rgb 0.9 0.9 0.89
+
+
+bgMainButton : E.Color
+bgMainButton =
+    bgTitle
+
+
+bgMainButtonOver : E.Color
+bgMainButtonOver =
+    E.rgb 0.18 0.52 0.66
+
+
+bgMainButtonDown : E.Color
+bgMainButtonDown =
+    E.rgb 0.08 0.19 0.3
+
+
+bgTitle : E.Color
 bgTitle =
     --rgb 0.3 0.6 0.7
     --rgb 0.12 0.51 0.65
@@ -140,36 +255,63 @@ bgTitle =
     E.rgb 0.08 0.26 0.42
 
 
-bgEvenRow =
-    --E.rgb 0.99 0.98 0.9
-    E.rgb 0.96 0.96 0.95
-
-
-bgOddRow =
-    --E.rgb 0.96 0.95 0.74
-    E.rgb 0.9 0.9 0.89
-
-
-bgMouseOver =
-    E.rgb 0.85 0.92 0.98
-
-
-bgMouseDown =
-    E.rgb 0.7 0.7 0.65
-
-
+fgTitle : E.Color
 fgTitle =
     bgTitle
 
 
+fgOnTitle : E.Color
 fgOnTitle =
     E.rgb 1 1 1
+
+
+
+-- STYLES FOR INTERACTIVE ELEMENTS
+
+
+transition : E.Attribute msg
+transition =
+    E.htmlAttribute (Html.Attributes.style "transition" "background 0.2s, color 0.1s, box-shadow 0.2s, border-color 0.2s, border-radius 0.2s")
+
+
+defaultShadow : E.Attr decorative msg
+defaultShadow =
+    Border.shadow { offset = ( 0, 5 ), size = 0, blur = 8, color = E.rgba 0 0 0 0.5 }
+
+
+smallShadow : E.Attr decorative msg
+smallShadow =
+    Border.shadow { offset = ( 0, 2 ), size = 0, blur = 6, color = E.rgba 0 0 0 0.5 }
+
+
+innerShadow : E.Attr decorative msg
+innerShadow =
+    Border.innerShadow { offset = ( 0, 1 ), size = 0, blur = 4, color = E.rgba 0 0 0 0.5 }
+
+
+bigInnerShadow : E.Attr decorative msg
+bigInnerShadow =
+    Border.innerShadow { offset = ( 0, 1 ), size = 0, blur = 6, color = E.rgba 0 0 0 0.7 }
+
+
+mouseDown : List (E.Attr Never Never) -> E.Attribute msg
+mouseDown attr =
+    E.mouseDown
+        (Border.shadow { offset = ( 0, 1 ), size = 0, blur = 3, color = E.rgba 0 0 0 0.4 }
+            :: attr
+        )
+
+
+mouseOver : List E.Decoration -> E.Attribute msg
+mouseOver attr =
+    E.mouseOver attr
 
 
 
 -- FONTS
 
 
+fontFamily : E.Attribute msg
 fontFamily =
     Font.family
         [ Font.typeface "Work Sans"
@@ -177,34 +319,42 @@ fontFamily =
         ]
 
 
+biggestFont : E.Attr decorative msg
 biggestFont =
     Font.size 48
 
 
+biggerFont : E.Attr decorative msg
 biggerFont =
     Font.size 36
 
 
+bigFont : E.Attr decorative msg
 bigFont =
     Font.size 32
 
 
+normalFont : E.Attr decorative msg
 normalFont =
     Font.size 26
 
 
+smallFont : E.Attr decorative msg
 smallFont =
     Font.size 20
 
 
+smallerFont : E.Attr decorative msg
 smallerFont =
     Font.size 14
 
 
+verySmallFont : E.Attr decorative msg
 verySmallFont =
     Font.size 16
 
 
+iconFont : E.Attribute msg
 iconFont =
     Font.family [ Font.typeface "Font Awesome 5 Free" ]
 
@@ -213,61 +363,72 @@ iconFont =
 -- ICONS
 
 
+closeIcon : List (E.Attribute msg) -> E.Element msg
 closeIcon attributes =
     E.el ([ iconFont, normalFont, E.centerX ] ++ attributes)
         (E.text "\u{F00D}")
 
 
+backIcon : List (E.Attribute msg) -> E.Element msg
 backIcon attributes =
     E.el ([ iconFont, normalFont ] ++ attributes)
         (E.text "\u{F30A}")
 
 
+editIcon : List (E.Attribute msg) -> E.Element msg
 editIcon attributes =
     E.el ([ iconFont, normalFont, E.centerX ] ++ attributes)
         (E.text "\u{F044}")
 
 
+deleteIcon : List (E.Attribute msg) -> E.Element msg
 deleteIcon attributes =
     E.el ([ iconFont, normalFont, E.centerX ] ++ attributes)
         (E.text "\u{F2ED}")
 
 
+minusIcon : List (E.Attribute msg) -> E.Element msg
 minusIcon attributes =
     E.el ([ iconFont, normalFont, E.centerX ] ++ attributes)
         (E.text "\u{F068}")
 
 
+plusIcon : List (E.Attribute msg) -> E.Element msg
 plusIcon attributes =
     E.el ([ iconFont, normalFont, E.centerX ] ++ attributes)
         (E.text "\u{F067}")
 
 
+checkIcon : List (E.Attribute msg) -> E.Element msg
 checkIcon attributes =
     E.el ([ iconFont, normalFont ] ++ attributes)
         (E.text "\u{F00C}")
 
 
+warningIcon : List (E.Attribute msg) -> E.Element msg
 warningIcon attributes =
     E.el ([ iconFont, bigFont, E.centerX, E.paddingXY 24 0, Font.color warningColor ] ++ attributes)
         (E.text "\u{F071}")
 
 
+bigWarningIcon : List (E.Attribute msg) -> E.Element msg
 bigWarningIcon attributes =
     E.el
-        ([ iconFont, Font.size 48, E.alignLeft, E.padding 12, Font.color warningColor ]
+        ([ iconFont, Font.size 48, E.alignLeft, E.padding 0, Font.color warningColor ]
             ++ attributes
         )
         (E.text "\u{F071}")
 
 
+incomeIcon : List (E.Attribute msg) -> E.Element msg
 incomeIcon attributes =
-    E.el ([ iconFont, normalFont, E.centerX, Font.color fgIncome ] ++ attributes)
+    E.el ([ iconFont, normalFont, E.centerX ] ++ attributes)
         (E.text "\u{F067}")
 
 
+expenseIcon : List (E.Attribute msg) -> E.Element msg
 expenseIcon attributes =
-    E.el ([ iconFont, normalFont, E.centerX, Font.color fgExpense ] ++ attributes)
+    E.el ([ iconFont, normalFont, E.centerX ] ++ attributes)
         (E.text "\u{F068}")
 
 
@@ -298,7 +459,7 @@ pageWithSidePanel attributes { panel, page } =
             [ E.width (E.fillPortion 1)
             , E.height E.fill
             , E.clipY
-            , E.paddingXY 0 16
+            , E.paddingXY 6 12
             , E.alignTop
             ]
             panel
@@ -306,10 +467,40 @@ pageWithSidePanel attributes { panel, page } =
             [ E.width (E.fillPortion 3)
             , E.height E.fill
             , E.clipY
+            , E.paddingEach { top = 0, left = 6, bottom = 3, right = 6 }
             , Border.widthEach { top = 0, left = borderWidth, bottom = 0, right = 0 }
-            , Border.color bgDark
+            , Border.color bgWhite -- bgDark
             ]
             page
+        ]
+
+
+titledRow : String -> List (E.Attribute msg) -> List (E.Element msg) -> E.Element msg
+titledRow title attrs elems =
+    E.column
+        [ E.width E.fill
+        , E.height E.shrink
+        , E.paddingEach { top = 24, bottom = 24, right = 64, left = 64 }
+        , E.spacing 6
+        , Background.color bgWhite
+        ]
+        [ E.el
+            [ E.width E.shrink
+            , E.height E.fill
+            , Font.color fgTitle
+            , normalFont
+            , Font.bold
+            , E.paddingEach { top = 0, bottom = 12, left = 0, right = 0 }
+            , notSelectable
+            ]
+            (E.text title)
+        , E.row
+            ([ E.width E.fill
+             , E.paddingEach { top = 0, bottom = 0, left = 24, right = 0 }
+             ]
+                ++ attrs
+            )
+            elems
         ]
 
 
@@ -322,7 +513,7 @@ configRadio :
         , onChange : option -> msg
         }
     -> E.Element msg
-configRadio attributes { label, options, selected, onChange } =
+configRadio _ { label, options, selected, onChange } =
     Input.radioRow
         [ E.paddingEach { top = 12, bottom = 24, left = 12 + 64, right = 12 }
         , E.width E.fill
@@ -347,17 +538,27 @@ radioRowOption value element =
                  , E.paddingXY 16 7
                  , Border.rounded 3
                  , bigFont
-                 , E.mouseDown [ Background.color bgMouseDown ]
+                 , transition
                  ]
                     ++ (case state of
                             Input.Idle ->
-                                [ Font.color fgTitle ]
+                                [ Font.color fgTitle
+                                , E.mouseDown [ Background.color bgMouseDown ]
+                                , E.mouseOver [ Background.color bgMouseOver ]
+                                ]
 
                             Input.Focused ->
-                                []
+                                [ E.mouseDown [ Background.color bgMouseDown ]
+                                , E.mouseOver [ Background.color bgMouseOver ]
+                                ]
 
                             Input.Selected ->
-                                [ Font.color (E.rgb 1 1 1), Background.color bgTitle ]
+                                [ Font.color (E.rgb 1 1 1)
+                                , Background.color bgMainButton
+                                , smallShadow
+                                , mouseDown [ Background.color bgMainButtonDown ]
+                                , mouseOver [ Background.color bgMainButton ]
+                                ]
                        )
                 )
                 element
@@ -371,7 +572,7 @@ configCustom :
         , content : E.Element msg
         }
     -> E.Element msg
-configCustom attributes { label, content } =
+configCustom _ { label, content } =
     E.column
         [ E.paddingEach { top = 48, bottom = 24, left = 12, right = 12 }
         , E.width E.fill
@@ -418,86 +619,78 @@ warningParagraph attributes elements =
         ]
 
 
+dateNavigationBar : { a | showFocus : Bool, date : Date.Date, today : Date.Date } -> E.Element Msg.Msg
 dateNavigationBar model =
-    E.row
+    Keyed.row
         [ E.width E.fill
         , E.alignTop
-        , E.paddingEach { top = 0, bottom = 8, left = 0, right = 0 }
+        , E.paddingEach { top = 0, bottom = 8, left = 8, right = 8 }
         , Background.color bgWhite
         ]
-        [ E.el
-            [ E.width (E.fillPortion 2)
-            , E.height E.fill
-            ]
-            (Input.button
-                [ E.width E.fill
+        [ ( "previous month button"
+          , E.el
+                [ E.width (E.fillPortion 2)
                 , E.height E.fill
-                , Border.roundEach { topLeft = 0, bottomLeft = 0, topRight = 0, bottomRight = 32 }
-                , Font.color fgTitle
-                , Border.widthEach { top = 0, bottom = 2, left = 0, right = 2 }
-                , Background.color bgWhite
-                , Border.color bgDark
+                ]
+                (Input.button
+                    [ E.width E.fill
+                    , E.height E.fill
+                    , Border.roundEach { topLeft = 0, bottomLeft = 0, topRight = 0, bottomRight = 32 }
+                    , Font.color fgTitle
+                    , Border.widthEach { top = 0, bottom = 0, left = 0, right = 0 }
+                    , Background.color bgButton
+                    , Border.color bgDark
+                    , E.paddingEach { top = 4, bottom = 8, left = 0, right = 0 }
+                    , smallShadow
+                    , transition
+                    , mouseDown [ Background.color bgButtonDown ]
+                    , mouseOver [ Background.color bgButtonOver ]
+                    ]
+                    { label =
+                        E.row
+                            [ E.width E.fill ]
+                            [ E.el [ bigFont, Font.color fgTitle, E.centerX ]
+                                (E.text (Date.getMonthName (Date.decrementMonth model.date)))
+                            , E.el [ E.centerX, iconFont, normalFont ] (E.text "  \u{F060}  ")
+                            ]
+                    , onPress = Just (Msg.SelectDate (Date.decrementMonthUI model.date model.today))
+                    }
+                )
+          )
+        , ( "current month header"
+          , E.el
+                [ E.width (E.fillPortion 3)
+                , E.height E.fill
                 , E.paddingEach { top = 4, bottom = 8, left = 0, right = 0 }
-                , if model.showFocus then
-                    E.focused
-                        [ Border.color fgFocus
-                        , Border.shadow { offset = ( 0, 0 ), size = 0, blur = 0, color = E.rgba 0 0 0 0 }
-                        ]
-
-                  else
-                    E.focused []
-                , E.mouseDown [ Background.color bgMouseDown ]
+                , notSelectable
                 ]
-                { label =
-                    E.row
-                        [ E.width E.fill ]
-                        [ E.el [ bigFont, Font.color fgTitle, E.centerX ]
-                            (E.text (Date.getMonthName (Date.decrementMonth model.date)))
-                        , E.el [ E.centerX, iconFont, normalFont ] (E.text "  \u{F060}  ")
-                        ]
-                , onPress = Just (Msg.SelectDate (Date.decrementMonth model.date))
-                }
-            )
-        , E.el
-            [ E.width (E.fillPortion 3)
-            , E.height E.fill
-            , E.paddingEach { top = 4, bottom = 8, left = 0, right = 0 }
-            , notSelectable
-            ]
-            (E.el
-                [ E.centerX
-                , Font.bold
-                , bigFont
+                (E.el
+                    [ E.centerX
+                    , Font.bold
+                    , bigFont
+                    ]
+                    (E.text (Date.getMonthFullName model.today model.date))
+                )
+          )
+        , ( "next month button"
+          , E.el
+                -- needed to circumvent focus bug in elm-ui
+                [ E.width (E.fillPortion 2)
+                , E.height E.fill
                 ]
-                (E.text (Date.getMonthFullName model.today model.date))
-            )
-        , E.el
-            -- needed to circumvent focus bug in elm-ui
-            [ E.width (E.fillPortion 2)
-            , E.height E.fill
-            ]
-            (if
-                (Date.getYear model.date /= Date.getYear model.today)
-                    || (Date.getMonth model.date /= Date.getMonth model.today)
-             then
-                Input.button
+                (Input.button
                     [ E.width E.fill
                     , E.height E.fill
                     , Border.roundEach { topLeft = 0, bottomLeft = 32, topRight = 0, bottomRight = 0 }
                     , Font.color fgTitle
-                    , Border.widthEach { top = 0, bottom = 2, left = 2, right = 0 }
-                    , Background.color bgWhite
+                    , Border.widthEach { top = 0, bottom = 0, left = 0, right = 0 }
+                    , Background.color bgButton
                     , Border.color bgDark
                     , E.paddingEach { top = 4, bottom = 8, left = 0, right = 0 }
-                    , if model.showFocus then
-                        E.focused
-                            [ Border.color fgFocus
-                            , Border.shadow { offset = ( 0, 0 ), size = 0, blur = 0, color = E.rgba 0 0 0 0 }
-                            ]
-
-                      else
-                        E.focused []
-                    , E.mouseDown [ Background.color bgMouseDown ]
+                    , smallShadow
+                    , transition
+                    , mouseDown [ Background.color bgButtonDown ]
+                    , mouseOver [ Background.color bgButtonOver ]
                     ]
                     { label =
                         E.row
@@ -506,26 +699,30 @@ dateNavigationBar model =
                             , E.el [ bigFont, Font.color fgTitle, E.centerX ]
                                 (E.text (Date.getMonthName (Date.incrementMonth model.date)))
                             ]
-                    , onPress = Just (Msg.SelectDate (Date.incrementMonth model.date))
+                    , onPress = Just (Msg.SelectDate (Date.incrementMonthUI model.date model.today))
                     }
-
-             else
-                E.el
-                    [ E.width E.fill
-                    , E.height E.fill
-                    , Border.roundEach { topLeft = 0, bottomLeft = 32, topRight = 0, bottomRight = 0 }
-                    , Border.widthEach { top = 0, bottom = 2, left = 2, right = 0 }
-                    , Background.color bgWhite
-                    , Border.color bgDark
-                    , E.paddingEach { top = 4, bottom = 8, left = 0, right = 0 }
-                    ]
-                    E.none
-            )
+                )
+          )
         ]
 
 
-viewMoney money =
+viewMoney : Money.Money -> Bool -> E.Element msg
+viewMoney money future =
     let
+        openpar =
+            if future then
+                "("
+
+            else
+                ""
+
+        closepar =
+            if future then
+                ")"
+
+            else
+                ""
+
         parts =
             Money.toStrings money
 
@@ -539,7 +736,10 @@ viewMoney money =
         [ E.width E.fill
         , E.height E.shrink
         , E.paddingEach { top = 0, bottom = 0, left = 0, right = 16 }
-        , if isExpense then
+        , if future then
+            Font.color fgDarker
+
+          else if isExpense then
             Font.color fgExpense
 
           else if isZero then
@@ -560,20 +760,29 @@ viewMoney money =
                 , Font.bold
                 , Font.alignRight
                 ]
-                (E.text (parts.sign ++ parts.units))
-            , E.el
-                [ E.width (E.fillPortion 25)
-                , Font.bold
-                , smallFont
-                , Font.alignLeft
-                , E.alignBottom
-                , E.paddingXY 0 1
+                (E.text (openpar ++ parts.sign ++ parts.units))
+            , E.row
+                [ E.width (E.fillPortion 25) ]
+                [ E.el
+                    [ Font.bold
+                    , smallFont
+                    , Font.alignLeft
+                    , E.alignBottom
+                    , E.paddingXY 0 1
+                    ]
+                    (E.text ("," ++ parts.cents))
+                , E.el
+                    [ normalFont
+                    , Font.bold
+                    , Font.alignRight
+                    ]
+                    (E.text closepar)
                 ]
-                (E.text ("," ++ parts.cents))
             ]
         )
 
 
+viewSum : Money.Money -> E.Element msg
 viewSum money =
     let
         parts =
@@ -583,20 +792,21 @@ viewSum money =
         [ E.width E.shrink
         , E.height E.shrink
         , E.paddingEach { top = 0, bottom = 0, left = 16, right = 16 }
-        , Font.color fgBlack
         ]
         [ E.el
             [ E.width (E.fillPortion 75)
-            , biggestFont
+            , biggerFont
             , Font.alignRight
+            , Font.bold
             ]
             (E.text (parts.sign ++ parts.units))
         , E.el
             [ E.width (E.fillPortion 25)
-            , biggerFont
+            , normalFont
             , Font.alignLeft
             , E.alignBottom
             , E.paddingXY 0 1
+            , Font.bold
             ]
             (E.text ("," ++ parts.cents))
         ]
@@ -612,17 +822,18 @@ simpleButton :
     -> E.Element msg
 simpleButton attributes { onPress, label } =
     Input.button
-        ([ Background.color bgPage
+        ([ Background.color bgButton
          , normalFont
          , Font.color fgTitle
          , Font.center
          , roundCorners
-         , Border.width borderWidth
+         , Border.width 0
          , Border.color fgDark
+         , defaultShadow
+         , transition
          , E.paddingXY 24 8
-
-         --, E.mouseOver [ Background.color bgMouseOver ]
-         , E.mouseDown [ Background.color bgMouseDown ]
+         , mouseDown [ Background.color bgButtonDown ]
+         , mouseOver [ Background.color bgButtonOver ]
          ]
             ++ attributes
         )
@@ -644,8 +855,11 @@ mainButton attributes { onPress, label } =
          , roundCorners
          , Border.width borderWidth
          , Border.color bgTitle
+         , defaultShadow
+         , transition
          , E.paddingXY 24 8
-         , E.mouseDown [ Background.color bgMouseDown ]
+         , mouseDown [ Background.color bgMainButtonDown, Border.color bgMainButtonDown ]
+         , mouseOver [ Background.color bgMainButtonOver, Border.color bgMainButtonOver ]
          ]
             ++ attributes
         )
@@ -667,10 +881,61 @@ coloredButton attributes { onPress, label, color } =
          , roundCorners
          , Border.width borderWidth
          , Border.color color
+         , defaultShadow
+         , transition
          , E.paddingXY 24 8
+         , mouseDown [ Background.color color ]
+         , mouseOver [ Background.color color, Font.color bgPage ]
+         ]
+            ++ attributes
+        )
+        { onPress = onPress
+        , label = label
+        }
 
-         --, E.mouseOver [ Background.color bgMouseOver ]
-         , E.mouseDown [ Background.color bgMouseDown ]
+
+incomeButton :
+    List (E.Attribute msg)
+    -> { onPress : Maybe msg, label : E.Element msg }
+    -> E.Element msg
+incomeButton attributes { onPress, label } =
+    Input.button
+        ([ Background.color bgIncomeButton
+         , normalFont
+         , Font.center
+         , roundCorners
+         , Border.width borderWidth
+         , Border.color bgIncomeButton
+         , defaultShadow
+         , transition
+         , E.paddingXY 24 8
+         , mouseDown [ Background.color bgIncomeButtonDown, Border.color bgIncomeButtonDown ]
+         , mouseOver [ Background.color bgIncomeButtonOver, Border.color bgIncomeButtonOver ]
+         ]
+            ++ attributes
+        )
+        { onPress = onPress
+        , label = label
+        }
+
+
+expenseButton :
+    List (E.Attribute msg)
+    -> { onPress : Maybe msg, label : E.Element msg }
+    -> E.Element msg
+expenseButton attributes { onPress, label } =
+    Input.button
+        ([ Background.color bgExpenseButton
+         , normalFont
+         , Font.center
+         , roundCorners
+         , Border.width borderWidth
+         , Border.color bgExpenseButton
+         , defaultShadow
+         , transition
+         , E.paddingXY 24 8
+         , mouseDown [ Background.color bgExpenseButtonDown, Border.color bgExpenseButtonDown ]
+         , mouseOver [ Background.color bgExpenseButtonOver, Border.color bgExpenseButtonOver ]
          ]
             ++ attributes
         )
@@ -693,9 +958,8 @@ iconButton attributes { onPress, icon } =
          , E.padding 8
          , E.width (E.px 48)
          , E.height (E.px 48)
-
-         --, E.mouseOver [ Background.color bgMouseOver ]
          , E.mouseDown [ Background.color bgMouseDown ]
+         , E.mouseOver [ Background.color bgMouseOver ]
          ]
             ++ attributes
         )
@@ -704,20 +968,27 @@ iconButton attributes { onPress, icon } =
         }
 
 
+radioButton : List (E.Attr () msg) -> { a | onPress : Maybe msg, icon : String, label : String, active : Bool } -> E.Element msg
 radioButton attributes { onPress, icon, label, active } =
     Input.button
         ([ normalFont
          , Border.rounded 4
          , E.paddingXY 24 8
+         , transition
          ]
             ++ (if active then
                     [ Font.color fgWhite
-                    , Background.color bgTitle
+                    , Background.color bgMainButton
+                    , smallShadow
+                    , mouseDown [ Background.color bgMainButtonDown ]
+                    , mouseOver [ Background.color bgMainButton ]
                     ]
 
                 else
                     [ Font.color fgTitle
                     , Background.color bgWhite
+                    , E.mouseDown [ Background.color bgMouseDown ]
+                    , E.mouseOver [ Background.color bgMouseOver ]
                     ]
                )
             ++ attributes

@@ -6,6 +6,7 @@ import Element.Border as Border
 import Element.Font as Font
 import Ledger
 import Model
+import Money
 import Msg
 import Page.Summary as Summary
 import Ui
@@ -41,6 +42,7 @@ view shared =
                 ]
                 [ Ui.dateNavigationBar shared
                 , viewMonthBalance shared
+                , viewMonthFutureWarning shared
                 , E.column
                     [ E.width E.fill
                     , E.height E.fill
@@ -52,7 +54,7 @@ view shared =
                     , viewItem
                         ""
                         "Entrées d'argent: "
-                        (Ledger.getMonthlyIncome shared.ledger shared.date)
+                        (Ledger.getIncomeForMonth shared.ledger shared.account shared.date shared.today)
                     , if shared.settings.categoriesEnabled then
                         viewCategories shared
 
@@ -62,13 +64,13 @@ view shared =
                         viewItem
                             ""
                             "Sans catégorie: "
-                            (Ledger.getMonthlyCategory shared.ledger shared.date 0)
+                            (Ledger.getCategoryTotalForMonth shared.ledger shared.account shared.date shared.today 0)
 
                       else
                         viewItem
                             ""
                             "Dépenses: "
-                            (Ledger.getMonthlyExpense shared.ledger shared.date)
+                            (Ledger.getExpenseForMonth shared.ledger shared.account shared.date shared.today)
                     , E.text " "
                     , E.el [ E.height E.fill ] E.none
                     ]
@@ -76,14 +78,16 @@ view shared =
         }
 
 
+viewMonthBalance : Model.Model -> E.Element msg
 viewMonthBalance shared =
     let
         monthBal =
-            Ledger.getMonthlyTotal shared.ledger shared.date
+            Ledger.getTotalForMonth shared.ledger shared.account shared.date shared.today
     in
     E.row
         [ E.width E.fill
         , E.paddingXY 48 24
+        , Font.color Ui.fgBlack
         ]
         [ E.el [ E.width (E.fillPortion 2) ] E.none
         , E.el
@@ -92,6 +96,29 @@ viewMonthBalance shared =
         , Ui.viewSum monthBal
         , E.el [ E.width (E.fillPortion 2) ] E.none
         ]
+
+
+viewMonthFutureWarning : Model.Model -> E.Element msg
+viewMonthFutureWarning shared =
+    if
+        Ledger.hasFutureTransactionsForMonth shared.recurring shared.account shared.date shared.today
+            || Ledger.hasFutureTransactionsForMonth shared.ledger shared.account shared.date shared.today
+    then
+        E.row
+            [ E.width E.fill
+            , E.paddingEach { top = 0, bottom = 24, left = 48, right = 48 }
+            , Ui.normalFont
+            , Font.color Ui.fgDarker
+            ]
+            [ E.el [ E.width (E.fillPortion 2) ] E.none
+            , E.el
+                [ Font.alignRight ]
+                (E.text "(sans compter les futures opérations)")
+            , E.el [ E.width (E.fillPortion 2) ] E.none
+            ]
+
+    else
+        E.none
 
 
 viewCategories : Model.Model -> E.Element Msg.Msg
@@ -106,11 +133,12 @@ viewCategories shared =
                     viewItem
                         category.icon
                         (category.name ++ ": ")
-                        (Ledger.getMonthlyCategory shared.ledger shared.date catID)
+                        (Ledger.getCategoryTotalForMonth shared.ledger shared.account shared.date shared.today catID)
                 )
         )
 
 
+viewItem : String -> String -> Money.Money -> E.Element msg
 viewItem icon description money =
     E.row
         [ E.width E.fill
@@ -121,6 +149,6 @@ viewItem icon description money =
             , E.el [ Ui.iconFont, Font.center ] (E.text icon)
             , E.el [ Ui.normalFont, Font.alignRight ] (E.text description)
             ]
-        , Ui.viewMoney money
+        , Ui.viewMoney money False
         , E.el [ E.width (E.fillPortion 2) ] E.none
         ]

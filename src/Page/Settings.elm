@@ -27,7 +27,7 @@ import Ui
 update : Msg.SettingsDialogMsg -> Model.Model -> ( Model.Model, Cmd Msg.Msg )
 update msg model =
     case msg of
-        Msg.OpenRenameAccount id ->
+        Msg.SettingsRenameAccount id ->
             let
                 name =
                     Maybe.withDefault "ERROR"
@@ -37,7 +37,7 @@ update msg model =
             , Cmd.none
             )
 
-        Msg.OpenDeleteAccount id ->
+        Msg.SettingsDeleteAccount id ->
             let
                 name =
                     Maybe.withDefault "ERROR"
@@ -47,7 +47,7 @@ update msg model =
             , Cmd.none
             )
 
-        Msg.OpenRenameCategory id ->
+        Msg.SettingsRenameCategory id ->
             let
                 { name, icon } =
                     Maybe.withDefault { name = "ERROR", icon = "" }
@@ -57,7 +57,7 @@ update msg model =
             , Cmd.none
             )
 
-        Msg.OpenDeleteCategory id ->
+        Msg.SettingsDeleteCategory id ->
             let
                 { name, icon } =
                     Maybe.withDefault { name = "ERROR", icon = "" }
@@ -67,36 +67,19 @@ update msg model =
             , Cmd.none
             )
 
-        Msg.NewRecurringTransaction ->
-            let
-                t =
-                    { date = Date.findNextDayOfMonth 1 model.today
-                    , amount = Money.zero
-                    , description = "(opération mensuelle)"
-                    , category = 0
-                    , checked = False
-                    }
+        Msg.SettingsNewRecurring ->
+            ( model
+            , Database.createRecurringTransaction
+                { date = Date.findNextDayOfMonth 1 model.today
+                , account = model.account
+                , amount = Money.zero
+                , description = "(opération mensuelle)"
+                , category = 0
+                , checked = False
+                }
+            )
 
-                settings =
-                    model.settings
-
-                account =
-                    case model.account of
-                        Just a ->
-                            a
-
-                        Nothing ->
-                            0
-
-                newSettings =
-                    { settings
-                        | recurringTransactions =
-                            settings.recurringTransactions ++ [ ( account, t ) ]
-                    }
-            in
-            ( model, Database.storeSettings newSettings )
-
-        Msg.OpenEditRecurring idx account transaction ->
+        Msg.SettingsEditRecurring idx account transaction ->
             ( { model
                 | settingsDialog =
                     Just
@@ -114,21 +97,8 @@ update msg model =
             , Cmd.none
             )
 
-        Msg.DeleteRecurring idx ->
-            let
-                remove i xs =
-                    List.take i xs ++ List.drop (i + 1) xs
-
-                settings =
-                    model.settings
-
-                newSettings =
-                    { settings
-                        | recurringTransactions =
-                            remove idx settings.recurringTransactions
-                    }
-            in
-            ( model, Database.storeSettings newSettings )
+        Msg.SettingsDeleteRecurring idx ->
+            ( model, Database.deleteRecurringTransaction idx )
 
         Msg.SettingsChangeName name ->
             case model.settingsDialog of
@@ -246,12 +216,6 @@ update msg model =
 
                 Just (Model.EditRecurring submodel) ->
                     let
-                        replace i x xs =
-                            List.take i xs ++ (x :: List.drop (i + 1) xs)
-
-                        settings =
-                            model.settings
-
                         dayInput =
                             Maybe.withDefault 1 (String.toInt submodel.dueDate)
 
@@ -267,35 +231,21 @@ update msg model =
 
                         dueDate =
                             Date.findNextDayOfMonth day model.today
-
-                        newSettings =
-                            { settings
-                                | recurringTransactions =
-                                    replace submodel.idx
-                                        ( submodel.account
-                                        , { amount =
-                                                Maybe.withDefault Money.zero
-                                                    (Money.fromInput submodel.isExpense submodel.amount)
-                                          , description = submodel.description
-                                          , category = submodel.category
-                                          , date = dueDate
-                                          , checked = False
-                                          }
-                                        )
-                                        settings.recurringTransactions
-                            }
                     in
                     ( { model | settingsDialog = Nothing }
-                    , Database.storeSettings newSettings
+                    , Database.replaceRecurringTransaction
+                        { id = submodel.idx
+                        , account = submodel.account
+                        , amount =
+                            Maybe.withDefault Money.zero
+                                (Money.fromInput submodel.isExpense submodel.amount)
+                        , description = submodel.description
+                        , category = submodel.category
+                        , date = dueDate
+                        , checked = False
+                        }
                     )
 
-                {-
-                   Just other ->
-                       ( { model | settingsDialog = Just other }
-                         -- TODO
-                       , Log.error "invalid context for Msg.SettingsChangeConfirm"
-                       )
-                -}
                 Nothing ->
                     ( { model | settingsDialog = Nothing }, Cmd.none )
 
@@ -315,7 +265,7 @@ view model =
                 , E.clipY
                 ]
                 [ E.el
-                    [ E.centerX ]
+                    [ E.centerX, E.padding 12 ]
                     (Ui.simpleButton []
                         { onPress = Just (Msg.ChangePage Model.MainPage)
                         , label =
@@ -373,7 +323,7 @@ view model =
                                                 \a ->
                                                     Ui.iconButton []
                                                         { icon = Ui.editIcon []
-                                                        , onPress = Just (Msg.ForSettingsDialog <| Msg.OpenRenameAccount (Tuple.first a))
+                                                        , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsRenameAccount (Tuple.first a))
                                                         }
                                           }
                                         , { header = E.none
@@ -382,13 +332,13 @@ view model =
                                                 \a ->
                                                     Ui.iconButton []
                                                         { icon = Ui.deleteIcon []
-                                                        , onPress = Just (Msg.ForSettingsDialog <| Msg.OpenDeleteAccount (Tuple.first a))
+                                                        , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsDeleteAccount (Tuple.first a))
                                                         }
                                           }
                                         ]
                                     }
                                 , Ui.simpleButton []
-                                    { onPress = Just (Msg.ForDatabase <| Msg.CreateAccount (newAccountName (Dict.values model.accounts) 1))
+                                    { onPress = Just (Msg.ForDatabase <| Msg.DbCreateAccount (newAccountName (Dict.values model.accounts) 1))
                                     , label = E.row [] [ Ui.plusIcon [], E.text "  Ajouter" ]
                                     }
                                 ]
@@ -404,6 +354,7 @@ view model =
         }
 
 
+configWarning : Model.Model -> E.Element Msg.Msg
 configWarning model =
     let
         settings =
@@ -416,7 +367,7 @@ configWarning model =
                 [ Ui.iconButton [ Border.color Ui.fgDark, Border.width Ui.borderWidth ]
                     { icon = Ui.minusIcon []
                     , onPress =
-                        Just (Msg.ForDatabase <| Msg.StoreSettings { settings | balanceWarning = settings.balanceWarning - 10 })
+                        Just (Msg.ForDatabase <| Msg.DbStoreSettings { settings | balanceWarning = settings.balanceWarning - 10 })
                     }
                 , E.el [ Ui.bigFont ]
                     (E.text (String.fromInt model.settings.balanceWarning))
@@ -425,12 +376,13 @@ configWarning model =
                 , Ui.iconButton [ Border.color Ui.fgDark, Border.width Ui.borderWidth ]
                     { icon = Ui.plusIcon []
                     , onPress =
-                        Just (Msg.ForDatabase <| Msg.StoreSettings { settings | balanceWarning = settings.balanceWarning + 10 })
+                        Just (Msg.ForDatabase <| Msg.DbStoreSettings { settings | balanceWarning = settings.balanceWarning + 10 })
                     }
                 ]
         }
 
 
+configSummary : Model.Model -> E.Element Msg.Msg
 configSummary model =
     Ui.configRadio []
         { onChange =
@@ -439,12 +391,11 @@ configSummary model =
                     settings =
                         model.settings
                 in
-                case o of
-                    True ->
-                        Msg.ForDatabase <| Msg.StoreSettings { settings | summaryEnabled = True }
+                if o then
+                    Msg.ForDatabase <| Msg.DbStoreSettings { settings | summaryEnabled = True }
 
-                    False ->
-                        Msg.ForDatabase <| Msg.StoreSettings { settings | summaryEnabled = False }
+                else
+                    Msg.ForDatabase <| Msg.DbStoreSettings { settings | summaryEnabled = False }
         , label = "Activer la page de bilan:"
         , options =
             [ Ui.radioRowOption True (E.text "Oui")
@@ -454,6 +405,7 @@ configSummary model =
         }
 
 
+configReconciliation : Model.Model -> E.Element Msg.Msg
 configReconciliation model =
     Ui.configRadio []
         { onChange =
@@ -462,12 +414,11 @@ configReconciliation model =
                     settings =
                         model.settings
                 in
-                case o of
-                    True ->
-                        Msg.ForDatabase <| Msg.StoreSettings { settings | reconciliationEnabled = True }
+                if o then
+                    Msg.ForDatabase <| Msg.DbStoreSettings { settings | reconciliationEnabled = True }
 
-                    False ->
-                        Msg.ForDatabase <| Msg.StoreSettings { settings | reconciliationEnabled = False }
+                else
+                    Msg.ForDatabase <| Msg.DbStoreSettings { settings | reconciliationEnabled = False }
         , label = "Activer la page de pointage:"
         , options =
             [ Ui.radioRowOption True (E.text "Oui")
@@ -477,6 +428,7 @@ configReconciliation model =
         }
 
 
+configCategoriesEnabled : Model.Model -> E.Element Msg.Msg
 configCategoriesEnabled model =
     Ui.configRadio []
         { onChange =
@@ -485,12 +437,11 @@ configCategoriesEnabled model =
                     settings =
                         model.settings
                 in
-                case o of
-                    True ->
-                        Msg.ForDatabase <| Msg.StoreSettings { settings | categoriesEnabled = True }
+                if o then
+                    Msg.ForDatabase <| Msg.DbStoreSettings { settings | categoriesEnabled = True }
 
-                    False ->
-                        Msg.ForDatabase <| Msg.StoreSettings { settings | categoriesEnabled = False }
+                else
+                    Msg.ForDatabase <| Msg.DbStoreSettings { settings | categoriesEnabled = False }
         , label = "Activer les catégories:"
         , options =
             [ Ui.radioRowOption True (E.text "Oui")
@@ -500,6 +451,7 @@ configCategoriesEnabled model =
         }
 
 
+configCategories : Model.Model -> E.Element Msg.Msg
 configCategories model =
     Ui.configCustom []
         { label =
@@ -530,7 +482,7 @@ configCategories model =
                                 \a ->
                                     Ui.iconButton []
                                         { icon = Ui.editIcon []
-                                        , onPress = Just (Msg.ForSettingsDialog <| Msg.OpenRenameCategory (Tuple.first a))
+                                        , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsRenameCategory (Tuple.first a))
                                         }
                           }
                         , { header = E.none
@@ -539,13 +491,13 @@ configCategories model =
                                 \a ->
                                     Ui.iconButton []
                                         { icon = Ui.deleteIcon []
-                                        , onPress = Just (Msg.ForSettingsDialog <| Msg.OpenDeleteCategory (Tuple.first a))
+                                        , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsDeleteCategory (Tuple.first a))
                                         }
                           }
                         ]
                     }
                 , Ui.simpleButton []
-                    { onPress = Just (Msg.ForDatabase <| Msg.CreateCategory "Nouvelle catégorie" "")
+                    { onPress = Just (Msg.ForDatabase <| Msg.DbCreateCategory "Nouvelle catégorie" "")
                     , label = E.row [] [ Ui.plusIcon [], E.text "  Ajouter" ]
                     }
                 ]
@@ -563,27 +515,24 @@ configRecurring model =
         , content =
             E.column [ E.spacing 24 ]
                 [ E.table [ E.spacingXY 12 6 ]
-                    { data =
-                        List.indexedMap
-                            (\i ( a, t ) -> ( i, a, t ))
-                            model.settings.recurringTransactions
+                    { data = Ledger.getAllTransactions model.recurring
                     , columns =
                         [ { header = headerTxt "Échéance"
                           , width = E.fill
                           , view =
-                                \( i, a, t ) ->
+                                \t ->
                                     E.el [ Font.center, E.centerY ] (E.text (Date.toString t.date))
                           }
                         , { header = headerTxt "Compte"
                           , width = E.shrink
                           , view =
-                                \( i, a, t ) ->
-                                    E.el [ Font.center, E.centerY ] (E.text (Model.account a model))
+                                \t ->
+                                    E.el [ Font.center, E.centerY ] (E.text (Model.account t.account model))
                           }
                         , { header = headerTxt "Montant"
                           , width = E.shrink
                           , view =
-                                \( i, a, t ) ->
+                                \t ->
                                     let
                                         m =
                                             Money.toStrings t.amount
@@ -593,35 +542,35 @@ configRecurring model =
                         , { header = headerTxt "Description"
                           , width = E.fill
                           , view =
-                                \( i, a, t ) ->
+                                \t ->
                                     E.el [ E.centerY ] (E.text t.description)
                           }
                         , { header = E.none
                           , width = E.shrink
                           , view =
-                                \( i, a, t ) ->
+                                \t ->
                                     Ui.iconButton []
                                         { icon = Ui.editIcon []
                                         , onPress =
                                             Just
                                                 (Msg.ForSettingsDialog <|
-                                                    Msg.OpenEditRecurring i a t
+                                                    Msg.SettingsEditRecurring t.id t.account t
                                                 )
                                         }
                           }
                         , { header = E.none
                           , width = E.shrink
                           , view =
-                                \( i, _, _ ) ->
+                                \t ->
                                     Ui.iconButton []
                                         { icon = Ui.deleteIcon []
-                                        , onPress = Just (Msg.ForSettingsDialog <| Msg.DeleteRecurring i)
+                                        , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsDeleteRecurring t.id)
                                         }
                           }
                         ]
                     }
                 , Ui.simpleButton []
-                    { onPress = Just (Msg.ForSettingsDialog <| Msg.NewRecurringTransaction)
+                    { onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsNewRecurring)
                     , label = E.row [] [ Ui.plusIcon [], E.text "  Ajouter" ]
                     }
                 ]
@@ -776,17 +725,6 @@ viewDialog model =
                         [ E.paddingEach { top = 24, bottom = 24, right = 48, left = 48 }
                         , E.spacing 6
                         ]
-                        {- label =
-                           Input.labelAbove
-                               [ E.width E.shrink
-                               , Font.color Ui.fgTitle
-                               , Ui.normalFont
-                               , Font.bold
-                               , E.paddingEach { top = 12, bottom = 0, left = 12, right = 0 }
-                               , E.pointer
-                               ]
-                               (E.text "Choisir une icône: ")
-                        -}
                         (List.map
                             (\icon ->
                                 Ui.radioButton
@@ -1037,6 +975,7 @@ newAccountName accounts number =
 -- ICONS
 
 
+iconChoice : List String
 iconChoice =
     [ ""
     , "\u{F6BE}" -- cat
