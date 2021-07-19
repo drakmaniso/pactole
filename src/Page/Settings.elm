@@ -278,6 +278,8 @@ view model =
                 , E.el
                     [ E.width E.fill, E.height E.fill ]
                     E.none
+                , E.el [Ui.smallerFont, E.centerX]
+                    (E.text ("version de Pactole: " ++ model.serviceVersion) )
                 ]
         , page =
             E.column

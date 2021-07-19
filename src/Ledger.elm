@@ -117,6 +117,8 @@ getTransactionsForMonth (Ledger transactions) account date today =
                     && (Date.getYear t.date == Date.getYear date)
                     && (Date.getMonth t.date == Date.getMonth date)
             )
+        |> List.sortWith
+            (\a b -> Date.compare a.date b.date)
 
 
 getTotalForMonth : Ledger -> Int -> Date.Date -> Date.Date -> Money.Money

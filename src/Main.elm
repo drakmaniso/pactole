@@ -103,6 +103,7 @@ init flags _ _ =
       , page = Model.MainPage
       , dialog = Nothing
       , settingsDialog = Nothing
+      , serviceVersion = "unknown"
       }
     , cmd
       {-
