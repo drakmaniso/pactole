@@ -22,7 +22,8 @@ const version = 2
 
 const staticCacheName = "pactole-cache-1"
 
-const serviceMinorVersion = 3 // used to force an update on client-side
+// Used to force an update on client-side
+const serviceVersion = "1.2.0g"
 
 
 self.addEventListener('install', event => {
@@ -101,7 +102,8 @@ self.addEventListener('message', event => {
                             accounts: accounts,
                             categories: categories,
                             ledger: ledger,
-                            recurring: recurring
+                            recurring: recurring,
+                            serviceVersion: serviceVersion
                           }
                           respond(event, 'update whole database', db)
                         })

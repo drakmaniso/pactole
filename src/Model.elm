@@ -39,6 +39,7 @@ type alias Model =
     , page : Page
     , dialog : Maybe Dialog
     , settingsDialog : Maybe SettingsDialog
+    , serviceVersion : String
     }
 
 

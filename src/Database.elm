@@ -190,6 +190,7 @@ msgFromService ( title, content ) model =
                         , categories = Dict.fromList db.categories
                         , ledger = db.ledger
                         , recurring = db.recurring
+                        , serviceVersion = db.serviceVersion
                       }
                     , Cmd.none
                     )
@@ -304,15 +305,16 @@ upgradeSettingsToV2 json ( model, previousCmds ) =
             )
 
 
-decodeDB : Decode.Decoder { settings : Model.Settings, accounts : List ( Int, String ), categories : List ( Int, { name : String, icon : String } ), ledger : Ledger.Ledger, recurring : Ledger.Ledger }
+decodeDB : Decode.Decoder { settings : Model.Settings, accounts : List ( Int, String ), categories : List ( Int, { name : String, icon : String } ), ledger : Ledger.Ledger, recurring : Ledger.Ledger, serviceVersion: String }
 decodeDB =
-    Decode.map5
-        (\s a c l r ->
+    Decode.map6
+        (\s a c l r srd ->
             { settings = s
             , accounts = a
             , categories = c
             , ledger = l
             , recurring = r
+            , serviceVersion = srd
             }
         )
         (Decode.field "settings" Model.decodeSettings)
@@ -320,6 +322,7 @@ decodeDB =
         (Decode.field "categories" (Decode.list Model.decodeCategory))
         (Decode.field "ledger" Ledger.decode)
         (Decode.field "recurring" Ledger.decode)
+        (Decode.field "serviceVersion" Decode.string)
 
 
 firstAccount : List ( Int, String ) -> Int
