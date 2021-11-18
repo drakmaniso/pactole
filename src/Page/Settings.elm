@@ -308,6 +308,15 @@ view model =
                             ]
                         , E.el [ E.width (E.fillPortion 2) ] E.none
                         ]
+                    , E.row
+                        [E.width E.fill]
+                        [
+                            Ui.simpleButton []
+                                {
+                                    onPress = Just (Msg.ForDatabase <| Msg.DbExport),
+                                    label = E.text "Exporter"
+                                }
+                        ]
                     , Ui.configCustom []
                         { label = "Personnes utilisant l'application:"
                         , content =

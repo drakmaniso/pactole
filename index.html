@@ -144,11 +144,18 @@
 
         app.ports.send.subscribe(function (args) {
           [title, content] = args
-          if (title == "error") {
-            console.error(`[ELM] ${content}`)
-            return
+          switch (title) {
+            case "error":
+              console.error(`[ELM] ${content}`)
+              return
+
+            case "export":
+              exportDatabase(content)
+              return
+
+            default:
+              sendToServiceWorker(title, content)
           }
-          sendToServiceWorker(title, content)
         })
 
         navigator.serviceWorker.onmessage = event => {
@@ -177,6 +184,21 @@
         error(`Unable to send message "${title}" to service: the page has no controller`)
         //TODO: what?
       }
+    }
+
+    function exportDatabase(database) {
+      let date = new Date()
+      let year = `${date.getFullYear()}`
+      let month = `${date.getMonth() + 1}`.padStart(2, "0")
+      let day = `${date.getDate()}`.padStart(2, "0")
+      let filename = `Pactole_${year}-${month}-${day}.json`
+
+      let blob = new Blob([JSON.stringify(database, null, 4)], { type: "text/plain;charset=utf-8" })
+
+      var a = document.createElement("a")
+      a.href = window.URL.createObjectURL(blob)
+      a.download = `${filename}`
+      a.click();
     }
 
     function log(msg) {

@@ -42,6 +42,9 @@ update msg model =
                 , checked = checked
                 }
             )
+        
+        Msg.DbExport ->
+            (model, exportDatabase model)
 
 
 
@@ -161,6 +164,19 @@ deleteRecurringTransaction id =
         ( "delete recurring transaction"
         , Encode.object
             [ ( "id", Encode.int id )
+            ]
+        )
+
+exportDatabase : Model.Model -> Cmd msg
+exportDatabase model =
+    Ports.send
+        ( "export"
+        , Encode.object
+            [ ("settings", Model.encodeSettings model.settings)
+            , ("recurring", Ledger.encode model.recurring)
+            , ("accounts", Model.encodeAccounts model.accounts)
+            , ("categories", Model.encodeCategories model.categories)
+            , ("ledger", Ledger.encode model.ledger)
             ]
         )
 

@@ -11,6 +11,8 @@ module Model exposing
     , decodeCategory
     , decodeSettings
     , encodeSettings
+    , encodeAccounts
+    , encodeCategories
     )
 
 import Date
@@ -66,6 +68,16 @@ category categoryID model =
         { name = "CATEGORIE_" ++ String.fromInt categoryID, icon = "" }
         (Dict.get categoryID model.categories)
 
+encodeCategories : Dict.Dict Int Category -> Encode.Value
+encodeCategories categories =
+    Encode.dict
+        String.fromInt
+        (\cat ->
+            Encode.object
+                [ ("name", Encode.string cat.name)
+                , ("icon", Encode.string cat.icon)
+                ] )
+        categories
 
 decodeCategory : Decode.Decoder ( Int, { name : String, icon : String } )
 decodeCategory =
@@ -78,6 +90,9 @@ decodeCategory =
 
 -- TYPE ACCOUNT
 
+encodeAccounts : Dict.Dict Int String -> Encode.Value
+encodeAccounts accounts =
+    Encode.dict String.fromInt Encode.string accounts
 
 decodeAccount : Decode.Decoder ( Int, String )
 decodeAccount =
