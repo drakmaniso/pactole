@@ -12,6 +12,8 @@ import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
 import Element.Input as Input
+import Html
+import Html.Attributes as HtmlAttr
 import Ledger
 import Log
 import Model
@@ -199,6 +201,11 @@ update msg model =
 
                 Nothing ->
                     ( { model | settingsDialog = Nothing }, Cmd.none )
+        
+        Msg.SettingsAskImportConfirmation ->
+            ( { model | settingsDialog = Just Model.AskImportConfirmation }
+            , Cmd.none
+            )
 
         Msg.SettingsConfirm ->
             case model.settingsDialog of
@@ -245,6 +252,9 @@ update msg model =
                         , checked = False
                         }
                     )
+                
+                Just Model.AskImportConfirmation ->
+                    ({ model | settingsDialog = Nothing }, Database.importDatabase)
 
                 Nothing ->
                     ( { model | settingsDialog = Nothing }, Cmd.none )
@@ -309,13 +319,26 @@ view model =
                         , E.el [ E.width (E.fillPortion 2) ] E.none
                         ]
                     , E.row
-                        [E.width E.fill]
-                        [
-                            Ui.simpleButton []
-                                {
-                                    onPress = Just (Msg.ForDatabase <| Msg.DbExport),
-                                    label = E.text "Exporter"
-                                }
+                        [ E.width E.fill
+                        , E.spacing 24
+                        , E.paddingEach { top = 12, bottom = 12, left = 12, right = 12 }
+                        ]
+                        [ Ui.simpleButton []
+                            {
+                                -- onPress = Just (Msg.ForDatabase <| Msg.DbImport),
+                                onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsAskImportConfirmation),
+                                label = E.text "Importer"
+                            }
+                        , Ui.simpleButton []
+                            {
+                                onPress = Just (Msg.ForDatabase <| Msg.DbExport),
+                                label = E.text "Exporter"
+                            }
+                            -- , E.html 
+                            --     (Html.input 
+                            --         [(HtmlAttr.type_ "file")
+                            --         ]
+                            --         [])
                         ]
                     , Ui.configCustom []
                         { label = "Personnes utilisant l'application:"
@@ -959,6 +982,47 @@ viewDialog model =
                         }
                     , Ui.mainButton []
                         { label = E.text "Confirmer"
+                        , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsConfirm)
+                        }
+                    ]
+                ]
+
+        Just (Model.AskImportConfirmation) ->
+            E.column
+                [ E.centerX
+                , E.centerY
+                , E.width (E.px 800)
+                , E.height E.shrink
+                , E.paddingXY 0 0
+                , E.spacing 0
+                , E.scrollbarY
+                , Background.color Ui.bgWhite
+                , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 32, color = E.rgba 0 0 0 0.75 }
+                ]
+                [ E.el
+                    [ E.paddingEach { top = 24, bottom = 24, right = 48, left = 48 }
+                    , Ui.bigFont
+                    ]
+                    (E.text ("Importer une sauvegarde?"))
+                , E.paragraph
+                    [ E.paddingEach { top = 24, bottom = 24, right = 96, left = 96 }
+                    ]
+                    [ E.text "Toutes les opérations, les comptes, ainsi que les réglages vont être "
+                    , E.el [ Font.bold ] (E.text "définitivement supprimés!")
+                    , E.text " Ils seront remplacés par le contenu de la sauvegarde."
+                    ]
+                , E.row
+                    [ E.width E.fill
+                    , E.spacing 24
+                    , E.paddingEach { top = 64, bottom = 24, right = 64, left = 64 }
+                    ]
+                    [ Ui.simpleButton
+                        [ E.alignRight ]
+                        { label = E.text "Annuler"
+                        , onPress = Just Msg.Close
+                        }
+                    , Ui.mainButton []
+                        { label = E.text "Importer"
                         , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsConfirm)
                         }
                     ]

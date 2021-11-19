@@ -70,14 +70,14 @@ category categoryID model =
 
 encodeCategories : Dict.Dict Int Category -> Encode.Value
 encodeCategories categories =
-    Encode.dict
-        String.fromInt
-        (\cat ->
+    Encode.list
+        (\(id, cat) ->
             Encode.object
-                [ ("name", Encode.string cat.name)
+                [ ("id", Encode.int id)
+                , ("name", Encode.string cat.name)
                 , ("icon", Encode.string cat.icon)
-                ] )
-        categories
+                ])
+        (Dict.toList categories)
 
 decodeCategory : Decode.Decoder ( Int, { name : String, icon : String } )
 decodeCategory =
@@ -92,7 +92,13 @@ decodeCategory =
 
 encodeAccounts : Dict.Dict Int String -> Encode.Value
 encodeAccounts accounts =
-    Encode.dict String.fromInt Encode.string accounts
+    Encode.list
+        (\(id, name) ->
+            Encode.object
+                [ ("id", Encode.int id)
+                , ("name", Encode.string name)
+                ])
+        (Dict.toList accounts)
 
 decodeAccount : Decode.Decoder ( Int, String )
 decodeAccount =
@@ -176,3 +182,4 @@ type SettingsDialog
         , category : Int
         , dueDate : String
         }
+    | AskImportConfirmation

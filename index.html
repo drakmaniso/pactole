@@ -149,8 +149,12 @@
               console.error(`[ELM] ${content}`)
               return
 
-            case "export":
+            case "export database":
               exportDatabase(content)
+              return
+
+            case "select import":
+              selectImport()
               return
 
             default:
@@ -198,7 +202,36 @@
       var a = document.createElement("a")
       a.href = window.URL.createObjectURL(blob)
       a.download = `${filename}`
-      a.click();
+      a.click()
+    }
+
+    function selectImport() {
+      var input = document.createElement("input")
+      input.type = "file"
+      input.accept = "application/json"
+      input.addEventListener("change", processSelectedImportFile, false)
+      input.click()
+    }
+
+    function processSelectedImportFile() {
+      if (this.files.length != 1) {
+        console.error(`[CLIENT] wrong number of selected files: ${this.files.length}`)
+        return
+      }
+      const file = this.files[0]
+      console.log(`[CLIENT] file selected for import: "${file.name}"`)
+      const reader = new FileReader()
+      reader.onload = (event) => {
+        try {
+          const db = JSON.parse(event.target.result)
+          sendToServiceWorker("broadcast import database", db)
+        }
+        catch (err) {
+          console.error(`[CLIENT] error in file selected for import: ${err}`)
+          //TODO: UI feedback
+        }
+      }
+      reader.readAsText(file)
     }
 
     function log(msg) {

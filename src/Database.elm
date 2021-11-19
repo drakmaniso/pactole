@@ -45,6 +45,9 @@ update msg model =
         
         Msg.DbExport ->
             (model, exportDatabase model)
+        
+        Msg.DbImport ->
+            (model, importDatabase)
 
 
 
@@ -170,16 +173,23 @@ deleteRecurringTransaction id =
 exportDatabase : Model.Model -> Cmd msg
 exportDatabase model =
     Ports.send
-        ( "export"
+        ( "export database"
         , Encode.object
             [ ("settings", Model.encodeSettings model.settings)
             , ("recurring", Ledger.encode model.recurring)
             , ("accounts", Model.encodeAccounts model.accounts)
             , ("categories", Model.encodeCategories model.categories)
             , ("ledger", Ledger.encode model.ledger)
+            , ("serviceVersion", Encode.string model.serviceVersion)
             ]
         )
 
+importDatabase : Cmd msg
+importDatabase =
+    Ports.send
+        ( "select import"
+        , Encode.object []
+        )
 
 
 -- FROM THE SERVICE WORKER
@@ -207,6 +217,7 @@ msgFromService ( title, content ) model =
                         , ledger = db.ledger
                         , recurring = db.recurring
                         , serviceVersion = db.serviceVersion
+                        , page = Model.MainPage
                       }
                     , Cmd.none
                     )
