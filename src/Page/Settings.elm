@@ -20,6 +20,7 @@ import Model
 import Money
 import Msg
 import Ui
+import String
 
 
 
@@ -315,33 +316,39 @@ view model =
                     ]
                     [ Ui.pageTitle [ E.centerY, Font.color Ui.fgTitle ]
                         (E.text "Configuration")
-                    , E.row
-                        [ E.width E.fill ]
-                        [ E.paragraph
-                            [ E.width (E.fillPortion 4)
-                            , E.paddingEach { top = 24, bottom = 24, left = 12, right = 12 }
-                            ]
-                            [ E.text "Rappel: l'application enregistre ses données uniquement sur cet ordinateur; "
-                            , E.text "rien n'est envoyé sur internet."
-                            ]
-                        , E.el [ E.width (E.fillPortion 2) ] E.none
-                        ]
-                    , E.row
-                        [ E.width E.fill
-                        , E.spacing 24
-                        , E.paddingEach { top = 12, bottom = 12, left = 12, right = 12 }
-                        ]
-                        [ Ui.simpleButton []
-                            {
-                                onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsAskImportConfirmation),
-                                label = E.text "Importer"
-                            }
-                        , Ui.simpleButton []
-                            {
-                                onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsAskExportConfirmation),
-                                label = E.text "Exporter"
-                            }
-                        ]
+                    , Ui.configCustom []
+                        { label = "Données de l'application:"
+                        , content =
+                            E.column [E.spacing 24]
+                                [ E.row
+                                    [ E.width E.fill ]
+                                    [ E.paragraph
+                                        [ E.width (E.fillPortion 4)
+                                        , E.paddingEach { top = 24, bottom = 24, left = 12, right = 12 }
+                                        ]
+                                        [ E.text "Pactole enregistre ses données directement sur l'ordinateur (dans la base de données du navigateur). "
+                                        , E.text "Rien n'est sauvegardé en ligne. De cette façon, les données ne sont jamais envoyées sur internet."
+                                        ]
+                                    , E.el [ E.width (E.fillPortion 2) ] E.none
+                                    ]
+                                , E.column
+                                    [ E.width E.fill
+                                    , E.spacing 24
+                                    , E.paddingEach { top = 12, bottom = 12, left = 12, right = 12 }
+                                    ]
+                                    [ Ui.simpleButton []
+                                        {
+                                            onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsAskExportConfirmation),
+                                            label = E.row [E.spacing 12] [Ui.saveIcon [], E.text "Faire une sauvegarde"]
+                                        }
+                                    , Ui.simpleButton []
+                                        {
+                                            onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsAskImportConfirmation),
+                                            label = E.row [E.spacing 12] [Ui.loadIcon [], E.text "Restaurer une sauvegarde"]
+                                        }
+                                    ]
+                                ]
+                        }
                     , Ui.configCustom []
                         { label = "Personnes utilisant l'application:"
                         , content =
@@ -1048,11 +1055,15 @@ viewDialog model =
                     ]
                     (E.text ("Sauvegarder les données?"))
                 , E.paragraph
-                    [ E.paddingEach { top = 24, bottom = 24, right = 96, left = 96 }
+                    [ E.paddingEach { top = 24, bottom = 6, right = 96, left = 96 }
                     ]
-                    [ E.text "En fonction des réglages de votre navigateur, une boite de dialogue s'ouvrira"
-                    , E.text"  pour vous permettre de choisir un emplacement, ou bien le fichier sera"
-                    , E.text " directement enregistré dans le dossier des téléchargements."
+                    [ E.text ("Toutes les données de Pactole seront enregistrées dans le fichier \"" ++ (exportFileName model.today) ++"\" placé dans le dossier des téléchargements.")
+                    ]
+                , E.paragraph
+                    [ E.paddingEach { top = 6, bottom = 24, right = 96, left = 96 }
+                    , Ui.smallerFont
+                    ]
+                    [ E.text "(En fonction des réglages du navigateur, il est possible qu'une boite de dialogue s'ouvre pour sélectionner un autre emplacement)"
                     ]
                 , E.row
                     [ E.width E.fill
@@ -1065,7 +1076,7 @@ viewDialog model =
                         , onPress = Just Msg.Close
                         }
                     , Ui.mainButton []
-                        { label = E.text "Exporter"
+                        { label = E.text "Sauvegarder"
                         , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsConfirm)
                         }
                     ]
@@ -1088,6 +1099,15 @@ newAccountName accounts number =
     else
         name
 
+
+exportFileName : Date.Date -> String
+exportFileName today =
+    let
+        year = Date.getYear today |> String.fromInt |> String.padLeft 4 '0'
+        month = Date.getMonth today |> Date.getMonthNumber |> String.fromInt |> String.padLeft 2 '0'
+        day = Date.getDay today |> String.fromInt |> String.padLeft 2 '0'
+    in
+    "Pactole_" ++ year ++ "-" ++ month ++ "-" ++ day ++ ".json"
 
 
 -- ICONS

@@ -432,6 +432,18 @@ expenseIcon attributes =
         (E.text "\u{F068}")
 
 
+saveIcon : List (E.Attribute msg) -> E.Element msg
+saveIcon attributes =
+    E.el ([ iconFont, normalFont, E.centerX ] ++ attributes)
+        (E.text "\u{F0C7}")
+
+
+loadIcon : List (E.Attribute msg) -> E.Element msg
+loadIcon attributes =
+    E.el ([ iconFont, normalFont, E.centerX ] ++ attributes)
+        (E.text "\u{F2EA}")
+
+
 
 -- CONTAINERS
 
