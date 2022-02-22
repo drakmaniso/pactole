@@ -271,7 +271,7 @@ fgOnTitle =
 
 transition : E.Attribute msg
 transition =
-    E.htmlAttribute (Html.Attributes.style "transition" "background 0.2s, color 0.1s, box-shadow 0.2s, border-color 0.2s, border-radius 0.2s")
+    E.htmlAttribute (Html.Attributes.style "transition" "background 0.1s, color 0.1s, box-shadow 0.1s, border-color 0.1s")
 
 
 defaultShadow : E.Attr decorative msg
