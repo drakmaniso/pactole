@@ -206,6 +206,11 @@ update msg model =
             ( { model | settingsDialog = Just Model.AskImportConfirmation }
             , Cmd.none
             )
+        
+        Msg.SettingsAskExportConfirmation ->
+            ( { model | settingsDialog = Just Model.AskExportConfirmation }
+            , Cmd.none
+            )
 
         Msg.SettingsConfirm ->
             case model.settingsDialog of
@@ -255,6 +260,9 @@ update msg model =
                 
                 Just Model.AskImportConfirmation ->
                     ({ model | settingsDialog = Nothing }, Database.importDatabase)
+                
+                Just Model.AskExportConfirmation ->
+                    ({ model | settingsDialog = Nothing }, Database.exportDatabase model)
 
                 Nothing ->
                     ( { model | settingsDialog = Nothing }, Cmd.none )
@@ -325,20 +333,14 @@ view model =
                         ]
                         [ Ui.simpleButton []
                             {
-                                -- onPress = Just (Msg.ForDatabase <| Msg.DbImport),
                                 onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsAskImportConfirmation),
                                 label = E.text "Importer"
                             }
                         , Ui.simpleButton []
                             {
-                                onPress = Just (Msg.ForDatabase <| Msg.DbExport),
+                                onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsAskExportConfirmation),
                                 label = E.text "Exporter"
                             }
-                            -- , E.html 
-                            --     (Html.input 
-                            --         [(HtmlAttr.type_ "file")
-                            --         ]
-                            --         [])
                         ]
                     , Ui.configCustom []
                         { label = "Personnes utilisant l'application:"
@@ -1003,13 +1005,13 @@ viewDialog model =
                     [ E.paddingEach { top = 24, bottom = 24, right = 48, left = 48 }
                     , Ui.bigFont
                     ]
-                    (E.text ("Importer une sauvegarde?"))
-                , E.paragraph
+                    (E.text ("Remplacer toutes les données?"))
+                , Ui.warningParagraph
                     [ E.paddingEach { top = 24, bottom = 24, right = 96, left = 96 }
                     ]
                     [ E.text "Toutes les opérations, les comptes, ainsi que les réglages vont être "
                     , E.el [ Font.bold ] (E.text "définitivement supprimés!")
-                    , E.text " Ils seront remplacés par le contenu de la sauvegarde."
+                    , E.text " Ils seront remplacés par le contenu du fichier sélectionné."
                     ]
                 , E.row
                     [ E.width E.fill
@@ -1022,7 +1024,48 @@ viewDialog model =
                         , onPress = Just Msg.Close
                         }
                     , Ui.mainButton []
-                        { label = E.text "Importer"
+                        { label = E.text "Remplacer tout"
+                        , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsConfirm)
+                        }
+                    ]
+                ]
+
+        Just (Model.AskExportConfirmation) ->
+            E.column
+                [ E.centerX
+                , E.centerY
+                , E.width (E.px 800)
+                , E.height E.shrink
+                , E.paddingXY 0 0
+                , E.spacing 0
+                , E.scrollbarY
+                , Background.color Ui.bgWhite
+                , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 32, color = E.rgba 0 0 0 0.75 }
+                ]
+                [ E.el
+                    [ E.paddingEach { top = 24, bottom = 24, right = 48, left = 48 }
+                    , Ui.bigFont
+                    ]
+                    (E.text ("Sauvegarder les données?"))
+                , E.paragraph
+                    [ E.paddingEach { top = 24, bottom = 24, right = 96, left = 96 }
+                    ]
+                    [ E.text "En fonction des réglages de votre navigateur, une boite de dialogue s'ouvrira"
+                    , E.text"  pour vous permettre de choisir un emplacement, ou bien le fichier sera"
+                    , E.text " directement enregistré dans le dossier des téléchargements."
+                    ]
+                , E.row
+                    [ E.width E.fill
+                    , E.spacing 24
+                    , E.paddingEach { top = 64, bottom = 24, right = 64, left = 64 }
+                    ]
+                    [ Ui.simpleButton
+                        [ E.alignRight ]
+                        { label = E.text "Annuler"
+                        , onPress = Just Msg.Close
+                        }
+                    , Ui.mainButton []
+                        { label = E.text "Exporter"
                         , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsConfirm)
                         }
                     ]

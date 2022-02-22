@@ -183,3 +183,4 @@ type SettingsDialog
         , dueDate : String
         }
     | AskImportConfirmation
+    | AskExportConfirmation

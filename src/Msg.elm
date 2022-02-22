@@ -58,3 +58,4 @@ type SettingsDialogMsg
     | SettingsEditRecurring Int Int Ledger.Transaction
     | SettingsDeleteRecurring Int
     | SettingsAskImportConfirmation
+    | SettingsAskExportConfirmation
