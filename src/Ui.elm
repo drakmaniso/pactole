@@ -748,50 +748,54 @@ viewMoney money future =
         [ E.width E.fill
         , E.height E.shrink
         , E.paddingEach { top = 0, bottom = 0, left = 0, right = 16 }
-        , if future then
-            Font.color fgDarker
-
-          else if isExpense then
-            Font.color fgExpense
-
-          else if isZero then
-            Font.color fgDark
-
-          else
-            Font.color fgIncome
         ]
-        (if isZero then
-            [ E.el [ E.width (E.fillPortion 75), normalFont, Font.alignRight ] (E.text "—")
-            , E.el [ E.width (E.fillPortion 25) ] E.none
-            ]
+        [ E.el [E.width E.fill] E.none
+        , E.paragraph
+            [ if future then
+                Font.color fgDarker
 
-         else
-            [ E.el
-                [ E.width (E.fillPortion 75)
-                , normalFont
-                , Font.bold
-                , Font.alignRight
+            else if isExpense then
+                Font.color fgExpense
+
+            else if isZero then
+                Font.color fgDark
+
+            else
+                Font.color fgIncome
+            ]
+            (if isZero then
+                [ E.el [ E.width (E.fillPortion 75), normalFont, Font.alignRight ] (E.text "—")
+                , E.el [ E.width (E.fillPortion 25) ] E.none
                 ]
-                (E.text (openpar ++ parts.sign ++ parts.units))
-            , E.row
-                [ E.width (E.fillPortion 25) ]
+
+            else
                 [ E.el
-                    [ Font.bold
-                    , smallFont
-                    , Font.alignLeft
-                    , E.alignBottom
-                    , E.paddingXY 0 1
-                    ]
-                    (E.text ("," ++ parts.cents))
-                , E.el
-                    [ normalFont
+                    [ E.width (E.fillPortion 75)
+                    , normalFont
                     , Font.bold
                     , Font.alignRight
                     ]
-                    (E.text closepar)
+                    (E.text (openpar ++ parts.sign ++ parts.units ++ ","))
+                , E.row
+                    [ E.width (E.fillPortion 25) ]
+                    [ E.el
+                        [ Font.bold
+                        , smallFont
+                        , Font.alignLeft
+                        -- , E.alignBottom
+                        -- , E.paddingEach { top = 2, bottom = 0, left = 0, right = 0 }
+                        ]
+                        (E.text ("" ++ parts.cents))
+                    , E.el
+                        [ normalFont
+                        , Font.bold
+                        , Font.alignRight
+                        ]
+                        (E.text closepar)
+                    ]
                 ]
-            ]
-        )
+            )
+        ]
 
 
 viewSum : Money.Money -> E.Element msg
