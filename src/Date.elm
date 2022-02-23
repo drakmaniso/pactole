@@ -12,6 +12,7 @@ module Date exposing
     , getDay
     , getDayDiff
     , getMonth
+    , getMonthNumber
     , getMonthFullName
     , getMonthName
     , getWeekday

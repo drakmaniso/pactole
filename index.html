@@ -144,11 +144,22 @@
 
         app.ports.send.subscribe(function (args) {
           [title, content] = args
-          if (title == "error") {
-            console.error(`[ELM] ${content}`)
-            return
+          switch (title) {
+            case "error":
+              console.error(`[ELM] ${content}`)
+              return
+
+            case "export database":
+              exportDatabase(content)
+              return
+
+            case "select import":
+              selectImport()
+              return
+
+            default:
+              sendToServiceWorker(title, content)
           }
-          sendToServiceWorker(title, content)
         })
 
         navigator.serviceWorker.onmessage = event => {
@@ -177,6 +188,46 @@
         error(`Unable to send message "${title}" to service: the page has no controller`)
         //TODO: what?
       }
+    }
+
+    function exportDatabase(database) {
+      let filename = database.filename
+
+      let blob = new Blob([JSON.stringify(database, null, 4)], { type: "text/plain;charset=utf-8" })
+
+      var a = document.createElement("a")
+      a.href = window.URL.createObjectURL(blob)
+      a.download = `${filename}`
+      a.click()
+    }
+
+    function selectImport() {
+      var input = document.createElement("input")
+      input.type = "file"
+      input.accept = "application/json"
+      input.addEventListener("change", processSelectedImportFile, false)
+      input.click()
+    }
+
+    function processSelectedImportFile() {
+      if (this.files.length != 1) {
+        console.error(`[CLIENT] wrong number of selected files: ${this.files.length}`)
+        return
+      }
+      const file = this.files[0]
+      console.log(`[CLIENT] file selected for import: "${file.name}"`)
+      const reader = new FileReader()
+      reader.onload = (event) => {
+        try {
+          const db = JSON.parse(event.target.result)
+          sendToServiceWorker("broadcast import database", db)
+        }
+        catch (err) {
+          console.error(`[CLIENT] error in file selected for import: ${err}`)
+          //TODO: UI feedback
+        }
+      }
+      reader.readAsText(file)
     }
 
     function log(msg) {

@@ -42,6 +42,12 @@ update msg model =
                 , checked = checked
                 }
             )
+        
+        Msg.DbExport ->
+            (model, exportDatabase model)
+        
+        Msg.DbImport ->
+            (model, importDatabase)
 
 
 
@@ -165,6 +171,39 @@ deleteRecurringTransaction id =
         )
 
 
+exportFileName : Model.Model -> String
+exportFileName model =
+    let
+        today = model.today
+        year = Date.getYear today |> String.fromInt |> String.padLeft 4 '0'
+        month = Date.getMonth today |> Date.getMonthNumber |> String.fromInt |> String.padLeft 2 '0'
+        day = Date.getDay today |> String.fromInt |> String.padLeft 2 '0'
+    in
+    "Pactole-" ++ year ++ "-" ++ month ++ "-" ++ day ++ ".json"
+
+
+exportDatabase : Model.Model -> Cmd msg
+exportDatabase model =
+    Ports.send
+        ( "export database"
+        , Encode.object
+            [ ("filename", Encode.string <| exportFileName model)
+            , ("settings", Model.encodeSettings model.settings)
+            , ("recurring", Ledger.encode model.recurring)
+            , ("accounts", Model.encodeAccounts model.accounts)
+            , ("categories", Model.encodeCategories model.categories)
+            , ("ledger", Ledger.encode model.ledger)
+            , ("serviceVersion", Encode.string model.serviceVersion)
+            ]
+        )
+
+importDatabase : Cmd msg
+importDatabase =
+    Ports.send
+        ( "select import"
+        , Encode.object []
+        )
+
 
 -- FROM THE SERVICE WORKER
 
@@ -191,6 +230,7 @@ msgFromService ( title, content ) model =
                         , ledger = db.ledger
                         , recurring = db.recurring
                         , serviceVersion = db.serviceVersion
+                        , page = Model.MainPage
                       }
                     , Cmd.none
                     )

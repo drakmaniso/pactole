@@ -23,7 +23,7 @@ const version = 2
 const staticCacheName = "pactole-cache-1"
 
 // Used to force an update on client-side
-const serviceVersion = "1.2.1"
+const serviceVersion = "1.3.1"
 
 
 self.addEventListener('install', event => {
@@ -313,6 +313,25 @@ self.addEventListener('message', event => {
       }
       break
 
+    case 'broadcast import database':
+      try {
+        const {
+          settings, recurring, accounts, categories, ledger
+        } = msg.content
+        setSettings(settings)
+          .then(() => setAccounts(accounts))
+          .then(() => setCategories(categories))
+          .then(() => setAllTransactions('recurring', recurring))
+          .then(() => setAllTransactions('ledger', ledger))
+          .then(() => broadcast('update whole database', msg.content))
+          .catch(err => error(`broadcast import database: ${err}`))
+
+      }
+      catch (err) {
+        error(`broadcast import database: ${err}`)
+      }
+      break
+
     default:
       error(`Unknown message \"${msg.title}\" with content: ${msg.content}`)
   }
@@ -481,6 +500,24 @@ function getAccounts() {
 }
 
 
+function setAccounts(accounts) {
+  return new Promise((resolve, reject) => {
+    openDB()
+      .then(db => {
+        const tr = db.transaction(['accounts'], 'readwrite')
+        tr.onerror = () => reject(tr.error)
+        tr.oncomplete = () => resolve()
+        const os = tr.objectStore('accounts')
+        os.clear()
+        for (let account of accounts) {
+          os.add(account)
+        }
+      })
+      .catch(err => reject(err))
+  })
+}
+
+
 function createAccount(name) {
   return new Promise((resolve, reject) => {
     openDB()
@@ -564,6 +601,24 @@ function getCategories() {
 }
 
 
+function setCategories(categories) {
+  return new Promise((resolve, reject) => {
+    openDB()
+      .then(db => {
+        const tr = db.transaction(['categories'], 'readwrite')
+        tr.onerror = () => reject(tr.error)
+        tr.oncomplete = () => resolve()
+        const os = tr.objectStore('categories')
+        os.clear()
+        for (let category of categories) {
+          os.add(category)
+        }
+      })
+      .catch(err => reject(err))
+  })
+}
+
+
 function createCategory(name, icon) {
   return new Promise((resolve, reject) => {
     openDB()
@@ -625,6 +680,24 @@ function getLedger(storeName) {
         const req = os.getAll()
         req.onerror = () => reject(req.error)
         req.onsuccess = () => resolve(req.result)
+      })
+      .catch(err => reject(err))
+  })
+}
+
+
+function setAllTransactions(storeName, transactions) {
+  return new Promise((resolve, reject) => {
+    openDB()
+      .then(db => {
+        const tr = db.transaction([storeName], 'readwrite')
+        tr.onerror = () => reject(tr.error)
+        tr.oncomplete = () => resolve()
+        const os = tr.objectStore(storeName)
+        os.clear()
+        for (let transaction of transactions) {
+          os.add(transaction)
+        }
       })
       .catch(err => reject(err))
   })

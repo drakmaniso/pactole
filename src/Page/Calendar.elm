@@ -85,6 +85,7 @@ calendar model =
                         , E.height E.fill
                         , E.clipY
                         , E.spacing 0
+                        , Background.color Ui.bgWhite
                         ]
                         (loopThroughWeek date)
                         :: loopThroughMonth (Date.incrementWeek date)
@@ -102,6 +103,7 @@ calendar model =
         , E.height E.fill
         , E.spacing 0
         , E.padding 0
+        , Background.color Ui.bgWhite
         ]
         (calendarHeader model
             :: loopThroughMonth (findMonday (findTheFirst model.date))
@@ -146,7 +148,8 @@ calendarCell model day =
             ([ E.width E.fill
              , E.height E.fill
              , E.clipY
-             , E.htmlAttribute (Html.Attributes.style "transition" "background 0.4s")
+             , Ui.transition
+            , Background.color Ui.bgWhite
              ]
                 ++ (if sel then
                         [ Background.color Ui.bgWhite
@@ -191,11 +194,10 @@ calendarCell model day =
                                     Ui.bgWhite
                                 )
                             , if sel then
-                                Border.roundEach { topLeft = 24, topRight = 24, bottomLeft = 0, bottomRight = 0 }
+                                Border.roundEach { topLeft = 12, topRight = 12, bottomLeft = 0, bottomRight = 0 }
 
                               else
-                                Border.rounded 0
-                            , Ui.transition
+                                Border.roundEach { topLeft = 0, topRight = 0, bottomLeft = 0, bottomRight = 0 }
                             , Font.color
                                 (if sel then
                                     Ui.fgWhite
@@ -241,11 +243,10 @@ calendarCell model day =
                                     Ui.bgWhite
                                 )
                             , if sel then
-                                Border.roundEach { topLeft = 0, topRight = 0, bottomLeft = 24, bottomRight = 24 }
+                                Border.roundEach { topLeft = 0, topRight = 0, bottomLeft = 12, bottomRight = 12 }
 
                               else
-                                Border.rounded 0
-                            , Ui.transition
+                                Border.roundEach { topLeft = 0, topRight = 0, bottomLeft = 0, bottomRight = 0 }
                             , Background.color
                                 (if sel then
                                     Ui.transparent
@@ -446,7 +447,7 @@ dayContentFor model day =
                     , Border.color (E.rgba 0 0 0 0)
                     , E.mouseDown [ Background.color Ui.bgMouseDown ]
                     , E.mouseOver [ Background.color Ui.bgMouseOver ]
-                    , E.htmlAttribute (Html.Attributes.style "transition" "background 0.4s")
+                    , Ui.transition
                     ]
                     { onPress =
                         Just

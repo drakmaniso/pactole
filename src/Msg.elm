@@ -27,6 +27,8 @@ type DatabaseMsg
     | DbCreateCategory String String
     | DbStoreSettings Model.Settings
     | DbCheckTransaction Ledger.Transaction Bool
+    | DbExport
+    | DbImport
 
 
 type DialogMsg
@@ -55,3 +57,5 @@ type SettingsDialogMsg
     | SettingsNewRecurring
     | SettingsEditRecurring Int Int Ledger.Transaction
     | SettingsDeleteRecurring Int
+    | SettingsAskImportConfirmation
+    | SettingsAskExportConfirmation

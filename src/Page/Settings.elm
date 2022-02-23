@@ -12,12 +12,15 @@ import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
 import Element.Input as Input
+import Html
+import Html.Attributes as HtmlAttr
 import Ledger
 import Log
 import Model
 import Money
 import Msg
 import Ui
+import String
 
 
 
@@ -199,6 +202,16 @@ update msg model =
 
                 Nothing ->
                     ( { model | settingsDialog = Nothing }, Cmd.none )
+        
+        Msg.SettingsAskImportConfirmation ->
+            ( { model | settingsDialog = Just Model.AskImportConfirmation }
+            , Cmd.none
+            )
+        
+        Msg.SettingsAskExportConfirmation ->
+            ( { model | settingsDialog = Just Model.AskExportConfirmation }
+            , Cmd.none
+            )
 
         Msg.SettingsConfirm ->
             case model.settingsDialog of
@@ -245,6 +258,12 @@ update msg model =
                         , checked = False
                         }
                     )
+                
+                Just Model.AskImportConfirmation ->
+                    ({ model | settingsDialog = Nothing }, Database.importDatabase)
+                
+                Just Model.AskExportConfirmation ->
+                    ({ model | settingsDialog = Nothing }, Database.exportDatabase model)
 
                 Nothing ->
                     ( { model | settingsDialog = Nothing }, Cmd.none )
@@ -297,17 +316,39 @@ view model =
                     ]
                     [ Ui.pageTitle [ E.centerY, Font.color Ui.fgTitle ]
                         (E.text "Configuration")
-                    , E.row
-                        [ E.width E.fill ]
-                        [ E.paragraph
-                            [ E.width (E.fillPortion 4)
-                            , E.paddingEach { top = 24, bottom = 24, left = 12, right = 12 }
-                            ]
-                            [ E.text "Rappel: l'application enregistre ses données uniquement sur cet ordinateur; "
-                            , E.text "rien n'est envoyé sur internet."
-                            ]
-                        , E.el [ E.width (E.fillPortion 2) ] E.none
-                        ]
+                    , Ui.configCustom []
+                        { label = "Données de l'application:"
+                        , content =
+                            E.column [E.spacing 24]
+                                [ E.row
+                                    [ E.width E.fill ]
+                                    [ E.paragraph
+                                        [ E.width (E.fillPortion 4)
+                                        , E.paddingEach { top = 24, bottom = 24, left = 12, right = 12 }
+                                        ]
+                                        [ E.text "Pactole enregistre ses données directement sur l'ordinateur (dans la base de données du navigateur). "
+                                        , E.text "Rien n'est sauvegardé en ligne. De cette façon, les données ne sont jamais envoyées sur internet."
+                                        ]
+                                    , E.el [ E.width (E.fillPortion 2) ] E.none
+                                    ]
+                                , E.column
+                                    [ E.width E.fill
+                                    , E.spacing 24
+                                    , E.paddingEach { top = 12, bottom = 12, left = 12, right = 12 }
+                                    ]
+                                    [ Ui.simpleButton []
+                                        {
+                                            onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsAskExportConfirmation),
+                                            label = E.row [E.spacing 12] [Ui.saveIcon [], E.text "Faire une sauvegarde"]
+                                        }
+                                    , Ui.simpleButton []
+                                        {
+                                            onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsAskImportConfirmation),
+                                            label = E.row [E.spacing 12] [Ui.loadIcon [], E.text "Restaurer une sauvegarde"]
+                                        }
+                                    ]
+                                ]
+                        }
                     , Ui.configCustom []
                         { label = "Personnes utilisant l'application:"
                         , content =
@@ -955,6 +996,92 @@ viewDialog model =
                     ]
                 ]
 
+        Just (Model.AskImportConfirmation) ->
+            E.column
+                [ E.centerX
+                , E.centerY
+                , E.width (E.px 800)
+                , E.height E.shrink
+                , E.paddingXY 0 0
+                , E.spacing 0
+                , E.scrollbarY
+                , Background.color Ui.bgWhite
+                , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 32, color = E.rgba 0 0 0 0.75 }
+                ]
+                [ E.el
+                    [ E.paddingEach { top = 24, bottom = 24, right = 48, left = 48 }
+                    , Ui.bigFont
+                    ]
+                    (E.text ("Remplacer toutes les données?"))
+                , Ui.warningParagraph
+                    [ E.paddingEach { top = 24, bottom = 24, right = 96, left = 96 }
+                    ]
+                    [ E.text "Toutes les opérations, les comptes, ainsi que les réglages vont être "
+                    , E.el [ Font.bold ] (E.text "définitivement supprimés!")
+                    , E.text " Ils seront remplacés par le contenu du fichier sélectionné."
+                    ]
+                , E.row
+                    [ E.width E.fill
+                    , E.spacing 24
+                    , E.paddingEach { top = 64, bottom = 24, right = 64, left = 64 }
+                    ]
+                    [ Ui.simpleButton
+                        [ E.alignRight ]
+                        { label = E.text "Annuler"
+                        , onPress = Just Msg.Close
+                        }
+                    , Ui.mainButton []
+                        { label = E.text "Remplacer tout"
+                        , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsConfirm)
+                        }
+                    ]
+                ]
+
+        Just (Model.AskExportConfirmation) ->
+            E.column
+                [ E.centerX
+                , E.centerY
+                , E.width (E.px 800)
+                , E.height E.shrink
+                , E.paddingXY 0 0
+                , E.spacing 0
+                , E.scrollbarY
+                , Background.color Ui.bgWhite
+                , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 32, color = E.rgba 0 0 0 0.75 }
+                ]
+                [ E.el
+                    [ E.paddingEach { top = 24, bottom = 24, right = 48, left = 48 }
+                    , Ui.bigFont
+                    ]
+                    (E.text ("Sauvegarder les données?"))
+                , E.paragraph
+                    [ E.paddingEach { top = 24, bottom = 6, right = 96, left = 96 }
+                    ]
+                    [ E.text ("Toutes les données de Pactole seront enregistrées dans le fichier \"" ++ (Database.exportFileName model) ++"\" placé dans le dossier des téléchargements.")
+                    ]
+                , E.paragraph
+                    [ E.paddingEach { top = 6, bottom = 24, right = 96, left = 96 }
+                    , Ui.smallerFont
+                    ]
+                    [ E.text "(En fonction des réglages du navigateur, il est possible qu'une boite de dialogue s'ouvre pour sélectionner un autre emplacement)"
+                    ]
+                , E.row
+                    [ E.width E.fill
+                    , E.spacing 24
+                    , E.paddingEach { top = 64, bottom = 24, right = 64, left = 64 }
+                    ]
+                    [ Ui.simpleButton
+                        [ E.alignRight ]
+                        { label = E.text "Annuler"
+                        , onPress = Just Msg.Close
+                        }
+                    , Ui.mainButton []
+                        { label = E.text "Sauvegarder"
+                        , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsConfirm)
+                        }
+                    ]
+                ]
+
 
 
 -- UTILS
@@ -971,7 +1098,6 @@ newAccountName accounts number =
 
     else
         name
-
 
 
 -- ICONS
