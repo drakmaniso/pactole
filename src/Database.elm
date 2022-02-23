@@ -170,12 +170,25 @@ deleteRecurringTransaction id =
             ]
         )
 
+
+exportFileName : Model.Model -> String
+exportFileName model =
+    let
+        today = model.today
+        year = Date.getYear today |> String.fromInt |> String.padLeft 4 '0'
+        month = Date.getMonth today |> Date.getMonthNumber |> String.fromInt |> String.padLeft 2 '0'
+        day = Date.getDay today |> String.fromInt |> String.padLeft 2 '0'
+    in
+    "Pactole-" ++ year ++ "-" ++ month ++ "-" ++ day ++ ".json"
+
+
 exportDatabase : Model.Model -> Cmd msg
 exportDatabase model =
     Ports.send
         ( "export database"
         , Encode.object
-            [ ("settings", Model.encodeSettings model.settings)
+            [ ("filename", Encode.string <| exportFileName model)
+            , ("settings", Model.encodeSettings model.settings)
             , ("recurring", Ledger.encode model.recurring)
             , ("accounts", Model.encodeAccounts model.accounts)
             , ("categories", Model.encodeCategories model.categories)

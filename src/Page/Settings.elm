@@ -1057,7 +1057,7 @@ viewDialog model =
                 , E.paragraph
                     [ E.paddingEach { top = 24, bottom = 6, right = 96, left = 96 }
                     ]
-                    [ E.text ("Toutes les données de Pactole seront enregistrées dans le fichier \"" ++ (exportFileName model.today) ++"\" placé dans le dossier des téléchargements.")
+                    [ E.text ("Toutes les données de Pactole seront enregistrées dans le fichier \"" ++ (Database.exportFileName model) ++"\" placé dans le dossier des téléchargements.")
                     ]
                 , E.paragraph
                     [ E.paddingEach { top = 6, bottom = 24, right = 96, left = 96 }
@@ -1098,16 +1098,6 @@ newAccountName accounts number =
 
     else
         name
-
-
-exportFileName : Date.Date -> String
-exportFileName today =
-    let
-        year = Date.getYear today |> String.fromInt |> String.padLeft 4 '0'
-        month = Date.getMonth today |> Date.getMonthNumber |> String.fromInt |> String.padLeft 2 '0'
-        day = Date.getDay today |> String.fromInt |> String.padLeft 2 '0'
-    in
-    "Pactole_" ++ year ++ "-" ++ month ++ "-" ++ day ++ ".json"
 
 
 -- ICONS
