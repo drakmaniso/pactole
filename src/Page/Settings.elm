@@ -282,6 +282,8 @@ view model =
                 , E.height E.fill
                 , E.clipX
                 , E.clipY
+                , Border.widthEach { right = 2, top = 0, bottom = 0, left = 0}
+                , Border.color Ui.fgDark
                 ]
                 [ E.el
                     [ E.centerX, E.padding 12 ]
@@ -323,13 +325,12 @@ view model =
                                 [ E.row
                                     [ E.width E.fill ]
                                     [ E.paragraph
-                                        [ E.width (E.fillPortion 4)
+                                        [ E.width E.fill
                                         , E.paddingEach { top = 24, bottom = 24, left = 12, right = 12 }
                                         ]
                                         [ E.text "Pactole enregistre ses données directement sur l'ordinateur (dans la base de données du navigateur). "
                                         , E.text "Rien n'est sauvegardé en ligne. De cette façon, les données ne sont jamais envoyées sur internet."
                                         ]
-                                    , E.el [ E.width (E.fillPortion 2) ] E.none
                                     ]
                                 , E.column
                                     [ E.width E.fill
@@ -339,7 +340,7 @@ view model =
                                     [ Ui.simpleButton []
                                         {
                                             onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsAskExportConfirmation),
-                                            label = E.row [E.spacing 12] [Ui.saveIcon [], E.text "Faire une sauvegarde"]
+                                            label = E.row [E.spacing 12] [Ui.saveIcon [], E.text "Faire une copie de sauvegarde"]
                                         }
                                     , Ui.simpleButton []
                                         {
