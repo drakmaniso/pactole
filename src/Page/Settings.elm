@@ -329,7 +329,7 @@ view model =
                                         , E.paddingEach { top = 24, bottom = 24, left = 12, right = 12 }
                                         ]
                                         [ E.text "Pactole enregistre ses données directement sur l'ordinateur (dans la base de données du navigateur). "
-                                        , E.text "Rien n'est sauvegardé en ligne. De cette façon, les données ne sont jamais envoyées sur internet."
+                                        , E.text "Rien n'est sauvegardé en ligne. De cette façon, les données de l'utilisateur ne sont jamais envoyées sur internet."
                                         ]
                                     ]
                                 , E.column
@@ -393,6 +393,7 @@ view model =
                     , configCategoriesEnabled model
                     , configCategories model
                     , configRecurring model
+                    , configLocked model
                     ]
                 ]
         }
@@ -619,6 +620,39 @@ configRecurring model =
                     }
                 ]
         }
+
+
+configLocked : Model.Model -> E.Element Msg.Msg
+configLocked model =
+    E.column [ E.width E.fill ]
+        [ Ui.configRadio []
+            { onChange =
+                \o ->
+                    let
+                        settings =
+                            model.settings
+                    in
+                    if o then
+                        Msg.ForDatabase <| Msg.DbStoreSettings { settings | settingsLocked = True }
+
+                    else
+                        Msg.ForDatabase <| Msg.DbStoreSettings { settings | settingsLocked = False }
+            , label = "Vérouiller les réglages:"
+            , options =
+                [ Ui.radioRowOption True (E.text "Oui")
+                , Ui.radioRowOption False (E.text "Non")
+                ]
+            , selected = Just model.settings.settingsLocked
+            }
+        , E.paragraph
+            [ E.width E.fill
+            , E.paddingEach { top = 0, bottom = 24, left = 64 + 12, right = 0 }
+            ]
+            [ E.text "Lorsque les réglages sont vérouillés, il faut cliquer 5 fois de suite sur l'icône \""
+            , E.el [Ui.iconFont, Ui.normalFont, Font.color Ui.bgDark] (E.text "\u{F013}")
+            , E.text "\" pour accéder aux réglages."
+            ]
+        ]
 
 
 

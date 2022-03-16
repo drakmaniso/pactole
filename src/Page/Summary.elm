@@ -244,7 +244,7 @@ buttonRow model =
 
 settingsButton : Model.Model -> E.Element Msg.Msg
 settingsButton model =
-    if model.showAdvanced then
+    if (not model.settings.settingsLocked) || model.showAdvanced then
         Input.button
             [ Background.color Ui.bgPage
             , Ui.normalFont
@@ -257,7 +257,7 @@ settingsButton model =
             , E.alignLeft
             ]
             { onPress = Just (Msg.ChangePage Model.SettingsPage)
-            , label = E.el [ Ui.iconFont, Ui.normalFont, E.centerX ] (E.text "\u{F013}")
+            , label = E.el [ Ui.iconFont, Ui.normalFont, E.centerX, Font.color Ui.bgDark ] (E.text "\u{F013}")
             }
 
     else
