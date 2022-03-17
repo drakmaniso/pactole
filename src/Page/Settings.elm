@@ -443,8 +443,8 @@ configSummary model =
                     Msg.ForDatabase <| Msg.DbStoreSettings { settings | summaryEnabled = False }
         , label = "Activer la page de bilan:"
         , options =
-            [ Ui.radioRowOption True (E.text "Oui")
-            , Ui.radioRowOption False (E.text "Non")
+            [ Ui.radioRowOption False (E.text "Non")
+            , Ui.radioRowOption True (E.text "Oui")
             ]
         , selected = Just model.settings.summaryEnabled
         }
@@ -466,8 +466,8 @@ configReconciliation model =
                     Msg.ForDatabase <| Msg.DbStoreSettings { settings | reconciliationEnabled = False }
         , label = "Activer la page de pointage:"
         , options =
-            [ Ui.radioRowOption True (E.text "Oui")
-            , Ui.radioRowOption False (E.text "Non")
+            [ Ui.radioRowOption False (E.text "Non")
+            , Ui.radioRowOption True (E.text "Oui")
             ]
         , selected = Just model.settings.reconciliationEnabled
         }
@@ -489,8 +489,8 @@ configCategoriesEnabled model =
                     Msg.ForDatabase <| Msg.DbStoreSettings { settings | categoriesEnabled = False }
         , label = "Activer les catégories:"
         , options =
-            [ Ui.radioRowOption True (E.text "Oui")
-            , Ui.radioRowOption False (E.text "Non")
+            [ Ui.radioRowOption False (E.text "Non")
+            , Ui.radioRowOption True (E.text "Oui")
             ]
         , selected = Just model.settings.categoriesEnabled
         }
@@ -639,8 +639,8 @@ configLocked model =
                         Msg.ForDatabase <| Msg.DbStoreSettings { settings | settingsLocked = False }
             , label = "Vérouiller les réglages:"
             , options =
-                [ Ui.radioRowOption True (E.text "Oui")
-                , Ui.radioRowOption False (E.text "Non")
+                [ Ui.radioRowOption False (E.text "Non")
+                , Ui.radioRowOption True (E.text "Oui")
                 ]
             , selected = Just model.settings.settingsLocked
             }
