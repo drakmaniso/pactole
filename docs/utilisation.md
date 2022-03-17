@@ -2,55 +2,72 @@
 
 ## Présentation générale
 
-La page principale de Pactole est divisée en trois parties.
+La page principale de Pactole est divisée en trois parties:
 
-Dans la partie de droite, un calendrier montre toutes les opérations (dépenses
-et entrées d'argent) faites dans le mois. Ce calendrier permet également de
-sélectionner un jour, ou de changer le mois affiché.
+- à droite: le calendrier;
+- en haut à gauche: le solde du compte;
+- en dessous du solde: le détail du jour sélectionné dans le calendrier.
 
-![calendrier dans la partie de droite](utilisation-calendrier.png)
-
-Dans la partie en haut à gauche, le solde actuel de votre compte est affiché.
-
-![solde en haut à gauche](utilisation-solde.png)
-
-Juste en dessous, le jour sélectionné dans le calendrier est affiché, avec le
-détail de toutes les opérations faites ce jour là. C'est dans cette partie que
-l'on peut ajouter et modifier des opérations.
-
-![jour sélectionné en bas à gauche](utilisation-jour.png)
+![les trois parties de la page principale](utilisation.png)
 
 
 ## Ajouter le solde initial
 
-Lors de la première utilisation de pactole, il faut ajouter le solde
-actuellement disponible sur votre compte. Pour cela:
+Lors de la première utilisation de pactole, vous devez entrer le solde
+actuellement disponible sur votre compte.
 
-1. Dans le calendrier, vérifier que le mois affiché est bien le mois actuel. Si
-   ce n'est pas le cas, choisir le bon mois à l'aide des deux boutons en haut à
-   gauche et à droite du calendrier.
+Pour cela il suffit d'ajouter une nouvelle entrée d'argent à la date
+d'aujourd'hui, avec pour montant le solde actuel de votre compte. Vous pouvez y
+ajouter une description, par exemple "Solde initial".
 
-2. Toujours dans le calendrier, vérifier que le jour sélectionné correspond bien
-   à la date d'aujourd'hui. Si ce n'est pas le cas, sélectionner le bon jour en cliquant dessus.
-
-3. Dans la partie de gauche, tout en bas, cliquer sur le bouton "+".
-
-4. Dans la fenêtre de dialogue qui s'ouvre, entrer la somme actuellement
-   disponible sur votre compte.
-
-5. Vous pouvez également entrer une description, par exemple "Solde initial".
-
-6. Enfin, confirmer l'ajout de l'opération en cliquant sur le bouton "OK".
+Pour savoir comment ajouter une opération, voir la section suivante.
 
 
-## Ajouter les dépenses et les entrées d'argent
+## Ajouter une nouvelle dépense, ou une nouvelle entrée d'argent
+
+1. Dans le calendrier, sélectionnez le jour où vous voulez ajouter une
+   opération. Si le mois affiché n'est pas le bon, utilisez les deux boutons en
+   haut du calendrier pour changer le mois.
+
+2. Dans la partie de gauche, tout en bas, cliquez sur le bouton "-" si vous
+   voulez ajouter une dépense, ou bien sur le bouton "+" si vous voulez ajouter
+   une entrée d'argent.
+
+3. Dans la fenêtre de dialogue qui s'ouvre, entrez le montant de l'opération.
+   Vous pouvez également entrer une description.
+
+4. Enfin, confirmez l'ajout de l'opération en cliquent sur le bouton "OK".
 
 
-## Modifier ou supprimer une opération
+## Supprimer une dépense, ou une entrée d'argent
+
+1. Dans le calendrier, sélectionnez le jour où se trouve l'opération que vous
+   voulez supprimer.
+
+2. Dans la partie de gauche, cliquez sur la ligne correspondant à l'opération.
+
+3. Cliquez sur le bouton "Supprimer".
 
 
-> NOTE: Pour changer la date d'une opération, il faut ajouter une nouvelle
-> opération à la date voulue, puis supprimer l'ancienne.
+## Changer le montant ou la description d'une dépense, ou d'une entrée d'argent
+
+1. Dans le calendrier, sélectionnez le jour où se trouve l'opération que vous
+   voulez modifier.
+
+2. Dans la partie de gauche, cliquez sur la ligne correspondant à l'opération.
+
+3. Dans la fenêtre de dialogue qui s'ouvre, vous pouvez changer le montant et la
+   description.
+
+4. Lorsque vous avez fini, confirmez les changements en cliquant sur le bouton
+   "OK".
+
+
+## Changer la date d'une dépense, ou d'une entrée d'argent
+
+1. Ajouter une nouvelle opération à la date voulue.
+
+2. Supprimer l'ancienne opération.
 
 
 ---

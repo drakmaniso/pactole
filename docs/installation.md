@@ -9,8 +9,8 @@ données du navigateur).
 > **IMPORTANT: il ne faut jamais utiliser la fonctionnalité de nettoyage des
 > données du navigateur.** En effet, les données de Pactole ne sont pas
 > sauvegardées sur un site en ligne, mais gérées directement par le navigateur,
-> sur l'ordinateur de l'utilisateur. Utiliser cette fonctionnalité effacerait
-> donc toutes les opérations entrées dans l'application.
+> sur l'ordinateur de l'utilisateur. Utiliser la fonctionnalité de nettoyage des
+> données effacerait donc toutes les opérations entrées dans l'application.
 
 Afin de s'assurer que le navigateur préserve les données même en cas
 d'inutilisation prolongée (par exemple plusieurs mois sans ouvrir la page
