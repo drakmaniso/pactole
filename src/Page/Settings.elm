@@ -855,8 +855,8 @@ viewDialog model =
                 , Ui.warningParagraph
                     [ E.paddingEach { top = 24, bottom = 24, right = 96, left = 96 }
                     ]
-                    [ E.text "  Toutes les opérations associées à ce compte seront "
-                    , E.el [ Font.bold ] (E.text "définitivement supprimées!")
+                    [ E.el [ Font.bold ] (E.text " Toutes les opérations de ce compte ")
+                    , E.el [ Font.bold ] (E.text "vont être définitivement supprimées!")
                     ]
                 , E.row
                     [ E.width E.fill
@@ -1051,7 +1051,7 @@ viewDialog model =
                 , Ui.warningParagraph
                     [ E.paddingEach { top = 24, bottom = 24, right = 96, left = 96 }
                     ]
-                    [ E.text "Toutes les opérations, les comptes, ainsi que les réglages vont être "
+                    [ E.el [ Font.bold ] (E.text "Toutes les opérations et les réglages vont être ")
                     , E.el [ Font.bold ] (E.text "définitivement supprimés!")
                     , E.text " Ils seront remplacés par le contenu du fichier sélectionné."
                     ]
@@ -1066,7 +1066,7 @@ viewDialog model =
                         , onPress = Just Msg.Close
                         }
                     , Ui.mainButton []
-                        { label = E.text "Remplacer tout"
+                        { label = E.text "Supprimer et Remplacer"
                         , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsConfirm)
                         }
                     ]
