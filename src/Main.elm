@@ -89,6 +89,7 @@ init flags _ _ =
             , reconciliationEnabled = False
             , summaryEnabled = False
             , balanceWarning = 100
+            , settingsLocked = False
             }
       , today = today
       , date = today

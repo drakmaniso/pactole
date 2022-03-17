@@ -282,6 +282,8 @@ view model =
                 , E.height E.fill
                 , E.clipX
                 , E.clipY
+                , Border.widthEach { right = 2, top = 0, bottom = 0, left = 0}
+                , Border.color Ui.fgDark
                 ]
                 [ E.el
                     [ E.centerX, E.padding 12 ]
@@ -323,13 +325,12 @@ view model =
                                 [ E.row
                                     [ E.width E.fill ]
                                     [ E.paragraph
-                                        [ E.width (E.fillPortion 4)
+                                        [ E.width E.fill
                                         , E.paddingEach { top = 24, bottom = 24, left = 12, right = 12 }
                                         ]
                                         [ E.text "Pactole enregistre ses données directement sur l'ordinateur (dans la base de données du navigateur). "
-                                        , E.text "Rien n'est sauvegardé en ligne. De cette façon, les données ne sont jamais envoyées sur internet."
+                                        , E.text "Rien n'est sauvegardé en ligne. De cette façon, les données de l'utilisateur ne sont jamais envoyées sur internet."
                                         ]
-                                    , E.el [ E.width (E.fillPortion 2) ] E.none
                                     ]
                                 , E.column
                                     [ E.width E.fill
@@ -339,7 +340,7 @@ view model =
                                     [ Ui.simpleButton []
                                         {
                                             onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsAskExportConfirmation),
-                                            label = E.row [E.spacing 12] [Ui.saveIcon [], E.text "Faire une sauvegarde"]
+                                            label = E.row [E.spacing 12] [Ui.saveIcon [], E.text "Faire une copie de sauvegarde"]
                                         }
                                     , Ui.simpleButton []
                                         {
@@ -392,6 +393,7 @@ view model =
                     , configCategoriesEnabled model
                     , configCategories model
                     , configRecurring model
+                    , configLocked model
                     ]
                 ]
         }
@@ -441,8 +443,8 @@ configSummary model =
                     Msg.ForDatabase <| Msg.DbStoreSettings { settings | summaryEnabled = False }
         , label = "Activer la page de bilan:"
         , options =
-            [ Ui.radioRowOption True (E.text "Oui")
-            , Ui.radioRowOption False (E.text "Non")
+            [ Ui.radioRowOption False (E.text "Non")
+            , Ui.radioRowOption True (E.text "Oui")
             ]
         , selected = Just model.settings.summaryEnabled
         }
@@ -464,8 +466,8 @@ configReconciliation model =
                     Msg.ForDatabase <| Msg.DbStoreSettings { settings | reconciliationEnabled = False }
         , label = "Activer la page de pointage:"
         , options =
-            [ Ui.radioRowOption True (E.text "Oui")
-            , Ui.radioRowOption False (E.text "Non")
+            [ Ui.radioRowOption False (E.text "Non")
+            , Ui.radioRowOption True (E.text "Oui")
             ]
         , selected = Just model.settings.reconciliationEnabled
         }
@@ -487,8 +489,8 @@ configCategoriesEnabled model =
                     Msg.ForDatabase <| Msg.DbStoreSettings { settings | categoriesEnabled = False }
         , label = "Activer les catégories:"
         , options =
-            [ Ui.radioRowOption True (E.text "Oui")
-            , Ui.radioRowOption False (E.text "Non")
+            [ Ui.radioRowOption False (E.text "Non")
+            , Ui.radioRowOption True (E.text "Oui")
             ]
         , selected = Just model.settings.categoriesEnabled
         }
@@ -618,6 +620,39 @@ configRecurring model =
                     }
                 ]
         }
+
+
+configLocked : Model.Model -> E.Element Msg.Msg
+configLocked model =
+    E.column [ E.width E.fill ]
+        [ Ui.configRadio []
+            { onChange =
+                \o ->
+                    let
+                        settings =
+                            model.settings
+                    in
+                    if o then
+                        Msg.ForDatabase <| Msg.DbStoreSettings { settings | settingsLocked = True }
+
+                    else
+                        Msg.ForDatabase <| Msg.DbStoreSettings { settings | settingsLocked = False }
+            , label = "Vérouiller les réglages:"
+            , options =
+                [ Ui.radioRowOption False (E.text "Non")
+                , Ui.radioRowOption True (E.text "Oui")
+                ]
+            , selected = Just model.settings.settingsLocked
+            }
+        , E.paragraph
+            [ E.width E.fill
+            , E.paddingEach { top = 0, bottom = 24, left = 64 + 12, right = 0 }
+            ]
+            [ E.text "Lorsque les réglages sont vérouillés, il faut cliquer 5 fois de suite sur l'icône \""
+            , E.el [Ui.iconFont, Ui.normalFont, Font.color Ui.bgDark] (E.text "\u{F013}")
+            , E.text "\" pour accéder aux réglages."
+            ]
+        ]
 
 
 
@@ -820,8 +855,8 @@ viewDialog model =
                 , Ui.warningParagraph
                     [ E.paddingEach { top = 24, bottom = 24, right = 96, left = 96 }
                     ]
-                    [ E.text "  Toutes les opérations associées à ce compte seront "
-                    , E.el [ Font.bold ] (E.text "définitivement supprimées!")
+                    [ E.el [ Font.bold ] (E.text " Toutes les opérations de ce compte ")
+                    , E.el [ Font.bold ] (E.text "vont être définitivement supprimées!")
                     ]
                 , E.row
                     [ E.width E.fill
@@ -1016,7 +1051,7 @@ viewDialog model =
                 , Ui.warningParagraph
                     [ E.paddingEach { top = 24, bottom = 24, right = 96, left = 96 }
                     ]
-                    [ E.text "Toutes les opérations, les comptes, ainsi que les réglages vont être "
+                    [ E.el [ Font.bold ] (E.text "Toutes les opérations et les réglages vont être ")
                     , E.el [ Font.bold ] (E.text "définitivement supprimés!")
                     , E.text " Ils seront remplacés par le contenu du fichier sélectionné."
                     ]
@@ -1031,7 +1066,7 @@ viewDialog model =
                         , onPress = Just Msg.Close
                         }
                     , Ui.mainButton []
-                        { label = E.text "Remplacer tout"
+                        { label = E.text "Supprimer et Remplacer"
                         , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsConfirm)
                         }
                     ]

@@ -123,6 +123,7 @@ type alias Settings =
     , reconciliationEnabled : Bool
     , summaryEnabled : Bool
     , balanceWarning : Int
+    , settingsLocked : Bool
     }
 
 
@@ -133,23 +134,26 @@ encodeSettings settings =
         , ( "reconciliationEnabled", Encode.bool settings.reconciliationEnabled )
         , ( "summaryEnabled", Encode.bool settings.summaryEnabled )
         , ( "balanceWarning", Encode.int settings.balanceWarning )
+        , ( "settingsLocked", Encode.bool settings.settingsLocked )
         ]
 
 
 decodeSettings : Decode.Decoder Settings
 decodeSettings =
-    Decode.map4
-        (\cat rec summ balwarn ->
+    Decode.map5
+        (\cat rec summ balwarn setlock ->
             { categoriesEnabled = cat
             , reconciliationEnabled = rec
             , summaryEnabled = summ
             , balanceWarning = balwarn
+            , settingsLocked = setlock
             }
         )
         (Decode.oneOf [ Decode.field "categoriesEnabled" Decode.bool, Decode.succeed False ])
         (Decode.oneOf [ Decode.field "reconciliationEnabled" Decode.bool, Decode.succeed False ])
         (Decode.oneOf [ Decode.field "summaryEnabled" Decode.bool, Decode.succeed False ])
         (Decode.oneOf [ Decode.field "balanceWarning" Decode.int, Decode.succeed 100 ])
+        (Decode.oneOf [ Decode.field "settingsLocked" Decode.bool, Decode.succeed False ])
 
 
 
