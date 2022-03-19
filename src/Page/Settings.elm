@@ -19,8 +19,8 @@ import Log
 import Model
 import Money
 import Msg
-import Ui
 import String
+import Ui
 
 
 
@@ -202,12 +202,12 @@ update msg model =
 
                 Nothing ->
                     ( { model | settingsDialog = Nothing }, Cmd.none )
-        
+
         Msg.SettingsAskImportConfirmation ->
             ( { model | settingsDialog = Just Model.AskImportConfirmation }
             , Cmd.none
             )
-        
+
         Msg.SettingsAskExportConfirmation ->
             ( { model | settingsDialog = Just Model.AskExportConfirmation }
             , Cmd.none
@@ -258,12 +258,12 @@ update msg model =
                         , checked = False
                         }
                     )
-                
+
                 Just Model.AskImportConfirmation ->
-                    ({ model | settingsDialog = Nothing }, Database.importDatabase)
-                
+                    ( { model | settingsDialog = Nothing }, Database.importDatabase )
+
                 Just Model.AskExportConfirmation ->
-                    ({ model | settingsDialog = Nothing }, Database.exportDatabase model)
+                    ( { model | settingsDialog = Nothing }, Database.exportDatabase model )
 
                 Nothing ->
                     ( { model | settingsDialog = Nothing }, Cmd.none )
@@ -282,7 +282,7 @@ view model =
                 , E.height E.fill
                 , E.clipX
                 , E.clipY
-                , Border.widthEach { right = 2, top = 0, bottom = 0, left = 0}
+                , Border.widthEach { right = 2, top = 0, bottom = 0, left = 0 }
                 , Border.color Ui.fgDark
                 ]
                 [ E.el
@@ -299,8 +299,10 @@ view model =
                 , E.el
                     [ E.width E.fill, E.height E.fill ]
                     E.none
-                , E.el [Ui.smallerFont, E.centerX]
-                    (E.text ("version de Pactole: " ++ model.serviceVersion) )
+                , E.el [ Ui.smallerFont, E.centerX ]
+                    (E.text ("version de Pactole: " ++ model.serviceVersion))
+                , E.el [ Ui.smallerFont, E.centerX ]
+                    (E.text ("width = " ++ String.fromInt model.layout.width ++ ", height = " ++ String.fromInt model.layout.height))
                 ]
         , page =
             E.column
@@ -321,7 +323,7 @@ view model =
                     , Ui.configCustom []
                         { label = "Données de l'application:"
                         , content =
-                            E.column [E.spacing 24]
+                            E.column [ E.spacing 24 ]
                                 [ E.row
                                     [ E.width E.fill ]
                                     [ E.paragraph
@@ -338,14 +340,12 @@ view model =
                                     , E.paddingEach { top = 12, bottom = 12, left = 12, right = 12 }
                                     ]
                                     [ Ui.simpleButton []
-                                        {
-                                            onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsAskExportConfirmation),
-                                            label = E.row [E.spacing 12] [Ui.saveIcon [], E.text "Faire une copie de sauvegarde"]
+                                        { onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsAskExportConfirmation)
+                                        , label = E.row [ E.spacing 12 ] [ Ui.saveIcon [], E.text "Faire une copie de sauvegarde" ]
                                         }
                                     , Ui.simpleButton []
-                                        {
-                                            onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsAskImportConfirmation),
-                                            label = E.row [E.spacing 12] [Ui.loadIcon [], E.text "Restaurer une sauvegarde"]
+                                        { onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsAskImportConfirmation)
+                                        , label = E.row [ E.spacing 12 ] [ Ui.loadIcon [], E.text "Restaurer une sauvegarde" ]
                                         }
                                     ]
                                 ]
@@ -649,7 +649,7 @@ configLocked model =
             , E.paddingEach { top = 0, bottom = 24, left = 64 + 12, right = 0 }
             ]
             [ E.text "Lorsque les réglages sont vérouillés, il faut cliquer 5 fois de suite sur l'icône \""
-            , E.el [Ui.iconFont, Ui.normalFont, Font.color Ui.bgDark] (E.text "\u{F013}")
+            , E.el [ Ui.iconFont, Ui.normalFont, Font.color Ui.bgDark ] (E.text "\u{F013}")
             , E.text "\" pour accéder aux réglages."
             ]
         ]
@@ -1031,7 +1031,7 @@ viewDialog model =
                     ]
                 ]
 
-        Just (Model.AskImportConfirmation) ->
+        Just Model.AskImportConfirmation ->
             E.column
                 [ E.centerX
                 , E.centerY
@@ -1047,7 +1047,7 @@ viewDialog model =
                     [ E.paddingEach { top = 24, bottom = 24, right = 48, left = 48 }
                     , Ui.bigFont
                     ]
-                    (E.text ("Remplacer toutes les données?"))
+                    (E.text "Remplacer toutes les données?")
                 , Ui.warningParagraph
                     [ E.paddingEach { top = 24, bottom = 24, right = 96, left = 96 }
                     ]
@@ -1072,7 +1072,7 @@ viewDialog model =
                     ]
                 ]
 
-        Just (Model.AskExportConfirmation) ->
+        Just Model.AskExportConfirmation ->
             E.column
                 [ E.centerX
                 , E.centerY
@@ -1088,11 +1088,11 @@ viewDialog model =
                     [ E.paddingEach { top = 24, bottom = 24, right = 48, left = 48 }
                     , Ui.bigFont
                     ]
-                    (E.text ("Sauvegarder les données?"))
+                    (E.text "Sauvegarder les données?")
                 , E.paragraph
                     [ E.paddingEach { top = 24, bottom = 6, right = 96, left = 96 }
                     ]
-                    [ E.text ("Toutes les données de Pactole seront enregistrées dans le fichier \"" ++ (Database.exportFileName model) ++"\" placé dans le dossier des téléchargements.")
+                    [ E.text ("Toutes les données de Pactole seront enregistrées dans le fichier \"" ++ Database.exportFileName model ++ "\" placé dans le dossier des téléchargements.")
                     ]
                 , E.paragraph
                     [ E.paddingEach { top = 6, bottom = 24, right = 96, left = 96 }
@@ -1133,6 +1133,7 @@ newAccountName accounts number =
 
     else
         name
+
 
 
 -- ICONS

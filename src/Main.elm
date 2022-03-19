@@ -83,6 +83,12 @@ init flags _ _ =
 
                 Nothing ->
                     ( Date.default, Log.error "init flags: invalid date for today" )
+
+        width =
+            Decode.decodeValue (Decode.at [ "width" ] Decode.int) flags |> Result.withDefault 800
+
+        height =
+            Decode.decodeValue (Decode.at [ "height" ] Decode.int) flags |> Result.withDefault 600
     in
     ( { settings =
             { categoriesEnabled = False
@@ -105,6 +111,7 @@ init flags _ _ =
       , dialog = Nothing
       , settingsDialog = Nothing
       , serviceVersion = "unknown"
+      , layout = { width = width, height = height }
       }
     , cmd
       {-
@@ -180,6 +187,9 @@ update msg model =
         Msg.KeyUp _ ->
             ( { model | showAdvanced = False }, Cmd.none )
 
+        Msg.WindowResize size ->
+            ( { model | layout = size }, Cmd.none )
+
         Msg.ForDatabase m ->
             Database.update m model
 
@@ -203,6 +213,7 @@ subscriptions _ =
         [ Database.receive
         , Browser.Events.onKeyDown (keyDecoder Msg.KeyDown)
         , Browser.Events.onKeyUp (keyDecoder Msg.KeyUp)
+        , Browser.Events.onResize (\width height -> Msg.WindowResize { width = width, height = height })
         ]
 
 

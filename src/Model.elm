@@ -10,9 +10,9 @@ module Model exposing
     , decodeAccount
     , decodeCategory
     , decodeSettings
-    , encodeSettings
     , encodeAccounts
     , encodeCategories
+    , encodeSettings
     )
 
 import Date
@@ -42,6 +42,7 @@ type alias Model =
     , dialog : Maybe Dialog
     , settingsDialog : Maybe SettingsDialog
     , serviceVersion : String
+    , layout : { width : Int, height : Int }
     }
 
 
@@ -68,16 +69,19 @@ category categoryID model =
         { name = "CATEGORIE_" ++ String.fromInt categoryID, icon = "" }
         (Dict.get categoryID model.categories)
 
+
 encodeCategories : Dict.Dict Int Category -> Encode.Value
 encodeCategories categories =
     Encode.list
-        (\(id, cat) ->
+        (\( id, cat ) ->
             Encode.object
-                [ ("id", Encode.int id)
-                , ("name", Encode.string cat.name)
-                , ("icon", Encode.string cat.icon)
-                ])
+                [ ( "id", Encode.int id )
+                , ( "name", Encode.string cat.name )
+                , ( "icon", Encode.string cat.icon )
+                ]
+        )
         (Dict.toList categories)
+
 
 decodeCategory : Decode.Decoder ( Int, { name : String, icon : String } )
 decodeCategory =
@@ -90,15 +94,18 @@ decodeCategory =
 
 -- TYPE ACCOUNT
 
+
 encodeAccounts : Dict.Dict Int String -> Encode.Value
 encodeAccounts accounts =
     Encode.list
-        (\(id, name) ->
+        (\( id, name ) ->
             Encode.object
-                [ ("id", Encode.int id)
-                , ("name", Encode.string name)
-                ])
+                [ ( "id", Encode.int id )
+                , ( "name", Encode.string name )
+                ]
+        )
         (Dict.toList accounts)
+
 
 decodeAccount : Decode.Decoder ( Int, String )
 decodeAccount =
