@@ -193,16 +193,15 @@ buttonRow : Model.Model -> E.Element Msg.Msg
 buttonRow model =
     Keyed.row
         [ E.width E.fill
-        , E.spacing 12
+        , E.spacing 24
+        , E.paddingEach { left = 24, right = 24, top = 0, bottom = 0 }
         ]
         [ ( "blank left", E.el [ E.width E.fill ] E.none )
         , ( "stats button"
           , if model.page == Model.MainPage && model.settings.summaryEnabled then
-                Ui.simpleButton
-                    [ E.width (E.fillPortion 3)
-                    ]
+                Ui.simpleButton []
                     { onPress = Just (Msg.ChangePage Model.StatsPage)
-                    , label = E.text "Bilan"
+                    , label = E.text " Bilan "
                     }
 
             else
@@ -210,9 +209,7 @@ buttonRow model =
           )
         , ( "reconcile button"
           , if model.page == Model.MainPage && model.settings.reconciliationEnabled then
-                Ui.simpleButton
-                    [ E.width (E.fillPortion 3)
-                    ]
+                Ui.simpleButton []
                     { onPress = Just (Msg.ChangePage Model.ReconcilePage)
                     , label = E.text "Pointer"
                     }
@@ -222,9 +219,7 @@ buttonRow model =
           )
         , ( "back button"
           , if model.page /= Model.MainPage then
-                Ui.simpleButton
-                    [ E.width (E.fillPortion 3)
-                    ]
+                Ui.simpleButton []
                     { onPress = Just (Msg.ChangePage Model.MainPage)
                     , label =
                         E.row [ Font.center, E.width E.fill ]

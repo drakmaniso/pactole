@@ -60,7 +60,7 @@ update msg model =
                                 , isRecurring = False
                                 , date = t.date
                                 , amount = Money.toInput t.amount
-                                , amountError = Money.validate (Money.toInput t.amount)
+                                , amountError = ""
                                 , description = t.description
                                 , category = t.category
                                 }
@@ -82,7 +82,7 @@ update msg model =
                                 , isRecurring = True
                                 , date = t.date
                                 , amount = Money.toInput t.amount
-                                , amountError = Money.validate (Money.toInput t.amount)
+                                , amountError = ""
                                 , description = t.description
                                 , category = t.category
                                 }
@@ -98,7 +98,7 @@ update msg model =
                             Just
                                 { dialog
                                     | amount = amount
-                                    , amountError = Money.validate amount
+                                    , amountError = ""
                                 }
                       }
                     , Cmd.none
@@ -141,8 +141,13 @@ update msg model =
         Msg.DialogConfirm ->
             case model.dialog of
                 Just dialog ->
-                    case ( dialog.id, Money.fromInput dialog.isExpense dialog.amount ) of
-                        ( Just id, Just amount ) ->
+                    case
+                        ( dialog.id
+                        , Money.fromInput dialog.isExpense dialog.amount
+                        , Money.validate dialog.amount
+                        )
+                    of
+                        ( Just id, Just amount, "" ) ->
                             ( { model | dialog = Nothing }
                             , Database.replaceTransaction
                                 { id = id
@@ -155,7 +160,7 @@ update msg model =
                                 }
                             )
 
-                        ( Nothing, Just amount ) ->
+                        ( Nothing, Just amount, "" ) ->
                             ( { model | dialog = Nothing }
                             , Database.createTransaction
                                 { account = model.account
@@ -167,8 +172,16 @@ update msg model =
                                 }
                             )
 
-                        ( _, Nothing ) ->
-                            ( model, Cmd.none )
+                        ( _, _, amountError ) ->
+                            let
+                                newDialog =
+                                    { dialog | amountError = amountError }
+                            in
+                            ( { model
+                                | dialog = Just newDialog
+                              }
+                            , Cmd.none
+                            )
 
                 _ ->
                     ( model, Log.error "impossible Confirm message" )
@@ -267,8 +280,7 @@ viewTitle model dialog =
         , Background.color bgTitle
         , Ui.notSelectable
         ]
-        [ E.el [ E.width (E.px 48) ] E.none
-        , E.el
+        [ E.el
             [ E.width E.fill, Font.center, Ui.bigFont, Font.bold, Font.color Ui.bgWhite ]
             (E.text text)
         ]
@@ -353,8 +365,7 @@ viewAmount dialog =
                 ]
                 (E.text "€")
             , if dialog.amountError /= "" then
-                Ui.warningParagraph
-                    [ E.width E.fill, E.height (E.shrink |> E.minimum 48) ]
+                Ui.warningParagraph []
                     [ E.text dialog.amountError ]
 
               else
@@ -500,8 +511,9 @@ viewButtons dialog =
             , E.paddingEach { top = 64, bottom = 24, left = 64, right = 64 }
             , Background.color Ui.bgWhite
             ]
-            [ Ui.mainButton [ E.alignRight, E.width E.shrink ]
-                { label = E.text "OK"
+            [ E.el [ E.width E.fill ] E.none
+            , Ui.mainButton []
+                { label = E.text "  OK  "
                 , onPress = Just Msg.Close
                 }
             ]
@@ -513,19 +525,18 @@ viewButtons dialog =
             , E.paddingEach { top = 64, bottom = 24, left = 64, right = 64 }
             , Background.color Ui.bgWhite
             ]
-            [ Ui.simpleButton
-                [ E.alignRight ]
+            [ E.el [ E.width E.fill ] E.none
+            , Ui.simpleButton []
                 { label = E.text "Annuler", onPress = Just Msg.Close }
             , case dialog.id of
                 Just _ ->
-                    Ui.simpleButton
-                        []
+                    Ui.simpleButton []
                         { label = E.text "Supprimer", onPress = Just (Msg.ForDialog <| Msg.DialogDelete) }
 
                 Nothing ->
                     E.none
-            , Ui.mainButton [ E.width E.shrink ]
-                { label = E.text "OK"
+            , Ui.mainButton []
+                { label = E.text "  OK  "
                 , onPress = Just (Msg.ForDialog <| Msg.DialogConfirm)
                 }
             ]

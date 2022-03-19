@@ -414,7 +414,7 @@ warningIcon attributes =
 bigWarningIcon : List (E.Attribute msg) -> E.Element msg
 bigWarningIcon attributes =
     E.el
-        ([ iconFont, Font.size 48, E.alignLeft, E.padding 0, Font.color warningColor ]
+        ([ iconFont, Font.size 48, E.alignLeft, E.alignTop, E.padding 0, Font.color warningColor ]
             ++ attributes
         )
         (E.text "\u{F071}")
@@ -422,13 +422,13 @@ bigWarningIcon attributes =
 
 incomeIcon : List (E.Attribute msg) -> E.Element msg
 incomeIcon attributes =
-    E.el ([ iconFont, normalFont, E.centerX ] ++ attributes)
+    E.el ([ iconFont, normalFont, E.centerX, Font.color fgIncome ] ++ attributes)
         (E.text "\u{F067}")
 
 
 expenseIcon : List (E.Attribute msg) -> E.Element msg
 expenseIcon attributes =
-    E.el ([ iconFont, normalFont, E.centerX ] ++ attributes)
+    E.el ([ iconFont, normalFont, E.centerX, Font.color fgExpense ] ++ attributes)
         (E.text "\u{F068}")
 
 
@@ -610,6 +610,8 @@ pageTitle attributes element =
          , Font.bold
          , E.paddingEach { top = 12, bottom = 12, left = 12, right = 12 }
          , E.width E.fill
+         , E.centerY
+         , Font.color fgTitle
          ]
             ++ attributes
         )
@@ -623,6 +625,8 @@ warningParagraph attributes elements =
          , Font.color fgBlack
          , E.centerY
          , E.spacing 12
+         , E.width E.fill
+         , E.height (E.shrink |> E.minimum 48)
          ]
             ++ attributes
         )

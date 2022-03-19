@@ -318,7 +318,7 @@ view model =
                     , E.paddingXY 48 0
                     , E.scrollbarY
                     ]
-                    [ Ui.pageTitle [ E.centerY, Font.color Ui.fgTitle ]
+                    [ Ui.pageTitle []
                         (E.text "Configuration")
                     , Ui.configCustom []
                         { label = "Données de l'application:"
@@ -709,10 +709,10 @@ viewDialog model =
                 , E.row
                     [ E.width E.fill
                     , E.spacing 24
-                    , E.paddingEach { top = 64, bottom = 24, right = 64, left = 64 }
+                    , E.paddingEach { top = 64, bottom = 24, right = 48, left = 48 }
                     ]
-                    [ Ui.simpleButton
-                        [ E.alignRight ]
+                    [ E.el [ E.width E.fill ] E.none
+                    , Ui.simpleButton []
                         { label = E.text "Annuler"
                         , onPress = Just Msg.Close
                         }
@@ -748,10 +748,10 @@ viewDialog model =
                 , E.row
                     [ E.width E.fill
                     , E.spacing 24
-                    , E.paddingEach { top = 64, bottom = 24, right = 64, left = 64 }
+                    , E.paddingEach { top = 64, bottom = 24, right = 48, left = 48 }
                     ]
-                    [ Ui.simpleButton
-                        [ E.alignRight ]
+                    [ E.el [ E.width E.fill ] E.none
+                    , Ui.simpleButton []
                         { label = E.text "Annuler"
                         , onPress = Just Msg.Close
                         }
@@ -821,10 +821,10 @@ viewDialog model =
                 , E.row
                     [ E.width E.fill
                     , E.spacing 24
-                    , E.paddingEach { top = 64, bottom = 24, right = 64, left = 64 }
+                    , E.paddingEach { top = 64, bottom = 24, right = 48, left = 48 }
                     ]
-                    [ Ui.simpleButton
-                        [ E.alignRight ]
+                    [ E.el [ E.width E.fill ] E.none
+                    , Ui.simpleButton []
                         { label = E.text "Annuler"
                         , onPress = Just Msg.Close
                         }
@@ -852,19 +852,19 @@ viewDialog model =
                     , Ui.bigFont
                     ]
                     (E.text ("Supprimer le compte \"" ++ submodel.name ++ "\" ?"))
-                , Ui.warningParagraph
-                    [ E.paddingEach { top = 24, bottom = 24, right = 96, left = 96 }
-                    ]
-                    [ E.el [ Font.bold ] (E.text " Toutes les opérations de ce compte ")
-                    , E.el [ Font.bold ] (E.text "vont être définitivement supprimées!")
-                    ]
+                , E.el [ E.paddingEach { left = 64, right = 48, top = 12, bottom = 24 } ]
+                    (Ui.warningParagraph []
+                        [ E.el [ Font.bold ] (E.text " Toutes les opérations de ce compte ")
+                        , E.el [ Font.bold ] (E.text "vont être définitivement supprimées!")
+                        ]
+                    )
                 , E.row
                     [ E.width E.fill
                     , E.spacing 24
-                    , E.paddingEach { top = 64, bottom = 24, right = 64, left = 64 }
+                    , E.paddingEach { top = 64, bottom = 24, right = 48, left = 48 }
                     ]
-                    [ Ui.simpleButton
-                        [ E.alignRight ]
+                    [ E.el [ E.width E.fill ] E.none
+                    , Ui.simpleButton []
                         { label = E.text "Annuler"
                         , onPress = Just Msg.Close
                         }
@@ -1017,10 +1017,10 @@ viewDialog model =
                 , E.row
                     [ E.width E.fill
                     , E.spacing 24
-                    , E.paddingEach { top = 64, bottom = 24, right = 64, left = 64 }
+                    , E.paddingEach { top = 64, bottom = 24, right = 48, left = 48 }
                     ]
-                    [ Ui.simpleButton
-                        [ E.alignRight ]
+                    [ E.el [ E.width E.fill ] E.none
+                    , Ui.simpleButton []
                         { label = E.text "Annuler"
                         , onPress = Just Msg.Close
                         }
@@ -1048,20 +1048,20 @@ viewDialog model =
                     , Ui.bigFont
                     ]
                     (E.text "Remplacer toutes les données?")
-                , Ui.warningParagraph
-                    [ E.paddingEach { top = 24, bottom = 24, right = 96, left = 96 }
-                    ]
-                    [ E.el [ Font.bold ] (E.text "Toutes les opérations et les réglages vont être ")
-                    , E.el [ Font.bold ] (E.text "définitivement supprimés!")
-                    , E.text " Ils seront remplacés par le contenu du fichier sélectionné."
-                    ]
+                , E.el [ E.paddingEach { left = 64, right = 48, top = 12, bottom = 24 } ]
+                    (Ui.warningParagraph []
+                        [ E.el [ Font.bold ] (E.text "Toutes les opérations et les réglages vont être ")
+                        , E.el [ Font.bold ] (E.text "définitivement supprimés!")
+                        , E.text " Ils seront remplacés par le contenu du fichier sélectionné."
+                        ]
+                    )
                 , E.row
                     [ E.width E.fill
                     , E.spacing 24
-                    , E.paddingEach { top = 64, bottom = 24, right = 64, left = 64 }
+                    , E.paddingEach { top = 64, bottom = 24, right = 48, left = 48 }
                     ]
-                    [ Ui.simpleButton
-                        [ E.alignRight ]
+                    [ E.el [ E.width E.fill ] E.none
+                    , Ui.simpleButton []
                         { label = E.text "Annuler"
                         , onPress = Just Msg.Close
                         }
@@ -1103,10 +1103,10 @@ viewDialog model =
                 , E.row
                     [ E.width E.fill
                     , E.spacing 24
-                    , E.paddingEach { top = 64, bottom = 24, right = 64, left = 64 }
+                    , E.paddingEach { top = 64, bottom = 24, right = 48, left = 48 }
                     ]
-                    [ Ui.simpleButton
-                        [ E.alignRight ]
+                    [ E.el [ E.width E.fill ] E.none
+                    , Ui.simpleButton []
                         { label = E.text "Annuler"
                         , onPress = Just Msg.Close
                         }
