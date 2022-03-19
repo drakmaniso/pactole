@@ -363,84 +363,82 @@ iconFont =
 -- ICONS
 
 
-closeIcon : List (E.Attribute msg) -> E.Element msg
-closeIcon attributes =
-    E.el ([ iconFont, normalFont, E.centerX ] ++ attributes)
+closeIcon : E.Element msg
+closeIcon =
+    E.el [ iconFont, normalFont, E.centerX ]
         (E.text "\u{F00D}")
 
 
-backIcon : List (E.Attribute msg) -> E.Element msg
-backIcon attributes =
-    E.el ([ iconFont, normalFont ] ++ attributes)
+backIcon : E.Element msg
+backIcon =
+    E.el [ iconFont, normalFont ]
         (E.text "\u{F30A}")
 
 
-editIcon : List (E.Attribute msg) -> E.Element msg
-editIcon attributes =
-    E.el ([ iconFont, normalFont, E.centerX ] ++ attributes)
+editIcon : E.Element msg
+editIcon =
+    E.el [ iconFont, normalFont, E.centerX ]
         (E.text "\u{F044}")
 
 
-deleteIcon : List (E.Attribute msg) -> E.Element msg
-deleteIcon attributes =
-    E.el ([ iconFont, normalFont, E.centerX ] ++ attributes)
+deleteIcon : E.Element msg
+deleteIcon =
+    E.el [ iconFont, normalFont, E.centerX ]
         (E.text "\u{F2ED}")
 
 
-minusIcon : List (E.Attribute msg) -> E.Element msg
-minusIcon attributes =
-    E.el ([ iconFont, normalFont, E.centerX ] ++ attributes)
+minusIcon : E.Element msg
+minusIcon =
+    E.el [ iconFont, normalFont, E.centerX ]
         (E.text "\u{F068}")
 
 
-plusIcon : List (E.Attribute msg) -> E.Element msg
-plusIcon attributes =
-    E.el ([ iconFont, normalFont, E.centerX ] ++ attributes)
+plusIcon : E.Element msg
+plusIcon =
+    E.el [ iconFont, normalFont, E.centerX ]
         (E.text "\u{F067}")
 
 
-checkIcon : List (E.Attribute msg) -> E.Element msg
-checkIcon attributes =
-    E.el ([ iconFont, normalFont ] ++ attributes)
+checkIcon : E.Element msg
+checkIcon =
+    E.el [ iconFont, normalFont, E.centerX ]
         (E.text "\u{F00C}")
 
 
-warningIcon : List (E.Attribute msg) -> E.Element msg
-warningIcon attributes =
-    E.el ([ iconFont, bigFont, E.centerX, E.paddingXY 24 0, Font.color warningColor ] ++ attributes)
+warningIcon : E.Element msg
+warningIcon =
+    E.el [ iconFont, bigFont, E.centerX, E.paddingXY 24 0, Font.color warningColor ]
         (E.text "\u{F071}")
 
 
-bigWarningIcon : List (E.Attribute msg) -> E.Element msg
-bigWarningIcon attributes =
+bigWarningIcon : E.Element msg
+bigWarningIcon =
     E.el
-        ([ iconFont, Font.size 48, E.alignLeft, E.alignTop, E.padding 0, Font.color warningColor ]
-            ++ attributes
-        )
+        [ iconFont, Font.size 48, E.alignLeft, E.alignTop, E.padding 0, Font.color warningColor ]
         (E.text "\u{F071}")
 
 
-incomeIcon : List (E.Attribute msg) -> E.Element msg
-incomeIcon attributes =
-    E.el ([ iconFont, normalFont, E.centerX, Font.color fgIncome ] ++ attributes)
+incomeIcon : E.Element msg
+incomeIcon =
+    E.el [ iconFont, normalFont, E.centerX, Font.color fgIncome ]
         (E.text "\u{F067}")
 
 
-expenseIcon : List (E.Attribute msg) -> E.Element msg
-expenseIcon attributes =
-    E.el ([ iconFont, normalFont, E.centerX, Font.color fgExpense ] ++ attributes)
+expenseIcon : E.Element msg
+expenseIcon =
+    E.el [ iconFont, normalFont, E.centerX, Font.color fgExpense ]
         (E.text "\u{F068}")
 
 
-saveIcon : List (E.Attribute msg) -> E.Element msg
-saveIcon attributes =
-    E.el ([ iconFont, normalFont, E.centerX ] ++ attributes)
+saveIcon : E.Element msg
+saveIcon =
+    E.el [ iconFont, normalFont, E.centerX ]
         (E.text "\u{F0C7}")
 
 
-loadIcon : List (E.Attribute msg) -> E.Element msg
-loadIcon attributes =
-    E.el ([ iconFont, normalFont, E.centerX ] ++ attributes)
+loadIcon : E.Element msg
+loadIcon =
+    E.el [ iconFont, normalFont, E.centerX ]
         (E.text "\u{F2EA}")
 
 
@@ -630,7 +628,7 @@ warningParagraph attributes elements =
          ]
             ++ attributes
         )
-        [ bigWarningIcon []
+        [ bigWarningIcon
         , E.paragraph [] elements
         ]
 

@@ -90,45 +90,11 @@ accountsRow model =
         , options =
             List.map
                 (\account ->
-                    Input.optionWith account
-                        (accountOption account model)
+                    Ui.radioRowOption account
+                        (E.text (Model.account account model))
                 )
                 (Dict.keys model.accounts)
         }
-
-
-accountOption : Int -> Model.Model -> Input.OptionState -> E.Element msg
-accountOption accountID model state =
-    E.el
-        ([ E.centerX
-         , E.paddingXY 16 7
-         , Border.rounded 3
-         , Ui.bigFont
-         , Ui.transition
-         , Ui.notSelectable
-         ]
-            ++ (case state of
-                    Input.Idle ->
-                        [ Font.color Ui.fgTitle
-                        , E.mouseDown [ Background.color Ui.bgMouseDown ]
-                        , E.mouseOver [ Background.color Ui.bgMouseOver ]
-                        ]
-
-                    Input.Focused ->
-                        [ E.mouseDown [ Background.color Ui.bgMouseDown ]
-                        , E.mouseOver [ Background.color Ui.bgMouseOver ]
-                        ]
-
-                    Input.Selected ->
-                        [ Font.color (E.rgb 1 1 1)
-                        , Background.color Ui.bgMainButton
-                        , Ui.smallShadow
-                        , Ui.mouseDown [ Background.color Ui.bgMainButtonDown ]
-                        , Ui.mouseOver [ Background.color Ui.bgMainButton ]
-                        ]
-               )
-        )
-        (E.text (Model.account accountID model))
 
 
 balanceRow : Model.Model -> E.Element msg
@@ -161,7 +127,7 @@ balanceRow model =
             E.none
 
           else
-            Ui.warningIcon []
+            Ui.warningIcon
         , E.el
             [ Ui.biggestFont
             , Font.bold
@@ -184,7 +150,7 @@ balanceRow model =
             E.none
 
           else
-            Ui.warningIcon []
+            Ui.warningIcon
         , E.el [ E.width E.fill ] E.none
         ]
 
@@ -224,7 +190,7 @@ buttonRow model =
                     , label =
                         E.row [ Font.center, E.width E.fill ]
                             [ E.el [ E.width E.fill ] E.none
-                            , Ui.backIcon []
+                            , Ui.backIcon
                             , E.text "  Retour"
                             , E.el [ E.width E.fill ] E.none
                             ]

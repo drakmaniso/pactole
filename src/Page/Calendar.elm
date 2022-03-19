@@ -387,12 +387,12 @@ dayView model =
             ]
             [ Ui.incomeButton
                 [ E.width (E.fillPortion 2) ]
-                { label = Ui.incomeIcon []
+                { label = Ui.incomeIcon
                 , onPress = Just (Msg.ForDialog <| Msg.DialogNewTransaction False model.date)
                 }
             , Ui.expenseButton
                 [ E.width (E.fillPortion 2) ]
-                { label = Ui.expenseIcon []
+                { label = Ui.expenseIcon
                 , onPress = Just (Msg.ForDialog <| Msg.DialogNewTransaction True model.date)
                 }
             ]

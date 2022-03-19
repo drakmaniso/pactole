@@ -12,8 +12,6 @@ import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
 import Element.Input as Input
-import Html
-import Html.Attributes as HtmlAttr
 import Ledger
 import Log
 import Model
@@ -291,7 +289,7 @@ view model =
                         { onPress = Just (Msg.ChangePage Model.MainPage)
                         , label =
                             E.row []
-                                [ Ui.backIcon []
+                                [ Ui.backIcon
                                 , E.text "  Retour"
                                 ]
                         }
@@ -341,11 +339,11 @@ view model =
                                     ]
                                     [ Ui.simpleButton []
                                         { onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsAskExportConfirmation)
-                                        , label = E.row [ E.spacing 12 ] [ Ui.saveIcon [], E.text "Faire une copie de sauvegarde" ]
+                                        , label = E.row [ E.spacing 12 ] [ Ui.saveIcon, E.text "Faire une copie de sauvegarde" ]
                                         }
                                     , Ui.simpleButton []
                                         { onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsAskImportConfirmation)
-                                        , label = E.row [ E.spacing 12 ] [ Ui.loadIcon [], E.text "Restaurer une sauvegarde" ]
+                                        , label = E.row [ E.spacing 12 ] [ Ui.loadIcon, E.text "Restaurer une sauvegarde" ]
                                         }
                                     ]
                                 ]
@@ -366,7 +364,7 @@ view model =
                                           , view =
                                                 \a ->
                                                     Ui.iconButton []
-                                                        { icon = Ui.editIcon []
+                                                        { icon = Ui.editIcon
                                                         , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsRenameAccount (Tuple.first a))
                                                         }
                                           }
@@ -375,7 +373,7 @@ view model =
                                           , view =
                                                 \a ->
                                                     Ui.iconButton []
-                                                        { icon = Ui.deleteIcon []
+                                                        { icon = Ui.deleteIcon
                                                         , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsDeleteAccount (Tuple.first a))
                                                         }
                                           }
@@ -383,7 +381,7 @@ view model =
                                     }
                                 , Ui.simpleButton []
                                     { onPress = Just (Msg.ForDatabase <| Msg.DbCreateAccount (newAccountName (Dict.values model.accounts) 1))
-                                    , label = E.row [] [ Ui.plusIcon [], E.text "  Ajouter" ]
+                                    , label = E.row [] [ Ui.plusIcon, E.text "  Ajouter" ]
                                     }
                                 ]
                         }
@@ -410,7 +408,7 @@ configWarning model =
         , content =
             E.row [ E.spacing 12 ]
                 [ Ui.iconButton [ Border.color Ui.fgDark, Border.width Ui.borderWidth ]
-                    { icon = Ui.minusIcon []
+                    { icon = Ui.minusIcon
                     , onPress =
                         Just (Msg.ForDatabase <| Msg.DbStoreSettings { settings | balanceWarning = settings.balanceWarning - 10 })
                     }
@@ -419,7 +417,7 @@ configWarning model =
                 , E.el [ Ui.normalFont ]
                     (E.text "€")
                 , Ui.iconButton [ Border.color Ui.fgDark, Border.width Ui.borderWidth ]
-                    { icon = Ui.plusIcon []
+                    { icon = Ui.plusIcon
                     , onPress =
                         Just (Msg.ForDatabase <| Msg.DbStoreSettings { settings | balanceWarning = settings.balanceWarning + 10 })
                     }
@@ -526,7 +524,7 @@ configCategories model =
                           , view =
                                 \a ->
                                     Ui.iconButton []
-                                        { icon = Ui.editIcon []
+                                        { icon = Ui.editIcon
                                         , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsRenameCategory (Tuple.first a))
                                         }
                           }
@@ -535,7 +533,7 @@ configCategories model =
                           , view =
                                 \a ->
                                     Ui.iconButton []
-                                        { icon = Ui.deleteIcon []
+                                        { icon = Ui.deleteIcon
                                         , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsDeleteCategory (Tuple.first a))
                                         }
                           }
@@ -543,7 +541,7 @@ configCategories model =
                     }
                 , Ui.simpleButton []
                     { onPress = Just (Msg.ForDatabase <| Msg.DbCreateCategory "Nouvelle catégorie" "")
-                    , label = E.row [] [ Ui.plusIcon [], E.text "  Ajouter" ]
+                    , label = E.row [] [ Ui.plusIcon, E.text "  Ajouter" ]
                     }
                 ]
         }
@@ -595,7 +593,7 @@ configRecurring model =
                           , view =
                                 \t ->
                                     Ui.iconButton []
-                                        { icon = Ui.editIcon []
+                                        { icon = Ui.editIcon
                                         , onPress =
                                             Just
                                                 (Msg.ForSettingsDialog <|
@@ -608,7 +606,7 @@ configRecurring model =
                           , view =
                                 \t ->
                                     Ui.iconButton []
-                                        { icon = Ui.deleteIcon []
+                                        { icon = Ui.deleteIcon
                                         , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsDeleteRecurring t.id)
                                         }
                           }
@@ -616,7 +614,7 @@ configRecurring model =
                     }
                 , Ui.simpleButton []
                     { onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsNewRecurring)
-                    , label = E.row [] [ Ui.plusIcon [], E.text "  Ajouter" ]
+                    , label = E.row [] [ Ui.plusIcon, E.text "  Ajouter" ]
                     }
                 ]
         }

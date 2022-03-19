@@ -126,7 +126,7 @@ colReconciled transaction =
             ]
             { icon =
                 if transaction.checked then
-                    Ui.checkIcon [ E.centerX, E.centerY ]
+                    Ui.checkIcon
 
                 else
                     E.none
