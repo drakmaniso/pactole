@@ -294,6 +294,7 @@ decode : Decode.Decoder Ledger
 decode =
     Decode.map Ledger (Decode.list decodeTransaction)
 
+
 encode : Ledger -> Encode.Value
 encode (Ledger transactions) =
     Encode.list encodeTransaction transactions

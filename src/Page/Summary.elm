@@ -244,7 +244,7 @@ buttonRow model =
 
 settingsButton : Model.Model -> E.Element Msg.Msg
 settingsButton model =
-    if (not model.settings.settingsLocked) || model.showAdvanced then
+    if not model.settings.settingsLocked || model.showAdvanced then
         Input.button
             [ Background.color Ui.bgPage
             , Ui.normalFont

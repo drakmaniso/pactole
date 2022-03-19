@@ -749,18 +749,18 @@ viewMoney money future =
         , E.height E.shrink
         , E.paddingEach { top = 0, bottom = 0, left = 0, right = 16 }
         ]
-        [ E.el [E.width E.fill] E.none
+        [ E.el [ E.width E.fill ] E.none
         , E.paragraph
             [ if future then
                 Font.color fgDarker
 
-            else if isExpense then
+              else if isExpense then
                 Font.color fgExpense
 
-            else if isZero then
+              else if isZero then
                 Font.color fgDark
 
-            else
+              else
                 Font.color fgIncome
             ]
             (if isZero then
@@ -768,7 +768,7 @@ viewMoney money future =
                 , E.el [ E.width (E.fillPortion 25) ] E.none
                 ]
 
-            else
+             else
                 [ E.el
                     [ E.width (E.fillPortion 75)
                     , normalFont
@@ -782,6 +782,7 @@ viewMoney money future =
                         [ Font.bold
                         , smallFont
                         , Font.alignLeft
+
                         -- , E.alignBottom
                         -- , E.paddingEach { top = 2, bottom = 0, left = 0, right = 0 }
                         ]

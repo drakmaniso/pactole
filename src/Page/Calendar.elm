@@ -149,7 +149,7 @@ calendarCell model day =
              , E.height E.fill
              , E.clipY
              , Ui.transition
-            , Background.color Ui.bgWhite
+             , Background.color Ui.bgWhite
              ]
                 ++ (if sel then
                         [ Background.color Ui.bgWhite
