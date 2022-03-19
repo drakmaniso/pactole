@@ -290,7 +290,6 @@ viewAmount : Model.Dialog -> E.Element Msg.Msg
 viewAmount dialog =
     if dialog.isRecurring then
         Ui.titledRow "Somme:"
-            []
             [ E.el
                 [ Ui.bigFont
                 , E.width (E.shrink |> E.minimum 220)
@@ -313,7 +312,6 @@ viewAmount dialog =
 
     else
         Ui.titledRow "Somme:"
-            []
             [ E.el
                 [ Ui.bigFont
                 , Font.color Ui.fgBlack
@@ -365,7 +363,7 @@ viewAmount dialog =
                 ]
                 (E.text "€")
             , if dialog.amountError /= "" then
-                Ui.warningParagraph []
+                Ui.warningParagraph
                     [ E.text dialog.amountError ]
 
               else
@@ -377,7 +375,6 @@ viewDescription : Model.Dialog -> E.Element Msg.Msg
 viewDescription dialog =
     if dialog.isRecurring then
         Ui.titledRow "Description:"
-            []
             [ E.el
                 [ Ui.bigFont
                 , Border.width 1
@@ -388,7 +385,6 @@ viewDescription dialog =
 
     else
         Ui.titledRow "Description:"
-            []
             [ Input.multiline
                 [ Ui.onEnter (Msg.ForDialog <| Msg.DialogConfirm)
                 , Ui.bigFont
@@ -439,7 +435,6 @@ viewCategories model dialog =
                        )
         in
         Ui.titledRow "Catégorie:"
-            []
             [ E.table
                 [ E.width E.fill
                 , E.spacing 12
@@ -512,7 +507,7 @@ viewButtons dialog =
             , Background.color Ui.bgWhite
             ]
             [ E.el [ E.width E.fill ] E.none
-            , Ui.mainButton []
+            , Ui.mainButton
                 { label = E.text "  OK  "
                 , onPress = Just Msg.Close
                 }
@@ -526,16 +521,16 @@ viewButtons dialog =
             , Background.color Ui.bgWhite
             ]
             [ E.el [ E.width E.fill ] E.none
-            , Ui.simpleButton []
+            , Ui.simpleButton
                 { label = E.text "Annuler", onPress = Just Msg.Close }
             , case dialog.id of
                 Just _ ->
-                    Ui.simpleButton []
+                    Ui.simpleButton
                         { label = E.text "Supprimer", onPress = Just (Msg.ForDialog <| Msg.DialogDelete) }
 
                 Nothing ->
                     E.none
-            , Ui.mainButton []
+            , Ui.mainButton
                 { label = E.text "  OK  "
                 , onPress = Just (Msg.ForDialog <| Msg.DialogConfirm)
                 }

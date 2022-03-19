@@ -19,7 +19,7 @@ import Ui
 
 view : Model.Model -> E.Element Msg.Msg
 view shared =
-    Ui.pageWithSidePanel []
+    Ui.pageWithSidePanel
         { panel =
             E.column
                 [ E.width E.fill
@@ -112,24 +112,8 @@ colReconciled : Ledger.Transaction -> E.Element Msg.Msg
 colReconciled transaction =
     E.el
         [ E.width (E.fillPortion 1) ]
-        (Ui.iconButton
-            [ E.alignRight
-            , Background.color (E.rgba 1 1 1 1)
-            , Border.rounded 0
-            , Border.width Ui.borderWidth
-            , Border.color Ui.fgDark
-            , E.padding 2
-            , Ui.innerShadow
-            , Ui.transition
-            , E.mouseDown [ Background.color Ui.bgMouseDown ]
-            , E.mouseOver [ Ui.bigInnerShadow ]
-            ]
-            { icon =
-                if transaction.checked then
-                    Ui.checkIcon
-
-                else
-                    E.none
+        (Ui.checkBox
+            { state = transaction.checked
             , onPress = Just (Msg.ForDatabase <| Msg.DbCheckTransaction transaction (not transaction.checked))
             }
         )

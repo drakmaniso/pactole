@@ -22,7 +22,7 @@ import Ui
 
 view : Model.Model -> E.Element Msg.Msg
 view model =
-    Ui.pageWithSidePanel []
+    Ui.pageWithSidePanel
         { panel =
             E.column
                 [ E.width E.fill
@@ -386,12 +386,10 @@ dayView model =
             , E.paddingXY 24 12
             ]
             [ Ui.incomeButton
-                [ E.width (E.fillPortion 2) ]
                 { label = Ui.incomeIcon
                 , onPress = Just (Msg.ForDialog <| Msg.DialogNewTransaction False model.date)
                 }
             , Ui.expenseButton
-                [ E.width (E.fillPortion 2) ]
                 { label = Ui.expenseIcon
                 , onPress = Just (Msg.ForDialog <| Msg.DialogNewTransaction True model.date)
                 }

@@ -18,7 +18,7 @@ import Ui
 
 view : Model.Model -> E.Element Msg.Msg
 view shared =
-    Ui.pageWithSidePanel []
+    Ui.pageWithSidePanel
         { panel =
             E.column
                 [ E.width E.fill

@@ -165,7 +165,7 @@ buttonRow model =
         [ ( "blank left", E.el [ E.width E.fill ] E.none )
         , ( "stats button"
           , if model.page == Model.MainPage && model.settings.summaryEnabled then
-                Ui.simpleButton []
+                Ui.simpleButton
                     { onPress = Just (Msg.ChangePage Model.StatsPage)
                     , label = E.text " Bilan "
                     }
@@ -175,7 +175,7 @@ buttonRow model =
           )
         , ( "reconcile button"
           , if model.page == Model.MainPage && model.settings.reconciliationEnabled then
-                Ui.simpleButton []
+                Ui.simpleButton
                     { onPress = Just (Msg.ChangePage Model.ReconcilePage)
                     , label = E.text "Pointer"
                     }
@@ -185,7 +185,7 @@ buttonRow model =
           )
         , ( "back button"
           , if model.page /= Model.MainPage then
-                Ui.simpleButton []
+                Ui.simpleButton
                     { onPress = Just (Msg.ChangePage Model.MainPage)
                     , label =
                         E.row [ Font.center, E.width E.fill ]

@@ -273,7 +273,7 @@ update msg model =
 
 view : Model.Model -> E.Element Msg.Msg
 view model =
-    Ui.pageWithSidePanel []
+    Ui.pageWithSidePanel
         { panel =
             E.column
                 [ E.width E.fill
@@ -285,7 +285,7 @@ view model =
                 ]
                 [ E.el
                     [ E.centerX, E.padding 12 ]
-                    (Ui.simpleButton []
+                    (Ui.simpleButton
                         { onPress = Just (Msg.ChangePage Model.MainPage)
                         , label =
                             E.row []
@@ -316,9 +316,8 @@ view model =
                     , E.paddingXY 48 0
                     , E.scrollbarY
                     ]
-                    [ Ui.pageTitle []
-                        (E.text "Configuration")
-                    , Ui.configCustom []
+                    [ Ui.pageTitle (E.text "Configuration")
+                    , Ui.configCustom
                         { label = "Données de l'application:"
                         , content =
                             E.column [ E.spacing 24 ]
@@ -337,18 +336,18 @@ view model =
                                     , E.spacing 24
                                     , E.paddingEach { top = 12, bottom = 12, left = 12, right = 12 }
                                     ]
-                                    [ Ui.simpleButton []
+                                    [ Ui.simpleButton
                                         { onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsAskExportConfirmation)
                                         , label = E.row [ E.spacing 12 ] [ Ui.saveIcon, E.text "Faire une copie de sauvegarde" ]
                                         }
-                                    , Ui.simpleButton []
+                                    , Ui.simpleButton
                                         { onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsAskImportConfirmation)
                                         , label = E.row [ E.spacing 12 ] [ Ui.loadIcon, E.text "Restaurer une sauvegarde" ]
                                         }
                                     ]
                                 ]
                         }
-                    , Ui.configCustom []
+                    , Ui.configCustom
                         { label = "Personnes utilisant l'application:"
                         , content =
                             E.column [ E.spacing 24 ]
@@ -363,7 +362,7 @@ view model =
                                           , width = E.shrink
                                           , view =
                                                 \a ->
-                                                    Ui.iconButton []
+                                                    Ui.iconButton
                                                         { icon = Ui.editIcon
                                                         , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsRenameAccount (Tuple.first a))
                                                         }
@@ -372,14 +371,14 @@ view model =
                                           , width = E.shrink
                                           , view =
                                                 \a ->
-                                                    Ui.iconButton []
+                                                    Ui.iconButton
                                                         { icon = Ui.deleteIcon
                                                         , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsDeleteAccount (Tuple.first a))
                                                         }
                                           }
                                         ]
                                     }
-                                , Ui.simpleButton []
+                                , Ui.simpleButton
                                     { onPress = Just (Msg.ForDatabase <| Msg.DbCreateAccount (newAccountName (Dict.values model.accounts) 1))
                                     , label = E.row [] [ Ui.plusIcon, E.text "  Ajouter" ]
                                     }
@@ -403,11 +402,11 @@ configWarning model =
         settings =
             model.settings
     in
-    Ui.configCustom []
+    Ui.configCustom
         { label = "Avertissement lorsque le solde passe sous:"
         , content =
             E.row [ E.spacing 12 ]
-                [ Ui.iconButton [ Border.color Ui.fgDark, Border.width Ui.borderWidth ]
+                [ Ui.iconButton
                     { icon = Ui.minusIcon
                     , onPress =
                         Just (Msg.ForDatabase <| Msg.DbStoreSettings { settings | balanceWarning = settings.balanceWarning - 10 })
@@ -416,7 +415,7 @@ configWarning model =
                     (E.text (String.fromInt model.settings.balanceWarning))
                 , E.el [ Ui.normalFont ]
                     (E.text "€")
-                , Ui.iconButton [ Border.color Ui.fgDark, Border.width Ui.borderWidth ]
+                , Ui.iconButton
                     { icon = Ui.plusIcon
                     , onPress =
                         Just (Msg.ForDatabase <| Msg.DbStoreSettings { settings | balanceWarning = settings.balanceWarning + 10 })
@@ -427,7 +426,7 @@ configWarning model =
 
 configSummary : Model.Model -> E.Element Msg.Msg
 configSummary model =
-    Ui.configRadio []
+    Ui.configRadio
         { onChange =
             \o ->
                 let
@@ -450,7 +449,7 @@ configSummary model =
 
 configReconciliation : Model.Model -> E.Element Msg.Msg
 configReconciliation model =
-    Ui.configRadio []
+    Ui.configRadio
         { onChange =
             \o ->
                 let
@@ -473,7 +472,7 @@ configReconciliation model =
 
 configCategoriesEnabled : Model.Model -> E.Element Msg.Msg
 configCategoriesEnabled model =
-    Ui.configRadio []
+    Ui.configRadio
         { onChange =
             \o ->
                 let
@@ -496,7 +495,7 @@ configCategoriesEnabled model =
 
 configCategories : Model.Model -> E.Element Msg.Msg
 configCategories model =
-    Ui.configCustom []
+    Ui.configCustom
         { label =
             if model.settings.categoriesEnabled then
                 "Catégories:"
@@ -523,7 +522,7 @@ configCategories model =
                           , width = E.shrink
                           , view =
                                 \a ->
-                                    Ui.iconButton []
+                                    Ui.iconButton
                                         { icon = Ui.editIcon
                                         , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsRenameCategory (Tuple.first a))
                                         }
@@ -532,14 +531,14 @@ configCategories model =
                           , width = E.shrink
                           , view =
                                 \a ->
-                                    Ui.iconButton []
+                                    Ui.iconButton
                                         { icon = Ui.deleteIcon
                                         , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsDeleteCategory (Tuple.first a))
                                         }
                           }
                         ]
                     }
-                , Ui.simpleButton []
+                , Ui.simpleButton
                     { onPress = Just (Msg.ForDatabase <| Msg.DbCreateCategory "Nouvelle catégorie" "")
                     , label = E.row [] [ Ui.plusIcon, E.text "  Ajouter" ]
                     }
@@ -553,7 +552,7 @@ configRecurring model =
         headerTxt txt =
             E.el [ Font.center, Ui.smallFont, Font.color Ui.fgDark ] (E.text txt)
     in
-    Ui.configCustom []
+    Ui.configCustom
         { label = "Opérations mensuelles:"
         , content =
             E.column [ E.spacing 24 ]
@@ -592,7 +591,7 @@ configRecurring model =
                           , width = E.shrink
                           , view =
                                 \t ->
-                                    Ui.iconButton []
+                                    Ui.iconButton
                                         { icon = Ui.editIcon
                                         , onPress =
                                             Just
@@ -605,14 +604,14 @@ configRecurring model =
                           , width = E.shrink
                           , view =
                                 \t ->
-                                    Ui.iconButton []
+                                    Ui.iconButton
                                         { icon = Ui.deleteIcon
                                         , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsDeleteRecurring t.id)
                                         }
                           }
                         ]
                     }
-                , Ui.simpleButton []
+                , Ui.simpleButton
                     { onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsNewRecurring)
                     , label = E.row [] [ Ui.plusIcon, E.text "  Ajouter" ]
                     }
@@ -623,7 +622,7 @@ configRecurring model =
 configLocked : Model.Model -> E.Element Msg.Msg
 configLocked model =
     E.column [ E.width E.fill ]
-        [ Ui.configRadio []
+        [ Ui.configRadio
             { onChange =
                 \o ->
                     let
@@ -710,11 +709,11 @@ viewDialog model =
                     , E.paddingEach { top = 64, bottom = 24, right = 48, left = 48 }
                     ]
                     [ E.el [ E.width E.fill ] E.none
-                    , Ui.simpleButton []
+                    , Ui.simpleButton
                         { label = E.text "Annuler"
                         , onPress = Just Msg.Close
                         }
-                    , Ui.mainButton []
+                    , Ui.mainButton
                         { label = E.text "Confirmer"
                         , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsConfirm)
                         }
@@ -749,11 +748,11 @@ viewDialog model =
                     , E.paddingEach { top = 64, bottom = 24, right = 48, left = 48 }
                     ]
                     [ E.el [ E.width E.fill ] E.none
-                    , Ui.simpleButton []
+                    , Ui.simpleButton
                         { label = E.text "Annuler"
                         , onPress = Just Msg.Close
                         }
-                    , Ui.mainButton []
+                    , Ui.mainButton
                         { label = E.text "Supprimer"
                         , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsConfirm)
                         }
@@ -822,11 +821,11 @@ viewDialog model =
                     , E.paddingEach { top = 64, bottom = 24, right = 48, left = 48 }
                     ]
                     [ E.el [ E.width E.fill ] E.none
-                    , Ui.simpleButton []
+                    , Ui.simpleButton
                         { label = E.text "Annuler"
                         , onPress = Just Msg.Close
                         }
-                    , Ui.mainButton []
+                    , Ui.mainButton
                         { label = E.text "Confirmer"
                         , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsConfirm)
                         }
@@ -851,7 +850,7 @@ viewDialog model =
                     ]
                     (E.text ("Supprimer le compte \"" ++ submodel.name ++ "\" ?"))
                 , E.el [ E.paddingEach { left = 64, right = 48, top = 12, bottom = 24 } ]
-                    (Ui.warningParagraph []
+                    (Ui.warningParagraph
                         [ E.el [ Font.bold ] (E.text " Toutes les opérations de ce compte ")
                         , E.el [ Font.bold ] (E.text "vont être définitivement supprimées!")
                         ]
@@ -862,11 +861,11 @@ viewDialog model =
                     , E.paddingEach { top = 64, bottom = 24, right = 48, left = 48 }
                     ]
                     [ E.el [ E.width E.fill ] E.none
-                    , Ui.simpleButton []
+                    , Ui.simpleButton
                         { label = E.text "Annuler"
                         , onPress = Just Msg.Close
                         }
-                    , Ui.mainButton []
+                    , Ui.mainButton
                         { label = E.text "Supprimer"
                         , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsConfirm)
                         }
@@ -1018,11 +1017,11 @@ viewDialog model =
                     , E.paddingEach { top = 64, bottom = 24, right = 48, left = 48 }
                     ]
                     [ E.el [ E.width E.fill ] E.none
-                    , Ui.simpleButton []
+                    , Ui.simpleButton
                         { label = E.text "Annuler"
                         , onPress = Just Msg.Close
                         }
-                    , Ui.mainButton []
+                    , Ui.mainButton
                         { label = E.text "Confirmer"
                         , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsConfirm)
                         }
@@ -1047,7 +1046,7 @@ viewDialog model =
                     ]
                     (E.text "Remplacer toutes les données?")
                 , E.el [ E.paddingEach { left = 64, right = 48, top = 12, bottom = 24 } ]
-                    (Ui.warningParagraph []
+                    (Ui.warningParagraph
                         [ E.el [ Font.bold ] (E.text "Toutes les opérations et les réglages vont être ")
                         , E.el [ Font.bold ] (E.text "définitivement supprimés!")
                         , E.text " Ils seront remplacés par le contenu du fichier sélectionné."
@@ -1059,11 +1058,11 @@ viewDialog model =
                     , E.paddingEach { top = 64, bottom = 24, right = 48, left = 48 }
                     ]
                     [ E.el [ E.width E.fill ] E.none
-                    , Ui.simpleButton []
+                    , Ui.simpleButton
                         { label = E.text "Annuler"
                         , onPress = Just Msg.Close
                         }
-                    , Ui.mainButton []
+                    , Ui.mainButton
                         { label = E.text "Supprimer et Remplacer"
                         , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsConfirm)
                         }
@@ -1104,11 +1103,11 @@ viewDialog model =
                     , E.paddingEach { top = 64, bottom = 24, right = 48, left = 48 }
                     ]
                     [ E.el [ E.width E.fill ] E.none
-                    , Ui.simpleButton []
+                    , Ui.simpleButton
                         { label = E.text "Annuler"
                         , onPress = Just Msg.Close
                         }
-                    , Ui.mainButton []
+                    , Ui.mainButton
                         { label = E.text "Sauvegarder"
                         , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsConfirm)
                         }
