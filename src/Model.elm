@@ -20,6 +20,7 @@ import Dict
 import Json.Decode as Decode
 import Json.Encode as Encode
 import Ledger
+import Ui
 
 
 
@@ -42,7 +43,7 @@ type alias Model =
     , dialog : Maybe Dialog
     , settingsDialog : Maybe SettingsDialog
     , serviceVersion : String
-    , layout : { width : Int, height : Int }
+    , device : Ui.Device
     }
 
 

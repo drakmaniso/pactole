@@ -40,7 +40,7 @@ view shared =
                 , E.height E.fill
                 , E.clipY
                 ]
-                [ Ui.dateNavigationBar shared
+                [ Ui.dateNavigationBar shared Msg.SelectDate
                 , viewReconciled shared
                 , viewTransactions shared
                 ]

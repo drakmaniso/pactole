@@ -1,7 +1,6 @@
 module Ui exposing (..)
 
---TODO: remove dependency to module Msg
-
+import Browser
 import Date
 import Element as E
 import Element.Background as Background
@@ -13,7 +12,22 @@ import Html.Attributes
 import Html.Events as Events
 import Json.Decode as Decode
 import Money
-import Msg
+
+
+
+-- ENVIRONMENT FOR UI
+
+
+type alias Device =
+    { width : Int
+    , height : Int
+    , class : E.Device
+    }
+
+
+device : Int -> Int -> Device
+device width height =
+    { width = width, height = height, class = E.classifyDevice { width = width, height = height } }
 
 
 
@@ -446,6 +460,62 @@ loadIcon =
 -- CONTAINERS
 
 
+document : String -> E.Element msg -> Maybe (E.Element msg) -> msg -> Bool -> Browser.Document msg
+document title activePage activeDialog closeMsg showFocus =
+    { title = title
+    , body =
+        [ E.layoutWith
+            { options =
+                [ E.focusStyle
+                    { borderColor = Nothing
+                    , backgroundColor = Nothing
+                    , shadow =
+                        if showFocus then
+                            Just
+                                { color = fgFocus
+                                , offset = ( 0, 0 )
+                                , blur = 0
+                                , size = 4
+                                }
+
+                        else
+                            Nothing
+                    }
+                ]
+            }
+            (case activeDialog of
+                Just d ->
+                    [ E.inFront
+                        (E.el
+                            [ E.width E.fill
+                            , E.height E.fill
+                            , fontFamily
+                            , E.padding 16
+                            , E.scrollbarY
+                            , E.behindContent
+                                (Input.button
+                                    [ E.width E.fill
+                                    , E.height E.fill
+                                    , Background.color (E.rgba 0 0 0 0.6)
+                                    ]
+                                    { label = E.none
+                                    , onPress = Just closeMsg
+                                    }
+                                )
+                            ]
+                            d
+                        )
+                    ]
+
+                Nothing ->
+                    [ E.inFront (E.column [] [])
+                    ]
+            )
+            activePage
+        ]
+    }
+
+
 pageWithSidePanel : { panel : E.Element msg, page : E.Element msg } -> E.Element msg
 pageWithSidePanel { panel, page } =
     E.row
@@ -615,8 +685,8 @@ warningParagraph elements =
         ]
 
 
-dateNavigationBar : { a | showFocus : Bool, date : Date.Date, today : Date.Date } -> E.Element Msg.Msg
-dateNavigationBar model =
+dateNavigationBar : { a | showFocus : Bool, date : Date.Date, today : Date.Date } -> (Date.Date -> msg) -> E.Element msg
+dateNavigationBar model changeMsg =
     Keyed.row
         [ E.width E.fill
         , E.alignTop
@@ -649,7 +719,7 @@ dateNavigationBar model =
                                 (E.text (Date.getMonthName (Date.decrementMonth model.date)))
                             , E.el [ E.centerX, iconFont, normalFont ] (E.text "  \u{F060}  ")
                             ]
-                    , onPress = Just (Msg.SelectDate (Date.decrementMonthUI model.date model.today))
+                    , onPress = Just (changeMsg (Date.decrementMonthUI model.date model.today))
                     }
                 )
           )
@@ -695,7 +765,7 @@ dateNavigationBar model =
                             , E.el [ bigFont, Font.color fgTitle, E.centerX ]
                                 (E.text (Date.getMonthName (Date.incrementMonth model.date)))
                             ]
-                    , onPress = Just (Msg.SelectDate (Date.incrementMonthUI model.date model.today))
+                    , onPress = Just (changeMsg (Date.incrementMonthUI model.date model.today))
                     }
                 )
           )

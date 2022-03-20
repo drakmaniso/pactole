@@ -116,7 +116,7 @@ calendarHeader model =
         [ E.width E.fill
         , Background.color Ui.bgWhite
         ]
-        [ Ui.dateNavigationBar model
+        [ Ui.dateNavigationBar model Msg.SelectDate
         , E.row
             [ E.width E.fill
             , E.alignBottom

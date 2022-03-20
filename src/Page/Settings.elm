@@ -300,7 +300,7 @@ view model =
                 , E.el [ Ui.smallerFont, E.centerX ]
                     (E.text ("version de Pactole: " ++ model.serviceVersion))
                 , E.el [ Ui.smallerFont, E.centerX ]
-                    (E.text ("width = " ++ String.fromInt model.layout.width ++ ", height = " ++ String.fromInt model.layout.height))
+                    (E.text ("width = " ++ String.fromInt model.device.width ++ ", height = " ++ String.fromInt model.device.height))
                 ]
         , page =
             E.column

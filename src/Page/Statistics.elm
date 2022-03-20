@@ -40,7 +40,7 @@ view shared =
                 , E.clipX
                 , E.clipY
                 ]
-                [ Ui.dateNavigationBar shared
+                [ Ui.dateNavigationBar shared Msg.SelectDate
                 , viewMonthBalance shared
                 , viewMonthFutureWarning shared
                 , E.column
