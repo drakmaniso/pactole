@@ -34,7 +34,7 @@ view model =
                     (settingsButton model)
                 , case Dict.values model.accounts of
                     [ singleAccount ] ->
-                        E.el [ Ui.bigFont, Font.color Ui.fgTitle, Ui.notSelectable ]
+                        E.el [ Ui.bigFont, Font.color Ui.primary, Ui.notSelectable ]
                             (E.text singleAccount)
 
                     _ ->
@@ -48,7 +48,7 @@ view model =
                 , E.paddingEach { top = 0, bottom = 6, left = 0, right = 0 }
                 , E.width E.fill
                 , Font.center
-                , Font.color Ui.fgDarker
+                , Font.color Ui.gray50
                 , Ui.notSelectable
                 ]
                 (E.text "Solde actuel:")
@@ -115,10 +115,10 @@ balanceRow model =
 
         color =
             if Money.isGreaterThan balance 0 then
-                Ui.fgBlack
+                Ui.black
 
             else
-                Ui.fgRed
+                Ui.expenseColor
     in
     E.row
         [ E.width E.fill, Font.color color, Ui.notSelectable ]
@@ -207,9 +207,9 @@ settingsButton : Model.Model -> E.Element Msg.Msg
 settingsButton model =
     if not model.settings.settingsLocked || model.showAdvanced then
         Input.button
-            [ Background.color Ui.bgPage
+            [ Background.color Ui.white
             , Ui.normalFont
-            , Font.color Ui.fgTitle
+            , Font.color Ui.primary
             , Font.center
             , Ui.roundCorners
             , E.padding 2
@@ -218,14 +218,14 @@ settingsButton model =
             , E.alignLeft
             ]
             { onPress = Just (Msg.ChangePage Model.SettingsPage)
-            , label = E.el [ Ui.iconFont, Ui.normalFont, E.centerX, Font.color Ui.bgDark ] (E.text "\u{F013}")
+            , label = E.el [ Ui.iconFont, Ui.normalFont, E.centerX, Font.color Ui.gray70 ] (E.text "\u{F013}")
             }
 
     else
         Input.button
-            [ Background.color Ui.bgPage
+            [ Background.color Ui.white
             , Ui.normalFont
-            , Font.color Ui.fgTitle
+            , Font.color Ui.primary
             , Font.center
             , Ui.roundCorners
             , E.padding 2
@@ -235,6 +235,6 @@ settingsButton model =
             ]
             { onPress = Just Msg.AttemptSettings
             , label =
-                E.el [ Ui.iconFont, Ui.normalFont, E.centerX, Font.color Ui.bgLight ]
+                E.el [ Ui.iconFont, Ui.normalFont, E.centerX, Font.color Ui.gray90 ]
                     (E.text "\u{F013}")
             }

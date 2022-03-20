@@ -90,10 +90,10 @@ viewTransactions shared =
                     [ E.width E.fill
                     , E.paddingXY 12 18
                     , if Basics.remainderBy 2 idx == 0 then
-                        Background.color Ui.bgEvenRow
+                        Background.color Ui.gray95
 
                       else
-                        Background.color Ui.bgOddRow
+                        Background.color Ui.gray90
                     ]
                     [ colDate transaction
                     , colReconciled transaction
@@ -139,7 +139,7 @@ colDescription transaction =
     E.el
         [ E.width (E.fillPortion 8), E.clip ]
         (if transaction.description == "" then
-            E.el [ Font.color Ui.fgDark ] (E.text "—")
+            E.el [ Font.color Ui.gray70 ] (E.text "—")
 
          else
             E.text transaction.description

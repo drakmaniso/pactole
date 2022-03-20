@@ -85,7 +85,7 @@ viewMonthBalance shared =
     E.row
         [ E.width E.fill
         , E.paddingXY 48 24
-        , Font.color Ui.fgBlack
+        , Font.color Ui.black
         ]
         [ E.el [ E.width (E.fillPortion 2) ] E.none
         , E.el
@@ -106,7 +106,7 @@ viewMonthFutureWarning shared =
             [ E.width E.fill
             , E.paddingEach { top = 0, bottom = 24, left = 48, right = 48 }
             , Ui.normalFont
-            , Font.color Ui.fgDarker
+            , Font.color Ui.gray50
             ]
             [ E.el [ E.width (E.fillPortion 2) ] E.none
             , E.el

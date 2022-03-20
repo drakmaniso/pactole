@@ -219,7 +219,7 @@ view model =
                 , E.scrollbarY
                 , E.paddingXY 0 0
                 , E.spacing 0
-                , Background.color Ui.bgWhite
+                , Background.color Ui.white
                 , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 32, color = E.rgba 0 0 0 0.75 }
                 ]
                 [ viewTitle model dialog
@@ -230,7 +230,7 @@ view model =
                     [ viewAmount dialog
                     , viewDescription dialog
                     , viewCategories model dialog
-                    , E.el [ E.height E.fill, Background.color Ui.bgWhite ] E.none
+                    , E.el [ E.height E.fill, Background.color Ui.white ] E.none
                     ]
                 , viewButtons dialog
                 ]
@@ -247,10 +247,10 @@ viewTitle model dialog =
 
         bgTitle =
             if isFuture then
-                Ui.bgDark
+                Ui.gray70
 
             else
-                Ui.bgTransaction dialog.isExpense
+                Ui.transactionColor dialog.isExpense
 
         text =
             case ( dialog.isRecurring, isFuture, dialog.isExpense ) of
@@ -281,7 +281,7 @@ viewTitle model dialog =
         , Ui.notSelectable
         ]
         [ E.el
-            [ E.width E.fill, Font.center, Ui.bigFont, Font.bold, Font.color Ui.bgWhite ]
+            [ E.width E.fill, Font.center, Ui.bigFont, Font.bold, Font.color Ui.white ]
             (E.text text)
         ]
 
@@ -314,7 +314,7 @@ viewAmount dialog =
         Ui.titledRow "Somme:"
             [ E.el
                 [ Ui.bigFont
-                , Font.color Ui.fgBlack
+                , Font.color Ui.black
                 , E.paddingEach { top = 12, bottom = 12, left = 0, right = 6 }
                 , E.width E.shrink
                 , E.alignLeft
@@ -337,8 +337,8 @@ viewAmount dialog =
                 , E.width (E.shrink |> E.minimum 220)
                 , E.alignLeft
                 , Border.width 4
-                , Border.color Ui.bgWhite
-                , Background.color Ui.bgEvenRow
+                , Border.color Ui.white
+                , Background.color Ui.gray95
                 , Ui.innerShadow
                 , E.focused
                     [ Border.color Ui.focusColor
@@ -353,7 +353,7 @@ viewAmount dialog =
                 }
             , E.el
                 [ Ui.bigFont
-                , Font.color Ui.fgBlack
+                , Font.color Ui.black
                 , E.paddingEach { top = 12, bottom = 12, left = 6, right = 24 }
                 , E.width E.shrink
                 , E.alignLeft
@@ -389,8 +389,8 @@ viewDescription dialog =
                 [ Ui.onEnter (Msg.ForDialog <| Msg.DialogConfirm)
                 , Ui.bigFont
                 , Border.width 4
-                , Border.color Ui.bgWhite
-                , Background.color Ui.bgEvenRow
+                , Border.color Ui.white
+                , Background.color Ui.gray95
                 , Ui.innerShadow
                 , E.focused
                     [ Border.color Ui.focusColor
@@ -504,7 +504,7 @@ viewButtons dialog =
             [ E.width E.fill
             , E.spacing 24
             , E.paddingEach { top = 64, bottom = 24, left = 64, right = 64 }
-            , Background.color Ui.bgWhite
+            , Background.color Ui.white
             ]
             [ E.el [ E.width E.fill ] E.none
             , Ui.mainButton
@@ -518,7 +518,7 @@ viewButtons dialog =
             [ E.width E.fill
             , E.spacing 24
             , E.paddingEach { top = 64, bottom = 24, left = 64, right = 64 }
-            , Background.color Ui.bgWhite
+            , Background.color Ui.white
             ]
             [ E.el [ E.width E.fill ] E.none
             , Ui.simpleButton

@@ -85,7 +85,7 @@ calendar model =
                         , E.height E.fill
                         , E.clipY
                         , E.spacing 0
-                        , Background.color Ui.bgWhite
+                        , Background.color Ui.white
                         ]
                         (loopThroughWeek date)
                         :: loopThroughMonth (Date.incrementWeek date)
@@ -103,7 +103,7 @@ calendar model =
         , E.height E.fill
         , E.spacing 0
         , E.padding 0
-        , Background.color Ui.bgWhite
+        , Background.color Ui.white
         ]
         (calendarHeader model
             :: loopThroughMonth (findMonday (findTheFirst model.date))
@@ -114,15 +114,15 @@ calendarHeader : Model.Model -> E.Element Msg.Msg
 calendarHeader model =
     E.column
         [ E.width E.fill
-        , Background.color Ui.bgWhite
+        , Background.color Ui.white
         ]
         [ Ui.dateNavigationBar model Msg.SelectDate
         , E.row
             [ E.width E.fill
             , E.alignBottom
-            , Background.color Ui.bgWhite
+            , Background.color Ui.white
             , Ui.smallFont
-            , Font.color Ui.fgDarker
+            , Font.color Ui.gray50
             , Ui.notSelectable
             ]
             [ E.el [ E.width E.fill ] (E.el [ E.centerX ] (E.text "Lundi"))
@@ -149,23 +149,23 @@ calendarCell model day =
              , E.height E.fill
              , E.clipY
              , Ui.transition
-             , Background.color Ui.bgWhite
+             , Background.color Ui.white
              ]
                 ++ (if sel then
-                        [ Background.color Ui.bgWhite
+                        [ Background.color Ui.white
                         , E.focused
                             [ Border.color Ui.focusColor
                             ]
                         ]
 
                     else
-                        [ Background.color Ui.bgOddRow
+                        [ Background.color Ui.gray90
                         , E.focused
                             [ Border.color Ui.focusColor
                             , Border.shadow
                                 { offset = ( 0, 0 ), size = 0, blur = 0, color = E.rgba 0 0 0 0 }
                             ]
-                        , E.mouseOver [ Background.color Ui.bgEvenRow, Border.color Ui.bgWhite ]
+                        , E.mouseOver [ Background.color Ui.gray95, Border.color Ui.white ]
                         ]
                    )
             )
@@ -188,10 +188,10 @@ calendarCell model day =
                             , Font.center
                             , Border.color
                                 (if sel then
-                                    Ui.fgTitle
+                                    Ui.primary
 
                                  else
-                                    Ui.bgWhite
+                                    Ui.white
                                 )
                             , if sel then
                                 Border.roundEach { topLeft = 12, topRight = 12, bottomLeft = 0, bottomRight = 0 }
@@ -200,14 +200,14 @@ calendarCell model day =
                                 Border.roundEach { topLeft = 0, topRight = 0, bottomLeft = 0, bottomRight = 0 }
                             , Font.color
                                 (if sel then
-                                    Ui.fgWhite
+                                    Ui.white
 
                                  else
-                                    Ui.fgBlack
+                                    Ui.black
                                 )
                             , Background.color
                                 (if sel then
-                                    Ui.bgTitle
+                                    Ui.primary
 
                                  else
                                     Ui.transparent
@@ -237,10 +237,10 @@ calendarCell model day =
                             , Border.widthEach { left = 3, bottom = 3, right = 3, top = 0 }
                             , Border.color
                                 (if sel then
-                                    Ui.fgTitle
+                                    Ui.primary
 
                                  else
-                                    Ui.bgWhite
+                                    Ui.white
                                 )
                             , if sel then
                                 Border.roundEach { topLeft = 0, topRight = 0, bottomLeft = 12, bottomRight = 12 }
@@ -273,7 +273,7 @@ calendarCell model day =
             [ E.width E.fill
             , E.height E.fill
             , Border.color (E.rgba 0 0 0 0)
-            , Background.color Ui.bgWhite
+            , Background.color Ui.white
             ]
             E.none
 
@@ -293,18 +293,18 @@ cellContentFor model day =
                 [ E.paddingEach { top = 3, bottom = 4, left = 6, right = 8 }
                 , Ui.smallFont
                 , if future then
-                    Font.color Ui.fgWhite
+                    Font.color Ui.white
 
                   else
                     Font.color (E.rgb 1 1 1)
                 , if future then
-                    Background.color Ui.bgDark
+                    Background.color Ui.gray70
 
                   else if Money.isExpense transaction.amount then
-                    Background.color Ui.bgExpense
+                    Background.color Ui.expenseColor
 
                   else
-                    Background.color Ui.bgIncome
+                    Background.color Ui.incomeColor
                 , Border.rounded 16
                 , Border.width 0
                 , E.htmlAttribute <| Html.Attributes.style "display" "inline-flex"
@@ -338,18 +338,18 @@ dayView model =
         [ E.width E.fill
         , E.height E.fill
         , E.clip
-        , Background.color Ui.bgWhite
+        , Background.color Ui.white
         ]
         [ E.column
             [ E.width E.fill
             , E.height E.shrink
             , E.paddingXY 0 12
             , E.spacing 8
-            , Font.color Ui.fgBlack
+            , Font.color Ui.black
             , Font.center
             , Ui.bigFont
             , Border.widthEach { top = 2, bottom = 0, left = 0, right = 0 }
-            , Border.color Ui.bgDark
+            , Border.color Ui.gray70
             , Ui.notSelectable
             ]
             [ if model.date == model.today then
@@ -443,8 +443,8 @@ dayContentFor model day =
                     , E.paddingEach { top = 8, bottom = 8, left = 12, right = 12 }
                     , Border.width 4
                     , Border.color (E.rgba 0 0 0 0)
-                    , E.mouseDown [ Background.color Ui.bgMouseDown ]
-                    , E.mouseOver [ Background.color Ui.bgMouseOver ]
+                    , E.mouseDown [ Background.color Ui.gray90 ]
+                    , E.mouseOver [ Background.color Ui.gray95 ]
                     , Ui.transition
                     ]
                     { onPress =
@@ -498,7 +498,7 @@ dayContentFor model day =
             [ E.el
                 [ E.width E.fill
                 , Font.center
-                , Font.color Ui.fgDarker
+                , Font.color Ui.gray50
                 , Ui.normalFont
                 , E.paddingXY 8 32
                 ]
