@@ -803,9 +803,6 @@ viewDialog model =
                         (List.map
                             (\icon ->
                                 Ui.radioButton
-                                    [ E.width (E.shrink |> E.minimum 80)
-                                    , Font.center
-                                    ]
                                     { onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsChangeIcon icon)
                                     , icon = icon
                                     , label = ""
@@ -927,7 +924,7 @@ viewDialog model =
                             (E.el [ Font.bold ] (E.text "Compte: "))
                             :: List.map
                                 (\( k, v ) ->
-                                    Ui.radioButton []
+                                    Ui.radioButton
                                         { onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsChangeAccount k)
                                         , icon = ""
                                         , label = v
@@ -947,21 +944,33 @@ viewDialog model =
                         , E.paddingEach { right = 24, top = 0, left = 12, bottom = 0 }
                         , Font.bold
                         ]
-                        (E.el [ Font.bold ] (E.text "Montant: "))
-                    , E.column [ E.alignBottom ]
-                        [ Ui.radioButton [ E.alignBottom ]
+                        (E.el [ Font.bold ] (E.text "Type: "))
+                    , E.row [ E.alignBottom ]
+                        [ Ui.radioButton
                             { onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsChangeIsExpense False)
-                            , icon = "\u{F067}"
-                            , label = ""
+                            , icon = "" --"\u{F067}"
+                            , label = "Entrée d'argent"
                             , active = not submodel.isExpense
                             }
-                        , Ui.radioButton [ E.alignBottom ]
+                        , Ui.radioButton
                             { onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsChangeIsExpense True)
-                            , icon = "\u{F068}"
-                            , label = ""
+                            , icon = "" --"\u{F068}"
+                            , label = "Dépense"
                             , active = submodel.isExpense
                             }
                         ]
+                    ]
+                , E.row
+                    [ E.paddingEach { top = 24, bottom = 24, right = 48, left = 48 }
+                    , E.spacingXY 24 0
+                    ]
+                    [ E.el
+                        [ Font.color Ui.fgTitle
+                        , Ui.normalFont
+                        , E.paddingEach { right = 24, top = 0, left = 12, bottom = 0 }
+                        , Font.bold
+                        ]
+                        (E.el [ Font.bold ] (E.text "Montant: "))
                     , Input.text
                         [ Ui.onEnter (Msg.ForSettingsDialog <| Msg.SettingsConfirm)
                         , Ui.bigFont
@@ -1138,7 +1147,7 @@ newAccountName accounts number =
 
 iconChoice : List String
 iconChoice =
-    [ ""
+    [ " "
     , "\u{F6BE}" -- cat
     , "\u{F520}" -- crow
     , "\u{F6D3}" -- dog

@@ -1,6 +1,7 @@
 Urgent:
 - When changing month, deselect day
 - Color-blind modes
+- Add persistent storage status in the settings info section
 
 Long-term:
 - Mobile layout

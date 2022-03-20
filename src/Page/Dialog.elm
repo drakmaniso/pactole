@@ -428,7 +428,7 @@ viewCategories model dialog =
                 model.categories
                     |> Dict.toList
                     |> (\l ->
-                            ( 0, { name = "Aucune", icon = "" } )
+                            ( 0, { name = "Aucune", icon = " " } )
                                 :: l
                                 |> groupBy3 []
                                 |> List.reverse
@@ -453,7 +453,7 @@ viewCategories model dialog =
                                         E.none
 
                                     Just ( k, v ) ->
-                                        Ui.radioButton []
+                                        Ui.radioButton
                                             { onPress = Just (Msg.ForDialog <| Msg.DialogChangeCategory k)
                                             , icon = v.icon
                                             , label = v.name
@@ -469,7 +469,7 @@ viewCategories model dialog =
                                         E.none
 
                                     Just ( k, v ) ->
-                                        Ui.radioButton []
+                                        Ui.radioButton
                                             { onPress = Just (Msg.ForDialog <| Msg.DialogChangeCategory k)
                                             , icon = v.icon
                                             , label = v.name
@@ -485,7 +485,7 @@ viewCategories model dialog =
                                         E.none
 
                                     Just ( k, v ) ->
-                                        Ui.radioButton []
+                                        Ui.radioButton
                                             { onPress = Just (Msg.ForDialog <| Msg.DialogChangeCategory k)
                                             , icon = v.icon
                                             , label = v.name

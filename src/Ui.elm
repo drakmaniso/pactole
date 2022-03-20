@@ -961,8 +961,8 @@ checkBox { state, onPress } =
         }
 
 
-radioButton : List (E.Attr () msg) -> { a | onPress : Maybe msg, icon : String, label : String, active : Bool } -> E.Element msg
-radioButton attributes { onPress, icon, label, active } =
+radioButton : { a | onPress : Maybe msg, icon : String, label : String, active : Bool } -> E.Element msg
+radioButton { onPress, icon, label, active } =
     Input.button
         ([ normalFont
          , Border.rounded 4
@@ -984,14 +984,21 @@ radioButton attributes { onPress, icon, label, active } =
                     , E.mouseOver [ Background.color bgMouseOver ]
                     ]
                )
-            ++ attributes
         )
         { onPress = onPress
         , label =
             E.row []
-                [ E.el [ iconFont ] (E.text icon)
-                , E.text " "
-                , E.text label
+                [ if icon /= "" then
+                    E.el [ E.width (E.shrink |> E.minimum 48), iconFont, Font.center ]
+                        (E.text icon)
+
+                  else
+                    E.none
+                , if label /= "" then
+                    E.text (" " ++ label)
+
+                  else
+                    E.none
                 ]
         }
 
