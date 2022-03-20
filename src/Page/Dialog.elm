@@ -341,7 +341,7 @@ viewAmount dialog =
                 , Background.color Ui.bgEvenRow
                 , Ui.innerShadow
                 , E.focused
-                    [ Border.color Ui.fgFocus
+                    [ Border.color Ui.focusColor
                     ]
                 , E.htmlAttribute <| HtmlAttr.id "dialog-amount"
                 , E.htmlAttribute <| HtmlAttr.autocomplete False
@@ -393,7 +393,7 @@ viewDescription dialog =
                 , Background.color Ui.bgEvenRow
                 , Ui.innerShadow
                 , E.focused
-                    [ Border.color Ui.fgFocus
+                    [ Border.color Ui.focusColor
                     ]
                 , E.width E.fill
                 ]

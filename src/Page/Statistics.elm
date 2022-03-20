@@ -2,7 +2,6 @@ module Page.Statistics exposing (view)
 
 import Dict
 import Element as E
-import Element.Border as Border
 import Element.Font as Font
 import Ledger
 import Model
@@ -43,12 +42,11 @@ view shared =
                 [ Ui.dateNavigationBar shared Msg.SelectDate
                 , viewMonthBalance shared
                 , viewMonthFutureWarning shared
+                , Ui.ruler
                 , E.column
                     [ E.width E.fill
                     , E.height E.fill
                     , E.scrollbarY
-                    , Border.widthEach { top = Ui.borderWidth, bottom = 0, right = 0, left = 0 }
-                    , Border.color Ui.fgDark
                     ]
                     [ E.el [ E.height E.fill ] E.none
                     , viewItem

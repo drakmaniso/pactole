@@ -3,7 +3,6 @@ module Page.Reconcile exposing (view)
 import Date
 import Element as E
 import Element.Background as Background
-import Element.Border as Border
 import Element.Font as Font
 import Ledger
 import Model
@@ -84,8 +83,6 @@ viewTransactions shared =
         , E.width E.fill
         , E.height E.fill
         , E.scrollbarY
-        , Border.widthEach { top = Ui.borderWidth, bottom = 0, right = 0, left = 0 }
-        , Border.color Ui.transparent
         ]
         (List.indexedMap
             (\idx transaction ->

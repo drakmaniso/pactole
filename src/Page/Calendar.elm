@@ -154,14 +154,14 @@ calendarCell model day =
                 ++ (if sel then
                         [ Background.color Ui.bgWhite
                         , E.focused
-                            [ Border.color Ui.fgFocus
+                            [ Border.color Ui.focusColor
                             ]
                         ]
 
                     else
                         [ Background.color Ui.bgOddRow
                         , E.focused
-                            [ Border.color Ui.fgFocus
+                            [ Border.color Ui.focusColor
                             , Border.shadow
                                 { offset = ( 0, 0 ), size = 0, blur = 0, color = E.rgba 0 0 0 0 }
                             ]
@@ -217,7 +217,7 @@ calendarCell model day =
 
                               else
                                 E.focused
-                                    [ Border.color Ui.fgFocus
+                                    [ Border.color Ui.focusColor
                                     ]
                             ]
                             (E.text
@@ -259,7 +259,7 @@ calendarCell model day =
 
                               else
                                 E.focused
-                                    [ Border.color Ui.fgFocus
+                                    [ Border.color Ui.focusColor
                                     ]
                             ]
                             (cellContentFor model day)

@@ -63,32 +63,23 @@ warningColor =
     E.rgb 0.82 0.47 0.0
 
 
-fgFocus : E.Color
-fgFocus =
-    --rgb 0.98 0.62 0.05
-    --rgb 0.15 0.76 0.98
-    --rgba 0 0 0 0.4
+focusColor : E.Color
+focusColor =
     E.rgb 1.0 0.7 0
 
 
 bgPage : E.Color
 bgPage =
-    --rgb 0.85 0.82 0.75
-    --rgb 0.76 0.73 0.65
-    -- rgb 0.74 0.71 0.65
     E.rgb 1 1 1
 
 
 bgLight : E.Color
 bgLight =
-    -- rgb 0.94 0.92 0.87
-    --E.rgb 0.86 0.86 0.86
     E.rgb 0.9 0.9 0.89
 
 
 bgDark : E.Color
 bgDark =
-    -- rgb 0.72 0.71 0.68
     E.rgb 0.7 0.7 0.65
 
 
@@ -142,13 +133,11 @@ bgTransaction isExpense =
 
 bgExpense : E.Color
 bgExpense =
-    -- rgb 0.8 0.25 0.2
     E.rgb 0.64 0.12 0.0
 
 
 fgExpense : E.Color
 fgExpense =
-    -- rgb 0.6 0.125 0
     bgExpense
 
 
@@ -159,8 +148,6 @@ fgOnExpense =
 
 bgIncome : E.Color
 bgIncome =
-    -- rgb255 44 136 32
-    -- rgb255 22 102 0
     E.rgb 0.1 0.44 0
 
 
@@ -196,7 +183,6 @@ bgExpenseButtonDown =
 
 fgIncome : E.Color
 fgIncome =
-    -- rgb255 22 68 0
     bgIncome
 
 
@@ -207,32 +193,26 @@ fgOnIncome =
 
 bgEvenRow : E.Color
 bgEvenRow =
-    --E.rgb 0.99 0.98 0.9
     E.rgb 0.96 0.96 0.95
 
 
 bgOddRow : E.Color
 bgOddRow =
-    --E.rgb 0.96 0.95 0.74
-    --E.rgb 0.9 0.9 0.89
     E.rgb 0.92 0.92 0.91
 
 
 bgButton : E.Color
 bgButton =
-    --E.rgb 0.85 0.9 0.94
     E.rgb 0.94 0.94 0.93
 
 
 bgButtonOver : E.Color
 bgButtonOver =
-    --E.rgb 0.98 0.99 1
     E.rgb 1 1 1
 
 
 bgButtonDown : E.Color
 bgButtonDown =
-    --E.rgb 0.7 0.75 0.79
     E.rgb 0.9 0.9 0.89
 
 
@@ -263,9 +243,6 @@ bgMainButtonDown =
 
 bgTitle : E.Color
 bgTitle =
-    --rgb 0.3 0.6 0.7
-    --rgb 0.12 0.51 0.65
-    --rgb 0.06 0.25 0.32
     E.rgb 0.08 0.26 0.42
 
 
@@ -472,7 +449,7 @@ document title activePage activeDialog closeMsg showFocus =
                     , shadow =
                         if showFocus then
                             Just
-                                { color = fgFocus
+                                { color = focusColor
                                 , offset = ( 0, 0 )
                                 , blur = 0
                                 , size = 4
@@ -668,6 +645,16 @@ pageTitle element =
         , Font.color fgTitle
         ]
         element
+
+
+ruler : E.Element msg
+ruler =
+    E.el
+        [ E.width E.fill
+        , E.height (E.px borderWidth)
+        , E.paddingXY 48 0
+        ]
+        (E.el [ E.width E.fill, E.height E.fill, Background.color fgDark ] E.none)
 
 
 warningParagraph : List (E.Element msg) -> E.Element msg
