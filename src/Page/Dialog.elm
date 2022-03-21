@@ -60,7 +60,7 @@ update msg model =
                                 , isRecurring = False
                                 , date = t.date
                                 , amount = Money.toInput t.amount
-                                , amountError = Money.validate (Money.toInput t.amount)
+                                , amountError = ""
                                 , description = t.description
                                 , category = t.category
                                 }
@@ -82,7 +82,7 @@ update msg model =
                                 , isRecurring = True
                                 , date = t.date
                                 , amount = Money.toInput t.amount
-                                , amountError = Money.validate (Money.toInput t.amount)
+                                , amountError = ""
                                 , description = t.description
                                 , category = t.category
                                 }
@@ -98,7 +98,7 @@ update msg model =
                             Just
                                 { dialog
                                     | amount = amount
-                                    , amountError = Money.validate amount
+                                    , amountError = ""
                                 }
                       }
                     , Cmd.none
@@ -141,8 +141,13 @@ update msg model =
         Msg.DialogConfirm ->
             case model.dialog of
                 Just dialog ->
-                    case ( dialog.id, Money.fromInput dialog.isExpense dialog.amount ) of
-                        ( Just id, Just amount ) ->
+                    case
+                        ( dialog.id
+                        , Money.fromInput dialog.isExpense dialog.amount
+                        , Money.validate dialog.amount
+                        )
+                    of
+                        ( Just id, Just amount, "" ) ->
                             ( { model | dialog = Nothing }
                             , Database.replaceTransaction
                                 { id = id
@@ -155,7 +160,7 @@ update msg model =
                                 }
                             )
 
-                        ( Nothing, Just amount ) ->
+                        ( Nothing, Just amount, "" ) ->
                             ( { model | dialog = Nothing }
                             , Database.createTransaction
                                 { account = model.account
@@ -167,8 +172,16 @@ update msg model =
                                 }
                             )
 
-                        ( _, Nothing ) ->
-                            ( model, Cmd.none )
+                        ( _, _, amountError ) ->
+                            let
+                                newDialog =
+                                    { dialog | amountError = amountError }
+                            in
+                            ( { model
+                                | dialog = Just newDialog
+                              }
+                            , Cmd.none
+                            )
 
                 _ ->
                     ( model, Log.error "impossible Confirm message" )
@@ -206,7 +219,7 @@ view model =
                 , E.scrollbarY
                 , E.paddingXY 0 0
                 , E.spacing 0
-                , Background.color Ui.bgWhite
+                , Background.color Ui.white
                 , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 32, color = E.rgba 0 0 0 0.75 }
                 ]
                 [ viewTitle model dialog
@@ -217,7 +230,7 @@ view model =
                     [ viewAmount dialog
                     , viewDescription dialog
                     , viewCategories model dialog
-                    , E.el [ E.height E.fill, Background.color Ui.bgWhite ] E.none
+                    , E.el [ E.height E.fill, Background.color Ui.white ] E.none
                     ]
                 , viewButtons dialog
                 ]
@@ -234,10 +247,10 @@ viewTitle model dialog =
 
         bgTitle =
             if isFuture then
-                Ui.bgDark
+                Ui.gray70
 
             else
-                Ui.bgTransaction dialog.isExpense
+                Ui.transactionColor dialog.isExpense
 
         text =
             case ( dialog.isRecurring, isFuture, dialog.isExpense ) of
@@ -267,9 +280,8 @@ viewTitle model dialog =
         , Background.color bgTitle
         , Ui.notSelectable
         ]
-        [ E.el [ E.width (E.px 48) ] E.none
-        , E.el
-            [ E.width E.fill, Font.center, Ui.bigFont, Font.bold, Font.color Ui.bgWhite ]
+        [ E.el
+            [ E.width E.fill, Font.center, Ui.bigFont, Font.bold, Font.color Ui.white ]
             (E.text text)
         ]
 
@@ -278,13 +290,13 @@ viewAmount : Model.Dialog -> E.Element Msg.Msg
 viewAmount dialog =
     if dialog.isRecurring then
         Ui.titledRow "Somme:"
-            []
             [ E.el
                 [ Ui.bigFont
                 , E.width (E.shrink |> E.minimum 220)
                 , E.alignLeft
                 , Border.width 1
                 , Border.color Ui.transparent
+                , Font.color Ui.gray40
                 ]
                 (E.text
                     ((if dialog.isExpense then
@@ -301,10 +313,9 @@ viewAmount dialog =
 
     else
         Ui.titledRow "Somme:"
-            []
             [ E.el
                 [ Ui.bigFont
-                , Font.color Ui.fgBlack
+                , Font.color Ui.gray40
                 , E.paddingEach { top = 12, bottom = 12, left = 0, right = 6 }
                 , E.width E.shrink
                 , E.alignLeft
@@ -327,14 +338,15 @@ viewAmount dialog =
                 , E.width (E.shrink |> E.minimum 220)
                 , E.alignLeft
                 , Border.width 4
-                , Border.color Ui.bgWhite
-                , Background.color Ui.bgEvenRow
+                , Border.color Ui.white
+                , Background.color Ui.gray95
                 , Ui.innerShadow
                 , E.focused
-                    [ Border.color Ui.fgFocus
+                    [ Border.color Ui.focusColor
                     ]
                 , E.htmlAttribute <| HtmlAttr.id "dialog-amount"
                 , E.htmlAttribute <| HtmlAttr.autocomplete False
+                , Font.color Ui.primary30
                 ]
                 { label = Input.labelHidden "Somme"
                 , text = dialog.amount
@@ -343,7 +355,7 @@ viewAmount dialog =
                 }
             , E.el
                 [ Ui.bigFont
-                , Font.color Ui.fgBlack
+                , Font.color Ui.gray40
                 , E.paddingEach { top = 12, bottom = 12, left = 6, right = 24 }
                 , E.width E.shrink
                 , E.alignLeft
@@ -354,7 +366,6 @@ viewAmount dialog =
                 (E.text "€")
             , if dialog.amountError /= "" then
                 Ui.warningParagraph
-                    [ E.width E.fill, E.height (E.shrink |> E.minimum 48) ]
                     [ E.text dialog.amountError ]
 
               else
@@ -366,29 +377,29 @@ viewDescription : Model.Dialog -> E.Element Msg.Msg
 viewDescription dialog =
     if dialog.isRecurring then
         Ui.titledRow "Description:"
-            []
             [ E.el
                 [ Ui.bigFont
                 , Border.width 1
                 , Border.color Ui.transparent
+                , Font.color Ui.gray40
                 ]
                 (E.text dialog.description)
             ]
 
     else
         Ui.titledRow "Description:"
-            []
             [ Input.multiline
                 [ Ui.onEnter (Msg.ForDialog <| Msg.DialogConfirm)
                 , Ui.bigFont
                 , Border.width 4
-                , Border.color Ui.bgWhite
-                , Background.color Ui.bgEvenRow
+                , Border.color Ui.white
+                , Background.color Ui.gray95
                 , Ui.innerShadow
                 , E.focused
-                    [ Border.color Ui.fgFocus
+                    [ Border.color Ui.focusColor
                     ]
                 , E.width E.fill
+                , Font.color Ui.primary30
                 ]
                 { label = Input.labelHidden "Description:"
                 , text = dialog.description
@@ -421,14 +432,13 @@ viewCategories model dialog =
                 model.categories
                     |> Dict.toList
                     |> (\l ->
-                            ( 0, { name = "Aucune", icon = "" } )
+                            ( 0, { name = "Aucune", icon = " " } )
                                 :: l
                                 |> groupBy3 []
                                 |> List.reverse
                        )
         in
         Ui.titledRow "Catégorie:"
-            []
             [ E.table
                 [ E.width E.fill
                 , E.spacing 12
@@ -447,7 +457,7 @@ viewCategories model dialog =
                                         E.none
 
                                     Just ( k, v ) ->
-                                        Ui.radioButton []
+                                        Ui.radioButton
                                             { onPress = Just (Msg.ForDialog <| Msg.DialogChangeCategory k)
                                             , icon = v.icon
                                             , label = v.name
@@ -463,7 +473,7 @@ viewCategories model dialog =
                                         E.none
 
                                     Just ( k, v ) ->
-                                        Ui.radioButton []
+                                        Ui.radioButton
                                             { onPress = Just (Msg.ForDialog <| Msg.DialogChangeCategory k)
                                             , icon = v.icon
                                             , label = v.name
@@ -479,7 +489,7 @@ viewCategories model dialog =
                                         E.none
 
                                     Just ( k, v ) ->
-                                        Ui.radioButton []
+                                        Ui.radioButton
                                             { onPress = Just (Msg.ForDialog <| Msg.DialogChangeCategory k)
                                             , icon = v.icon
                                             , label = v.name
@@ -498,10 +508,11 @@ viewButtons dialog =
             [ E.width E.fill
             , E.spacing 24
             , E.paddingEach { top = 64, bottom = 24, left = 64, right = 64 }
-            , Background.color Ui.bgWhite
+            , Background.color Ui.white
             ]
-            [ Ui.mainButton [ E.alignRight, E.width E.shrink ]
-                { label = E.text "OK"
+            [ E.el [ E.width E.fill ] E.none
+            , Ui.mainButton
+                { label = E.text "  OK  "
                 , onPress = Just Msg.Close
                 }
             ]
@@ -511,21 +522,20 @@ viewButtons dialog =
             [ E.width E.fill
             , E.spacing 24
             , E.paddingEach { top = 64, bottom = 24, left = 64, right = 64 }
-            , Background.color Ui.bgWhite
+            , Background.color Ui.white
             ]
-            [ Ui.simpleButton
-                [ E.alignRight ]
+            [ E.el [ E.width E.fill ] E.none
+            , Ui.simpleButton
                 { label = E.text "Annuler", onPress = Just Msg.Close }
             , case dialog.id of
                 Just _ ->
                     Ui.simpleButton
-                        []
                         { label = E.text "Supprimer", onPress = Just (Msg.ForDialog <| Msg.DialogDelete) }
 
                 Nothing ->
                     E.none
-            , Ui.mainButton [ E.width E.shrink ]
-                { label = E.text "OK"
+            , Ui.mainButton
+                { label = E.text "  OK  "
                 , onPress = Just (Msg.ForDialog <| Msg.DialogConfirm)
                 }
             ]

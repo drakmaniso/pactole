@@ -34,7 +34,7 @@ view model =
                     (settingsButton model)
                 , case Dict.values model.accounts of
                     [ singleAccount ] ->
-                        E.el [ Ui.bigFont, Font.color Ui.fgTitle, Ui.notSelectable ]
+                        E.el [ Ui.bigFont, Font.color Ui.primary40, Ui.notSelectable ]
                             (E.text singleAccount)
 
                     _ ->
@@ -48,7 +48,7 @@ view model =
                 , E.paddingEach { top = 0, bottom = 6, left = 0, right = 0 }
                 , E.width E.fill
                 , Font.center
-                , Font.color Ui.fgDarker
+                , Font.color Ui.gray50
                 , Ui.notSelectable
                 ]
                 (E.text "Solde actuel:")
@@ -56,6 +56,7 @@ view model =
             , E.row [ E.height (E.fillPortion 1) ] [ E.none ]
             , buttonRow model
             , E.row [ E.height (E.fillPortion 2) ] [ E.none ]
+            , Ui.ruler
             ]
         )
 
@@ -70,7 +71,7 @@ accountsRow model =
                     { offset = ( 0, 0 )
                     , size = 4
                     , blur = 0
-                    , color = Ui.fgFocus
+                    , color = Ui.focusColor
                     }
                 ]
 
@@ -90,45 +91,11 @@ accountsRow model =
         , options =
             List.map
                 (\account ->
-                    Input.optionWith account
-                        (accountOption account model)
+                    Ui.radioRowOption account
+                        (E.text (Model.account account model))
                 )
                 (Dict.keys model.accounts)
         }
-
-
-accountOption : Int -> Model.Model -> Input.OptionState -> E.Element msg
-accountOption accountID model state =
-    E.el
-        ([ E.centerX
-         , E.paddingXY 16 7
-         , Border.rounded 3
-         , Ui.bigFont
-         , Ui.transition
-         , Ui.notSelectable
-         ]
-            ++ (case state of
-                    Input.Idle ->
-                        [ Font.color Ui.fgTitle
-                        , E.mouseDown [ Background.color Ui.bgMouseDown ]
-                        , E.mouseOver [ Background.color Ui.bgMouseOver ]
-                        ]
-
-                    Input.Focused ->
-                        [ E.mouseDown [ Background.color Ui.bgMouseDown ]
-                        , E.mouseOver [ Background.color Ui.bgMouseOver ]
-                        ]
-
-                    Input.Selected ->
-                        [ Font.color (E.rgb 1 1 1)
-                        , Background.color Ui.bgMainButton
-                        , Ui.smallShadow
-                        , Ui.mouseDown [ Background.color Ui.bgMainButtonDown ]
-                        , Ui.mouseOver [ Background.color Ui.bgMainButton ]
-                        ]
-               )
-        )
-        (E.text (Model.account accountID model))
 
 
 balanceRow : Model.Model -> E.Element msg
@@ -149,10 +116,10 @@ balanceRow model =
 
         color =
             if Money.isGreaterThan balance 0 then
-                Ui.fgBlack
+                Ui.gray30
 
             else
-                Ui.fgRed
+                Ui.warning55
     in
     E.row
         [ E.width E.fill, Font.color color, Ui.notSelectable ]
@@ -161,7 +128,7 @@ balanceRow model =
             E.none
 
           else
-            Ui.warningIcon []
+            Ui.warningIcon
         , E.el
             [ Ui.biggestFont
             , Font.bold
@@ -184,7 +151,7 @@ balanceRow model =
             E.none
 
           else
-            Ui.warningIcon []
+            Ui.warningIcon
         , E.el [ E.width E.fill ] E.none
         ]
 
@@ -193,16 +160,15 @@ buttonRow : Model.Model -> E.Element Msg.Msg
 buttonRow model =
     Keyed.row
         [ E.width E.fill
-        , E.spacing 12
+        , E.spacing 24
+        , E.paddingEach { left = 24, right = 24, top = 0, bottom = 0 }
         ]
         [ ( "blank left", E.el [ E.width E.fill ] E.none )
         , ( "stats button"
           , if model.page == Model.MainPage && model.settings.summaryEnabled then
                 Ui.simpleButton
-                    [ E.width (E.fillPortion 3)
-                    ]
                     { onPress = Just (Msg.ChangePage Model.StatsPage)
-                    , label = E.text "Bilan"
+                    , label = E.text " Bilan "
                     }
 
             else
@@ -211,8 +177,6 @@ buttonRow model =
         , ( "reconcile button"
           , if model.page == Model.MainPage && model.settings.reconciliationEnabled then
                 Ui.simpleButton
-                    [ E.width (E.fillPortion 3)
-                    ]
                     { onPress = Just (Msg.ChangePage Model.ReconcilePage)
                     , label = E.text "Pointer"
                     }
@@ -223,13 +187,11 @@ buttonRow model =
         , ( "back button"
           , if model.page /= Model.MainPage then
                 Ui.simpleButton
-                    [ E.width (E.fillPortion 3)
-                    ]
                     { onPress = Just (Msg.ChangePage Model.MainPage)
                     , label =
                         E.row [ Font.center, E.width E.fill ]
                             [ E.el [ E.width E.fill ] E.none
-                            , Ui.backIcon []
+                            , Ui.backIcon
                             , E.text "  Retour"
                             , E.el [ E.width E.fill ] E.none
                             ]
@@ -244,11 +206,11 @@ buttonRow model =
 
 settingsButton : Model.Model -> E.Element Msg.Msg
 settingsButton model =
-    if (not model.settings.settingsLocked) || model.showAdvanced then
+    if not model.settings.settingsLocked || model.showAdvanced then
         Input.button
-            [ Background.color Ui.bgPage
+            [ Background.color Ui.white
             , Ui.normalFont
-            , Font.color Ui.fgTitle
+            , Font.color Ui.primary40
             , Font.center
             , Ui.roundCorners
             , E.padding 2
@@ -257,14 +219,14 @@ settingsButton model =
             , E.alignLeft
             ]
             { onPress = Just (Msg.ChangePage Model.SettingsPage)
-            , label = E.el [ Ui.iconFont, Ui.normalFont, E.centerX, Font.color Ui.bgDark ] (E.text "\u{F013}")
+            , label = E.el [ Ui.iconFont, Ui.normalFont, E.centerX, Font.color Ui.gray70 ] (E.text "\u{F013}")
             }
 
     else
         Input.button
-            [ Background.color Ui.bgPage
+            [ Background.color Ui.white
             , Ui.normalFont
-            , Font.color Ui.fgTitle
+            , Font.color Ui.primary40
             , Font.center
             , Ui.roundCorners
             , E.padding 2
@@ -274,6 +236,6 @@ settingsButton model =
             ]
             { onPress = Just Msg.AttemptSettings
             , label =
-                E.el [ Ui.iconFont, Ui.normalFont, E.centerX, Font.color Ui.bgLight ]
+                E.el [ Ui.iconFont, Ui.normalFont, E.centerX, Font.color Ui.gray90 ]
                     (E.text "\u{F013}")
             }

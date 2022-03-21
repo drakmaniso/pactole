@@ -15,6 +15,7 @@ type Msg
     | SelectAccount Int
     | KeyDown String
     | KeyUp String
+    | WindowResize { width : Int, height : Int }
     | ForDatabase DatabaseMsg
     | ForDialog DialogMsg
     | ForSettingsDialog SettingsDialogMsg

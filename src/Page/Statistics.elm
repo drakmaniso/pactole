@@ -2,7 +2,6 @@ module Page.Statistics exposing (view)
 
 import Dict
 import Element as E
-import Element.Border as Border
 import Element.Font as Font
 import Ledger
 import Model
@@ -18,7 +17,7 @@ import Ui
 
 view : Model.Model -> E.Element Msg.Msg
 view shared =
-    Ui.pageWithSidePanel []
+    Ui.pageWithSidePanel
         { panel =
             E.column
                 [ E.width E.fill
@@ -40,15 +39,14 @@ view shared =
                 , E.clipX
                 , E.clipY
                 ]
-                [ Ui.dateNavigationBar shared
+                [ Ui.dateNavigationBar shared Msg.SelectDate
                 , viewMonthBalance shared
                 , viewMonthFutureWarning shared
+                , Ui.ruler
                 , E.column
                     [ E.width E.fill
                     , E.height E.fill
                     , E.scrollbarY
-                    , Border.widthEach { top = Ui.borderWidth, bottom = 0, right = 0, left = 0 }
-                    , Border.color Ui.fgDark
                     ]
                     [ E.el [ E.height E.fill ] E.none
                     , viewItem
@@ -87,7 +85,7 @@ viewMonthBalance shared =
     E.row
         [ E.width E.fill
         , E.paddingXY 48 24
-        , Font.color Ui.fgBlack
+        , Font.color Ui.gray30
         ]
         [ E.el [ E.width (E.fillPortion 2) ] E.none
         , E.el
@@ -108,7 +106,7 @@ viewMonthFutureWarning shared =
             [ E.width E.fill
             , E.paddingEach { top = 0, bottom = 24, left = 48, right = 48 }
             , Ui.normalFont
-            , Font.color Ui.fgDarker
+            , Font.color Ui.gray50
             ]
             [ E.el [ E.width (E.fillPortion 2) ] E.none
             , E.el
@@ -143,6 +141,7 @@ viewItem icon description money =
     E.row
         [ E.width E.fill
         , E.paddingXY 48 12
+        , Font.color Ui.gray30
         ]
         [ E.row [ E.width (E.fillPortion 3), E.spacing 12 ]
             [ E.el [ E.width E.fill ] E.none

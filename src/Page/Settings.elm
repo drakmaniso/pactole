@@ -12,15 +12,13 @@ import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
 import Element.Input as Input
-import Html
-import Html.Attributes as HtmlAttr
 import Ledger
 import Log
 import Model
 import Money
 import Msg
-import Ui
 import String
+import Ui
 
 
 
@@ -202,12 +200,12 @@ update msg model =
 
                 Nothing ->
                     ( { model | settingsDialog = Nothing }, Cmd.none )
-        
+
         Msg.SettingsAskImportConfirmation ->
             ( { model | settingsDialog = Just Model.AskImportConfirmation }
             , Cmd.none
             )
-        
+
         Msg.SettingsAskExportConfirmation ->
             ( { model | settingsDialog = Just Model.AskExportConfirmation }
             , Cmd.none
@@ -258,12 +256,12 @@ update msg model =
                         , checked = False
                         }
                     )
-                
+
                 Just Model.AskImportConfirmation ->
-                    ({ model | settingsDialog = Nothing }, Database.importDatabase)
-                
+                    ( { model | settingsDialog = Nothing }, Database.importDatabase )
+
                 Just Model.AskExportConfirmation ->
-                    ({ model | settingsDialog = Nothing }, Database.exportDatabase model)
+                    ( { model | settingsDialog = Nothing }, Database.exportDatabase model )
 
                 Nothing ->
                     ( { model | settingsDialog = Nothing }, Cmd.none )
@@ -275,23 +273,23 @@ update msg model =
 
 view : Model.Model -> E.Element Msg.Msg
 view model =
-    Ui.pageWithSidePanel []
+    Ui.pageWithSidePanel
         { panel =
             E.column
                 [ E.width E.fill
                 , E.height E.fill
                 , E.clipX
                 , E.clipY
-                , Border.widthEach { right = 2, top = 0, bottom = 0, left = 0}
-                , Border.color Ui.fgDark
+                , Border.widthEach { right = 2, top = 0, bottom = 0, left = 0 }
+                , Border.color Ui.gray70
                 ]
                 [ E.el
                     [ E.centerX, E.padding 12 ]
-                    (Ui.simpleButton []
+                    (Ui.simpleButton
                         { onPress = Just (Msg.ChangePage Model.MainPage)
                         , label =
                             E.row []
-                                [ Ui.backIcon []
+                                [ Ui.backIcon
                                 , E.text "  Retour"
                                 ]
                         }
@@ -299,8 +297,10 @@ view model =
                 , E.el
                     [ E.width E.fill, E.height E.fill ]
                     E.none
-                , E.el [Ui.smallerFont, E.centerX]
-                    (E.text ("version de Pactole: " ++ model.serviceVersion) )
+                , E.el [ Ui.smallerFont, E.centerX ]
+                    (E.text ("version de Pactole: " ++ model.serviceVersion))
+                , E.el [ Ui.smallerFont, E.centerX ]
+                    (E.text ("width = " ++ String.fromInt model.device.width ++ ", height = " ++ String.fromInt model.device.height))
                 ]
         , page =
             E.column
@@ -316,12 +316,11 @@ view model =
                     , E.paddingXY 48 0
                     , E.scrollbarY
                     ]
-                    [ Ui.pageTitle [ E.centerY, Font.color Ui.fgTitle ]
-                        (E.text "Configuration")
-                    , Ui.configCustom []
+                    [ Ui.pageTitle (E.text "Configuration")
+                    , Ui.configCustom
                         { label = "Données de l'application:"
                         , content =
-                            E.column [E.spacing 24]
+                            E.column [ E.spacing 24 ]
                                 [ E.row
                                     [ E.width E.fill ]
                                     [ E.paragraph
@@ -337,20 +336,18 @@ view model =
                                     , E.spacing 24
                                     , E.paddingEach { top = 12, bottom = 12, left = 12, right = 12 }
                                     ]
-                                    [ Ui.simpleButton []
-                                        {
-                                            onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsAskExportConfirmation),
-                                            label = E.row [E.spacing 12] [Ui.saveIcon [], E.text "Faire une copie de sauvegarde"]
+                                    [ Ui.simpleButton
+                                        { onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsAskExportConfirmation)
+                                        , label = E.row [ E.spacing 12 ] [ Ui.saveIcon, E.text "Faire une copie de sauvegarde" ]
                                         }
-                                    , Ui.simpleButton []
-                                        {
-                                            onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsAskImportConfirmation),
-                                            label = E.row [E.spacing 12] [Ui.loadIcon [], E.text "Restaurer une sauvegarde"]
+                                    , Ui.simpleButton
+                                        { onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsAskImportConfirmation)
+                                        , label = E.row [ E.spacing 12 ] [ Ui.loadIcon, E.text "Restaurer une sauvegarde" ]
                                         }
                                     ]
                                 ]
                         }
-                    , Ui.configCustom []
+                    , Ui.configCustom
                         { label = "Personnes utilisant l'application:"
                         , content =
                             E.column [ E.spacing 24 ]
@@ -365,8 +362,8 @@ view model =
                                           , width = E.shrink
                                           , view =
                                                 \a ->
-                                                    Ui.iconButton []
-                                                        { icon = Ui.editIcon []
+                                                    Ui.iconButton
+                                                        { icon = Ui.editIcon
                                                         , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsRenameAccount (Tuple.first a))
                                                         }
                                           }
@@ -374,16 +371,16 @@ view model =
                                           , width = E.shrink
                                           , view =
                                                 \a ->
-                                                    Ui.iconButton []
-                                                        { icon = Ui.deleteIcon []
+                                                    Ui.iconButton
+                                                        { icon = Ui.deleteIcon
                                                         , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsDeleteAccount (Tuple.first a))
                                                         }
                                           }
                                         ]
                                     }
-                                , Ui.simpleButton []
+                                , Ui.simpleButton
                                     { onPress = Just (Msg.ForDatabase <| Msg.DbCreateAccount (newAccountName (Dict.values model.accounts) 1))
-                                    , label = E.row [] [ Ui.plusIcon [], E.text "  Ajouter" ]
+                                    , label = E.row [] [ Ui.plusIcon, E.text "  Ajouter" ]
                                     }
                                 ]
                         }
@@ -405,12 +402,12 @@ configWarning model =
         settings =
             model.settings
     in
-    Ui.configCustom []
+    Ui.configCustom
         { label = "Avertissement lorsque le solde passe sous:"
         , content =
             E.row [ E.spacing 12 ]
-                [ Ui.iconButton [ Border.color Ui.fgDark, Border.width Ui.borderWidth ]
-                    { icon = Ui.minusIcon []
+                [ Ui.iconButton
+                    { icon = Ui.minusIcon
                     , onPress =
                         Just (Msg.ForDatabase <| Msg.DbStoreSettings { settings | balanceWarning = settings.balanceWarning - 10 })
                     }
@@ -418,8 +415,8 @@ configWarning model =
                     (E.text (String.fromInt model.settings.balanceWarning))
                 , E.el [ Ui.normalFont ]
                     (E.text "€")
-                , Ui.iconButton [ Border.color Ui.fgDark, Border.width Ui.borderWidth ]
-                    { icon = Ui.plusIcon []
+                , Ui.iconButton
+                    { icon = Ui.plusIcon
                     , onPress =
                         Just (Msg.ForDatabase <| Msg.DbStoreSettings { settings | balanceWarning = settings.balanceWarning + 10 })
                     }
@@ -429,7 +426,7 @@ configWarning model =
 
 configSummary : Model.Model -> E.Element Msg.Msg
 configSummary model =
-    Ui.configRadio []
+    Ui.configRadio
         { onChange =
             \o ->
                 let
@@ -452,7 +449,7 @@ configSummary model =
 
 configReconciliation : Model.Model -> E.Element Msg.Msg
 configReconciliation model =
-    Ui.configRadio []
+    Ui.configRadio
         { onChange =
             \o ->
                 let
@@ -475,7 +472,7 @@ configReconciliation model =
 
 configCategoriesEnabled : Model.Model -> E.Element Msg.Msg
 configCategoriesEnabled model =
-    Ui.configRadio []
+    Ui.configRadio
         { onChange =
             \o ->
                 let
@@ -498,7 +495,7 @@ configCategoriesEnabled model =
 
 configCategories : Model.Model -> E.Element Msg.Msg
 configCategories model =
-    Ui.configCustom []
+    Ui.configCustom
         { label =
             if model.settings.categoriesEnabled then
                 "Catégories:"
@@ -525,8 +522,8 @@ configCategories model =
                           , width = E.shrink
                           , view =
                                 \a ->
-                                    Ui.iconButton []
-                                        { icon = Ui.editIcon []
+                                    Ui.iconButton
+                                        { icon = Ui.editIcon
                                         , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsRenameCategory (Tuple.first a))
                                         }
                           }
@@ -534,16 +531,16 @@ configCategories model =
                           , width = E.shrink
                           , view =
                                 \a ->
-                                    Ui.iconButton []
-                                        { icon = Ui.deleteIcon []
+                                    Ui.iconButton
+                                        { icon = Ui.deleteIcon
                                         , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsDeleteCategory (Tuple.first a))
                                         }
                           }
                         ]
                     }
-                , Ui.simpleButton []
+                , Ui.simpleButton
                     { onPress = Just (Msg.ForDatabase <| Msg.DbCreateCategory "Nouvelle catégorie" "")
-                    , label = E.row [] [ Ui.plusIcon [], E.text "  Ajouter" ]
+                    , label = E.row [] [ Ui.plusIcon, E.text "  Ajouter" ]
                     }
                 ]
         }
@@ -553,9 +550,9 @@ configRecurring : Model.Model -> E.Element Msg.Msg
 configRecurring model =
     let
         headerTxt txt =
-            E.el [ Font.center, Ui.smallFont, Font.color Ui.fgDark ] (E.text txt)
+            E.el [ Font.center, Ui.smallFont, Font.color Ui.gray70 ] (E.text txt)
     in
-    Ui.configCustom []
+    Ui.configCustom
         { label = "Opérations mensuelles:"
         , content =
             E.column [ E.spacing 24 ]
@@ -594,8 +591,8 @@ configRecurring model =
                           , width = E.shrink
                           , view =
                                 \t ->
-                                    Ui.iconButton []
-                                        { icon = Ui.editIcon []
+                                    Ui.iconButton
+                                        { icon = Ui.editIcon
                                         , onPress =
                                             Just
                                                 (Msg.ForSettingsDialog <|
@@ -607,16 +604,16 @@ configRecurring model =
                           , width = E.shrink
                           , view =
                                 \t ->
-                                    Ui.iconButton []
-                                        { icon = Ui.deleteIcon []
+                                    Ui.iconButton
+                                        { icon = Ui.deleteIcon
                                         , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsDeleteRecurring t.id)
                                         }
                           }
                         ]
                     }
-                , Ui.simpleButton []
+                , Ui.simpleButton
                     { onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsNewRecurring)
-                    , label = E.row [] [ Ui.plusIcon [], E.text "  Ajouter" ]
+                    , label = E.row [] [ Ui.plusIcon, E.text "  Ajouter" ]
                     }
                 ]
         }
@@ -625,7 +622,7 @@ configRecurring model =
 configLocked : Model.Model -> E.Element Msg.Msg
 configLocked model =
     E.column [ E.width E.fill ]
-        [ Ui.configRadio []
+        [ Ui.configRadio
             { onChange =
                 \o ->
                     let
@@ -649,7 +646,7 @@ configLocked model =
             , E.paddingEach { top = 0, bottom = 24, left = 64 + 12, right = 0 }
             ]
             [ E.text "Lorsque les réglages sont vérouillés, il faut cliquer 5 fois de suite sur l'icône \""
-            , E.el [Ui.iconFont, Ui.normalFont, Font.color Ui.bgDark] (E.text "\u{F013}")
+            , E.el [ Ui.iconFont, Ui.normalFont, Font.color Ui.gray70 ] (E.text "\u{F013}")
             , E.text "\" pour accéder aux réglages."
             ]
         ]
@@ -674,7 +671,7 @@ viewDialog model =
                 , E.paddingXY 0 0
                 , E.spacing 0
                 , E.scrollbarY
-                , Background.color Ui.bgWhite
+                , Background.color Ui.white
                 , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 32, color = E.rgba 0 0 0 0.75 }
                 ]
                 [ E.el
@@ -687,14 +684,14 @@ viewDialog model =
                                 { offset = ( 0, 0 )
                                 , size = 4
                                 , blur = 0
-                                , color = Ui.fgFocus
+                                , color = Ui.focusColor
                                 }
                             ]
                         ]
                         { label =
                             Input.labelAbove
                                 [ E.width E.shrink
-                                , Font.color Ui.fgTitle
+                                , Font.color Ui.primary40
                                 , Ui.normalFont
                                 , Font.bold
                                 , E.paddingEach { top = 12, bottom = 0, left = 12, right = 0 }
@@ -709,14 +706,14 @@ viewDialog model =
                 , E.row
                     [ E.width E.fill
                     , E.spacing 24
-                    , E.paddingEach { top = 64, bottom = 24, right = 64, left = 64 }
+                    , E.paddingEach { top = 64, bottom = 24, right = 48, left = 48 }
                     ]
-                    [ Ui.simpleButton
-                        [ E.alignRight ]
+                    [ E.el [ E.width E.fill ] E.none
+                    , Ui.simpleButton
                         { label = E.text "Annuler"
                         , onPress = Just Msg.Close
                         }
-                    , Ui.mainButton []
+                    , Ui.mainButton
                         { label = E.text "Confirmer"
                         , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsConfirm)
                         }
@@ -732,12 +729,13 @@ viewDialog model =
                 , E.paddingXY 0 0
                 , E.spacing 0
                 , E.scrollbarY
-                , Background.color Ui.bgWhite
+                , Background.color Ui.white
                 , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 32, color = E.rgba 0 0 0 0.75 }
                 ]
                 [ E.el
                     [ E.paddingEach { top = 24, bottom = 24, right = 48, left = 48 }
                     , Ui.bigFont
+                    , Font.bold
                     ]
                     (E.text ("Supprimer la catégorie \"" ++ submodel.name ++ "\" ?"))
                 , E.paragraph
@@ -748,14 +746,14 @@ viewDialog model =
                 , E.row
                     [ E.width E.fill
                     , E.spacing 24
-                    , E.paddingEach { top = 64, bottom = 24, right = 64, left = 64 }
+                    , E.paddingEach { top = 64, bottom = 24, right = 48, left = 48 }
                     ]
-                    [ Ui.simpleButton
-                        [ E.alignRight ]
+                    [ E.el [ E.width E.fill ] E.none
+                    , Ui.simpleButton
                         { label = E.text "Annuler"
                         , onPress = Just Msg.Close
                         }
-                    , Ui.mainButton []
+                    , Ui.dangerButton
                         { label = E.text "Supprimer"
                         , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsConfirm)
                         }
@@ -771,7 +769,7 @@ viewDialog model =
                 , E.paddingXY 0 0
                 , E.spacing 0
                 , E.clip
-                , Background.color Ui.bgWhite
+                , Background.color Ui.white
                 , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 32, color = E.rgba 0 0 0 0.75 }
                 ]
                 [ E.el
@@ -783,7 +781,7 @@ viewDialog model =
                         { label =
                             Input.labelAbove
                                 [ E.width E.shrink
-                                , Font.color Ui.fgTitle
+                                , Font.color Ui.primary40
                                 , Ui.normalFont
                                 , Font.bold
                                 , E.paddingEach { top = 12, bottom = 0, left = 12, right = 0 }
@@ -806,9 +804,6 @@ viewDialog model =
                         (List.map
                             (\icon ->
                                 Ui.radioButton
-                                    [ E.width (E.shrink |> E.minimum 80)
-                                    , Font.center
-                                    ]
                                     { onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsChangeIcon icon)
                                     , icon = icon
                                     , label = ""
@@ -821,14 +816,14 @@ viewDialog model =
                 , E.row
                     [ E.width E.fill
                     , E.spacing 24
-                    , E.paddingEach { top = 64, bottom = 24, right = 64, left = 64 }
+                    , E.paddingEach { top = 64, bottom = 24, right = 48, left = 48 }
                     ]
-                    [ Ui.simpleButton
-                        [ E.alignRight ]
+                    [ E.el [ E.width E.fill ] E.none
+                    , Ui.simpleButton
                         { label = E.text "Annuler"
                         , onPress = Just Msg.Close
                         }
-                    , Ui.mainButton []
+                    , Ui.mainButton
                         { label = E.text "Confirmer"
                         , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsConfirm)
                         }
@@ -844,7 +839,7 @@ viewDialog model =
                 , E.paddingXY 0 0
                 , E.spacing 0
                 , E.scrollbarY
-                , Background.color Ui.bgWhite
+                , Background.color Ui.white
                 , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 32, color = E.rgba 0 0 0 0.75 }
                 ]
                 [ E.el
@@ -852,23 +847,23 @@ viewDialog model =
                     , Ui.bigFont
                     ]
                     (E.text ("Supprimer le compte \"" ++ submodel.name ++ "\" ?"))
-                , Ui.warningParagraph
-                    [ E.paddingEach { top = 24, bottom = 24, right = 96, left = 96 }
-                    ]
-                    [ E.el [ Font.bold ] (E.text " Toutes les opérations de ce compte ")
-                    , E.el [ Font.bold ] (E.text "vont être définitivement supprimées!")
-                    ]
+                , E.el [ E.paddingEach { left = 64, right = 48, top = 12, bottom = 24 } ]
+                    (Ui.warningParagraph
+                        [ E.el [ Font.bold ] (E.text " Toutes les opérations de ce compte ")
+                        , E.el [ Font.bold ] (E.text "vont être définitivement supprimées!")
+                        ]
+                    )
                 , E.row
                     [ E.width E.fill
                     , E.spacing 24
-                    , E.paddingEach { top = 64, bottom = 24, right = 64, left = 64 }
+                    , E.paddingEach { top = 64, bottom = 24, right = 48, left = 48 }
                     ]
-                    [ Ui.simpleButton
-                        [ E.alignRight ]
+                    [ E.el [ E.width E.fill ] E.none
+                    , Ui.simpleButton
                         { label = E.text "Annuler"
                         , onPress = Just Msg.Close
                         }
-                    , Ui.mainButton []
+                    , Ui.dangerButton
                         { label = E.text "Supprimer"
                         , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsConfirm)
                         }
@@ -884,7 +879,7 @@ viewDialog model =
                 , E.paddingXY 0 0
                 , E.spacing 0
                 , E.scrollbarY
-                , Background.color Ui.bgWhite
+                , Background.color Ui.white
                 , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 32, color = E.rgba 0 0 0 0.75 }
                 ]
                 [ E.el
@@ -898,14 +893,14 @@ viewDialog model =
                                 { offset = ( 0, 0 )
                                 , size = 4
                                 , blur = 0
-                                , color = Ui.fgFocus
+                                , color = Ui.focusColor
                                 }
                             ]
                         ]
                         { label =
                             Input.labelLeft
                                 [ E.width E.shrink
-                                , Font.color Ui.fgTitle
+                                , Font.color Ui.primary40
                                 , Ui.normalFont
                                 , Font.bold
                                 , E.paddingEach { right = 24, top = 0, left = 12, bottom = 0 }
@@ -922,7 +917,7 @@ viewDialog model =
                     (E.row [ E.spacingXY 24 0 ]
                         (E.el
                             [ E.width E.fill
-                            , Font.color Ui.fgTitle
+                            , Font.color Ui.primary40
                             , Ui.normalFont
                             , E.paddingEach { right = 24, top = 0, left = 12, bottom = 0 }
                             , Font.bold
@@ -930,7 +925,7 @@ viewDialog model =
                             (E.el [ Font.bold ] (E.text "Compte: "))
                             :: List.map
                                 (\( k, v ) ->
-                                    Ui.radioButton []
+                                    Ui.radioButton
                                         { onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsChangeAccount k)
                                         , icon = ""
                                         , label = v
@@ -945,26 +940,38 @@ viewDialog model =
                     , E.spacingXY 24 0
                     ]
                     [ E.el
-                        [ Font.color Ui.fgTitle
+                        [ Font.color Ui.primary40
+                        , Ui.normalFont
+                        , E.paddingEach { right = 24, top = 0, left = 12, bottom = 0 }
+                        , Font.bold
+                        ]
+                        (E.el [ Font.bold ] (E.text "Type: "))
+                    , E.row [ E.alignBottom ]
+                        [ Ui.radioButton
+                            { onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsChangeIsExpense False)
+                            , icon = "" --"\u{F067}"
+                            , label = "Entrée d'argent"
+                            , active = not submodel.isExpense
+                            }
+                        , Ui.radioButton
+                            { onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsChangeIsExpense True)
+                            , icon = "" --"\u{F068}"
+                            , label = "Dépense"
+                            , active = submodel.isExpense
+                            }
+                        ]
+                    ]
+                , E.row
+                    [ E.paddingEach { top = 24, bottom = 24, right = 48, left = 48 }
+                    , E.spacingXY 24 0
+                    ]
+                    [ E.el
+                        [ Font.color Ui.primary40
                         , Ui.normalFont
                         , E.paddingEach { right = 24, top = 0, left = 12, bottom = 0 }
                         , Font.bold
                         ]
                         (E.el [ Font.bold ] (E.text "Montant: "))
-                    , E.column [ E.alignBottom ]
-                        [ Ui.radioButton [ E.alignBottom ]
-                            { onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsChangeIsExpense False)
-                            , icon = "\u{F067}"
-                            , label = ""
-                            , active = not submodel.isExpense
-                            }
-                        , Ui.radioButton [ E.alignBottom ]
-                            { onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsChangeIsExpense True)
-                            , icon = "\u{F068}"
-                            , label = ""
-                            , active = submodel.isExpense
-                            }
-                        ]
                     , Input.text
                         [ Ui.onEnter (Msg.ForSettingsDialog <| Msg.SettingsConfirm)
                         , Ui.bigFont
@@ -974,7 +981,7 @@ viewDialog model =
                                 { offset = ( 0, 0 )
                                 , size = 4
                                 , blur = 0
-                                , color = Ui.fgFocus
+                                , color = Ui.focusColor
                                 }
                             ]
                         ]
@@ -995,14 +1002,14 @@ viewDialog model =
                                 { offset = ( 0, 0 )
                                 , size = 4
                                 , blur = 0
-                                , color = Ui.fgFocus
+                                , color = Ui.focusColor
                                 }
                             ]
                         ]
                         { label =
                             Input.labelAbove
                                 [ E.width E.shrink
-                                , Font.color Ui.fgTitle
+                                , Font.color Ui.primary40
                                 , Ui.normalFont
                                 , Font.bold
                                 , E.paddingEach { top = 12, bottom = 0, left = 12, right = 0 }
@@ -1017,21 +1024,21 @@ viewDialog model =
                 , E.row
                     [ E.width E.fill
                     , E.spacing 24
-                    , E.paddingEach { top = 64, bottom = 24, right = 64, left = 64 }
+                    , E.paddingEach { top = 64, bottom = 24, right = 48, left = 48 }
                     ]
-                    [ Ui.simpleButton
-                        [ E.alignRight ]
+                    [ E.el [ E.width E.fill ] E.none
+                    , Ui.simpleButton
                         { label = E.text "Annuler"
                         , onPress = Just Msg.Close
                         }
-                    , Ui.mainButton []
+                    , Ui.mainButton
                         { label = E.text "Confirmer"
                         , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsConfirm)
                         }
                     ]
                 ]
 
-        Just (Model.AskImportConfirmation) ->
+        Just Model.AskImportConfirmation ->
             E.column
                 [ E.centerX
                 , E.centerY
@@ -1040,39 +1047,40 @@ viewDialog model =
                 , E.paddingXY 0 0
                 , E.spacing 0
                 , E.scrollbarY
-                , Background.color Ui.bgWhite
+                , Background.color Ui.white
                 , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 32, color = E.rgba 0 0 0 0.75 }
                 ]
                 [ E.el
                     [ E.paddingEach { top = 24, bottom = 24, right = 48, left = 48 }
                     , Ui.bigFont
+                    , Font.bold
                     ]
-                    (E.text ("Remplacer toutes les données?"))
-                , Ui.warningParagraph
-                    [ E.paddingEach { top = 24, bottom = 24, right = 96, left = 96 }
-                    ]
-                    [ E.el [ Font.bold ] (E.text "Toutes les opérations et les réglages vont être ")
-                    , E.el [ Font.bold ] (E.text "définitivement supprimés!")
-                    , E.text " Ils seront remplacés par le contenu du fichier sélectionné."
-                    ]
+                    (E.text "Remplacer toutes les données?")
+                , E.el [ E.paddingEach { left = 64, right = 48, top = 12, bottom = 24 } ]
+                    (Ui.warningParagraph
+                        [ E.el [ Font.bold ] (E.text "Toutes les opérations et les réglages vont être ")
+                        , E.el [ Font.bold ] (E.text "définitivement supprimés!")
+                        , E.text " Ils seront remplacés par le contenu du fichier sélectionné."
+                        ]
+                    )
                 , E.row
                     [ E.width E.fill
                     , E.spacing 24
-                    , E.paddingEach { top = 64, bottom = 24, right = 64, left = 64 }
+                    , E.paddingEach { top = 64, bottom = 24, right = 48, left = 48 }
                     ]
-                    [ Ui.simpleButton
-                        [ E.alignRight ]
+                    [ E.el [ E.width E.fill ] E.none
+                    , Ui.simpleButton
                         { label = E.text "Annuler"
                         , onPress = Just Msg.Close
                         }
-                    , Ui.mainButton []
+                    , Ui.dangerButton
                         { label = E.text "Supprimer et Remplacer"
                         , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsConfirm)
                         }
                     ]
                 ]
 
-        Just (Model.AskExportConfirmation) ->
+        Just Model.AskExportConfirmation ->
             E.column
                 [ E.centerX
                 , E.centerY
@@ -1081,36 +1089,47 @@ viewDialog model =
                 , E.paddingXY 0 0
                 , E.spacing 0
                 , E.scrollbarY
-                , Background.color Ui.bgWhite
+                , Background.color Ui.white
                 , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 32, color = E.rgba 0 0 0 0.75 }
                 ]
                 [ E.el
                     [ E.paddingEach { top = 24, bottom = 24, right = 48, left = 48 }
                     , Ui.bigFont
+                    , Font.bold
                     ]
-                    (E.text ("Sauvegarder les données?"))
+                    (E.text "Sauvegarder les données?")
                 , E.paragraph
-                    [ E.paddingEach { top = 24, bottom = 6, right = 96, left = 96 }
+                    [ E.paddingEach { top = 24, bottom = 6, right = 48, left = 48 }
+                    , Ui.normalFont
                     ]
-                    [ E.text ("Toutes les données de Pactole seront enregistrées dans le fichier \"" ++ (Database.exportFileName model) ++"\" placé dans le dossier des téléchargements.")
+                    [ E.text "Toutes les données de Pactole vont être enregistrées dans le dans le fichier suivant:"
+                    ]
+                , E.row
+                    [ E.paddingEach { top = 12, bottom = 12, right = 48, left = 48 }
+                    , Ui.bigFont
+                    , E.width E.fill
+                    ]
+                    [ E.el [ E.width E.fill ] E.none
+                    , E.text (Database.exportFileName model)
+                    , E.el [ E.width E.fill ] E.none
                     ]
                 , E.paragraph
-                    [ E.paddingEach { top = 6, bottom = 24, right = 96, left = 96 }
-                    , Ui.smallerFont
+                    [ E.paddingEach { top = 6, bottom = 24, right = 48, left = 48 }
+                    , Ui.normalFont
                     ]
-                    [ E.text "(En fonction des réglages du navigateur, il est possible qu'une boite de dialogue s'ouvre pour sélectionner un autre emplacement)"
+                    [ E.text "Il sera placé dans le dossier des téléchargements."
                     ]
                 , E.row
                     [ E.width E.fill
                     , E.spacing 24
-                    , E.paddingEach { top = 64, bottom = 24, right = 64, left = 64 }
+                    , E.paddingEach { top = 64, bottom = 24, right = 48, left = 48 }
                     ]
-                    [ Ui.simpleButton
-                        [ E.alignRight ]
+                    [ E.el [ E.width E.fill ] E.none
+                    , Ui.simpleButton
                         { label = E.text "Annuler"
                         , onPress = Just Msg.Close
                         }
-                    , Ui.mainButton []
+                    , Ui.mainButton
                         { label = E.text "Sauvegarder"
                         , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsConfirm)
                         }
@@ -1135,12 +1154,13 @@ newAccountName accounts number =
         name
 
 
+
 -- ICONS
 
 
 iconChoice : List String
 iconChoice =
-    [ ""
+    [ " "
     , "\u{F6BE}" -- cat
     , "\u{F520}" -- crow
     , "\u{F6D3}" -- dog

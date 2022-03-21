@@ -7,9 +7,6 @@ import Browser.Navigation as Navigation
 import Database
 import Date
 import Dict
-import Element as E
-import Element.Background as Background
-import Element.Input as Input
 import Json.Decode as Decode
 import Ledger
 import Log
@@ -83,6 +80,12 @@ init flags _ _ =
 
                 Nothing ->
                     ( Date.default, Log.error "init flags: invalid date for today" )
+
+        width =
+            Decode.decodeValue (Decode.at [ "width" ] Decode.int) flags |> Result.withDefault 800
+
+        height =
+            Decode.decodeValue (Decode.at [ "height" ] Decode.int) flags |> Result.withDefault 600
     in
     ( { settings =
             { categoriesEnabled = False
@@ -105,6 +108,7 @@ init flags _ _ =
       , dialog = Nothing
       , settingsDialog = Nothing
       , serviceVersion = "unknown"
+      , device = Ui.device width height
       }
     , cmd
       {-
@@ -180,6 +184,13 @@ update msg model =
         Msg.KeyUp _ ->
             ( { model | showAdvanced = False }, Cmd.none )
 
+        Msg.WindowResize size ->
+            ( { model
+                | device = Ui.device size.width size.height
+              }
+            , Cmd.none
+            )
+
         Msg.ForDatabase m ->
             Database.update m model
 
@@ -203,6 +214,7 @@ subscriptions _ =
         [ Database.receive
         , Browser.Events.onKeyDown (keyDecoder Msg.KeyDown)
         , Browser.Events.onKeyUp (keyDecoder Msg.KeyUp)
+        , Browser.Events.onResize (\width height -> Msg.WindowResize { width = width, height = height })
         ]
 
 
@@ -218,81 +230,17 @@ keyDecoder msg =
 
 view : Model.Model -> Browser.Document Msg.Msg
 view model =
-    { title = "Pactole"
-    , body =
-        [ E.layoutWith
-            { options =
-                [ E.focusStyle
-                    { borderColor = Nothing
-                    , backgroundColor = Nothing
-                    , shadow =
-                        if model.showFocus then
-                            Just
-                                { color = Ui.fgFocus
-                                , offset = ( 0, 0 )
-                                , blur = 0
-                                , size = 4
-                                }
-
-                        else
-                            Nothing
-                    }
-                ]
-            }
-            (case model.dialog of
+    let
+        activeDialog =
+            case model.dialog of
                 Just _ ->
-                    [ E.inFront
-                        (E.el
-                            [ E.width E.fill
-                            , E.height E.fill
-                            , Ui.fontFamily
-                            , E.padding 16
-                            , E.scrollbarY
-                            , E.behindContent
-                                (Input.button
-                                    [ E.width E.fill
-                                    , E.height E.fill
-                                    , Background.color (E.rgba 0 0 0 0.6)
-                                    ]
-                                    { label = E.none
-                                    , onPress = Just Msg.Close
-                                    }
-                                )
-                            ]
-                            (Dialog.view model)
-                        )
-                    ]
+                    Just (Dialog.view model)
 
                 Nothing ->
-                    case model.settingsDialog of
-                        Just _ ->
-                            [ E.inFront
-                                (E.el
-                                    [ E.width E.fill
-                                    , E.height E.fill
-                                    , Ui.fontFamily
-                                    , E.padding 16
-                                    , E.scrollbarY
-                                    , E.behindContent
-                                        (Input.button
-                                            [ E.width E.fill
-                                            , E.height E.fill
-                                            , Background.color (E.rgba 0 0 0 0.6)
-                                            ]
-                                            { label = E.none
-                                            , onPress = Just Msg.Close
-                                            }
-                                        )
-                                    ]
-                                    (Settings.viewDialog model)
-                                )
-                            ]
+                    model.settingsDialog |> Maybe.map (\_ -> Settings.viewDialog model)
 
-                        Nothing ->
-                            [ E.inFront (E.column [] [])
-                            ]
-            )
-            (case model.page of
+        activePage =
+            case model.page of
                 Model.SettingsPage ->
                     Settings.view model
 
@@ -304,6 +252,5 @@ view model =
 
                 Model.MainPage ->
                     Calendar.view model
-            )
-        ]
-    }
+    in
+    Ui.document "Pactole" activePage activeDialog Msg.Close model.showFocus

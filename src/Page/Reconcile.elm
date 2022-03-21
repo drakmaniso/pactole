@@ -3,7 +3,6 @@ module Page.Reconcile exposing (view)
 import Date
 import Element as E
 import Element.Background as Background
-import Element.Border as Border
 import Element.Font as Font
 import Ledger
 import Model
@@ -19,7 +18,7 @@ import Ui
 
 view : Model.Model -> E.Element Msg.Msg
 view shared =
-    Ui.pageWithSidePanel []
+    Ui.pageWithSidePanel
         { panel =
             E.column
                 [ E.width E.fill
@@ -40,7 +39,7 @@ view shared =
                 , E.height E.fill
                 , E.clipY
                 ]
-                [ Ui.dateNavigationBar shared
+                [ Ui.dateNavigationBar shared Msg.SelectDate
                 , viewReconciled shared
                 , viewTransactions shared
                 ]
@@ -54,7 +53,7 @@ viewReconciled shared =
             Date.getMonthName (Date.decrementMonth shared.date)
     in
     E.column
-        [ E.width E.fill, E.paddingXY 48 24, E.spacing 24 ]
+        [ E.width E.fill, E.paddingXY 48 24, E.spacing 24, Font.color Ui.gray30 ]
         [ E.row
             [ E.width E.fill ]
             [ E.el [ E.width E.fill ] E.none
@@ -84,8 +83,7 @@ viewTransactions shared =
         , E.width E.fill
         , E.height E.fill
         , E.scrollbarY
-        , Border.widthEach { top = Ui.borderWidth, bottom = 0, right = 0, left = 0 }
-        , Border.color Ui.transparent
+        , Font.color Ui.gray30
         ]
         (List.indexedMap
             (\idx transaction ->
@@ -93,10 +91,10 @@ viewTransactions shared =
                     [ E.width E.fill
                     , E.paddingXY 12 18
                     , if Basics.remainderBy 2 idx == 0 then
-                        Background.color Ui.bgEvenRow
+                        Background.color Ui.gray95
 
                       else
-                        Background.color Ui.bgOddRow
+                        Background.color Ui.gray90
                     ]
                     [ colDate transaction
                     , colReconciled transaction
@@ -112,24 +110,8 @@ colReconciled : Ledger.Transaction -> E.Element Msg.Msg
 colReconciled transaction =
     E.el
         [ E.width (E.fillPortion 1) ]
-        (Ui.iconButton
-            [ E.alignRight
-            , Background.color (E.rgba 1 1 1 1)
-            , Border.rounded 0
-            , Border.width Ui.borderWidth
-            , Border.color Ui.fgDark
-            , E.padding 2
-            , Ui.innerShadow
-            , Ui.transition
-            , E.mouseDown [ Background.color Ui.bgMouseDown ]
-            , E.mouseOver [ Ui.bigInnerShadow ]
-            ]
-            { icon =
-                if transaction.checked then
-                    Ui.checkIcon [ E.centerX, E.centerY ]
-
-                else
-                    E.none
+        (Ui.checkBox
+            { state = transaction.checked
             , onPress = Just (Msg.ForDatabase <| Msg.DbCheckTransaction transaction (not transaction.checked))
             }
         )
@@ -158,7 +140,7 @@ colDescription transaction =
     E.el
         [ E.width (E.fillPortion 8), E.clip ]
         (if transaction.description == "" then
-            E.el [ Font.color Ui.fgDark ] (E.text "—")
+            E.el [ Font.color Ui.gray70 ] (E.text "—")
 
          else
             E.text transaction.description
