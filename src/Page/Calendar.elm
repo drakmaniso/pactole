@@ -159,7 +159,7 @@ calendarCell model day =
                         ]
 
                     else
-                        [ Background.color Ui.gray90
+                        [ Background.color Ui.gray95
                         , E.focused
                             [ Border.color Ui.focusColor
                             , Border.shadow
@@ -286,30 +286,29 @@ cellContentFor model day =
                 future =
                     Date.compare day model.today == GT
 
+                color =
+                    if future then
+                        Ui.gray60
+
+                    else
+                        Ui.transactionColor (Money.isExpense transaction.amount)
+
                 parts =
                     Money.toStrings transaction.amount
             in
             E.row
                 [ E.paddingEach { top = 3, bottom = 4, left = 6, right = 8 }
+                , E.paddingEach { top = 1, bottom = 2, left = 4, right = 6 }
                 , Ui.smallFont
-                , if future then
-                    Font.color Ui.white
-
-                  else
-                    Font.color (E.rgb 1 1 1)
-                , if future then
-                    Background.color Ui.gray70
-
-                  else if Money.isExpense transaction.amount then
-                    Background.color Ui.expense40
-
-                  else
-                    Background.color Ui.income40
+                , Font.bold
+                , Font.color color
+                , Background.color Ui.transparent
                 , Border.rounded 16
-                , Border.width 0
+                , Border.width 2
+                , Border.color color
                 , E.htmlAttribute <| Html.Attributes.style "display" "inline-flex"
                 ]
-                [ E.el [ Ui.smallFont, Font.medium ] (E.text (parts.sign ++ parts.units))
+                [ E.el [ Ui.smallFont ] (E.text (parts.sign ++ parts.units))
                 , E.el
                     [ Ui.smallerFont
                     , E.alignBottom
@@ -348,6 +347,7 @@ dayView model =
             , Font.color Ui.gray30
             , Font.center
             , Ui.bigFont
+
             -- , Border.widthEach { top = 2, bottom = 0, left = 0, right = 0 }
             -- , Border.color Ui.gray70
             , Ui.notSelectable

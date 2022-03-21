@@ -107,6 +107,11 @@ gray70 =
     rgb 0xAB 0xAB 0xAB
 
 
+gray60 : E.Color
+gray60 =
+    rgb 0x91 0x91 0x91
+
+
 gray50 : E.Color
 gray50 =
     -- E.rgb 0.5 0.5 0.5
