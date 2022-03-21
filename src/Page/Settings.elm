@@ -691,7 +691,7 @@ viewDialog model =
                         { label =
                             Input.labelAbove
                                 [ E.width E.shrink
-                                , Font.color Ui.primary
+                                , Font.color Ui.primary40
                                 , Ui.normalFont
                                 , Font.bold
                                 , E.paddingEach { top = 12, bottom = 0, left = 12, right = 0 }
@@ -735,6 +735,7 @@ viewDialog model =
                 [ E.el
                     [ E.paddingEach { top = 24, bottom = 24, right = 48, left = 48 }
                     , Ui.bigFont
+                    , Font.bold
                     ]
                     (E.text ("Supprimer la catégorie \"" ++ submodel.name ++ "\" ?"))
                 , E.paragraph
@@ -752,7 +753,7 @@ viewDialog model =
                         { label = E.text "Annuler"
                         , onPress = Just Msg.Close
                         }
-                    , Ui.mainButton
+                    , Ui.dangerButton
                         { label = E.text "Supprimer"
                         , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsConfirm)
                         }
@@ -780,7 +781,7 @@ viewDialog model =
                         { label =
                             Input.labelAbove
                                 [ E.width E.shrink
-                                , Font.color Ui.primary
+                                , Font.color Ui.primary40
                                 , Ui.normalFont
                                 , Font.bold
                                 , E.paddingEach { top = 12, bottom = 0, left = 12, right = 0 }
@@ -862,7 +863,7 @@ viewDialog model =
                         { label = E.text "Annuler"
                         , onPress = Just Msg.Close
                         }
-                    , Ui.mainButton
+                    , Ui.dangerButton
                         { label = E.text "Supprimer"
                         , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsConfirm)
                         }
@@ -899,7 +900,7 @@ viewDialog model =
                         { label =
                             Input.labelLeft
                                 [ E.width E.shrink
-                                , Font.color Ui.primary
+                                , Font.color Ui.primary40
                                 , Ui.normalFont
                                 , Font.bold
                                 , E.paddingEach { right = 24, top = 0, left = 12, bottom = 0 }
@@ -916,7 +917,7 @@ viewDialog model =
                     (E.row [ E.spacingXY 24 0 ]
                         (E.el
                             [ E.width E.fill
-                            , Font.color Ui.primary
+                            , Font.color Ui.primary40
                             , Ui.normalFont
                             , E.paddingEach { right = 24, top = 0, left = 12, bottom = 0 }
                             , Font.bold
@@ -939,7 +940,7 @@ viewDialog model =
                     , E.spacingXY 24 0
                     ]
                     [ E.el
-                        [ Font.color Ui.primary
+                        [ Font.color Ui.primary40
                         , Ui.normalFont
                         , E.paddingEach { right = 24, top = 0, left = 12, bottom = 0 }
                         , Font.bold
@@ -965,7 +966,7 @@ viewDialog model =
                     , E.spacingXY 24 0
                     ]
                     [ E.el
-                        [ Font.color Ui.primary
+                        [ Font.color Ui.primary40
                         , Ui.normalFont
                         , E.paddingEach { right = 24, top = 0, left = 12, bottom = 0 }
                         , Font.bold
@@ -1008,7 +1009,7 @@ viewDialog model =
                         { label =
                             Input.labelAbove
                                 [ E.width E.shrink
-                                , Font.color Ui.primary
+                                , Font.color Ui.primary40
                                 , Ui.normalFont
                                 , Font.bold
                                 , E.paddingEach { top = 12, bottom = 0, left = 12, right = 0 }
@@ -1052,6 +1053,7 @@ viewDialog model =
                 [ E.el
                     [ E.paddingEach { top = 24, bottom = 24, right = 48, left = 48 }
                     , Ui.bigFont
+                    , Font.bold
                     ]
                     (E.text "Remplacer toutes les données?")
                 , E.el [ E.paddingEach { left = 64, right = 48, top = 12, bottom = 24 } ]
@@ -1071,7 +1073,7 @@ viewDialog model =
                         { label = E.text "Annuler"
                         , onPress = Just Msg.Close
                         }
-                    , Ui.mainButton
+                    , Ui.dangerButton
                         { label = E.text "Supprimer et Remplacer"
                         , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsConfirm)
                         }
@@ -1093,18 +1095,29 @@ viewDialog model =
                 [ E.el
                     [ E.paddingEach { top = 24, bottom = 24, right = 48, left = 48 }
                     , Ui.bigFont
+                    , Font.bold
                     ]
                     (E.text "Sauvegarder les données?")
                 , E.paragraph
-                    [ E.paddingEach { top = 24, bottom = 6, right = 96, left = 96 }
+                    [ E.paddingEach { top = 24, bottom = 6, right = 48, left = 48 }
+                    , Ui.normalFont
                     ]
-                    [ E.text ("Toutes les données de Pactole seront enregistrées dans le fichier \"" ++ Database.exportFileName model ++ "\" placé dans le dossier des téléchargements.")
+                    [ E.text "Toutes les données de Pactole vont être enregistrées dans le dans le fichier suivant:"
+                    ]
+                , E.row
+                    [ E.paddingEach { top = 12, bottom = 12, right = 48, left = 48 }
+                    , Ui.bigFont
+                    , E.width E.fill
+                    ]
+                    [ E.el [ E.width E.fill ] E.none
+                    , E.text (Database.exportFileName model)
+                    , E.el [ E.width E.fill ] E.none
                     ]
                 , E.paragraph
-                    [ E.paddingEach { top = 6, bottom = 24, right = 96, left = 96 }
-                    , Ui.smallerFont
+                    [ E.paddingEach { top = 6, bottom = 24, right = 48, left = 48 }
+                    , Ui.normalFont
                     ]
-                    [ E.text "(En fonction des réglages du navigateur, il est possible qu'une boite de dialogue s'ouvre pour sélectionner un autre emplacement)"
+                    [ E.text "Il sera placé dans le dossier des téléchargements."
                     ]
                 , E.row
                     [ E.width E.fill

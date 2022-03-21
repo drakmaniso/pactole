@@ -53,7 +53,7 @@ viewReconciled shared =
             Date.getMonthName (Date.decrementMonth shared.date)
     in
     E.column
-        [ E.width E.fill, E.paddingXY 48 24, E.spacing 24 ]
+        [ E.width E.fill, E.paddingXY 48 24, E.spacing 24, Font.color Ui.gray30 ]
         [ E.row
             [ E.width E.fill ]
             [ E.el [ E.width E.fill ] E.none
@@ -83,6 +83,7 @@ viewTransactions shared =
         , E.width E.fill
         , E.height E.fill
         , E.scrollbarY
+        , Font.color Ui.gray30
         ]
         (List.indexedMap
             (\idx transaction ->

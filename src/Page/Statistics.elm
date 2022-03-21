@@ -85,7 +85,7 @@ viewMonthBalance shared =
     E.row
         [ E.width E.fill
         , E.paddingXY 48 24
-        , Font.color Ui.black
+        , Font.color Ui.gray30
         ]
         [ E.el [ E.width (E.fillPortion 2) ] E.none
         , E.el
@@ -141,6 +141,7 @@ viewItem icon description money =
     E.row
         [ E.width E.fill
         , E.paddingXY 48 12
+        , Font.color Ui.gray30
         ]
         [ E.row [ E.width (E.fillPortion 3), E.spacing 12 ]
             [ E.el [ E.width E.fill ] E.none

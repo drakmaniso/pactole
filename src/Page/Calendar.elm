@@ -188,7 +188,7 @@ calendarCell model day =
                             , Font.center
                             , Border.color
                                 (if sel then
-                                    Ui.primary
+                                    Ui.primary40
 
                                  else
                                     Ui.white
@@ -203,11 +203,11 @@ calendarCell model day =
                                     Ui.white
 
                                  else
-                                    Ui.black
+                                    Ui.gray30
                                 )
                             , Background.color
                                 (if sel then
-                                    Ui.primary
+                                    Ui.primary40
 
                                  else
                                     Ui.transparent
@@ -237,7 +237,7 @@ calendarCell model day =
                             , Border.widthEach { left = 3, bottom = 3, right = 3, top = 0 }
                             , Border.color
                                 (if sel then
-                                    Ui.primary
+                                    Ui.primary40
 
                                  else
                                     Ui.white
@@ -301,10 +301,10 @@ cellContentFor model day =
                     Background.color Ui.gray70
 
                   else if Money.isExpense transaction.amount then
-                    Background.color Ui.expenseColor
+                    Background.color Ui.expense40
 
                   else
-                    Background.color Ui.incomeColor
+                    Background.color Ui.income40
                 , Border.rounded 16
                 , Border.width 0
                 , E.htmlAttribute <| Html.Attributes.style "display" "inline-flex"
@@ -345,25 +345,25 @@ dayView model =
             , E.height E.shrink
             , E.paddingXY 0 12
             , E.spacing 8
-            , Font.color Ui.black
+            , Font.color Ui.gray30
             , Font.center
             , Ui.bigFont
-            , Border.widthEach { top = 2, bottom = 0, left = 0, right = 0 }
-            , Border.color Ui.gray70
+            -- , Border.widthEach { top = 2, bottom = 0, left = 0, right = 0 }
+            -- , Border.color Ui.gray70
             , Ui.notSelectable
             ]
             [ if model.date == model.today then
-                E.el [ E.width E.fill, Ui.normalFont ] (E.text "— Aujourd'hui —")
+                E.el [ E.width E.fill, Ui.normalFont, Font.color Ui.gray50 ] (E.text "— Aujourd'hui —")
 
               else if dayDiff == 1 then
-                E.el [ E.width E.fill, Ui.normalFont ] (E.text "— demain —")
+                E.el [ E.width E.fill, Ui.normalFont, Font.color Ui.gray50 ] (E.text "— demain —")
 
               else if dayDiff > 1 then
-                E.el [ E.width E.fill, Ui.normalFont ] (E.text ("— dans " ++ String.fromInt dayDiff ++ " jours —"))
+                E.el [ E.width E.fill, Ui.normalFont, Font.color Ui.gray50 ] (E.text ("— dans " ++ String.fromInt dayDiff ++ " jours —"))
 
               else
                 E.none
-            , E.el [ E.width E.fill, Font.bold, E.paddingEach { top = 0, bottom = 12, right = 0, left = 0 } ]
+            , E.el [ E.width E.fill, Font.bold, E.paddingEach { top = 0, bottom = 12, right = 0, left = 0 }, Font.color Ui.gray30 ]
                 (E.text
                     (Date.getWeekdayName model.date
                         ++ " "
@@ -473,13 +473,13 @@ dayContentFor model day =
                                 [ E.width (E.fillPortion 6)
                                 , E.alignTop
                                 , Ui.normalFont
-                                , Font.color (E.rgb 0 0 0)
+                                , Font.color Ui.primary40
                                 ]
                                 (E.paragraph [] [ E.text (Ledger.getTransactionDescription transaction) ])
                             , E.el
                                 [ E.width (E.fillPortion 1)
                                 , E.alignTop
-                                , Font.color (E.rgb 0 0 0)
+                                , Font.color Ui.primary40
                                 , Ui.iconFont
                                 , Font.center
                                 ]

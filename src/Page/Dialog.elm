@@ -296,6 +296,7 @@ viewAmount dialog =
                 , E.alignLeft
                 , Border.width 1
                 , Border.color Ui.transparent
+                , Font.color Ui.gray40
                 ]
                 (E.text
                     ((if dialog.isExpense then
@@ -314,7 +315,7 @@ viewAmount dialog =
         Ui.titledRow "Somme:"
             [ E.el
                 [ Ui.bigFont
-                , Font.color Ui.black
+                , Font.color Ui.gray40
                 , E.paddingEach { top = 12, bottom = 12, left = 0, right = 6 }
                 , E.width E.shrink
                 , E.alignLeft
@@ -345,6 +346,7 @@ viewAmount dialog =
                     ]
                 , E.htmlAttribute <| HtmlAttr.id "dialog-amount"
                 , E.htmlAttribute <| HtmlAttr.autocomplete False
+                , Font.color Ui.primary30
                 ]
                 { label = Input.labelHidden "Somme"
                 , text = dialog.amount
@@ -353,7 +355,7 @@ viewAmount dialog =
                 }
             , E.el
                 [ Ui.bigFont
-                , Font.color Ui.black
+                , Font.color Ui.gray40
                 , E.paddingEach { top = 12, bottom = 12, left = 6, right = 24 }
                 , E.width E.shrink
                 , E.alignLeft
@@ -379,6 +381,7 @@ viewDescription dialog =
                 [ Ui.bigFont
                 , Border.width 1
                 , Border.color Ui.transparent
+                , Font.color Ui.gray40
                 ]
                 (E.text dialog.description)
             ]
@@ -396,6 +399,7 @@ viewDescription dialog =
                     [ Border.color Ui.focusColor
                     ]
                 , E.width E.fill
+                , Font.color Ui.primary30
                 ]
                 { label = Input.labelHidden "Description:"
                 , text = dialog.description
