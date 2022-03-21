@@ -95,6 +95,12 @@ gray95 =
     rgb 0xF1 0xF1 0xF1
 
 
+gray93 : E.Color
+gray93 =
+    -- E.rgb 0.9 0.9 0.9
+    rgb 0xEB 0xEB 0xEB
+
+
 gray90 : E.Color
 gray90 =
     -- E.rgb 0.9 0.9 0.9
@@ -173,20 +179,20 @@ expense90 : E.Color
 expense90 =
     -- E.rgb 0.94 0.87 0.87
     -- rgb 0xF0 0xDE 0xDE
-    rgb 0xFF 0xD8 0xD7
+    rgb 0xF4 0xDC 0xD8
 
 
 expense95 : E.Color
 expense95 =
     -- E.rgb 1 0.96 0.96
-    rgb 0xFF 0xEC 0xEB
+    rgb 0xFA 0xEE 0xEC
 
 
 expense80 : E.Color
 expense80 =
     -- E.rgb 0.8 0.6 0.6
     -- rgb 0xCC 0x99 0x99
-    rgb 0xFF 0xAE 0xAD
+    rgb 0xE9 0xBA 0xB3
 
 
 income40 : E.Color
@@ -210,19 +216,19 @@ income30 =
 income90 : E.Color
 income90 =
     -- E.rgb 0.92 0.94 0.86
-    rgb 0xC5 0xEE 0xDC
+    rgb 0xDA 0xE7 0xD8
 
 
 income95 : E.Color
 income95 =
     -- E.rgb 0.98 1 0.96
-    rgb 0xE2 0xF6 0xEE
+    rgb 0xEC 0xF3 0xEB
 
 
 income80 : E.Color
 income80 =
     -- E.rgb 0.7 0.8 0.6
-    rgb 0x96 0xD7 0xBD
+    rgb 0xB7 0xCF 0xB4
 
 
 primary30 : E.Color
@@ -403,13 +409,13 @@ bigWarningIcon =
 
 incomeIcon : E.Element msg
 incomeIcon =
-    E.el [ iconFont, normalFont, E.centerX, Font.color white ]
+    E.el [ iconFont, normalFont, E.centerX, Font.color income40 ]
         (E.text "\u{F067}")
 
 
 expenseIcon : E.Element msg
 expenseIcon =
-    E.el [ iconFont, normalFont, E.centerX, Font.color white ]
+    E.el [ iconFont, normalFont, E.centerX, Font.color expense40 ]
         (E.text "\u{F068}")
 
 
@@ -944,17 +950,17 @@ incomeButton :
 incomeButton { onPress, label } =
     Input.button
         [ E.width (E.fillPortion 2)
-        , Background.color income40
+        , Background.color income90
         , normalFont
         , Font.center
         , roundCorners
         , Border.width borderWidth
-        , Border.color income40
+        , Border.color income90
         , defaultShadow
         , transition
         , E.paddingXY 24 8
-        , mouseDown [ Background.color income30, Border.color income30 ]
-        , mouseOver [ Background.color income50, Border.color income50 ]
+        , mouseDown [ Background.color income80, Border.color income80 ]
+        , mouseOver [ Background.color income95, Border.color income95 ]
         ]
         { onPress = onPress
         , label = label
@@ -967,17 +973,17 @@ expenseButton :
 expenseButton { onPress, label } =
     Input.button
         [ E.width (E.fillPortion 2)
-        , Background.color expense40
+        , Background.color expense90
         , normalFont
         , Font.center
         , roundCorners
         , Border.width borderWidth
-        , Border.color expense40
+        , Border.color expense90
         , defaultShadow
         , transition
         , E.paddingXY 24 8
-        , mouseDown [ Background.color expense30, Border.color expense30 ]
-        , mouseOver [ Background.color expense50, Border.color expense50 ]
+        , mouseDown [ Background.color expense80, Border.color expense80 ]
+        , mouseOver [ Background.color expense95, Border.color expense95 ]
         ]
         { onPress = onPress
         , label = label

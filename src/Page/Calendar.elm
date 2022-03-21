@@ -159,7 +159,7 @@ calendarCell model day =
                         ]
 
                     else
-                        [ Background.color Ui.gray95
+                        [ Background.color Ui.gray93
                         , E.focused
                             [ Border.color Ui.focusColor
                             , Border.shadow
@@ -300,9 +300,8 @@ cellContentFor model day =
                 [ E.paddingEach { top = 3, bottom = 4, left = 6, right = 8 }
                 , E.paddingEach { top = 1, bottom = 2, left = 4, right = 6 }
                 , Ui.smallFont
-                , Font.bold
-                , Font.color color
-                , Background.color Ui.transparent
+                , Font.color Ui.white
+                , Background.color color
                 , Border.rounded 16
                 , Border.width 2
                 , Border.color color
