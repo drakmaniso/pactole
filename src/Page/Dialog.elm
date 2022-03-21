@@ -323,13 +323,11 @@ viewAmount dialog =
                 , Border.color (E.rgba 0 0 0 0)
                 , Ui.notSelectable
                 ]
-                (E.text
-                    (if dialog.isExpense then
-                        "-"
+                (if dialog.isExpense then
+                    E.el [ Font.color Ui.expense40, Font.bold ] (E.text "-")
 
-                     else
-                        "+"
-                    )
+                 else
+                    E.el [ Font.color Ui.income40, Font.bold ] (E.text "+")
                 )
             , Input.text
                 [ Ui.onEnter (Msg.ForDialog <| Msg.DialogConfirm)
@@ -346,7 +344,8 @@ viewAmount dialog =
                     ]
                 , E.htmlAttribute <| HtmlAttr.id "dialog-amount"
                 , E.htmlAttribute <| HtmlAttr.autocomplete False
-                , Font.color Ui.primary30
+                , Font.color (Ui.transactionColor dialog.isExpense) --Ui.primary20
+                , Font.bold
                 ]
                 { label = Input.labelHidden "Somme"
                 , text = dialog.amount
@@ -363,7 +362,12 @@ viewAmount dialog =
                 , Border.color (E.rgba 0 0 0 0)
                 , Ui.notSelectable
                 ]
-                (E.text "€")
+                (if dialog.isExpense then
+                    E.el [ Font.color Ui.expense40, Font.bold ] (E.text "€")
+
+                 else
+                    E.el [ Font.color Ui.income40, Font.bold ] (E.text "€")
+                )
             , if dialog.amountError /= "" then
                 Ui.warningParagraph
                     [ E.text dialog.amountError ]
@@ -399,7 +403,7 @@ viewDescription dialog =
                     [ Border.color Ui.focusColor
                     ]
                 , E.width E.fill
-                , Font.color Ui.primary30
+                , Font.color Ui.primary20
                 ]
                 { label = Input.labelHidden "Description:"
                 , text = dialog.description
