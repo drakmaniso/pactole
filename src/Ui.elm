@@ -348,8 +348,19 @@ document titleText activePage activeDialog closeMsg showFocus =
     }
 
 
-pageWithSidePanel : { panel : E.Element msg, page : E.Element msg } -> E.Element msg
-pageWithSidePanel { panel, page } =
+type alias NavigationBarConfig page msg =
+    { activePage : page
+    , onChange : page -> msg
+    , mainPage : page
+    , statsPage : Maybe page
+    , reconcilePage : Maybe page
+    , settingsPage : Maybe page
+    , helpPage : page
+    }
+
+
+pageWithSidePanel : NavigationBarConfig a msg -> { panel : E.Element msg, page : E.Element msg } -> E.Element msg
+pageWithSidePanel navBarConf { panel, page } =
     E.row
         [ E.width E.fill
         , E.height E.fill
@@ -360,19 +371,27 @@ pageWithSidePanel { panel, page } =
         , normalFont
         , Font.color Color.neutral30
         ]
-        [ E.el
-            [ E.width (E.fillPortion 1)
-            , E.height E.fill
+        [ E.column 
+            [ E.width (E.fillPortion 1 |> E.minimum 450)
+            , E.height E.fill 
             , E.clipY
-            , E.paddingXY 6 12
-            , E.alignTop
+            , E.paddingXY 6 6
             ]
-            panel
+            [ navigationBar navBarConf          
+            ,E.el
+                [ E.width E.fill
+                , E.height E.fill
+                , E.clipY
+                , E.paddingXY 6 6
+                , E.alignTop
+                ]
+                panel
+            ]
         , E.el
             [ E.width (E.fillPortion 3)
             , E.height E.fill
             , E.clipY
-            , E.paddingEach { top = 0, left = 0, bottom = 3, right = 6 }
+            , E.paddingEach { top = 6, left = 0, bottom = 3, right = 6 }
 
             -- , Border.widthEach { top = 0, left = borderWidth, bottom = 0, right = 0 }
             -- , Border.color Color.white -- bgDark
@@ -386,6 +405,7 @@ navigationBar { activePage, onChange, mainPage, statsPage, reconcilePage, settin
         [ E.width E.fill
         , Border.roundEach { topLeft = 32, bottomLeft = 32, topRight = 32, bottomRight = 32 }
         , Background.color Color.primary95
+        , smallShadow
         ]
         [ navigationButton
             [ Border.roundEach { topLeft = 32, bottomLeft = 32, topRight = 0, bottomRight = 0 }
@@ -713,89 +733,100 @@ warningParagraph elements =
 
 dateNavigationBar : { a | showFocus : Bool, date : Date.Date, today : Date.Date } -> (Date.Date -> msg) -> E.Element msg
 dateNavigationBar model changeMsg =
-    Keyed.row
-        [ E.width E.fill
-        , E.alignTop
+    E.row
+        [ E.width E.fill 
         , E.paddingEach { top = 0, bottom = 8, left = 8, right = 8 }
-        , Background.color Color.white
         ]
-        [ ( "previous month button"
-          , E.el
-                [ E.width (E.fillPortion 2)
-                , E.height E.fill
-                ]
-                (Input.button
-                    [ E.width E.fill
+        [ E.el [E.width (E.fill |> E.maximum 64)] E.none
+        , Keyed.row
+            [ E.width E.fill
+            , E.alignTop
+            , Background.color Color.white
+            , Background.color Color.neutral95
+            , Border.roundEach { topLeft = 32, bottomLeft = 32, topRight = 32, bottomRight = 32 }
+            , smallShadow
+            ]
+            [ ( "previous month button"
+            , E.el
+                    [ E.width (E.fillPortion 2)
                     , E.height E.fill
-                    , Border.roundEach { topLeft = 0, bottomLeft = 0, topRight = 0, bottomRight = 32 }
-                    , Font.color Color.neutral30
-                    , Border.widthEach { top = 0, bottom = 0, left = 0, right = 0 }
-                    , Background.color Color.neutral95
-                    , Border.color Color.neutral70
-                    , E.paddingEach { top = 4, bottom = 8, left = 0, right = 0 }
-                    , smallShadow
-                    , transition
-                    , mouseDown [ Background.color Color.neutral90 ]
-                    , mouseOver [ Background.color Color.white ]
                     ]
-                    { label =
-                        E.row
-                            [ E.width E.fill ]
-                            [ E.el [ bigFont, E.centerX ]
-                                (E.text (Date.getMonthName (Date.decrementMonth model.date)))
-                            , E.el [ E.centerX, iconFont, normalFont ] (E.text "  \u{F060}  ")
-                            ]
-                    , onPress = Just (changeMsg (Date.decrementMonthUI model.date model.today))
-                    }
-                )
-          )
-        , ( "current month header"
-          , E.el
-                [ E.width (E.fillPortion 3)
-                , E.height E.fill
-                , E.paddingEach { top = 4, bottom = 8, left = 0, right = 0 }
-                , notSelectable
-                ]
-                (E.el
-                    [ E.centerX
-                    , Font.bold
-                    , bigFont
-                    , Font.color Color.neutral30
-                    ]
-                    (E.text (Date.getMonthFullName model.today model.date))
-                )
-          )
-        , ( "next month button"
-          , E.el
-                -- needed to circumvent focus bug in elm-ui
-                [ E.width (E.fillPortion 2)
-                , E.height E.fill
-                ]
-                (Input.button
-                    [ E.width E.fill
+                    (Input.button
+                        [ E.width E.fill
+                        , E.height E.fill
+                        , Border.roundEach { topLeft = 32, bottomLeft = 32, topRight = 0, bottomRight = 0 }
+                        , Font.color Color.neutral30
+                        , Border.widthEach { top = 0, bottom = 0, left = 0, right = 0 }
+                        , Background.color Color.neutral95
+                        , Border.color Color.neutral90
+                        , Border.widthEach { left = 0, top = 0, bottom = 0, right = 0 }
+                        , E.paddingEach { top = 4, bottom = 8, left = 0, right = 0 }
+                        -- , smallShadow
+                        , transition
+                        , mouseDown [ Background.color Color.neutral90 ]
+                        , mouseOver [ Background.color Color.white ]
+                        ]
+                        { label =
+                            E.row
+                                [ E.width E.fill ]
+                                [ E.el [ normalFont, E.centerX ]
+                                    (E.text (Date.getMonthName (Date.decrementMonth model.date)))
+                                , E.el [ E.centerX, iconFont, normalFont ] (E.text "  \u{F060}  ")
+                                ]
+                        , onPress = Just (changeMsg (Date.decrementMonthUI model.date model.today))
+                        }
+                    )
+            )
+            , ( "current month header"
+            , E.el
+                    [ E.width (E.fillPortion 3)
                     , E.height E.fill
-                    , Border.roundEach { topLeft = 0, bottomLeft = 32, topRight = 0, bottomRight = 0 }
-                    , Font.color Color.neutral30
-                    , Border.widthEach { top = 0, bottom = 0, left = 0, right = 0 }
-                    , Background.color Color.neutral95
-                    , Border.color Color.neutral70
                     , E.paddingEach { top = 4, bottom = 8, left = 0, right = 0 }
-                    , smallShadow
-                    , transition
-                    , mouseDown [ Background.color Color.neutral90 ]
-                    , mouseOver [ Background.color Color.white ]
+                    , notSelectable
                     ]
-                    { label =
-                        E.row
-                            [ E.width E.fill ]
-                            [ E.el [ E.centerX, iconFont, normalFont ] (E.text "  \u{F061}  ")
-                            , E.el [ bigFont, E.centerX ]
-                                (E.text (Date.getMonthName (Date.incrementMonth model.date)))
-                            ]
-                    , onPress = Just (changeMsg (Date.incrementMonthUI model.date model.today))
-                    }
-                )
-          )
+                    (E.el
+                        [ E.centerX
+                        , Font.bold
+                        , bigFont
+                        , Font.color Color.neutral30
+                        ]
+                        (E.text (Date.getMonthFullName model.today model.date))
+                    )
+            )
+            , ( "next month button"
+            , E.el
+                    -- needed to circumvent focus bug in elm-ui
+                    [ E.width (E.fillPortion 2)
+                    , E.height E.fill
+                    ]
+                    (Input.button
+                        [ E.width E.fill
+                        , E.height E.fill
+                        , Border.roundEach { topLeft = 0, bottomLeft = 0, topRight = 32, bottomRight = 32 }
+                        , Font.color Color.neutral30
+                        , Border.widthEach { top = 0, bottom = 0, left = 0, right = 0 }
+                        , Background.color Color.neutral95
+                        , Border.color Color.neutral90
+                        , Border.widthEach { left = 0, top = 0, bottom = 0, right = 0 }
+                        , E.paddingEach { top = 4, bottom = 8, left = 0, right = 0 }
+                        -- , smallShadow
+                        , transition
+                        , mouseDown [ Background.color Color.neutral90 ]
+                        , mouseOver [ Background.color Color.white ]
+                        ]
+                        { label =
+                            E.row
+                                [ E.width E.fill ]
+                                [ E.el [ E.centerX, iconFont, normalFont ] (E.text "  \u{F061}  ")
+                                , E.el [ normalFont, E.centerX ]
+                                    (E.text (Date.getMonthName (Date.incrementMonth model.date)))
+                                ]
+                        , onPress = Just (changeMsg (Date.incrementMonthUI model.date model.today))
+                        }
+                    )
+            )
+            ]
+            , E.el [E.width (E.fill |> E.maximum 64)] E.none
         ]
 
 

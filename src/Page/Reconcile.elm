@@ -19,7 +19,7 @@ import Ui.Color as Color
 
 view : Model.Model -> E.Element Msg.Msg
 view model =
-    Ui.pageWithSidePanel
+    Ui.pageWithSidePanel (Msg.navigationBarConfig model)
         { panel =
             E.column
                 [ E.width E.fill
@@ -27,8 +27,7 @@ view model =
                 , E.clipX
                 , E.clipY
                 ]
-                [ Ui.navigationBar (Msg.navigationBarConfig model)
-                , E.el
+                [ E.el
                     [ E.width E.fill, E.height (E.fillPortion 1) ]
                     (Summary.view model)
                 , E.el
@@ -39,7 +38,7 @@ view model =
             E.column
                 [ E.width E.fill
                 , E.height E.fill
-                , E.clipY
+                -- , E.clipY
                 ]
                 [ Ui.dateNavigationBar model Msg.SelectDate
                 , viewReconciled model

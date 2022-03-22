@@ -1,4 +1,4 @@
-module Msg exposing (DatabaseMsg(..), DialogMsg(..), Msg(..), SettingsDialogMsg(..), navigationBarConfig)
+module Msg exposing (DatabaseMsg(..), DialogMsg(..), Msg(..), SettingsDialogMsg(..), navigationBarConfig, NavigationBarConfig)
 
 import Date
 import Json.Decode as Decode
@@ -62,6 +62,17 @@ type SettingsDialogMsg
     | SettingsAskExportConfirmation
 
 
+type alias NavigationBarConfig =
+    { activePage : Model.Page
+    , onChange : Model.Page -> Msg
+    , mainPage : Model.Page
+    , statsPage : Maybe Model.Page
+    , reconcilePage : Maybe Model.Page
+    , settingsPage : Maybe Model.Page
+    , helpPage : Model.Page
+    }
+
+navigationBarConfig : Model.Model -> NavigationBarConfig
 navigationBarConfig model =
     { activePage = model.page
     , onChange = ChangePage

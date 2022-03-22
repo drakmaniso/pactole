@@ -13,7 +13,7 @@ import Ui.Color as Color
 
 view : Model.Model -> E.Element Msg.Msg
 view model =
-    Ui.pageWithSidePanel
+    Ui.pageWithSidePanel (Msg.navigationBarConfig model)
         { panel =
             E.column
                 [ E.width E.fill
@@ -21,7 +21,7 @@ view model =
                 , E.clipX
                 , E.clipY
                 ]
-                [ Ui.navigationBar (Msg.navigationBarConfig model)
+                [ 
                 ]
         , page =
             E.column

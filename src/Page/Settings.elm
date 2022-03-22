@@ -274,7 +274,7 @@ update msg model =
 
 view : Model.Model -> E.Element Msg.Msg
 view model =
-    Ui.pageWithSidePanel
+    Ui.pageWithSidePanel (Msg.navigationBarConfig model)
         { panel =
             E.column
                 [ E.width E.fill
@@ -285,8 +285,7 @@ view model =
                 -- , Border.widthEach { right = 2, top = 0, bottom = 0, left = 0 }
                 -- , Border.color Color.neutral70
                 ]
-                [ Ui.navigationBar (Msg.navigationBarConfig model)
-                , E.el
+                [ E.el
                     [ E.width E.fill, E.height E.fill ]
                     E.none
                 , E.el [ Ui.smallerFont, E.centerX ]

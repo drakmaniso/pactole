@@ -30,19 +30,9 @@ view model =
             , E.paddingXY 0 24
             ]
             [ E.row [ E.height (E.fillPortion 1) ] [ E.none ]
-            , E.el
-                [ Ui.smallFont
-                , E.paddingEach { top = 0, bottom = 6, left = 0, right = 0 }
-                , E.width E.fill
-                , Font.center
-                , Font.color Color.neutral50
-                , Ui.notSelectable
-                ]
-                (E.text "Solde actuel:")
-            , balanceRow model
             , E.row
                 [ E.width E.fill
-                , E.paddingEach { top = 6, bottom = 0, left = 0, right = 0 }
+                , E.paddingEach { top = 0, bottom = 6, left = 0, right = 0 }
                 ]
                 [ E.el [ E.paddingXY 6 0, E.width E.fill ]
                     E.none
@@ -57,6 +47,16 @@ view model =
                 , E.el [ E.width E.fill ]
                     E.none
                 ]
+            , E.el
+                [ Ui.smallFont
+                , E.paddingEach { top = 0, bottom = 6, left = 0, right = 0 }
+                , E.width E.fill
+                , Font.center
+                , Font.color Color.neutral50
+                , Ui.notSelectable
+                ]
+                (E.text "Solde actuel:")
+            , balanceRow model
 
             -- , E.row [ E.height (E.fillPortion 1) ] [ E.none ]
             -- , buttonRow model
