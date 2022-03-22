@@ -1,4 +1,4 @@
-module Log exposing (..)
+module Log exposing (error)
 
 import Json.Encode as Encode
 import Ports

@@ -1,4 +1,4 @@
-module Main exposing (..)
+module Main exposing (init, keyDecoder, main, subscriptions, update, view)
 
 import Browser
 import Browser.Dom as Dom

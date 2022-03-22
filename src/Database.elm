@@ -1,4 +1,29 @@
-module Database exposing (..)
+module Database exposing
+    ( createAccount
+    , createCategory
+    , createRecurringTransaction
+    , createTransaction
+    , decodeDB
+    , deleteAccount
+    , deleteCategory
+    , deleteRecurringTransaction
+    , deleteTransaction
+    , exportDatabase
+    , exportFileName
+    , firstAccount
+    , importDatabase
+    , msgFromService
+    , processRecurringTransactions
+    , receive
+    , renameAccount
+    , renameCategory
+    , replaceRecurringTransaction
+    , replaceTransaction
+    , requestWholeDatabase
+    , storeSettings
+    , update
+    , upgradeSettingsToV2
+    )
 
 import Date
 import Dict
