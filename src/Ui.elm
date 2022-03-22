@@ -624,17 +624,20 @@ pageTitle element =
         element
 
 
-title : E.Color -> String -> E.Element msg
-title color text =
-    E.el
-        [ E.width E.fill
-        , Font.color color
-        , normalFont
-        , Font.bold
-        , E.padding 0
-        , notSelectable
+section : E.Color -> String -> E.Element msg -> E.Element msg
+section titleColor titleText content =
+    E.column [ E.width E.fill, E.spacing 12 ]
+        [ E.el
+            [ E.width E.fill
+            , Font.color titleColor
+            , normalFont
+            , Font.bold
+            , E.padding 0
+            , notSelectable
+            ]
+            (E.text titleText)
+        , E.el [ E.width E.fill, E.paddingXY 24 0 ] content
         ]
-        (E.text text)
 
 
 ruler : E.Element msg

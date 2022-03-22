@@ -219,7 +219,7 @@ settingsButton model =
             , E.alignLeft
             ]
             { onPress = Just (Msg.ChangePage Model.SettingsPage)
-            , label = E.el [ Ui.iconFont, Ui.normalFont, E.centerX, Font.color Ui.gray70 ] (E.text "\u{F013}")
+            , label = E.el [ Ui.iconFont, Ui.normalFont, E.centerX, Font.color Ui.gray70 ] (E.text {- "\u{F059}" -} "\u{F013}")
             }
 
     else

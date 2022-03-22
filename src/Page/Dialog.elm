@@ -211,7 +211,8 @@ view model =
     case model.dialog of
         Just dialog ->
             E.column
-                [ E.centerX
+                [ Ui.onEnter (Msg.ForDialog <| Msg.DialogConfirm)
+                , E.centerX
                 , E.centerY
                 , E.width (E.px 960)
 
@@ -240,14 +241,14 @@ viewAmount model dialog =
         isFuture =
             Date.compare dialog.date model.today == GT
 
-        color =
+        titleColor =
             if isFuture then
                 Ui.gray40
 
             else
                 Ui.transactionColor dialog.isExpense
 
-        text =
+        titleText =
             case ( dialog.isRecurring, isFuture, dialog.isExpense ) of
                 ( True, _, True ) ->
                     "Dépense mensuelle:"
@@ -268,15 +269,15 @@ viewAmount model dialog =
                     "Entrée d'argent:"
     in
     if dialog.isRecurring then
-        E.column [ E.width E.fill, E.spacing 12 ]
-            [ Ui.title color text
-            , E.el
+        Ui.section titleColor
+            titleText
+            (E.el
                 [ Ui.bigFont
                 , E.width (E.shrink |> E.minimum 220)
                 , E.alignLeft
                 , Border.width 1
                 , Border.color Ui.transparent
-                , Font.color color
+                , Font.color titleColor
                 ]
                 (E.text
                     ((if dialog.isExpense then
@@ -289,12 +290,12 @@ viewAmount model dialog =
                         ++ " €"
                     )
                 )
-            ]
+            )
 
     else
-        E.column [ E.width E.fill, E.spacing 12 ]
-            [ Ui.title color text
-            , E.row [ E.width E.fill ]
+        Ui.section titleColor
+            titleText
+            (E.row [ E.width E.fill, E.paddingXY 24 0 ]
                 [ E.el
                     [ Ui.bigFont
                     , Font.color Ui.gray40
@@ -305,10 +306,9 @@ viewAmount model dialog =
                     , Border.color (E.rgba 0 0 0 0)
                     , Ui.notSelectable
                     ]
-                    (E.el [ Font.color color, Font.bold ] (E.text "-"))
+                    (E.el [ Font.color titleColor, Font.bold ] (E.text "-"))
                 , Input.text
-                    [ Ui.onEnter (Msg.ForDialog <| Msg.DialogConfirm)
-                    , Ui.bigFont
+                    [ Ui.bigFont
                     , E.paddingXY 8 12
                     , E.width (E.shrink |> E.minimum 220)
                     , E.alignLeft
@@ -321,7 +321,7 @@ viewAmount model dialog =
                         ]
                     , E.htmlAttribute <| HtmlAttr.id "dialog-amount"
                     , E.htmlAttribute <| HtmlAttr.autocomplete False
-                    , Font.color color
+                    , Font.color titleColor
                     , Font.bold
                     ]
                     { label = Input.labelHidden "Somme"
@@ -339,7 +339,7 @@ viewAmount model dialog =
                     , Border.color (E.rgba 0 0 0 0)
                     , Ui.notSelectable
                     ]
-                    (E.el [ Font.color color, Font.bold ] (E.text "€"))
+                    (E.el [ Font.color titleColor, Font.bold ] (E.text "€"))
                 , if dialog.amountError /= "" then
                     Ui.warningParagraph
                         [ E.text dialog.amountError ]
@@ -347,29 +347,28 @@ viewAmount model dialog =
                   else
                     E.el [ E.height (E.shrink |> E.minimum 48) ] E.none
                 ]
-            ]
+            )
 
 
 viewDescription : Model.Model -> Model.Dialog -> E.Element Msg.Msg
 viewDescription _ dialog =
     if dialog.isRecurring then
-        E.column [ E.width E.fill, E.spacing 12 ]
-            [ Ui.title Ui.gray40 "Description:"
-            , E.el
+        Ui.section Ui.gray40
+            "Description:"
+            (E.el
                 [ Ui.bigFont
                 , Border.width 1
                 , Border.color Ui.transparent
                 , Font.color Ui.gray40
                 ]
                 (E.text dialog.description)
-            ]
+            )
 
     else
-        E.column [ E.width E.fill, E.spacing 12 ]
-            [ Ui.title Ui.gray40 "Description:"
-            , Input.multiline
-                [ Ui.onEnter (Msg.ForDialog <| Msg.DialogConfirm)
-                , Ui.bigFont
+        Ui.section Ui.gray40
+            "Description:"
+            (Input.multiline
+                [ Ui.bigFont
                 , Border.width 4
                 , Border.color Ui.white
                 , Background.color Ui.gray95
@@ -386,7 +385,7 @@ viewDescription _ dialog =
                 , onChange = Msg.ForDialog << Msg.DialogChangeDescription
                 , spellcheck = True
                 }
-            ]
+            )
 
 
 viewCategories : Model.Model -> Model.Dialog -> E.Element Msg.Msg
@@ -417,12 +416,11 @@ viewCategories model dialog =
                                 |> List.reverse
                        )
         in
-        E.column [ E.width E.fill, E.spacing 12 ]
-            [ Ui.title Ui.gray40 "Catégorie:"
-            , E.table
+        Ui.section Ui.gray40
+            "Catégorie:"
+            (E.table
                 [ E.width E.fill
                 , E.spacing 6
-                , E.paddingEach { top = 0, bottom = 0, left = 0, right = 0 }
 
                 --BUGGY: , scrollbarY
                 ]
@@ -478,7 +476,7 @@ viewCategories model dialog =
                       }
                     ]
                 }
-            ]
+            )
 
 
 viewButtons : Model.Dialog -> E.Element Msg.Msg
