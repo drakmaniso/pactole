@@ -21,8 +21,7 @@ view model =
                 , E.clipX
                 , E.clipY
                 ]
-                [ 
-                ]
+                []
         , page =
             E.column
                 [ E.width E.fill
@@ -31,7 +30,8 @@ view model =
                 -- , Border.widthEach { right = 0, top = 0, bottom = 0, left = 2 }
                 -- , Border.color Color.neutral80
                 ]
-                [ configLocked model
+                [ Ui.pageTitle (E.text "Guide d'utilisation")
+                , configLocked model
                 ]
         }
 

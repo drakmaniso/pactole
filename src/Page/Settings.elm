@@ -304,7 +304,7 @@ view model =
                 [ E.column
                     [ E.width E.fill
                     , E.height E.fill
-                    , E.paddingXY 48 0
+                    , E.paddingXY 0 0
                     , E.scrollbarY
                     ]
                     [ Ui.pageTitle (E.text "Configuration")

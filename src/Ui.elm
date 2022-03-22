@@ -127,6 +127,11 @@ smallShadow =
     Border.shadow { offset = ( 0, 2 ), size = 0, blur = 6, color = E.rgba 0 0 0 0.5 }
 
 
+smallerShadow : E.Attr decorative msg
+smallerShadow =
+    Border.shadow { offset = ( 0, 3 ), size = 0, blur = 3, color = E.rgba 0 0 0 0.3 }
+
+
 innerShadow : E.Attr decorative msg
 innerShadow =
     Border.innerShadow { offset = ( 0, 1 ), size = 0, blur = 4, color = E.rgba 0 0 0 0.5 }
@@ -406,11 +411,9 @@ navigationBar { activePage, onChange, mainPage, statsPage, reconcilePage, settin
         [ E.width E.fill
         , Border.roundEach { topLeft = 32, bottomLeft = 32, topRight = 32, bottomRight = 32 }
         , Background.color Color.primary95
-        , smallShadow
+        , smallerShadow
         ]
         [ navigationButton
-            [ Border.roundEach { topLeft = 32, bottomLeft = 32, topRight = 0, bottomRight = 0 }
-            ]
             { activePage = activePage
             , onChange = onChange
             , targetPage = mainPage
@@ -418,7 +421,7 @@ navigationBar { activePage, onChange, mainPage, statsPage, reconcilePage, settin
             }
         , case statsPage of
             Just page ->
-                navigationButton []
+                navigationButton
                     { activePage = activePage
                     , onChange = onChange
                     , targetPage = page
@@ -429,7 +432,7 @@ navigationBar { activePage, onChange, mainPage, statsPage, reconcilePage, settin
                 E.none
         , case reconcilePage of
             Just page ->
-                navigationButton []
+                navigationButton
                     { activePage = activePage
                     , onChange = onChange
                     , targetPage = page
@@ -445,7 +448,7 @@ navigationBar { activePage, onChange, mainPage, statsPage, reconcilePage, settin
             E.none
         , case settingsPage of
             Just page ->
-                navigationButton []
+                navigationButton
                     { activePage = activePage
                     , onChange = onChange
                     , targetPage = page
@@ -456,8 +459,6 @@ navigationBar { activePage, onChange, mainPage, statsPage, reconcilePage, settin
             _ ->
                 E.none
         , navigationButton
-            [ Border.roundEach { topLeft = 0, bottomLeft = 0, topRight = 32, bottomRight = 32 }
-            ]
             { activePage = activePage
             , onChange = onChange
             , targetPage = helpPage
@@ -467,28 +468,26 @@ navigationBar { activePage, onChange, mainPage, statsPage, reconcilePage, settin
         ]
 
 
-navigationButton attributes { activePage, onChange, targetPage, label } =
+navigationButton { activePage, onChange, targetPage, label } =
     Input.button
-        ([ E.paddingXY 12 6
-         , Background.color
+        [ E.paddingXY 12 6
+        , Background.color
             (if activePage == targetPage then
                 Color.primary40
 
              else
                 Color.primary95
             )
-         , Font.color
+        , Font.color
             (if activePage == targetPage then
                 Color.white
 
              else
                 Color.primary40
             )
-         , E.height E.fill
-         , Border.roundEach { topLeft = 32, bottomLeft = 32, topRight = 32, bottomRight = 32 }
-         ]
-         -- ++ attributes
-        )
+        , E.height E.fill
+        , Border.roundEach { topLeft = 32, bottomLeft = 32, topRight = 32, bottomRight = 32 }
+        ]
         { onPress = Just (onChange targetPage)
         , label = label
         }
@@ -679,16 +678,27 @@ configCustom { label, content } =
 
 pageTitle : E.Element msg -> E.Element msg
 pageTitle element =
-    E.el
-        [ bigFont
-        , Font.center
-        , Font.bold
-        , E.paddingEach { top = 12, bottom = 12, left = 12, right = 12 }
-        , E.width E.fill
-        , E.centerY
-        , Font.color Color.neutral40
+    E.row
+        [ E.width E.fill
+        , E.paddingEach { top = 0, bottom = 8, left = 8, right = 8 }
         ]
-        element
+        [ E.el [ E.width (E.fill |> E.maximum 64) ] E.none
+        , E.el
+            [ bigFont
+            , Font.center
+            , Font.bold
+            , E.paddingEach { top = 4, bottom = 8, left = 12, right = 12 }
+            , E.width E.fill
+            , E.centerY
+            , Background.color Color.neutral95
+            , Border.roundEach { topLeft = 32, bottomLeft = 32, topRight = 32, bottomRight = 32 }
+            , smallerShadow
+            , Font.color Color.neutral40
+            , Font.center
+            ]
+            element
+        , E.el [ E.width (E.fill |> E.maximum 64) ] E.none
+        ]
 
 
 section : E.Color -> String -> E.Element msg -> E.Element msg
@@ -742,10 +752,9 @@ dateNavigationBar model changeMsg =
         , Keyed.row
             [ E.width E.fill
             , E.alignTop
-            , Background.color Color.white
             , Background.color Color.neutral95
             , Border.roundEach { topLeft = 32, bottomLeft = 32, topRight = 32, bottomRight = 32 }
-            , smallShadow
+            , smallerShadow
             ]
             [ ( "previous month button"
               , E.el
@@ -766,7 +775,7 @@ dateNavigationBar model changeMsg =
                         -- , smallShadow
                         , transition
                         , mouseDown [ Background.color Color.neutral90 ]
-                        , mouseOver [ Background.color Color.white ]
+                        , mouseOver [ Background.color Color.neutral98 ]
                         ]
                         { label =
                             E.row
@@ -815,7 +824,7 @@ dateNavigationBar model changeMsg =
                         -- , smallShadow
                         , transition
                         , mouseDown [ Background.color Color.neutral90 ]
-                        , mouseOver [ Background.color Color.white ]
+                        , mouseOver [ Background.color Color.neutral98 ]
                         ]
                         { label =
                             E.row
