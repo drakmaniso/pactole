@@ -1,5 +1,6 @@
 module Ui exposing (..)
 
+import Bitwise
 import Browser
 import Date
 import Element as E
@@ -53,8 +54,11 @@ notSelectable =
 -- COLORS
 
 
-rgb =
+hex color =
     E.rgb255
+        (color |> Bitwise.and 0x00FF0000 |> Bitwise.shiftRightBy 16)
+        (color |> Bitwise.and 0xFF00 |> Bitwise.shiftRightBy 8)
+        (color |> Bitwise.and 0xFF)
 
 
 transparent : E.Color
@@ -65,23 +69,23 @@ transparent =
 warning55 : E.Color
 warning55 =
     -- E.rgb 0.82 0.47 0.0
-    rgb 0xE8 0x3C 0x00
+    hex 0x00E83C00
 
 
 warning65 : E.Color
 warning65 =
-    rgb 0xFF 0x66 0x40
+    hex 0x00FF6640
 
 
 warning45 : E.Color
 warning45 =
-    rgb 0xBD 0x2F 0x00
+    hex 0x00BD2F00
 
 
 focusColor : E.Color
 focusColor =
     -- E.rgb 1.0 0.7 0
-    rgb 0xFF 0xD0 0x00
+    hex 0x00FFD000
 
 
 white : E.Color
@@ -92,61 +96,61 @@ white =
 gray95 : E.Color
 gray95 =
     -- E.rgb 0.95 0.95 0.95
-    rgb 0xF1 0xF1 0xF1
+    hex 0x00F1F1F1
 
 
 gray93 : E.Color
 gray93 =
     -- E.rgb 0.9 0.9 0.9
-    rgb 0xEB 0xEB 0xEB
+    hex 0x00EBEBEB
 
 
 gray90 : E.Color
 gray90 =
     -- E.rgb 0.9 0.9 0.9
-    rgb 0xE2 0xE2 0xE2
+    hex 0x00E2E2E2
 
 
 gray70 : E.Color
 gray70 =
     -- E.rgb 0.7 0.7 0.7
-    rgb 0xAB 0xAB 0xAB
+    hex 0x00ABABAB
 
 
 gray60 : E.Color
 gray60 =
-    rgb 0x91 0x91 0x91
+    hex 0x00919191
 
 
 gray50 : E.Color
 gray50 =
     -- E.rgb 0.5 0.5 0.5
-    rgb 0x77 0x77 0x77
+    hex 0x00777777
 
 
 gray40 : E.Color
 gray40 =
-    rgb 0x5E 0x5E 0x5E
+    hex 0x005E5E5E
 
 
 gray30 : E.Color
 gray30 =
-    rgb 0x46 0x46 0x46
+    hex 0x00464646
 
 
 gray20 : E.Color
 gray20 =
-    rgb 0x2E 0x2E 0x2E
+    hex 0x002E2E2E
 
 
 gray10 : E.Color
 gray10 =
-    rgb 0x16 0x16 0x16
+    hex 0x00161616
 
 
 black : E.Color
 black =
-    rgb 0x00 0x00 0x00
+    hex 0x00
 
 
 transactionColor : Bool -> E.Color
@@ -161,97 +165,98 @@ transactionColor isExpense =
 expense40 : E.Color
 expense40 =
     -- E.rgb 0.64 0.12 0.00
-    -- rgb 0xA3 0x1F 0x00
-    rgb 0xB3 0x00 0x09
+    -- hex 0xA31F00
+    hex 0x00B30009
 
 
 expense50 : E.Color
 expense50 =
-    rgb 0xE0 0x00 0x0F
+    hex 0x00E0000F
 
 
 expense30 : E.Color
 expense30 =
-    rgb 0x88 0x00 0x05
+    hex 0x00880005
 
 
 expense90 : E.Color
 expense90 =
     -- E.rgb 0.94 0.87 0.87
-    -- rgb 0xF0 0xDE 0xDE
-    rgb 0xF4 0xDC 0xD8
+    -- hex 0xF0DEDE
+    hex 0x00F4DCD8
 
 
 expense95 : E.Color
 expense95 =
     -- E.rgb 1 0.96 0.96
-    rgb 0xFA 0xEE 0xEC
+    hex 0x00FAEEEC
 
 
 expense80 : E.Color
 expense80 =
     -- E.rgb 0.8 0.6 0.6
-    -- rgb 0xCC 0x99 0x99
-    rgb 0xE9 0xBA 0xB3
+    -- hex 0xCC9999
+    hex 0x00E9BAB3
 
 
 income40 : E.Color
 income40 =
     -- E.rgb 0.1 0.44 0
-    -- rgb 0x1A 0x70 0x00
-    -- rgb 0x00 0x6F 0x53
-    rgb 0x0D 0x72 0x00
+    -- hex 0x1A7000
+    -- hex 0x006F53
+    hex 0x000D7200
 
 
 income50 : E.Color
 income50 =
-    rgb 0x13 0x90 0x00
+    hex 0x00139000
 
 
 income30 : E.Color
 income30 =
-    rgb 0x07 0x56 0x00
+    hex 0x00075600
 
 
 income90 : E.Color
 income90 =
     -- E.rgb 0.92 0.94 0.86
-    rgb 0xDA 0xE7 0xD8
+    hex 0x00DAE7D8
 
 
 income95 : E.Color
 income95 =
     -- E.rgb 0.98 1 0.96
-    rgb 0xEC 0xF3 0xEB
+    hex 0x00ECF3EB
 
 
 income80 : E.Color
 income80 =
     -- E.rgb 0.7 0.8 0.6
-    rgb 0xB7 0xCF 0xB4
+    hex 0x00B7CFB4
 
 
 primary30 : E.Color
 primary30 =
     -- E.rgb 0.08 0.26 0.42
-    -- rgb 0x14 0x42 0x6b
-    -- rgb 0x00 0x63 0x9B
-    rgb 0x1B 0x48 0x73
+    -- hex 0x14426b
+    -- hex 0x00639B
+    -- hex 0x1B4873
+    hex 0x001B4873
 
 
 primary40 : E.Color
 primary40 =
     -- E.rgb 0.18 0.52 0.66
-    -- rgb 0x00 0x7D 0xC2
-    -- rgb 0x38 0x7B 0xBB
-    rgb 0x28 0x61 0x97
+    -- hex 0x007DC2
+    -- hex 0x387BBB
+    hex 0x00286197
 
 
 primary20 : E.Color
 primary20 =
     -- E.rgb 0.08 0.19 0.3
-    -- rgb 0x00 0x4A 0x75
-    rgb 0x1B 0x48 0x73
+    -- hex 0x004A75
+    hex 0x001B4873
 
 
 
