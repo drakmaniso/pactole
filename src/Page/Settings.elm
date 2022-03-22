@@ -19,6 +19,7 @@ import Money
 import Msg
 import String
 import Ui
+import Ui.Color as Color
 
 
 
@@ -281,7 +282,7 @@ view model =
                 , E.clipX
                 , E.clipY
                 , Border.widthEach { right = 2, top = 0, bottom = 0, left = 0 }
-                , Border.color Ui.gray70
+                , Border.color Color.neutral70
                 ]
                 [ E.el
                     [ E.centerX, E.padding 12 ]
@@ -550,7 +551,7 @@ configRecurring : Model.Model -> E.Element Msg.Msg
 configRecurring model =
     let
         headerTxt txt =
-            E.el [ Font.center, Ui.smallFont, Font.color Ui.gray70 ] (E.text txt)
+            E.el [ Font.center, Ui.smallFont, Font.color Color.neutral70 ] (E.text txt)
     in
     Ui.configCustom
         { label = "Opérations mensuelles:"
@@ -646,7 +647,7 @@ configLocked model =
             , E.paddingEach { top = 0, bottom = 24, left = 64 + 12, right = 0 }
             ]
             [ E.text "Lorsque les réglages sont verrouillés, il faut cliquer 5 fois de suite sur l'icône \""
-            , E.el [ Ui.iconFont, Ui.normalFont, Font.color Ui.gray70 ] (E.text "\u{F013}")
+            , E.el [ Ui.iconFont, Ui.normalFont, Font.color Color.neutral70 ] (E.text "\u{F013}")
             , E.text "\" pour accéder aux réglages."
             ]
         ]
@@ -671,7 +672,7 @@ viewDialog model =
                 , E.paddingXY 0 0
                 , E.spacing 0
                 , E.scrollbarY
-                , Background.color Ui.white
+                , Background.color Color.white
                 , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 32, color = E.rgba 0 0 0 0.75 }
                 ]
                 [ E.el
@@ -684,14 +685,14 @@ viewDialog model =
                                 { offset = ( 0, 0 )
                                 , size = 4
                                 , blur = 0
-                                , color = Ui.focusColor
+                                , color = Color.focusColor
                                 }
                             ]
                         ]
                         { label =
                             Input.labelAbove
                                 [ E.width E.shrink
-                                , Font.color Ui.primary40
+                                , Font.color Color.primary40
                                 , Ui.normalFont
                                 , Font.bold
                                 , E.paddingEach { top = 12, bottom = 0, left = 12, right = 0 }
@@ -729,7 +730,7 @@ viewDialog model =
                 , E.paddingXY 0 0
                 , E.spacing 0
                 , E.scrollbarY
-                , Background.color Ui.white
+                , Background.color Color.white
                 , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 32, color = E.rgba 0 0 0 0.75 }
                 ]
                 [ E.el
@@ -769,7 +770,7 @@ viewDialog model =
                 , E.paddingXY 0 0
                 , E.spacing 0
                 , E.clip
-                , Background.color Ui.white
+                , Background.color Color.white
                 , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 32, color = E.rgba 0 0 0 0.75 }
                 ]
                 [ E.el
@@ -781,7 +782,7 @@ viewDialog model =
                         { label =
                             Input.labelAbove
                                 [ E.width E.shrink
-                                , Font.color Ui.primary40
+                                , Font.color Color.primary40
                                 , Ui.normalFont
                                 , Font.bold
                                 , E.paddingEach { top = 12, bottom = 0, left = 12, right = 0 }
@@ -839,7 +840,7 @@ viewDialog model =
                 , E.paddingXY 0 0
                 , E.spacing 0
                 , E.scrollbarY
-                , Background.color Ui.white
+                , Background.color Color.white
                 , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 32, color = E.rgba 0 0 0 0.75 }
                 ]
                 [ E.el
@@ -879,7 +880,7 @@ viewDialog model =
                 , E.paddingXY 0 0
                 , E.spacing 0
                 , E.scrollbarY
-                , Background.color Ui.white
+                , Background.color Color.white
                 , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 32, color = E.rgba 0 0 0 0.75 }
                 ]
                 [ E.el
@@ -893,14 +894,14 @@ viewDialog model =
                                 { offset = ( 0, 0 )
                                 , size = 4
                                 , blur = 0
-                                , color = Ui.focusColor
+                                , color = Color.focusColor
                                 }
                             ]
                         ]
                         { label =
                             Input.labelLeft
                                 [ E.width E.shrink
-                                , Font.color Ui.primary40
+                                , Font.color Color.primary40
                                 , Ui.normalFont
                                 , Font.bold
                                 , E.paddingEach { right = 24, top = 0, left = 12, bottom = 0 }
@@ -917,7 +918,7 @@ viewDialog model =
                     (E.row [ E.spacingXY 24 0 ]
                         (E.el
                             [ E.width E.fill
-                            , Font.color Ui.primary40
+                            , Font.color Color.primary40
                             , Ui.normalFont
                             , E.paddingEach { right = 24, top = 0, left = 12, bottom = 0 }
                             , Font.bold
@@ -940,7 +941,7 @@ viewDialog model =
                     , E.spacingXY 24 0
                     ]
                     [ E.el
-                        [ Font.color Ui.primary40
+                        [ Font.color Color.primary40
                         , Ui.normalFont
                         , E.paddingEach { right = 24, top = 0, left = 12, bottom = 0 }
                         , Font.bold
@@ -966,7 +967,7 @@ viewDialog model =
                     , E.spacingXY 24 0
                     ]
                     [ E.el
-                        [ Font.color Ui.primary40
+                        [ Font.color Color.primary40
                         , Ui.normalFont
                         , E.paddingEach { right = 24, top = 0, left = 12, bottom = 0 }
                         , Font.bold
@@ -981,7 +982,7 @@ viewDialog model =
                                 { offset = ( 0, 0 )
                                 , size = 4
                                 , blur = 0
-                                , color = Ui.focusColor
+                                , color = Color.focusColor
                                 }
                             ]
                         ]
@@ -1002,14 +1003,14 @@ viewDialog model =
                                 { offset = ( 0, 0 )
                                 , size = 4
                                 , blur = 0
-                                , color = Ui.focusColor
+                                , color = Color.focusColor
                                 }
                             ]
                         ]
                         { label =
                             Input.labelAbove
                                 [ E.width E.shrink
-                                , Font.color Ui.primary40
+                                , Font.color Color.primary40
                                 , Ui.normalFont
                                 , Font.bold
                                 , E.paddingEach { top = 12, bottom = 0, left = 12, right = 0 }
@@ -1047,7 +1048,7 @@ viewDialog model =
                 , E.paddingXY 0 0
                 , E.spacing 0
                 , E.scrollbarY
-                , Background.color Ui.white
+                , Background.color Color.white
                 , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 32, color = E.rgba 0 0 0 0.75 }
                 ]
                 [ E.el
@@ -1089,7 +1090,7 @@ viewDialog model =
                 , E.paddingXY 0 0
                 , E.spacing 0
                 , E.scrollbarY
-                , Background.color Ui.white
+                , Background.color Color.white
                 , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 32, color = E.rgba 0 0 0 0.75 }
                 ]
                 [ E.el

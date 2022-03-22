@@ -9,6 +9,7 @@ import Money
 import Msg
 import Page.Summary as Summary
 import Ui
+import Ui.Color as Color
 
 
 
@@ -85,7 +86,7 @@ viewMonthBalance shared =
     E.row
         [ E.width E.fill
         , E.paddingXY 48 24
-        , Font.color Ui.gray30
+        , Font.color Color.neutral30
         ]
         [ E.el [ E.width (E.fillPortion 2) ] E.none
         , E.el
@@ -106,7 +107,7 @@ viewMonthFutureWarning shared =
             [ E.width E.fill
             , E.paddingEach { top = 0, bottom = 24, left = 48, right = 48 }
             , Ui.normalFont
-            , Font.color Ui.gray50
+            , Font.color Color.neutral50
             ]
             [ E.el [ E.width (E.fillPortion 2) ] E.none
             , E.el
@@ -141,7 +142,7 @@ viewItem icon description money =
     E.row
         [ E.width E.fill
         , E.paddingXY 48 12
-        , Font.color Ui.gray30
+        , Font.color Color.neutral30
         ]
         [ E.row [ E.width (E.fillPortion 3), E.spacing 12 ]
             [ E.el [ E.width E.fill ] E.none

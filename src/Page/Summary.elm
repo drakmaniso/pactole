@@ -12,6 +12,7 @@ import Model
 import Money
 import Msg
 import Ui
+import Ui.Color as Color
 
 
 
@@ -34,7 +35,7 @@ view model =
                     (settingsButton model)
                 , case Dict.values model.accounts of
                     [ singleAccount ] ->
-                        E.el [ Ui.bigFont, Font.color Ui.gray30, Ui.notSelectable ]
+                        E.el [ Ui.bigFont, Font.color Color.neutral30, Ui.notSelectable ]
                             (E.text singleAccount)
 
                     _ ->
@@ -48,7 +49,7 @@ view model =
                 , E.paddingEach { top = 0, bottom = 6, left = 0, right = 0 }
                 , E.width E.fill
                 , Font.center
-                , Font.color Ui.gray50
+                , Font.color Color.neutral50
                 , Ui.notSelectable
                 ]
                 (E.text "Solde actuel:")
@@ -71,7 +72,7 @@ accountsRow model =
                     { offset = ( 0, 0 )
                     , size = 4
                     , blur = 0
-                    , color = Ui.focusColor
+                    , color = Color.focusColor
                     }
                 ]
 
@@ -81,7 +82,7 @@ accountsRow model =
                     { offset = ( 0, 0 )
                     , size = 0
                     , blur = 0
-                    , color = Ui.transparent
+                    , color = Color.transparent
                     }
                 ]
         ]
@@ -116,10 +117,10 @@ balanceRow model =
 
         color =
             if Money.isGreaterThan balance 0 then
-                Ui.gray30
+                Color.neutral30
 
             else
-                Ui.warning60
+                Color.warning60
     in
     E.row
         [ E.width E.fill, Font.color color, Ui.notSelectable ]
@@ -208,9 +209,9 @@ settingsButton : Model.Model -> E.Element Msg.Msg
 settingsButton model =
     if not model.settings.settingsLocked || model.showAdvanced then
         Input.button
-            [ Background.color Ui.white
+            [ Background.color Color.white
             , Ui.normalFont
-            , Font.color Ui.primary40
+            , Font.color Color.primary40
             , Font.center
             , Ui.roundCorners
             , E.padding 2
@@ -219,14 +220,14 @@ settingsButton model =
             , E.alignLeft
             ]
             { onPress = Just (Msg.ChangePage Model.SettingsPage)
-            , label = E.el [ Ui.iconFont, Ui.normalFont, E.centerX, Font.color Ui.gray70 ] (E.text {- "\u{F059}" -} "\u{F013}")
+            , label = E.el [ Ui.iconFont, Ui.normalFont, E.centerX, Font.color Color.neutral70 ] (E.text {- "\u{F059}" -} "\u{F013}")
             }
 
     else
         Input.button
-            [ Background.color Ui.white
+            [ Background.color Color.white
             , Ui.normalFont
-            , Font.color Ui.primary40
+            , Font.color Color.primary40
             , Font.center
             , Ui.roundCorners
             , E.padding 2
@@ -236,6 +237,6 @@ settingsButton model =
             ]
             { onPress = Just Msg.AttemptSettings
             , label =
-                E.el [ Ui.iconFont, Ui.normalFont, E.centerX, Font.color Ui.gray90 ]
+                E.el [ Ui.iconFont, Ui.normalFont, E.centerX, Font.color Color.neutral90 ]
                     (E.text "\u{F013}")
             }

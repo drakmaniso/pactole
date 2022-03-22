@@ -20,6 +20,7 @@ import Money
 import Msg
 import Task
 import Ui
+import Ui.Color as Color
 
 
 
@@ -220,14 +221,14 @@ view model =
                 , E.scrollbarY
                 , E.paddingXY 48 24
                 , E.spacing 36
-                , Background.color Ui.white
+                , Background.color Color.white
                 , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 32, color = E.rgba 0 0 0 0.75 }
                 , Border.rounded 6
                 ]
                 [ viewAmount model dialog
                 , viewDescription model dialog
                 , viewCategories model dialog
-                , E.el [ E.height E.fill, Background.color Ui.white ] E.none
+                , E.el [ E.height E.fill, Background.color Color.white ] E.none
                 , viewButtons dialog
                 ]
 
@@ -243,10 +244,10 @@ viewAmount model dialog =
 
         titleColor =
             if isFuture then
-                Ui.gray40
+                Color.neutral40
 
             else
-                Ui.transactionColor dialog.isExpense
+                Color.transactionColor dialog.isExpense
 
         titleText =
             case ( dialog.isRecurring, isFuture, dialog.isExpense ) of
@@ -276,7 +277,7 @@ viewAmount model dialog =
                 , E.width (E.shrink |> E.minimum 220)
                 , E.alignLeft
                 , Border.width 1
-                , Border.color Ui.transparent
+                , Border.color Color.transparent
                 , Font.color titleColor
                 ]
                 (E.text
@@ -298,7 +299,7 @@ viewAmount model dialog =
             (E.row [ E.width E.fill, E.paddingXY 24 0 ]
                 [ E.el
                     [ Ui.bigFont
-                    , Font.color Ui.gray40
+                    , Font.color Color.neutral40
                     , E.paddingEach { top = 12, bottom = 12, left = 0, right = 6 }
                     , E.width E.shrink
                     , E.alignLeft
@@ -313,11 +314,11 @@ viewAmount model dialog =
                     , E.width (E.shrink |> E.minimum 220)
                     , E.alignLeft
                     , Border.width 4
-                    , Border.color Ui.white
-                    , Background.color Ui.gray95
+                    , Border.color Color.white
+                    , Background.color Color.neutral95
                     , Ui.innerShadow
                     , E.focused
-                        [ Border.color Ui.focusColor
+                        [ Border.color Color.focusColor
                         ]
                     , E.htmlAttribute <| HtmlAttr.id "dialog-amount"
                     , E.htmlAttribute <| HtmlAttr.autocomplete False
@@ -331,7 +332,7 @@ viewAmount model dialog =
                     }
                 , E.el
                     [ Ui.bigFont
-                    , Font.color Ui.gray40
+                    , Font.color Color.neutral40
                     , E.paddingEach { top = 12, bottom = 12, left = 6, right = 24 }
                     , E.width E.shrink
                     , E.alignLeft
@@ -353,31 +354,31 @@ viewAmount model dialog =
 viewDescription : Model.Model -> Model.Dialog -> E.Element Msg.Msg
 viewDescription _ dialog =
     if dialog.isRecurring then
-        Ui.section Ui.gray40
+        Ui.section Color.neutral40
             "Description:"
             (E.el
                 [ Ui.bigFont
                 , Border.width 1
-                , Border.color Ui.transparent
-                , Font.color Ui.gray40
+                , Border.color Color.transparent
+                , Font.color Color.neutral40
                 ]
                 (E.text dialog.description)
             )
 
     else
-        Ui.section Ui.gray40
+        Ui.section Color.neutral40
             "Description:"
             (Input.multiline
                 [ Ui.bigFont
                 , Border.width 4
-                , Border.color Ui.white
-                , Background.color Ui.gray95
+                , Border.color Color.white
+                , Background.color Color.neutral95
                 , Ui.innerShadow
                 , E.focused
-                    [ Border.color Ui.focusColor
+                    [ Border.color Color.focusColor
                     ]
                 , E.width E.fill
-                , Font.color Ui.gray20
+                , Font.color Color.neutral20
                 ]
                 { label = Input.labelHidden "Description:"
                 , text = dialog.description
@@ -416,7 +417,7 @@ viewCategories model dialog =
                                 |> List.reverse
                        )
         in
-        Ui.section Ui.gray40
+        Ui.section Color.neutral40
             "Catégorie:"
             (E.table
                 [ E.width E.fill
@@ -485,7 +486,7 @@ viewButtons dialog =
         E.row
             [ E.width E.fill
             , E.spacing 24
-            , Background.color Ui.white
+            , Background.color Color.white
             ]
             [ E.el [ E.width E.fill ] E.none
             , Ui.mainButton
@@ -498,7 +499,7 @@ viewButtons dialog =
         E.row
             [ E.width E.fill
             , E.spacing 24
-            , Background.color Ui.white
+            , Background.color Color.white
             ]
             [ E.el [ E.width E.fill ] E.none
             , Ui.simpleButton
