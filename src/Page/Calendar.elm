@@ -384,15 +384,7 @@ dayView model =
 
               else
                 E.none
-            , E.el [ E.width E.fill, Font.bold, E.paddingEach { top = 0, bottom = 12, right = 0, left = 0 }, Font.color Color.neutral30 ]
-                (E.text
-                    (Date.getWeekdayName model.date
-                        ++ " "
-                        ++ String.fromInt (Date.getDay model.date)
-                        ++ " "
-                        ++ Date.getMonthName model.date
-                    )
-                )
+            , Ui.viewDate model.date
             ]
         , E.column
             [ E.width E.fill

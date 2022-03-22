@@ -225,7 +225,8 @@ view model =
                 , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 32, color = E.rgba 0 0 0 0.75 }
                 , Border.rounded 6
                 ]
-                [ viewAmount model dialog
+                [ viewDate model dialog
+                , viewAmount model dialog
                 , viewDescription model dialog
                 , viewCategories model dialog
                 , E.el [ E.height E.fill, Background.color Color.white ] E.none
@@ -234,6 +235,15 @@ view model =
 
         Nothing ->
             E.none
+
+
+viewDate : Model.Model -> Model.Dialog -> E.Element Msg.Msg
+viewDate model _ =
+    E.row [ E.width E.fill ]
+        [ E.el [ E.width E.fill ] E.none
+        , Ui.viewDate model.date
+        , E.el [ E.width E.fill ] E.none
+        ]
 
 
 viewAmount : Model.Model -> Model.Dialog -> E.Element Msg.Msg
@@ -307,7 +317,14 @@ viewAmount model dialog =
                     , Border.color (E.rgba 0 0 0 0)
                     , Ui.notSelectable
                     ]
-                    (E.el [ Font.color titleColor, Font.bold ] (E.text "-"))
+                    (E.el [ Font.color titleColor, Font.bold ]
+                        (if dialog.isExpense then
+                            E.text "-"
+
+                         else
+                            E.text "+"
+                        )
+                    )
                 , Input.text
                     [ Ui.bigFont
                     , E.paddingXY 8 12

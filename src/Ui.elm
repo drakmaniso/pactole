@@ -51,6 +51,7 @@ module Ui exposing
     , smallerFont
     , transition
     , verySmallFont
+    , viewDate
     , viewMoney
     , viewSum
     , warningIcon
@@ -371,14 +372,14 @@ pageWithSidePanel navBarConf { panel, page } =
         , normalFont
         , Font.color Color.neutral30
         ]
-        [ E.column 
+        [ E.column
             [ E.width (E.fillPortion 1 |> E.minimum 450)
-            , E.height E.fill 
+            , E.height E.fill
             , E.clipY
             , E.paddingXY 6 6
             ]
-            [ navigationBar navBarConf          
-            ,E.el
+            [ navigationBar navBarConf
+            , E.el
                 [ E.width E.fill
                 , E.height E.fill
                 , E.clipY
@@ -734,10 +735,10 @@ warningParagraph elements =
 dateNavigationBar : { a | showFocus : Bool, date : Date.Date, today : Date.Date } -> (Date.Date -> msg) -> E.Element msg
 dateNavigationBar model changeMsg =
     E.row
-        [ E.width E.fill 
+        [ E.width E.fill
         , E.paddingEach { top = 0, bottom = 8, left = 8, right = 8 }
         ]
-        [ E.el [E.width (E.fill |> E.maximum 64)] E.none
+        [ E.el [ E.width (E.fill |> E.maximum 64) ] E.none
         , Keyed.row
             [ E.width E.fill
             , E.alignTop
@@ -747,7 +748,7 @@ dateNavigationBar model changeMsg =
             , smallShadow
             ]
             [ ( "previous month button"
-            , E.el
+              , E.el
                     [ E.width (E.fillPortion 2)
                     , E.height E.fill
                     ]
@@ -761,6 +762,7 @@ dateNavigationBar model changeMsg =
                         , Border.color Color.neutral90
                         , Border.widthEach { left = 0, top = 0, bottom = 0, right = 0 }
                         , E.paddingEach { top = 4, bottom = 8, left = 0, right = 0 }
+
                         -- , smallShadow
                         , transition
                         , mouseDown [ Background.color Color.neutral90 ]
@@ -776,9 +778,9 @@ dateNavigationBar model changeMsg =
                         , onPress = Just (changeMsg (Date.decrementMonthUI model.date model.today))
                         }
                     )
-            )
+              )
             , ( "current month header"
-            , E.el
+              , E.el
                     [ E.width (E.fillPortion 3)
                     , E.height E.fill
                     , E.paddingEach { top = 4, bottom = 8, left = 0, right = 0 }
@@ -792,9 +794,9 @@ dateNavigationBar model changeMsg =
                         ]
                         (E.text (Date.getMonthFullName model.today model.date))
                     )
-            )
+              )
             , ( "next month button"
-            , E.el
+              , E.el
                     -- needed to circumvent focus bug in elm-ui
                     [ E.width (E.fillPortion 2)
                     , E.height E.fill
@@ -809,6 +811,7 @@ dateNavigationBar model changeMsg =
                         , Border.color Color.neutral90
                         , Border.widthEach { left = 0, top = 0, bottom = 0, right = 0 }
                         , E.paddingEach { top = 4, bottom = 8, left = 0, right = 0 }
+
                         -- , smallShadow
                         , transition
                         , mouseDown [ Background.color Color.neutral90 ]
@@ -824,10 +827,30 @@ dateNavigationBar model changeMsg =
                         , onPress = Just (changeMsg (Date.incrementMonthUI model.date model.today))
                         }
                     )
-            )
+              )
             ]
-            , E.el [E.width (E.fill |> E.maximum 64)] E.none
+        , E.el [ E.width (E.fill |> E.maximum 64) ] E.none
         ]
+
+
+viewDate : Date.Date -> E.Element msg
+viewDate date =
+    E.el
+        [ E.width E.fill
+        , Font.bold
+        , bigFont
+        , E.paddingEach { top = 0, bottom = 12, right = 0, left = 0 }
+        , Font.color Color.neutral30
+        , Font.center
+        ]
+        (E.text
+            (Date.getWeekdayName date
+                ++ " "
+                ++ String.fromInt (Date.getDay date)
+                ++ " "
+                ++ Date.getMonthName date
+            )
+        )
 
 
 viewMoney : Money.Money -> Bool -> E.Element msg
