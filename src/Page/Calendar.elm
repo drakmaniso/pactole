@@ -188,7 +188,7 @@ calendarCell model day =
                             , Font.center
                             , Border.color
                                 (if sel then
-                                    Ui.primary30
+                                    Ui.primary40
 
                                  else
                                     Ui.white
@@ -207,7 +207,7 @@ calendarCell model day =
                                 )
                             , Background.color
                                 (if sel then
-                                    Ui.primary30
+                                    Ui.primary40
 
                                  else
                                     Ui.transparent
@@ -237,7 +237,7 @@ calendarCell model day =
                             , Border.widthEach { left = 3, bottom = 3, right = 3, top = 0 }
                             , Border.color
                                 (if sel then
-                                    Ui.primary30
+                                    Ui.primary40
 
                                  else
                                     Ui.white
@@ -472,13 +472,13 @@ dayContentFor model day =
                                 [ E.width (E.fillPortion 6)
                                 , E.alignTop
                                 , Ui.normalFont
-                                , Font.color Ui.primary30
+                                , Font.color Ui.gray30
                                 ]
                                 (E.paragraph [] [ E.text (Ledger.getTransactionDescription transaction) ])
                             , E.el
                                 [ E.width (E.fillPortion 1)
                                 , E.alignTop
-                                , Font.color Ui.primary30
+                                , Font.color Ui.gray30
                                 , Ui.iconFont
                                 , Font.center
                                 ]

@@ -217,21 +217,16 @@ view model =
 
                 --, E.clip
                 , E.scrollbarY
-                , E.paddingXY 0 0
-                , E.spacing 0
+                , E.paddingXY 48 24
+                , E.spacing 36
                 , Background.color Ui.white
                 , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 32, color = E.rgba 0 0 0 0.75 }
+                , Border.rounded 6
                 ]
-                [ viewTitle model dialog
-                , E.column
-                    [ -- E.scrollbarY
-                      E.width E.fill
-                    ]
-                    [ viewAmount dialog
-                    , viewDescription dialog
-                    , viewCategories model dialog
-                    , E.el [ E.height E.fill, Background.color Ui.white ] E.none
-                    ]
+                [ viewAmount model dialog
+                , viewDescription model dialog
+                , viewCategories model dialog
+                , E.el [ E.height E.fill, Background.color Ui.white ] E.none
                 , viewButtons dialog
                 ]
 
@@ -239,15 +234,15 @@ view model =
             E.none
 
 
-viewTitle : Model.Model -> Model.Dialog -> E.Element msg
-viewTitle model dialog =
+viewAmount : Model.Model -> Model.Dialog -> E.Element Msg.Msg
+viewAmount model dialog =
     let
         isFuture =
             Date.compare dialog.date model.today == GT
 
-        bgTitle =
+        color =
             if isFuture then
-                Ui.gray70
+                Ui.gray40
 
             else
                 Ui.transactionColor dialog.isExpense
@@ -255,48 +250,33 @@ viewTitle model dialog =
         text =
             case ( dialog.isRecurring, isFuture, dialog.isExpense ) of
                 ( True, _, True ) ->
-                    "Dépense mensuelle"
+                    "Dépense mensuelle:"
 
                 ( True, _, False ) ->
-                    "Entrée d'argent mensuelle"
+                    "Entrée d'argent mensuelle:"
 
                 ( False, True, True ) ->
-                    "Future dépense"
+                    "Future dépense:"
 
                 ( False, True, False ) ->
-                    "Future entrée d'argent"
+                    "Future entrée d'argent:"
 
                 ( False, False, True ) ->
-                    "Dépense"
+                    "Dépense:"
 
                 ( False, False, False ) ->
-                    "Entrée d'argent"
+                    "Entrée d'argent:"
     in
-    E.row
-        [ E.alignLeft
-        , E.width E.fill
-        , E.paddingEach { top = 24, bottom = 24, right = 24, left = 24 }
-        , E.spacing 12
-        , Background.color bgTitle
-        , Ui.notSelectable
-        ]
-        [ E.el
-            [ E.width E.fill, Font.center, Ui.bigFont, Font.bold, Font.color Ui.white ]
-            (E.text text)
-        ]
-
-
-viewAmount : Model.Dialog -> E.Element Msg.Msg
-viewAmount dialog =
     if dialog.isRecurring then
-        Ui.titledRow "Somme:"
-            [ E.el
+        E.column [ E.width E.fill, E.spacing 12 ]
+            [ Ui.title color text
+            , E.el
                 [ Ui.bigFont
                 , E.width (E.shrink |> E.minimum 220)
                 , E.alignLeft
                 , Border.width 1
                 , Border.color Ui.transparent
-                , Font.color Ui.gray40
+                , Font.color color
                 ]
                 (E.text
                     ((if dialog.isExpense then
@@ -312,76 +292,70 @@ viewAmount dialog =
             ]
 
     else
-        Ui.titledRow "Somme:"
-            [ E.el
-                [ Ui.bigFont
-                , Font.color Ui.gray40
-                , E.paddingEach { top = 12, bottom = 12, left = 0, right = 6 }
-                , E.width E.shrink
-                , E.alignLeft
-                , Border.width 1
-                , Border.color (E.rgba 0 0 0 0)
-                , Ui.notSelectable
-                ]
-                (if dialog.isExpense then
-                    E.el [ Font.color Ui.expense40, Font.bold ] (E.text "-")
-
-                 else
-                    E.el [ Font.color Ui.income40, Font.bold ] (E.text "+")
-                )
-            , Input.text
-                [ Ui.onEnter (Msg.ForDialog <| Msg.DialogConfirm)
-                , Ui.bigFont
-                , E.paddingXY 8 12
-                , E.width (E.shrink |> E.minimum 220)
-                , E.alignLeft
-                , Border.width 4
-                , Border.color Ui.white
-                , Background.color Ui.gray95
-                , Ui.innerShadow
-                , E.focused
-                    [ Border.color Ui.focusColor
+        E.column [ E.width E.fill, E.spacing 12 ]
+            [ Ui.title color text
+            , E.row [ E.width E.fill ]
+                [ E.el
+                    [ Ui.bigFont
+                    , Font.color Ui.gray40
+                    , E.paddingEach { top = 12, bottom = 12, left = 0, right = 6 }
+                    , E.width E.shrink
+                    , E.alignLeft
+                    , Border.width 1
+                    , Border.color (E.rgba 0 0 0 0)
+                    , Ui.notSelectable
                     ]
-                , E.htmlAttribute <| HtmlAttr.id "dialog-amount"
-                , E.htmlAttribute <| HtmlAttr.autocomplete False
-                , Font.color (Ui.transactionColor dialog.isExpense) --Ui.primary20
-                , Font.bold
-                ]
-                { label = Input.labelHidden "Somme"
-                , text = dialog.amount
-                , placeholder = Nothing
-                , onChange = Msg.ForDialog << Msg.DialogChangeAmount
-                }
-            , E.el
-                [ Ui.bigFont
-                , Font.color Ui.gray40
-                , E.paddingEach { top = 12, bottom = 12, left = 6, right = 24 }
-                , E.width E.shrink
-                , E.alignLeft
-                , Border.width 1
-                , Border.color (E.rgba 0 0 0 0)
-                , Ui.notSelectable
-                ]
-                (if dialog.isExpense then
-                    E.el [ Font.color Ui.expense40, Font.bold ] (E.text "€")
+                    (E.el [ Font.color color, Font.bold ] (E.text "-"))
+                , Input.text
+                    [ Ui.onEnter (Msg.ForDialog <| Msg.DialogConfirm)
+                    , Ui.bigFont
+                    , E.paddingXY 8 12
+                    , E.width (E.shrink |> E.minimum 220)
+                    , E.alignLeft
+                    , Border.width 4
+                    , Border.color Ui.white
+                    , Background.color Ui.gray95
+                    , Ui.innerShadow
+                    , E.focused
+                        [ Border.color Ui.focusColor
+                        ]
+                    , E.htmlAttribute <| HtmlAttr.id "dialog-amount"
+                    , E.htmlAttribute <| HtmlAttr.autocomplete False
+                    , Font.color color
+                    , Font.bold
+                    ]
+                    { label = Input.labelHidden "Somme"
+                    , text = dialog.amount
+                    , placeholder = Nothing
+                    , onChange = Msg.ForDialog << Msg.DialogChangeAmount
+                    }
+                , E.el
+                    [ Ui.bigFont
+                    , Font.color Ui.gray40
+                    , E.paddingEach { top = 12, bottom = 12, left = 6, right = 24 }
+                    , E.width E.shrink
+                    , E.alignLeft
+                    , Border.width 1
+                    , Border.color (E.rgba 0 0 0 0)
+                    , Ui.notSelectable
+                    ]
+                    (E.el [ Font.color color, Font.bold ] (E.text "€"))
+                , if dialog.amountError /= "" then
+                    Ui.warningParagraph
+                        [ E.text dialog.amountError ]
 
-                 else
-                    E.el [ Font.color Ui.income40, Font.bold ] (E.text "€")
-                )
-            , if dialog.amountError /= "" then
-                Ui.warningParagraph
-                    [ E.text dialog.amountError ]
-
-              else
-                E.el [ E.height (E.shrink |> E.minimum 48) ] E.none
+                  else
+                    E.el [ E.height (E.shrink |> E.minimum 48) ] E.none
+                ]
             ]
 
 
-viewDescription : Model.Dialog -> E.Element Msg.Msg
-viewDescription dialog =
+viewDescription : Model.Model -> Model.Dialog -> E.Element Msg.Msg
+viewDescription _ dialog =
     if dialog.isRecurring then
-        Ui.titledRow "Description:"
-            [ E.el
+        E.column [ E.width E.fill, E.spacing 12 ]
+            [ Ui.title Ui.gray40 "Description:"
+            , E.el
                 [ Ui.bigFont
                 , Border.width 1
                 , Border.color Ui.transparent
@@ -391,8 +365,9 @@ viewDescription dialog =
             ]
 
     else
-        Ui.titledRow "Description:"
-            [ Input.multiline
+        E.column [ E.width E.fill, E.spacing 12 ]
+            [ Ui.title Ui.gray40 "Description:"
+            , Input.multiline
                 [ Ui.onEnter (Msg.ForDialog <| Msg.DialogConfirm)
                 , Ui.bigFont
                 , Border.width 4
@@ -403,7 +378,7 @@ viewDescription dialog =
                     [ Border.color Ui.focusColor
                     ]
                 , E.width E.fill
-                , Font.color Ui.primary20
+                , Font.color Ui.gray20
                 ]
                 { label = Input.labelHidden "Description:"
                 , text = dialog.description
@@ -442,10 +417,11 @@ viewCategories model dialog =
                                 |> List.reverse
                        )
         in
-        Ui.titledRow "Catégorie:"
-            [ E.table
+        E.column [ E.width E.fill, E.spacing 12 ]
+            [ Ui.title Ui.gray40 "Catégorie:"
+            , E.table
                 [ E.width E.fill
-                , E.spacing 12
+                , E.spacing 6
                 , E.paddingEach { top = 0, bottom = 0, left = 0, right = 0 }
 
                 --BUGGY: , scrollbarY
@@ -511,7 +487,6 @@ viewButtons dialog =
         E.row
             [ E.width E.fill
             , E.spacing 24
-            , E.paddingEach { top = 64, bottom = 24, left = 64, right = 64 }
             , Background.color Ui.white
             ]
             [ E.el [ E.width E.fill ] E.none
@@ -525,7 +500,6 @@ viewButtons dialog =
         E.row
             [ E.width E.fill
             , E.spacing 24
-            , E.paddingEach { top = 64, bottom = 24, left = 64, right = 64 }
             , Background.color Ui.white
             ]
             [ E.el [ E.width E.fill ] E.none
