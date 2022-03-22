@@ -1,4 +1,4 @@
-module Msg exposing (DatabaseMsg(..), DialogMsg(..), Msg(..), SettingsDialogMsg(..))
+module Msg exposing (DatabaseMsg(..), DialogMsg(..), Msg(..), SettingsDialogMsg(..), navigationBarConfig)
 
 import Date
 import Json.Decode as Decode
@@ -60,3 +60,29 @@ type SettingsDialogMsg
     | SettingsDeleteRecurring Int
     | SettingsAskImportConfirmation
     | SettingsAskExportConfirmation
+
+
+navigationBarConfig model =
+    { activePage = model.page
+    , onChange = ChangePage
+    , mainPage = Model.MainPage
+    , statsPage =
+        if model.settings.summaryEnabled then
+            Just Model.StatsPage
+
+        else
+            Nothing
+    , reconcilePage =
+        if model.settings.reconciliationEnabled then
+            Just Model.ReconcilePage
+
+        else
+            Nothing
+    , settingsPage =
+        if model.settings.settingsLocked then
+            Nothing
+
+        else
+            Just Model.SettingsPage
+    , helpPage = Model.HelpPage
+    }

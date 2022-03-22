@@ -1,6 +1,62 @@
-module Ui exposing (..)
+module Ui exposing
+    ( Device
+    , backIcon
+    , bigFont
+    , bigInnerShadow
+    , bigWarningIcon
+    , biggerFont
+    , biggestFont
+    , borderWidth
+    , checkBox
+    , checkIcon
+    , closeIcon
+    , configCustom
+    , configRadio
+    , dangerButton
+    , dateNavigationBar
+    , defaultShadow
+    , deleteIcon
+    , device
+    , document
+    , editIcon
+    , expenseButton
+    , expenseIcon
+    , fontFamily
+    , iconButton
+    , iconFont
+    , incomeButton
+    , incomeIcon
+    , innerShadow
+    , loadIcon
+    , mainButton
+    , minusIcon
+    , mouseDown
+    , mouseOver
+    , navigationBar
+    , normalFont
+    , notSelectable
+    , onEnter
+    , pageTitle
+    , pageWithSidePanel
+    , plusIcon
+    , radioButton
+    , radioRowOption
+    , roundCorners
+    , ruler
+    , saveIcon
+    , section
+    , simpleButton
+    , smallFont
+    , smallShadow
+    , smallerFont
+    , transition
+    , verySmallFont
+    , viewMoney
+    , viewSum
+    , warningIcon
+    , warningParagraph
+    )
 
-import Bitwise
 import Browser
 import Date
 import Element as E
@@ -13,6 +69,7 @@ import Html.Attributes
 import Html.Events as Events
 import Json.Decode as Decode
 import Money
+import Ui.Color as Color
 
 
 
@@ -48,214 +105,6 @@ roundCorners =
 notSelectable : E.Attribute msg
 notSelectable =
     E.htmlAttribute (Html.Attributes.style "user-select" "none")
-
-
-
--- COLORS
-
-
-hex color =
-    E.rgb255
-        (color |> Bitwise.and 0x00FF0000 |> Bitwise.shiftRightBy 16)
-        (color |> Bitwise.and 0xFF00 |> Bitwise.shiftRightBy 8)
-        (color |> Bitwise.and 0xFF)
-
-
-transparent : E.Color
-transparent =
-    E.rgba 0 0 0 0
-
-
-warning70 : E.Color
-warning70 =
-    hex 0x00FF8263
-
-
-warning60 : E.Color
-warning60 =
-    hex 0x00FE4200
-
-
-warning50 : E.Color
-warning50 =
-    hex 0x00D23500
-
-
-focusColor : E.Color
-focusColor =
-    -- E.rgb 1.0 0.7 0
-    hex 0x00FFD000
-
-
-white : E.Color
-white =
-    E.rgb 1.0 1.0 1.0
-
-
-gray95 : E.Color
-gray95 =
-    -- E.rgb 0.95 0.95 0.95
-    hex 0x00F1F1F1
-
-
-gray93 : E.Color
-gray93 =
-    -- E.rgb 0.9 0.9 0.9
-    hex 0x00EBEBEB
-
-
-gray90 : E.Color
-gray90 =
-    -- E.rgb 0.9 0.9 0.9
-    hex 0x00E2E2E2
-
-
-gray70 : E.Color
-gray70 =
-    -- E.rgb 0.7 0.7 0.7
-    hex 0x00ABABAB
-
-
-gray60 : E.Color
-gray60 =
-    hex 0x00919191
-
-
-gray50 : E.Color
-gray50 =
-    -- E.rgb 0.5 0.5 0.5
-    hex 0x00777777
-
-
-gray40 : E.Color
-gray40 =
-    hex 0x005E5E5E
-
-
-gray30 : E.Color
-gray30 =
-    hex 0x00464646
-
-
-gray20 : E.Color
-gray20 =
-    hex 0x002E2E2E
-
-
-gray10 : E.Color
-gray10 =
-    hex 0x00161616
-
-
-black : E.Color
-black =
-    hex 0x00
-
-
-transactionColor : Bool -> E.Color
-transactionColor isExpense =
-    if isExpense then
-        expense40
-
-    else
-        income40
-
-
-expense40 : E.Color
-expense40 =
-    -- E.rgb 0.64 0.12 0.00
-    -- hex 0xA31F00
-    hex 0x00B30009
-
-
-expense50 : E.Color
-expense50 =
-    hex 0x00E0000F
-
-
-expense30 : E.Color
-expense30 =
-    hex 0x00880005
-
-
-expense90 : E.Color
-expense90 =
-    -- E.rgb 0.94 0.87 0.87
-    -- hex 0xF0DEDE
-    hex 0x00F4DCD8
-
-
-expense95 : E.Color
-expense95 =
-    -- E.rgb 1 0.96 0.96
-    hex 0x00FAEEEC
-
-
-expense80 : E.Color
-expense80 =
-    -- E.rgb 0.8 0.6 0.6
-    -- hex 0xCC9999
-    hex 0x00E9BAB3
-
-
-income40 : E.Color
-income40 =
-    -- E.rgb 0.1 0.44 0
-    -- hex 0x1A7000
-    -- hex 0x006F53
-    hex 0x000D7200
-
-
-income50 : E.Color
-income50 =
-    hex 0x00139000
-
-
-income30 : E.Color
-income30 =
-    hex 0x00075600
-
-
-income90 : E.Color
-income90 =
-    -- E.rgb 0.92 0.94 0.86
-    hex 0x00DAE7D8
-
-
-income95 : E.Color
-income95 =
-    -- E.rgb 0.98 1 0.96
-    hex 0x00ECF3EB
-
-
-income80 : E.Color
-income80 =
-    -- E.rgb 0.7 0.8 0.6
-    hex 0x00B7CFB4
-
-
-primary50 : E.Color
-primary50 =
-    -- E.rgb 0.18 0.52 0.66
-    -- hex 0x007DC2
-    -- hex 0x387BBB
-    hex 0x00387BBB
-
-
-primary40 : E.Color
-primary40 =
-    -- E.rgb 0.08 0.26 0.42
-    -- hex 0x14426b
-    -- hex 0x00639B
-    -- hex 0x1B4873
-    hex 0x00286197
-
-
-primary30 : E.Color
-primary30 =
-    -- E.rgb 0.08 0.19 0.3
-    -- hex 0x004A75
-    hex 0x001B4873
 
 
 
@@ -400,26 +249,26 @@ checkIcon =
 
 warningIcon : E.Element msg
 warningIcon =
-    E.el [ iconFont, bigFont, E.centerX, E.paddingXY 24 0, Font.color warning60 ]
+    E.el [ iconFont, bigFont, E.centerX, E.paddingXY 24 0, Font.color Color.warning60 ]
         (E.text "\u{F071}")
 
 
 bigWarningIcon : E.Element msg
 bigWarningIcon =
     E.el
-        [ iconFont, Font.size 48, E.alignLeft, E.alignTop, E.padding 0, Font.color warning60 ]
+        [ iconFont, Font.size 48, E.alignLeft, E.alignTop, E.padding 0, Font.color Color.warning60 ]
         (E.text "\u{F071}")
 
 
 incomeIcon : E.Element msg
 incomeIcon =
-    E.el [ iconFont, normalFont, E.centerX, Font.color income40 ]
+    E.el [ iconFont, normalFont, E.centerX, Font.color Color.income40 ]
         (E.text "\u{F067}")
 
 
 expenseIcon : E.Element msg
 expenseIcon =
-    E.el [ iconFont, normalFont, E.centerX, Font.color expense40 ]
+    E.el [ iconFont, normalFont, E.centerX, Font.color Color.expense40 ]
         (E.text "\u{F068}")
 
 
@@ -451,7 +300,7 @@ document titleText activePage activeDialog closeMsg showFocus =
                     , shadow =
                         if showFocus then
                             Just
-                                { color = focusColor
+                                { color = Color.focusColor
                                 , offset = ( 0, 0 )
                                 , blur = 0
                                 , size = 4
@@ -469,7 +318,7 @@ document titleText activePage activeDialog closeMsg showFocus =
                             [ E.width E.fill
                             , E.height E.fill
                             , fontFamily
-                            , Font.color gray30
+                            , Font.color Color.neutral30
                             , E.padding 16
                             , E.scrollbarY
                             , E.behindContent
@@ -488,7 +337,10 @@ document titleText activePage activeDialog closeMsg showFocus =
                     ]
 
                 Nothing ->
-                    [ E.inFront (E.column [] [])
+                    [ E.inFront
+                        (E.column []
+                            []
+                        )
                     ]
             )
             activePage
@@ -503,10 +355,10 @@ pageWithSidePanel { panel, page } =
         , E.height E.fill
         , E.clipX
         , E.clipY
-        , Background.color white
+        , Background.color Color.white
         , fontFamily
         , normalFont
-        , Font.color gray30
+        , Font.color Color.neutral30
         ]
         [ E.el
             [ E.width (E.fillPortion 1)
@@ -520,12 +372,206 @@ pageWithSidePanel { panel, page } =
             [ E.width (E.fillPortion 3)
             , E.height E.fill
             , E.clipY
-            , E.paddingEach { top = 0, left = 6, bottom = 3, right = 6 }
-            , Border.widthEach { top = 0, left = borderWidth, bottom = 0, right = 0 }
-            , Border.color white -- bgDark
+            , E.paddingEach { top = 0, left = 0, bottom = 3, right = 6 }
+
+            -- , Border.widthEach { top = 0, left = borderWidth, bottom = 0, right = 0 }
+            -- , Border.color Color.white -- bgDark
             ]
             page
         ]
+
+
+navigationBar { activePage, onChange, mainPage, statsPage, reconcilePage, settingsPage, helpPage } =
+    E.row
+        [ E.width E.fill
+        , Border.roundEach { topLeft = 32, bottomLeft = 32, topRight = 32, bottomRight = 32 }
+        , Background.color Color.primary95
+        ]
+        [ navigationButton
+            [ Border.roundEach { topLeft = 32, bottomLeft = 32, topRight = 0, bottomRight = 0 }
+            ]
+            { activePage = activePage
+            , onChange = onChange
+            , targetPage = mainPage
+            , label = E.text "Pactole"
+            }
+        , case statsPage of
+            Just page ->
+                navigationButton []
+                    { activePage = activePage
+                    , onChange = onChange
+                    , targetPage = page
+                    , label = E.text "Bilan"
+                    }
+
+            _ ->
+                E.none
+        , case reconcilePage of
+            Just page ->
+                navigationButton []
+                    { activePage = activePage
+                    , onChange = onChange
+                    , targetPage = page
+                    , label = E.text "Pointer"
+                    }
+
+            _ ->
+                E.none
+        , E.el
+            [ E.width E.fill
+            , E.height E.fill
+            ]
+            E.none
+        , case settingsPage of
+            Just page ->
+                navigationButton []
+                    { activePage = activePage
+                    , onChange = onChange
+                    , targetPage = page
+                    , label =
+                        E.el [ iconFont, bigFont, E.centerX, E.paddingXY 0 0 ] (E.text "\u{F013}")
+                    }
+
+            _ ->
+                E.none
+        , navigationButton
+            [ Border.roundEach { topLeft = 0, bottomLeft = 0, topRight = 32, bottomRight = 32 }
+            ]
+            { activePage = activePage
+            , onChange = onChange
+            , targetPage = helpPage
+            , label =
+                E.el [ iconFont, bigFont, E.centerX, E.paddingXY 0 0 ] (E.text "\u{F059}")
+            }
+        ]
+
+
+navigationButton attributes { activePage, onChange, targetPage, label } =
+    Input.button
+        ([ E.paddingXY 12 6
+         , Background.color
+            (if activePage == targetPage then
+                Color.primary40
+
+             else
+                Color.primary95
+            )
+         , Font.color
+            (if activePage == targetPage then
+                Color.white
+
+             else
+                Color.primary40
+            )
+         , E.height E.fill
+         , Border.roundEach { topLeft = 32, bottomLeft = 32, topRight = 32, bottomRight = 32 }
+         ]
+         -- ++ attributes
+        )
+        { onPress = Just (onChange targetPage)
+        , label = label
+        }
+
+
+
+-- navigationBar selection msg options =
+--     E.row
+--         [ E.width E.fill
+--         ]
+--         [ E.el [ E.width (E.px 64) ] E.none
+--         , E.el [ E.width E.fill ] E.none
+--         , Input.radioRow
+--             [ E.width E.shrink
+--             , E.height E.fill
+--             -- , if model.showFocus then
+--             --     E.focused
+--             --         [ Border.shadow
+--             --             { offset = ( 0, 0 )
+--             --             , size = 4
+--             --             , blur = 0
+--             --             , color = Color.focusColor
+--             --             }
+--             --         ]
+--             --   else
+--             --     E.focused
+--             --         [ Border.shadow
+--             --             { offset = ( 0, 0 )
+--             --             , size = 0
+--             --             , blur = 0
+--             --             , color = Color.transparent
+--             --             }
+--             --         ]
+--             ]
+--             { onChange = msg
+--             , selected = selection
+--             , label = Input.labelHidden "Compte"
+--             , options = options
+--             }
+--         -- , E.el
+--         --     [ bigFont
+--         --     , notSelectable
+--         --     , Font.bold
+--         --     , Font.color Color.neutral60
+--         --     ]
+--         --     (E.text "Pactole")
+--         -- , simpleButton
+--         --     { onPress = Nothing --Just (Msg.ChangePage Model.StatsPage)
+--         --     , label = E.text " Bilan "
+--         --     }
+--         -- , simpleButton
+--         --     { onPress = Nothing --Just (Msg.ChangePage Model.ReconcilePage)
+--         --     , label = E.text "Pointer"
+--         --     }
+--         , E.el [ E.width E.fill ] E.none
+--         , Input.button
+--             [ Background.color Color.white
+--             , Font.color Color.neutral60
+--             , E.mouseDown [ Font.color Color.neutral50 ]
+--             , E.mouseOver [ Font.color Color.neutral70 ]
+--             , normalFont
+--             , Font.center
+--             , roundCorners
+--             , E.padding 0
+--             , E.alignLeft
+--             ]
+--             { onPress = Nothing --Just (Msg.ChangePage Model.HelpPage)
+--             , label =
+--                 E.el [ iconFont, biggestFont, E.centerX ]
+--                     (E.text "\u{F059}")
+--             }
+--         ]
+-- navigationOption : value -> E.Element msg -> Input.Option value msg
+-- navigationOption value element =
+--     Input.optionWith
+--         value
+--         (\state ->
+--             E.el
+--                 ([ E.centerX
+--                  , E.paddingXY 6 3
+--                  , normalFont
+--                  , transition
+--                  , E.height E.fill
+--                  ]
+--                     ++ (case state of
+--                             Input.Idle ->
+--                                 [ Font.color Color.neutral30
+--                                 , E.mouseDown [ Background.color Color.neutral90 ]
+--                                 , E.mouseOver [ Background.color Color.neutral95 ]
+--                                 ]
+--                             Input.Focused ->
+--                                 [ E.mouseDown [ Background.color Color.neutral90 ]
+--                                 , E.mouseOver [ Background.color Color.neutral95 ]
+--                                 ]
+--                             Input.Selected ->
+--                                 [ Font.color (E.rgb 1 1 1)
+--                                 , Background.color Color.primary40
+--                                 , mouseDown [ Background.color Color.primary30 ]
+--                                 , mouseOver [ Background.color Color.primary40 ]
+--                                 ]
+--                        )
+--                 )
+--                 element
+--         )
 
 
 configRadio :
@@ -564,22 +610,22 @@ radioRowOption value element =
                  ]
                     ++ (case state of
                             Input.Idle ->
-                                [ Font.color gray30
-                                , E.mouseDown [ Background.color gray90 ]
-                                , E.mouseOver [ Background.color gray95 ]
+                                [ Font.color Color.neutral30
+                                , E.mouseDown [ Background.color Color.neutral90 ]
+                                , E.mouseOver [ Background.color Color.neutral95 ]
                                 ]
 
                             Input.Focused ->
-                                [ E.mouseDown [ Background.color gray90 ]
-                                , E.mouseOver [ Background.color gray95 ]
+                                [ E.mouseDown [ Background.color Color.neutral90 ]
+                                , E.mouseOver [ Background.color Color.neutral95 ]
                                 ]
 
                             Input.Selected ->
                                 [ Font.color (E.rgb 1 1 1)
-                                , Background.color primary40
+                                , Background.color Color.primary40
                                 , smallShadow
-                                , mouseDown [ Background.color primary30 ]
-                                , mouseOver [ Background.color primary40 ]
+                                , mouseDown [ Background.color Color.primary30 ]
+                                , mouseOver [ Background.color Color.primary40 ]
                                 ]
                        )
                 )
@@ -619,22 +665,25 @@ pageTitle element =
         , E.paddingEach { top = 12, bottom = 12, left = 12, right = 12 }
         , E.width E.fill
         , E.centerY
-        , Font.color gray40
+        , Font.color Color.neutral40
         ]
         element
 
 
-title : E.Color -> String -> E.Element msg
-title color text =
-    E.el
-        [ E.width E.fill
-        , Font.color color
-        , normalFont
-        , Font.bold
-        , E.padding 0
-        , notSelectable
+section : E.Color -> String -> E.Element msg -> E.Element msg
+section titleColor titleText content =
+    E.column [ E.width E.fill, E.spacing 12 ]
+        [ E.el
+            [ E.width E.fill
+            , Font.color titleColor
+            , normalFont
+            , Font.bold
+            , E.padding 0
+            , notSelectable
+            ]
+            (E.text titleText)
+        , E.el [ E.width E.fill, E.paddingXY 24 0 ] content
         ]
-        (E.text text)
 
 
 ruler : E.Element msg
@@ -644,14 +693,14 @@ ruler =
         , E.height (E.px borderWidth)
         , E.paddingXY 48 0
         ]
-        (E.el [ E.width E.fill, E.height E.fill, Background.color gray90 ] E.none)
+        (E.el [ E.width E.fill, E.height E.fill, Background.color Color.neutral90 ] E.none)
 
 
 warningParagraph : List (E.Element msg) -> E.Element msg
 warningParagraph elements =
     E.row
         [ normalFont
-        , Font.color gray20
+        , Font.color Color.neutral20
         , E.centerY
         , E.spacing 12
         , E.width E.fill
@@ -668,7 +717,7 @@ dateNavigationBar model changeMsg =
         [ E.width E.fill
         , E.alignTop
         , E.paddingEach { top = 0, bottom = 8, left = 8, right = 8 }
-        , Background.color white
+        , Background.color Color.white
         ]
         [ ( "previous month button"
           , E.el
@@ -679,15 +728,15 @@ dateNavigationBar model changeMsg =
                     [ E.width E.fill
                     , E.height E.fill
                     , Border.roundEach { topLeft = 0, bottomLeft = 0, topRight = 0, bottomRight = 32 }
-                    , Font.color gray30
+                    , Font.color Color.neutral30
                     , Border.widthEach { top = 0, bottom = 0, left = 0, right = 0 }
-                    , Background.color gray95
-                    , Border.color gray70
+                    , Background.color Color.neutral95
+                    , Border.color Color.neutral70
                     , E.paddingEach { top = 4, bottom = 8, left = 0, right = 0 }
                     , smallShadow
                     , transition
-                    , mouseDown [ Background.color gray90 ]
-                    , mouseOver [ Background.color white ]
+                    , mouseDown [ Background.color Color.neutral90 ]
+                    , mouseOver [ Background.color Color.white ]
                     ]
                     { label =
                         E.row
@@ -711,7 +760,7 @@ dateNavigationBar model changeMsg =
                     [ E.centerX
                     , Font.bold
                     , bigFont
-                    , Font.color gray30
+                    , Font.color Color.neutral30
                     ]
                     (E.text (Date.getMonthFullName model.today model.date))
                 )
@@ -726,15 +775,15 @@ dateNavigationBar model changeMsg =
                     [ E.width E.fill
                     , E.height E.fill
                     , Border.roundEach { topLeft = 0, bottomLeft = 32, topRight = 0, bottomRight = 0 }
-                    , Font.color gray30
+                    , Font.color Color.neutral30
                     , Border.widthEach { top = 0, bottom = 0, left = 0, right = 0 }
-                    , Background.color gray95
-                    , Border.color gray70
+                    , Background.color Color.neutral95
+                    , Border.color Color.neutral70
                     , E.paddingEach { top = 4, bottom = 8, left = 0, right = 0 }
                     , smallShadow
                     , transition
-                    , mouseDown [ Background.color gray90 ]
-                    , mouseOver [ Background.color white ]
+                    , mouseDown [ Background.color Color.neutral90 ]
+                    , mouseOver [ Background.color Color.white ]
                     ]
                     { label =
                         E.row
@@ -784,16 +833,16 @@ viewMoney money future =
         [ E.el [ E.width E.fill ] E.none
         , E.paragraph
             [ if future then
-                Font.color gray50
+                Font.color Color.neutral50
 
               else if isExpense then
-                Font.color expense40
+                Font.color Color.expense40
 
               else if isZero then
-                Font.color gray70
+                Font.color Color.neutral70
 
               else
-                Font.color income40
+                Font.color Color.income40
             ]
             (if isZero then
                 [ E.el [ E.width (E.fillPortion 75), normalFont, Font.alignRight ] (E.text "—")
@@ -870,18 +919,18 @@ simpleButton :
     -> E.Element msg
 simpleButton { onPress, label } =
     Input.button
-        [ Background.color gray95
+        [ Background.color Color.neutral95
         , normalFont
-        , Font.color gray30
+        , Font.color Color.neutral30
         , Font.center
         , roundCorners
         , Border.width 0
-        , Border.color gray70
+        , Border.color Color.neutral70
         , defaultShadow
         , transition
         , E.paddingXY 24 8
-        , mouseDown [ Background.color gray90 ]
-        , mouseOver [ Background.color white ]
+        , mouseDown [ Background.color Color.neutral90 ]
+        , mouseOver [ Background.color Color.white ]
         ]
         { onPress = onPress
         , label = label
@@ -893,18 +942,18 @@ mainButton :
     -> E.Element msg
 mainButton { onPress, label } =
     Input.button
-        [ Background.color primary40
+        [ Background.color Color.primary40
         , normalFont
-        , Font.color white
+        , Font.color Color.white
         , Font.center
         , roundCorners
         , Border.width borderWidth
-        , Border.color primary40
+        , Border.color Color.primary40
         , defaultShadow
         , transition
         , E.paddingXY 24 8
-        , mouseDown [ Background.color primary30, Border.color primary30 ]
-        , mouseOver [ Background.color primary50, Border.color primary50 ]
+        , mouseDown [ Background.color Color.primary30, Border.color Color.primary30 ]
+        , mouseOver [ Background.color Color.primary50, Border.color Color.primary50 ]
         ]
         { onPress = onPress
         , label = label
@@ -916,18 +965,18 @@ dangerButton :
     -> E.Element msg
 dangerButton { onPress, label } =
     Input.button
-        [ Background.color warning60
+        [ Background.color Color.warning60
         , normalFont
-        , Font.color white
+        , Font.color Color.white
         , Font.center
         , roundCorners
         , Border.width borderWidth
-        , Border.color warning60
+        , Border.color Color.warning60
         , defaultShadow
         , transition
         , E.paddingXY 24 8
-        , mouseDown [ Background.color warning50, Border.color warning50 ]
-        , mouseOver [ Background.color warning70, Border.color warning70 ]
+        , mouseDown [ Background.color Color.warning50, Border.color Color.warning50 ]
+        , mouseOver [ Background.color Color.warning70, Border.color Color.warning70 ]
         ]
         { onPress = onPress
         , label = label
@@ -940,17 +989,17 @@ incomeButton :
 incomeButton { onPress, label } =
     Input.button
         [ E.width (E.fillPortion 2)
-        , Background.color income90
+        , Background.color Color.income90
         , normalFont
         , Font.center
         , roundCorners
         , Border.width borderWidth
-        , Border.color income90
+        , Border.color Color.income90
         , defaultShadow
         , transition
         , E.paddingXY 24 8
-        , mouseDown [ Background.color income80, Border.color income80 ]
-        , mouseOver [ Background.color income95, Border.color income95 ]
+        , mouseDown [ Background.color Color.income80, Border.color Color.income80 ]
+        , mouseOver [ Background.color Color.income95, Border.color Color.income95 ]
         ]
         { onPress = onPress
         , label = label
@@ -963,17 +1012,17 @@ expenseButton :
 expenseButton { onPress, label } =
     Input.button
         [ E.width (E.fillPortion 2)
-        , Background.color expense90
+        , Background.color Color.expense90
         , normalFont
         , Font.center
         , roundCorners
         , Border.width borderWidth
-        , Border.color expense90
+        , Border.color Color.expense90
         , defaultShadow
         , transition
         , E.paddingXY 24 8
-        , mouseDown [ Background.color expense80, Border.color expense80 ]
-        , mouseOver [ Background.color expense95, Border.color expense95 ]
+        , mouseDown [ Background.color Color.expense80, Border.color Color.expense80 ]
+        , mouseOver [ Background.color Color.expense95, Border.color Color.expense95 ]
         ]
         { onPress = onPress
         , label = label
@@ -985,16 +1034,16 @@ iconButton :
     -> E.Element msg
 iconButton { onPress, icon } =
     Input.button
-        [ Background.color white
+        [ Background.color Color.white
         , normalFont
-        , Font.color primary40
+        , Font.color Color.primary40
         , Font.center
         , roundCorners
         , E.padding 8
         , E.width (E.shrink |> E.minimum 64)
         , E.height (E.px 48)
-        , E.mouseDown [ Background.color gray90 ]
-        , E.mouseOver [ Background.color gray95 ]
+        , E.mouseDown [ Background.color Color.neutral90 ]
+        , E.mouseOver [ Background.color Color.neutral95 ]
         ]
         { onPress = onPress
         , label = icon
@@ -1007,7 +1056,7 @@ checkBox :
 checkBox { state, onPress } =
     Input.button
         [ normalFont
-        , Font.color primary40
+        , Font.color Color.primary40
         , Font.center
         , E.width (E.px 48)
         , E.height (E.px 48)
@@ -1015,11 +1064,11 @@ checkBox { state, onPress } =
         , Background.color (E.rgba 1 1 1 1)
         , Border.rounded 0
         , Border.width borderWidth
-        , Border.color gray70
+        , Border.color Color.neutral70
         , E.padding 2
         , innerShadow
         , transition
-        , E.mouseDown [ Background.color gray90 ]
+        , E.mouseDown [ Background.color Color.neutral90 ]
         , E.mouseOver [ bigInnerShadow ]
         ]
         { onPress = onPress
@@ -1041,18 +1090,18 @@ radioButton { onPress, icon, label, active } =
          , transition
          ]
             ++ (if active then
-                    [ Font.color white
-                    , Background.color primary40
+                    [ Font.color Color.white
+                    , Background.color Color.primary40
                     , smallShadow
-                    , mouseDown [ Background.color primary30 ]
-                    , mouseOver [ Background.color primary40 ]
+                    , mouseDown [ Background.color Color.primary30 ]
+                    , mouseOver [ Background.color Color.primary40 ]
                     ]
 
                 else
-                    [ Font.color gray30
-                    , Background.color white
-                    , E.mouseDown [ Background.color gray90 ]
-                    , E.mouseOver [ Background.color gray95 ]
+                    [ Font.color Color.neutral30
+                    , Background.color Color.white
+                    , E.mouseDown [ Background.color Color.neutral90 ]
+                    , E.mouseOver [ Background.color Color.neutral95 ]
                     ]
                )
         )

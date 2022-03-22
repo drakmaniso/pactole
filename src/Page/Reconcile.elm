@@ -10,6 +10,7 @@ import Money
 import Msg
 import Page.Summary as Summary
 import Ui
+import Ui.Color as Color
 
 
 
@@ -17,7 +18,7 @@ import Ui
 
 
 view : Model.Model -> E.Element Msg.Msg
-view shared =
+view model =
     Ui.pageWithSidePanel
         { panel =
             E.column
@@ -26,9 +27,10 @@ view shared =
                 , E.clipX
                 , E.clipY
                 ]
-                [ E.el
+                [ Ui.navigationBar (Msg.navigationBarConfig model)
+                , E.el
                     [ E.width E.fill, E.height (E.fillPortion 1) ]
-                    (Summary.view shared)
+                    (Summary.view model)
                 , E.el
                     [ E.width E.fill, E.height (E.fillPortion 2) ]
                     E.none
@@ -39,9 +41,9 @@ view shared =
                 , E.height E.fill
                 , E.clipY
                 ]
-                [ Ui.dateNavigationBar shared Msg.SelectDate
-                , viewReconciled shared
-                , viewTransactions shared
+                [ Ui.dateNavigationBar model Msg.SelectDate
+                , viewReconciled model
+                , viewTransactions model
                 ]
         }
 
@@ -53,7 +55,7 @@ viewReconciled shared =
             Date.getMonthName (Date.decrementMonth shared.date)
     in
     E.column
-        [ E.width E.fill, E.paddingXY 48 24, E.spacing 24, Font.color Ui.gray30 ]
+        [ E.width E.fill, E.paddingXY 48 24, E.spacing 24, Font.color Color.neutral30 ]
         [ E.row
             [ E.width E.fill ]
             [ E.el [ E.width E.fill ] E.none
@@ -83,7 +85,7 @@ viewTransactions shared =
         , E.width E.fill
         , E.height E.fill
         , E.scrollbarY
-        , Font.color Ui.gray30
+        , Font.color Color.neutral30
         ]
         (List.indexedMap
             (\idx transaction ->
@@ -91,10 +93,10 @@ viewTransactions shared =
                     [ E.width E.fill
                     , E.paddingXY 12 18
                     , if Basics.remainderBy 2 idx == 0 then
-                        Background.color Ui.gray95
+                        Background.color Color.neutral95
 
                       else
-                        Background.color Ui.gray90
+                        Background.color Color.neutral90
                     ]
                     [ colDate transaction
                     , colReconciled transaction
@@ -140,7 +142,7 @@ colDescription transaction =
     E.el
         [ E.width (E.fillPortion 8), E.clip ]
         (if transaction.description == "" then
-            E.el [ Font.color Ui.gray70 ] (E.text "—")
+            E.el [ Font.color Color.neutral70 ] (E.text "—")
 
          else
             E.text transaction.description
