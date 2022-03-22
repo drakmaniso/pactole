@@ -17,7 +17,7 @@ import Ui.Color as Color
 
 
 view : Model.Model -> E.Element Msg.Msg
-view shared =
+view model =
     Ui.pageWithSidePanel
         { panel =
             E.column
@@ -26,9 +26,10 @@ view shared =
                 , E.clipX
                 , E.clipY
                 ]
-                [ E.el
+                [ Ui.navigationBar (Msg.navigationBarConfig model)
+                , E.el
                     [ E.width E.fill, E.height (E.fillPortion 1) ]
-                    (Summary.view shared)
+                    (Summary.view model)
                 , E.el
                     [ E.width E.fill, E.height (E.fillPortion 2) ]
                     E.none
@@ -40,9 +41,9 @@ view shared =
                 , E.clipX
                 , E.clipY
                 ]
-                [ Ui.dateNavigationBar shared Msg.SelectDate
-                , viewMonthBalance shared
-                , viewMonthFutureWarning shared
+                [ Ui.dateNavigationBar model Msg.SelectDate
+                , viewMonthBalance model
+                , viewMonthFutureWarning model
                 , Ui.ruler
                 , E.column
                     [ E.width E.fill
@@ -53,23 +54,23 @@ view shared =
                     , viewItem
                         ""
                         "Entrées d'argent: "
-                        (Ledger.getIncomeForMonth shared.ledger shared.account shared.date shared.today)
-                    , if shared.settings.categoriesEnabled then
-                        viewCategories shared
+                        (Ledger.getIncomeForMonth model.ledger model.account model.date model.today)
+                    , if model.settings.categoriesEnabled then
+                        viewCategories model
 
                       else
                         E.none
-                    , if shared.settings.categoriesEnabled then
+                    , if model.settings.categoriesEnabled then
                         viewItem
                             ""
                             "Sans catégorie: "
-                            (Ledger.getCategoryTotalForMonth shared.ledger shared.account shared.date shared.today 0)
+                            (Ledger.getCategoryTotalForMonth model.ledger model.account model.date model.today 0)
 
                       else
                         viewItem
                             ""
                             "Dépenses: "
-                            (Ledger.getExpenseForMonth shared.ledger shared.account shared.date shared.today)
+                            (Ledger.getExpenseForMonth model.ledger model.account model.date model.today)
                     , E.text " "
                     , E.el [ E.height E.fill ] E.none
                     ]

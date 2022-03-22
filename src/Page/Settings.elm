@@ -281,20 +281,11 @@ view model =
                 , E.height E.fill
                 , E.clipX
                 , E.clipY
-                , Border.widthEach { right = 2, top = 0, bottom = 0, left = 0 }
-                , Border.color Color.neutral70
+
+                -- , Border.widthEach { right = 2, top = 0, bottom = 0, left = 0 }
+                -- , Border.color Color.neutral70
                 ]
-                [ E.el
-                    [ E.centerX, E.padding 12 ]
-                    (Ui.simpleButton
-                        { onPress = Just (Msg.ChangePage Model.MainPage)
-                        , label =
-                            E.row []
-                                [ Ui.backIcon
-                                , E.text "  Retour"
-                                ]
-                        }
-                    )
+                [ Ui.navigationBar (Msg.navigationBarConfig model)
                 , E.el
                     [ E.width E.fill, E.height E.fill ]
                     E.none

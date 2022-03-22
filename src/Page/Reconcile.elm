@@ -18,7 +18,7 @@ import Ui.Color as Color
 
 
 view : Model.Model -> E.Element Msg.Msg
-view shared =
+view model =
     Ui.pageWithSidePanel
         { panel =
             E.column
@@ -27,9 +27,10 @@ view shared =
                 , E.clipX
                 , E.clipY
                 ]
-                [ E.el
+                [ Ui.navigationBar (Msg.navigationBarConfig model)
+                , E.el
                     [ E.width E.fill, E.height (E.fillPortion 1) ]
-                    (Summary.view shared)
+                    (Summary.view model)
                 , E.el
                     [ E.width E.fill, E.height (E.fillPortion 2) ]
                     E.none
@@ -40,9 +41,9 @@ view shared =
                 , E.height E.fill
                 , E.clipY
                 ]
-                [ Ui.dateNavigationBar shared Msg.SelectDate
-                , viewReconciled shared
-                , viewTransactions shared
+                [ Ui.dateNavigationBar model Msg.SelectDate
+                , viewReconciled model
+                , viewTransactions model
                 ]
         }
 

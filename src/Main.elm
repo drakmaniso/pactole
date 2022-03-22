@@ -14,6 +14,7 @@ import Model
 import Msg
 import Page.Calendar as Calendar
 import Page.Dialog as Dialog
+import Page.Help as Help
 import Page.Reconcile as Reconcile
 import Page.Settings as Settings
 import Page.Statistics as Statistics
@@ -241,6 +242,9 @@ view model =
 
         activePage =
             case model.page of
+                Model.HelpPage ->
+                    Help.view model
+
                 Model.SettingsPage ->
                     Settings.view model
 

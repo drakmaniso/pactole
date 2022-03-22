@@ -51,6 +51,7 @@ type Page
     = MainPage
     | StatsPage
     | ReconcilePage
+    | HelpPage
     | SettingsPage
 
 

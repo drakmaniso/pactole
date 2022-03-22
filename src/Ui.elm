@@ -32,6 +32,7 @@ module Ui exposing
     , minusIcon
     , mouseDown
     , mouseOver
+    , navigationBar
     , normalFont
     , notSelectable
     , onEnter
@@ -336,7 +337,10 @@ document titleText activePage activeDialog closeMsg showFocus =
                     ]
 
                 Nothing ->
-                    [ E.inFront (E.column [] [])
+                    [ E.inFront
+                        (E.column []
+                            []
+                        )
                     ]
             )
             activePage
@@ -368,12 +372,206 @@ pageWithSidePanel { panel, page } =
             [ E.width (E.fillPortion 3)
             , E.height E.fill
             , E.clipY
-            , E.paddingEach { top = 0, left = 6, bottom = 3, right = 6 }
-            , Border.widthEach { top = 0, left = borderWidth, bottom = 0, right = 0 }
-            , Border.color Color.white -- bgDark
+            , E.paddingEach { top = 0, left = 0, bottom = 3, right = 6 }
+
+            -- , Border.widthEach { top = 0, left = borderWidth, bottom = 0, right = 0 }
+            -- , Border.color Color.white -- bgDark
             ]
             page
         ]
+
+
+navigationBar { activePage, onChange, mainPage, statsPage, reconcilePage, settingsPage, helpPage } =
+    E.row
+        [ E.width E.fill
+        , Border.roundEach { topLeft = 32, bottomLeft = 32, topRight = 32, bottomRight = 32 }
+        , Background.color Color.primary95
+        ]
+        [ navigationButton
+            [ Border.roundEach { topLeft = 32, bottomLeft = 32, topRight = 0, bottomRight = 0 }
+            ]
+            { activePage = activePage
+            , onChange = onChange
+            , targetPage = mainPage
+            , label = E.text "Pactole"
+            }
+        , case statsPage of
+            Just page ->
+                navigationButton []
+                    { activePage = activePage
+                    , onChange = onChange
+                    , targetPage = page
+                    , label = E.text "Bilan"
+                    }
+
+            _ ->
+                E.none
+        , case reconcilePage of
+            Just page ->
+                navigationButton []
+                    { activePage = activePage
+                    , onChange = onChange
+                    , targetPage = page
+                    , label = E.text "Pointer"
+                    }
+
+            _ ->
+                E.none
+        , E.el
+            [ E.width E.fill
+            , E.height E.fill
+            ]
+            E.none
+        , case settingsPage of
+            Just page ->
+                navigationButton []
+                    { activePage = activePage
+                    , onChange = onChange
+                    , targetPage = page
+                    , label =
+                        E.el [ iconFont, bigFont, E.centerX, E.paddingXY 0 0 ] (E.text "\u{F013}")
+                    }
+
+            _ ->
+                E.none
+        , navigationButton
+            [ Border.roundEach { topLeft = 0, bottomLeft = 0, topRight = 32, bottomRight = 32 }
+            ]
+            { activePage = activePage
+            , onChange = onChange
+            , targetPage = helpPage
+            , label =
+                E.el [ iconFont, bigFont, E.centerX, E.paddingXY 0 0 ] (E.text "\u{F059}")
+            }
+        ]
+
+
+navigationButton attributes { activePage, onChange, targetPage, label } =
+    Input.button
+        ([ E.paddingXY 12 6
+         , Background.color
+            (if activePage == targetPage then
+                Color.primary40
+
+             else
+                Color.primary95
+            )
+         , Font.color
+            (if activePage == targetPage then
+                Color.white
+
+             else
+                Color.primary40
+            )
+         , E.height E.fill
+         , Border.roundEach { topLeft = 32, bottomLeft = 32, topRight = 32, bottomRight = 32 }
+         ]
+         -- ++ attributes
+        )
+        { onPress = Just (onChange targetPage)
+        , label = label
+        }
+
+
+
+-- navigationBar selection msg options =
+--     E.row
+--         [ E.width E.fill
+--         ]
+--         [ E.el [ E.width (E.px 64) ] E.none
+--         , E.el [ E.width E.fill ] E.none
+--         , Input.radioRow
+--             [ E.width E.shrink
+--             , E.height E.fill
+--             -- , if model.showFocus then
+--             --     E.focused
+--             --         [ Border.shadow
+--             --             { offset = ( 0, 0 )
+--             --             , size = 4
+--             --             , blur = 0
+--             --             , color = Color.focusColor
+--             --             }
+--             --         ]
+--             --   else
+--             --     E.focused
+--             --         [ Border.shadow
+--             --             { offset = ( 0, 0 )
+--             --             , size = 0
+--             --             , blur = 0
+--             --             , color = Color.transparent
+--             --             }
+--             --         ]
+--             ]
+--             { onChange = msg
+--             , selected = selection
+--             , label = Input.labelHidden "Compte"
+--             , options = options
+--             }
+--         -- , E.el
+--         --     [ bigFont
+--         --     , notSelectable
+--         --     , Font.bold
+--         --     , Font.color Color.neutral60
+--         --     ]
+--         --     (E.text "Pactole")
+--         -- , simpleButton
+--         --     { onPress = Nothing --Just (Msg.ChangePage Model.StatsPage)
+--         --     , label = E.text " Bilan "
+--         --     }
+--         -- , simpleButton
+--         --     { onPress = Nothing --Just (Msg.ChangePage Model.ReconcilePage)
+--         --     , label = E.text "Pointer"
+--         --     }
+--         , E.el [ E.width E.fill ] E.none
+--         , Input.button
+--             [ Background.color Color.white
+--             , Font.color Color.neutral60
+--             , E.mouseDown [ Font.color Color.neutral50 ]
+--             , E.mouseOver [ Font.color Color.neutral70 ]
+--             , normalFont
+--             , Font.center
+--             , roundCorners
+--             , E.padding 0
+--             , E.alignLeft
+--             ]
+--             { onPress = Nothing --Just (Msg.ChangePage Model.HelpPage)
+--             , label =
+--                 E.el [ iconFont, biggestFont, E.centerX ]
+--                     (E.text "\u{F059}")
+--             }
+--         ]
+-- navigationOption : value -> E.Element msg -> Input.Option value msg
+-- navigationOption value element =
+--     Input.optionWith
+--         value
+--         (\state ->
+--             E.el
+--                 ([ E.centerX
+--                  , E.paddingXY 6 3
+--                  , normalFont
+--                  , transition
+--                  , E.height E.fill
+--                  ]
+--                     ++ (case state of
+--                             Input.Idle ->
+--                                 [ Font.color Color.neutral30
+--                                 , E.mouseDown [ Background.color Color.neutral90 ]
+--                                 , E.mouseOver [ Background.color Color.neutral95 ]
+--                                 ]
+--                             Input.Focused ->
+--                                 [ E.mouseDown [ Background.color Color.neutral90 ]
+--                                 , E.mouseOver [ Background.color Color.neutral95 ]
+--                                 ]
+--                             Input.Selected ->
+--                                 [ Font.color (E.rgb 1 1 1)
+--                                 , Background.color Color.primary40
+--                                 , mouseDown [ Background.color Color.primary30 ]
+--                                 , mouseOver [ Background.color Color.primary40 ]
+--                                 ]
+--                        )
+--                 )
+--                 element
+--         )
 
 
 configRadio :

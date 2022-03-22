@@ -27,23 +27,9 @@ view model =
             [ E.width E.fill
             , E.height E.fill
             , E.centerX
+            , E.paddingXY 0 24
             ]
-            [ E.row
-                [ E.width E.fill
-                ]
-                [ E.el [ E.paddingXY 6 0, E.width E.fill ]
-                    (settingsButton model)
-                , case Dict.values model.accounts of
-                    [ singleAccount ] ->
-                        E.el [ Ui.bigFont, Font.color Color.neutral30, Ui.notSelectable ]
-                            (E.text singleAccount)
-
-                    _ ->
-                        accountsRow model
-                , E.el [ E.width E.fill ]
-                    E.none
-                ]
-            , E.row [ E.height (E.fillPortion 1) ] [ E.none ]
+            [ E.row [ E.height (E.fillPortion 1) ] [ E.none ]
             , E.el
                 [ Ui.smallFont
                 , E.paddingEach { top = 0, bottom = 6, left = 0, right = 0 }
@@ -54,8 +40,27 @@ view model =
                 ]
                 (E.text "Solde actuel:")
             , balanceRow model
-            , E.row [ E.height (E.fillPortion 1) ] [ E.none ]
-            , buttonRow model
+            , E.row
+                [ E.width E.fill
+                , E.paddingEach { top = 6, bottom = 0, left = 0, right = 0 }
+                ]
+                [ E.el [ E.paddingXY 6 0, E.width E.fill ]
+                    E.none
+                , case Dict.values model.accounts of
+                    [ singleAccount ] ->
+                        E.none
+
+                    -- E.el [ Ui.bigFont, Font.color Color.neutral30, Ui.notSelectable ]
+                    --     (E.text singleAccount)
+                    _ ->
+                        accountsRow model
+                , E.el [ E.width E.fill ]
+                    E.none
+                ]
+
+            -- , E.row [ E.height (E.fillPortion 1) ] [ E.none ]
+            -- , buttonRow model
+            -- , E.row [ E.height (E.fillPortion 2) ] [ E.none ]
             , E.row [ E.height (E.fillPortion 2) ] [ E.none ]
             , Ui.ruler
             ]
