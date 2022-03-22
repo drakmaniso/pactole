@@ -34,7 +34,7 @@ view model =
                     (settingsButton model)
                 , case Dict.values model.accounts of
                     [ singleAccount ] ->
-                        E.el [ Ui.bigFont, Font.color Ui.primary30, Ui.notSelectable ]
+                        E.el [ Ui.bigFont, Font.color Ui.gray30, Ui.notSelectable ]
                             (E.text singleAccount)
 
                     _ ->
@@ -119,7 +119,7 @@ balanceRow model =
                 Ui.gray30
 
             else
-                Ui.warning55
+                Ui.warning60
     in
     E.row
         [ E.width E.fill, Font.color color, Ui.notSelectable ]
@@ -210,7 +210,7 @@ settingsButton model =
         Input.button
             [ Background.color Ui.white
             , Ui.normalFont
-            , Font.color Ui.primary30
+            , Font.color Ui.primary40
             , Font.center
             , Ui.roundCorners
             , E.padding 2
@@ -226,7 +226,7 @@ settingsButton model =
         Input.button
             [ Background.color Ui.white
             , Ui.normalFont
-            , Font.color Ui.primary30
+            , Font.color Ui.primary40
             , Font.center
             , Ui.roundCorners
             , E.padding 2

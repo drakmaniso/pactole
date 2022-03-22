@@ -691,7 +691,7 @@ viewDialog model =
                         { label =
                             Input.labelAbove
                                 [ E.width E.shrink
-                                , Font.color Ui.primary30
+                                , Font.color Ui.primary40
                                 , Ui.normalFont
                                 , Font.bold
                                 , E.paddingEach { top = 12, bottom = 0, left = 12, right = 0 }
@@ -781,7 +781,7 @@ viewDialog model =
                         { label =
                             Input.labelAbove
                                 [ E.width E.shrink
-                                , Font.color Ui.primary30
+                                , Font.color Ui.primary40
                                 , Ui.normalFont
                                 , Font.bold
                                 , E.paddingEach { top = 12, bottom = 0, left = 12, right = 0 }
@@ -900,7 +900,7 @@ viewDialog model =
                         { label =
                             Input.labelLeft
                                 [ E.width E.shrink
-                                , Font.color Ui.primary30
+                                , Font.color Ui.primary40
                                 , Ui.normalFont
                                 , Font.bold
                                 , E.paddingEach { right = 24, top = 0, left = 12, bottom = 0 }
@@ -917,7 +917,7 @@ viewDialog model =
                     (E.row [ E.spacingXY 24 0 ]
                         (E.el
                             [ E.width E.fill
-                            , Font.color Ui.primary30
+                            , Font.color Ui.primary40
                             , Ui.normalFont
                             , E.paddingEach { right = 24, top = 0, left = 12, bottom = 0 }
                             , Font.bold
@@ -940,7 +940,7 @@ viewDialog model =
                     , E.spacingXY 24 0
                     ]
                     [ E.el
-                        [ Font.color Ui.primary30
+                        [ Font.color Ui.primary40
                         , Ui.normalFont
                         , E.paddingEach { right = 24, top = 0, left = 12, bottom = 0 }
                         , Font.bold
@@ -966,7 +966,7 @@ viewDialog model =
                     , E.spacingXY 24 0
                     ]
                     [ E.el
-                        [ Font.color Ui.primary30
+                        [ Font.color Ui.primary40
                         , Ui.normalFont
                         , E.paddingEach { right = 24, top = 0, left = 12, bottom = 0 }
                         , Font.bold
@@ -1009,7 +1009,7 @@ viewDialog model =
                         { label =
                             Input.labelAbove
                                 [ E.width E.shrink
-                                , Font.color Ui.primary30
+                                , Font.color Ui.primary40
                                 , Ui.normalFont
                                 , Font.bold
                                 , E.paddingEach { top = 12, bottom = 0, left = 12, right = 0 }
