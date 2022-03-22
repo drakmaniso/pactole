@@ -11,27 +11,27 @@ La page principale de Pactole est divisée en trois parties:
 ![les trois parties de la page principale](utilisation.png)
 
 
-## Ajouter le solde initial
+## Enregistrer le solde initial
 
 Lors de la première utilisation de pactole, vous devez entrer le solde
 actuellement disponible sur votre compte.
 
-Pour cela il suffit d'ajouter une nouvelle entrée d'argent à la date
+Pour cela il suffit d'enregistrer une nouvelle entrée d'argent à la date
 d'aujourd'hui, avec pour montant le solde actuel de votre compte. Vous pouvez y
 ajouter une description, par exemple "Solde initial".
 
-Pour savoir comment ajouter une opération, voir la section suivante.
+Pour savoir comment enregistrer une opération, voir la section suivante.
 
 
-## Ajouter une nouvelle dépense, ou une nouvelle entrée d'argent
+## Enregistrer une nouvelle dépense, ou une nouvelle entrée d'argent
 
-1. Dans le calendrier, sélectionnez le jour où vous voulez ajouter une
+1. Dans le calendrier, sélectionnez le jour où vous voulez enregistrer une
    opération. Si le mois affiché n'est pas le bon, utilisez les deux boutons en
    haut du calendrier pour changer le mois.
 
 2. Dans la partie de gauche, tout en bas, cliquez sur le bouton "-" si vous
-   voulez ajouter une dépense, ou bien sur le bouton "+" si vous voulez ajouter
-   une entrée d'argent.
+   voulez enregistrer une dépense, ou bien sur le bouton "+" si vous voulez
+   enregistrer une entrée d'argent.
 
 3. Dans la fenêtre de dialogue qui s'ouvre, entrez le montant de l'opération.
    Vous pouvez également entrer une description.
@@ -65,7 +65,7 @@ Pour savoir comment ajouter une opération, voir la section suivante.
 
 ## Changer la date d'une dépense, ou d'une entrée d'argent
 
-1. Ajouter une nouvelle opération à la date voulue.
+1. Enregistrer une nouvelle opération à la date voulue.
 
 2. Supprimer l'ancienne opération.
 

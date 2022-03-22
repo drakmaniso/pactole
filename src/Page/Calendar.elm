@@ -501,7 +501,7 @@ dayContentFor model day =
                 , Ui.normalFont
                 , E.paddingXY 8 32
                 ]
-                (E.text "(Aucune dépense)")
+                (E.text "(Aucune opération)")
             ]
 
         t ->

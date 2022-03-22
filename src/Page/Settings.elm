@@ -342,7 +342,7 @@ view model =
                                         }
                                     , Ui.simpleButton
                                         { onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsAskImportConfirmation)
-                                        , label = E.row [ E.spacing 12 ] [ Ui.loadIcon, E.text "Restaurer une sauvegarde" ]
+                                        , label = E.row [ E.spacing 12 ] [ Ui.loadIcon, E.text "Récupérer une sauvegarde" ]
                                         }
                                     ]
                                 ]
@@ -380,7 +380,7 @@ view model =
                                     }
                                 , Ui.simpleButton
                                     { onPress = Just (Msg.ForDatabase <| Msg.DbCreateAccount (newAccountName (Dict.values model.accounts) 1))
-                                    , label = E.row [] [ Ui.plusIcon, E.text "  Ajouter" ]
+                                    , label = E.row [] [ Ui.plusIcon, E.text "  Nouveau compte" ]
                                     }
                                 ]
                         }
@@ -540,7 +540,7 @@ configCategories model =
                     }
                 , Ui.simpleButton
                     { onPress = Just (Msg.ForDatabase <| Msg.DbCreateCategory "Nouvelle catégorie" "")
-                    , label = E.row [] [ Ui.plusIcon, E.text "  Ajouter" ]
+                    , label = E.row [] [ Ui.plusIcon, E.text "  Nouvelle catégorie" ]
                     }
                 ]
         }
@@ -613,7 +613,7 @@ configRecurring model =
                     }
                 , Ui.simpleButton
                     { onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsNewRecurring)
-                    , label = E.row [] [ Ui.plusIcon, E.text "  Ajouter" ]
+                    , label = E.row [] [ Ui.plusIcon, E.text "  Nouvelle opération mensuelle" ]
                     }
                 ]
         }
@@ -634,7 +634,7 @@ configLocked model =
 
                     else
                         Msg.ForDatabase <| Msg.DbStoreSettings { settings | settingsLocked = False }
-            , label = "Vérouiller les réglages:"
+            , label = "Verrouiller les réglages:"
             , options =
                 [ Ui.radioRowOption False (E.text "Non")
                 , Ui.radioRowOption True (E.text "Oui")
@@ -645,7 +645,7 @@ configLocked model =
             [ E.width E.fill
             , E.paddingEach { top = 0, bottom = 24, left = 64 + 12, right = 0 }
             ]
-            [ E.text "Lorsque les réglages sont vérouillés, il faut cliquer 5 fois de suite sur l'icône \""
+            [ E.text "Lorsque les réglages sont verrouillés, il faut cliquer 5 fois de suite sur l'icône \""
             , E.el [ Ui.iconFont, Ui.normalFont, Font.color Ui.gray70 ] (E.text "\u{F013}")
             , E.text "\" pour accéder aux réglages."
             ]
