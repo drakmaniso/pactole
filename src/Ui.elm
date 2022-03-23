@@ -21,6 +21,14 @@ module Ui exposing
     , expenseButton
     , expenseIcon
     , fontFamily
+    , helpImage
+    , helpList
+    , helpListItem
+    , helpNumberedList
+    , helpParagraph
+    , helpSectionTitle
+    , helpText
+    , helpTextColumn
     , iconButton
     , iconFont
     , incomeButton
@@ -47,13 +55,14 @@ module Ui exposing
     , smallFont
     , smallShadow
     , smallerFont
+    , smallerShadow
     , transition
     , verySmallFont
     , viewDate
     , viewMoney
     , viewSum
     , warningIcon
-    , warningParagraph, smallerShadow
+    , warningParagraph
     )
 
 import Date
@@ -922,3 +931,97 @@ onEnter msg =
                     )
             )
         )
+
+
+
+-- HELP ELEMENTS
+
+
+helpTextColumn : List (E.Element msg) -> E.Element msg
+helpTextColumn paragraphs =
+    E.row [ E.width E.fill ]
+        [ E.el [ E.width (E.fill |> E.maximum 128) ] E.none
+        , E.textColumn [ E.width (E.px 800) ] paragraphs
+        , E.el [ E.width E.fill ] E.none
+        ]
+
+
+helpSectionTitle : String -> E.Element msg
+helpSectionTitle txt =
+    E.paragraph
+        [ bigFont
+        , Font.bold
+        , E.paddingEach { left = 12, top = 48, bottom = 12, right = 12 }
+        ]
+        [ E.text txt ]
+
+
+helpParagraph : List (E.Element msg) -> E.Element msg
+helpParagraph texts =
+    E.paragraph
+        [ normalFont
+        , Font.color Color.neutral30
+        , E.paddingEach { left = 12, top = 12, bottom = 12, right = 12 }
+        ]
+        texts
+
+
+helpList : List (E.Element msg) -> E.Element msg
+helpList listItems =
+    let
+        withBullet para =
+            E.row
+                [ E.paddingEach { left = 0, top = 6, bottom = 6, right = 0 }
+                ]
+                [ E.column [ E.height E.fill ]
+                    [ E.el [ E.paddingXY 6 0 ] (E.text "•")
+                    , E.el [ E.height E.fill ] E.none
+                    ]
+                , para
+                ]
+    in
+    E.column
+        [ E.paddingEach { left = 12, top = 6, bottom = 6, right = 12 }
+        ]
+        (List.map withBullet listItems)
+
+
+helpNumberedList : List (E.Element msg) -> E.Element msg
+helpNumberedList listItems =
+    let
+        withBullet index para =
+            E.row
+                [ E.paddingEach { left = 0, top = 6, bottom = 6, right = 0 }
+                ]
+                [ E.column [ E.height E.fill, E.spacing 12 ]
+                    [ E.el [ E.width (E.px 48), Font.center ] (E.text (String.fromInt (index + 1) ++ "."))
+                    , E.el [ E.height E.fill ] E.none
+                    ]
+                , para
+                ]
+    in
+    E.column
+        [ E.paddingEach { left = 12, top = 6, bottom = 6, right = 12 }
+        ]
+        (List.indexedMap withBullet listItems)
+
+
+helpListItem : List (E.Element msg) -> E.Element msg
+helpListItem texts =
+    E.paragraph
+        [ normalFont
+        , Font.color Color.neutral30
+        , E.padding 0
+        ]
+        texts
+
+
+helpText : String -> E.Element msg
+helpText txt =
+    E.text txt
+
+
+helpImage : String -> String -> E.Element msg
+helpImage src description =
+    E.image [ E.centerX ]
+        { src = src, description = description }

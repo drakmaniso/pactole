@@ -355,6 +355,7 @@ pageWithSidePanel model { panel, page } =
         ]
 
 
+navigationBar : Model.Model -> E.Element Msg.Msg
 navigationBar model =
     let
         navigationButton { targetPage, label } =
