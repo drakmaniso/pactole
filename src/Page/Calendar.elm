@@ -30,27 +30,6 @@ view model =
                 , E.height E.fill
                 , E.clipX
                 , E.clipY
-
-                -- , E.inFront
-                --     (E.column [ E.padding 0 ]
-                --         [ Input.button
-                --             [ Background.color Color.white
-                --             , Font.color Color.neutral60
-                --             , E.mouseDown [ Font.color Color.neutral50 ]
-                --             , E.mouseOver [ Font.color Color.neutral70 ]
-                --             , Ui.normalFont
-                --             , Font.center
-                --             , Ui.roundCorners
-                --             , E.padding 0
-                --             , E.alignLeft
-                --             ]
-                --             { onPress = Just (Msg.ChangePage Model.HelpPage)
-                --             , label =
-                --                 E.el [ Ui.iconFont, Ui.biggestFont, E.centerX ]
-                --                     (E.text "\u{F059}")
-                --             }
-                --         ]
-                --     )
                 ]
                 [ E.el
                     [ E.width E.fill, E.height (E.fillPortion 1) ]
@@ -368,9 +347,6 @@ dayView model =
             , Font.color Color.neutral30
             , Font.center
             , Ui.bigFont
-
-            -- , Border.widthEach { top = 2, bottom = 0, left = 0, right = 0 }
-            -- , Border.color Ui.gray70
             , Ui.notSelectable
             ]
             [ if model.date == model.today then

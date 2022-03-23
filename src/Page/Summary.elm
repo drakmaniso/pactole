@@ -2,7 +2,6 @@ module Page.Summary exposing (view)
 
 import Dict
 import Element as E
-import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
 import Element.Input as Input
@@ -34,14 +33,13 @@ view model =
                 [ E.width E.fill
                 , E.paddingEach { top = 0, bottom = 6, left = 0, right = 0 }
                 ]
-                [ E.el [ E.paddingXY 6 0, E.width E.fill ]
+                [ E.el [ E.width E.fill ]
                     E.none
                 , case Dict.values model.accounts of
                     [ singleAccount ] ->
-                        E.none
+                        E.el [ Ui.bigFont, Font.color Color.neutral30, Ui.notSelectable, Font.center ]
+                            (E.text singleAccount)
 
-                    -- E.el [ Ui.bigFont, Font.color Color.neutral30, Ui.notSelectable ]
-                    --     (E.text singleAccount)
                     _ ->
                         accountsRow model
                 , E.el [ E.width E.fill ]
@@ -57,10 +55,6 @@ view model =
                 ]
                 (E.text "Solde actuel:")
             , balanceRow model
-
-            -- , E.row [ E.height (E.fillPortion 1) ] [ E.none ]
-            -- , buttonRow model
-            -- , E.row [ E.height (E.fillPortion 2) ] [ E.none ]
             , E.row [ E.height (E.fillPortion 2) ] [ E.none ]
             , Ui.ruler
             ]
@@ -160,88 +154,3 @@ balanceRow model =
             Ui.warningIcon
         , E.el [ E.width E.fill ] E.none
         ]
-
-
-buttonRow : Model.Model -> E.Element Msg.Msg
-buttonRow model =
-    Keyed.row
-        [ E.width E.fill
-        , E.spacing 24
-        , E.paddingEach { left = 24, right = 24, top = 0, bottom = 0 }
-        ]
-        [ ( "blank left", E.el [ E.width E.fill ] E.none )
-        , ( "stats button"
-          , if model.page == Model.MainPage && model.settings.summaryEnabled then
-                Ui.simpleButton
-                    { onPress = Just (Msg.ChangePage Model.StatsPage)
-                    , label = E.text " Bilan "
-                    }
-
-            else
-                E.none
-          )
-        , ( "reconcile button"
-          , if model.page == Model.MainPage && model.settings.reconciliationEnabled then
-                Ui.simpleButton
-                    { onPress = Just (Msg.ChangePage Model.ReconcilePage)
-                    , label = E.text "Pointer"
-                    }
-
-            else
-                E.none
-          )
-        , ( "back button"
-          , if model.page /= Model.MainPage then
-                Ui.simpleButton
-                    { onPress = Just (Msg.ChangePage Model.MainPage)
-                    , label =
-                        E.row [ Font.center, E.width E.fill ]
-                            [ E.el [ E.width E.fill ] E.none
-                            , Ui.backIcon
-                            , E.text "  Retour"
-                            , E.el [ E.width E.fill ] E.none
-                            ]
-                    }
-
-            else
-                E.none
-          )
-        , ( "blank right", E.el [ E.width E.fill ] E.none )
-        ]
-
-
-settingsButton : Model.Model -> E.Element Msg.Msg
-settingsButton model =
-    if not model.settings.settingsLocked || model.showAdvanced then
-        Input.button
-            [ Background.color Color.white
-            , Ui.normalFont
-            , Font.color Color.primary40
-            , Font.center
-            , Ui.roundCorners
-            , E.padding 2
-            , E.width (E.px 36)
-            , E.height (E.px 36)
-            , E.alignLeft
-            ]
-            { onPress = Just (Msg.ChangePage Model.SettingsPage)
-            , label = E.el [ Ui.iconFont, Ui.normalFont, E.centerX, Font.color Color.neutral70 ] (E.text {- "\u{F059}" -} "\u{F013}")
-            }
-
-    else
-        Input.button
-            [ Background.color Color.white
-            , Ui.normalFont
-            , Font.color Color.primary40
-            , Font.center
-            , Ui.roundCorners
-            , E.padding 2
-            , E.width (E.px 36)
-            , E.height (E.px 36)
-            , E.alignLeft
-            ]
-            { onPress = Just Msg.AttemptSettings
-            , label =
-                E.el [ Ui.iconFont, Ui.normalFont, E.centerX, Font.color Color.neutral90 ]
-                    (E.text "\u{F013}")
-            }

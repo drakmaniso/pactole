@@ -1,10 +1,8 @@
-module Page.Help exposing (..)
+module Page.Help exposing (view)
 
 import Element as E
-import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
-import Element.Input as Input
 import Model
 import Msg
 import Ui
@@ -26,9 +24,6 @@ view model =
             E.column
                 [ E.width E.fill
                 , E.height E.fill
-
-                -- , Border.widthEach { right = 0, top = 0, bottom = 0, left = 2 }
-                -- , Border.color Color.neutral80
                 ]
                 [ Ui.pageTitle (E.text "Guide d'utilisation")
                 , E.column

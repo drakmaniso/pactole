@@ -281,9 +281,6 @@ view model =
                 , E.height E.fill
                 , E.clipX
                 , E.clipY
-
-                -- , Border.widthEach { right = 2, top = 0, bottom = 0, left = 0 }
-                -- , Border.color Color.neutral70
                 ]
                 [ E.el
                     [ E.width E.fill, E.height E.fill ]

@@ -112,11 +112,6 @@ init flags _ _ =
       , device = Ui.device width height
       }
     , cmd
-      {-
-         , Cmd.batch
-             [ Task.perform Msg.Today (Task.map2 Date.fromZoneAndPosix Time.here Time.now)
-             ]
-      -}
     )
 
 

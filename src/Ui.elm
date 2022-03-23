@@ -493,107 +493,6 @@ navigationButton { activePage, onChange, targetPage, label } =
         }
 
 
-
--- navigationBar selection msg options =
---     E.row
---         [ E.width E.fill
---         ]
---         [ E.el [ E.width (E.px 64) ] E.none
---         , E.el [ E.width E.fill ] E.none
---         , Input.radioRow
---             [ E.width E.shrink
---             , E.height E.fill
---             -- , if model.showFocus then
---             --     E.focused
---             --         [ Border.shadow
---             --             { offset = ( 0, 0 )
---             --             , size = 4
---             --             , blur = 0
---             --             , color = Color.focusColor
---             --             }
---             --         ]
---             --   else
---             --     E.focused
---             --         [ Border.shadow
---             --             { offset = ( 0, 0 )
---             --             , size = 0
---             --             , blur = 0
---             --             , color = Color.transparent
---             --             }
---             --         ]
---             ]
---             { onChange = msg
---             , selected = selection
---             , label = Input.labelHidden "Compte"
---             , options = options
---             }
---         -- , E.el
---         --     [ bigFont
---         --     , notSelectable
---         --     , Font.bold
---         --     , Font.color Color.neutral60
---         --     ]
---         --     (E.text "Pactole")
---         -- , simpleButton
---         --     { onPress = Nothing --Just (Msg.ChangePage Model.StatsPage)
---         --     , label = E.text " Bilan "
---         --     }
---         -- , simpleButton
---         --     { onPress = Nothing --Just (Msg.ChangePage Model.ReconcilePage)
---         --     , label = E.text "Pointer"
---         --     }
---         , E.el [ E.width E.fill ] E.none
---         , Input.button
---             [ Background.color Color.white
---             , Font.color Color.neutral60
---             , E.mouseDown [ Font.color Color.neutral50 ]
---             , E.mouseOver [ Font.color Color.neutral70 ]
---             , normalFont
---             , Font.center
---             , roundCorners
---             , E.padding 0
---             , E.alignLeft
---             ]
---             { onPress = Nothing --Just (Msg.ChangePage Model.HelpPage)
---             , label =
---                 E.el [ iconFont, biggestFont, E.centerX ]
---                     (E.text "\u{F059}")
---             }
---         ]
--- navigationOption : value -> E.Element msg -> Input.Option value msg
--- navigationOption value element =
---     Input.optionWith
---         value
---         (\state ->
---             E.el
---                 ([ E.centerX
---                  , E.paddingXY 6 3
---                  , normalFont
---                  , transition
---                  , E.height E.fill
---                  ]
---                     ++ (case state of
---                             Input.Idle ->
---                                 [ Font.color Color.neutral30
---                                 , E.mouseDown [ Background.color Color.neutral90 ]
---                                 , E.mouseOver [ Background.color Color.neutral95 ]
---                                 ]
---                             Input.Focused ->
---                                 [ E.mouseDown [ Background.color Color.neutral90 ]
---                                 , E.mouseOver [ Background.color Color.neutral95 ]
---                                 ]
---                             Input.Selected ->
---                                 [ Font.color (E.rgb 1 1 1)
---                                 , Background.color Color.primary40
---                                 , mouseDown [ Background.color Color.primary30 ]
---                                 , mouseOver [ Background.color Color.primary40 ]
---                                 ]
---                        )
---                 )
---                 element
---         )
-
-
 configRadio :
     { label : String
     , options : List (Input.Option option msg)
@@ -926,9 +825,6 @@ viewMoney money future =
                         [ Font.bold
                         , smallFont
                         , Font.alignLeft
-
-                        -- , E.alignBottom
-                        -- , E.paddingEach { top = 2, bottom = 0, left = 0, right = 0 }
                         ]
                         (E.text ("" ++ parts.cents))
                     , E.el
