@@ -39,8 +39,6 @@ type alias Model =
     , accounts : Dict.Dict Int String
     , account : Int
     , categories : Dict.Dict Int Category
-    , showAdvanced : Bool
-    , advancedCounter : Int
     , showFocus : Bool
     , page : Page
     , dialog : Maybe Dialog

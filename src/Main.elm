@@ -23,7 +23,6 @@ import Page.Help as Help
 import Page.Reconcile as Reconcile
 import Page.Settings as Settings
 import Page.Statistics as Statistics
-import Process
 import Task
 import Ui
 import Ui.Color as Color
@@ -117,8 +116,6 @@ init flags _ _ =
       , accounts = Dict.empty
       , account = -1 --TODO!!!
       , categories = Dict.empty
-      , showAdvanced = False
-      , advancedCounter = 0
       , showFocus = False
       , page = Model.MainPage
       , dialog = Nothing
@@ -142,36 +139,6 @@ update msg model =
             , Task.attempt (\_ -> Msg.NoOp) (Dom.blur "unfocus-on-page-change")
             )
 
-        Msg.AttemptSettings ->
-            ( { model
-                | advancedCounter =
-                    if model.advancedCounter > 3 then
-                        3
-
-                    else
-                        model.advancedCounter + 1
-                , showAdvanced = model.advancedCounter >= 3
-              }
-            , Task.perform
-                (\_ -> Msg.AttemptTimeout)
-                (Process.sleep 3000.0
-                    |> Task.andThen (\_ -> Task.succeed ())
-                )
-            )
-
-        Msg.AttemptTimeout ->
-            ( { model
-                | advancedCounter =
-                    if model.advancedCounter <= 0 then
-                        0
-
-                    else
-                        model.advancedCounter - 1
-                , showAdvanced = model.advancedCounter <= 0
-              }
-            , Cmd.none
-            )
-
         Msg.Close ->
             --TODO: delegate to Dialog?
             ( { model | dialog = Nothing, settingsDialog = Nothing }, Cmd.none )
@@ -183,17 +150,11 @@ update msg model =
             ( { model | account = accountID }, Cmd.none )
 
         Msg.KeyDown string ->
-            if string == "Alt" || string == "Control" || string == "Shift" then
-                ( { model | showAdvanced = True }, Cmd.none )
-
-            else if string == "Tab" then
+            if string == "Tab" then
                 ( { model | showFocus = True }, Cmd.none )
 
             else
                 ( model, Cmd.none )
-
-        Msg.KeyUp _ ->
-            ( { model | showAdvanced = False }, Cmd.none )
 
         Msg.WindowResize size ->
             ( { model
@@ -224,7 +185,6 @@ subscriptions _ =
     Sub.batch
         [ Database.receive
         , Browser.Events.onKeyDown (keyDecoder Msg.KeyDown)
-        , Browser.Events.onKeyUp (keyDecoder Msg.KeyUp)
         , Browser.Events.onResize (\width height -> Msg.WindowResize { width = width, height = height })
         ]
 

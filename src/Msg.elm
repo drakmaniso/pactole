@@ -8,13 +8,10 @@ import Model
 
 type Msg
     = ChangePage Model.Page
-    | AttemptSettings
-    | AttemptTimeout
     | Close
     | SelectDate Date.Date
     | SelectAccount Int
     | KeyDown String
-    | KeyUp String
     | WindowResize { width : Int, height : Int }
     | ForDatabase DatabaseMsg
     | ForDialog DialogMsg
