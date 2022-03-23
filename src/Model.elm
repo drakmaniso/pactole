@@ -162,7 +162,7 @@ decodeSettings =
         (Decode.oneOf [ Decode.field "reconciliationEnabled" Decode.bool, Decode.succeed False ])
         (Decode.oneOf [ Decode.field "summaryEnabled" Decode.bool, Decode.succeed False ])
         (Decode.oneOf [ Decode.field "balanceWarning" Decode.int, Decode.succeed 100 ])
-        (Decode.oneOf [ Decode.field "settingsLocked" Decode.bool, Decode.succeed False ])
+        (Decode.oneOf [ Decode.field "settingsLocked" Decode.bool, Decode.succeed True ])
 
 
 
