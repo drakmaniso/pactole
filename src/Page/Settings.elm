@@ -283,12 +283,15 @@ view model =
                 , E.clipY
                 ]
                 [ E.el
-                    [ E.width E.fill, E.height E.fill ]
-                    E.none
-                , E.el [ Ui.smallerFont, E.centerX ]
-                    (E.text ("version de Pactole: " ++ model.serviceVersion))
-                , E.el [ Ui.smallerFont, E.centerX ]
-                    (E.text ("width = " ++ String.fromInt model.device.width ++ ", height = " ++ String.fromInt model.device.height))
+                    [ E.width E.fill, E.height (E.fillPortion 1) ]
+                    (Ui.logo model.serviceVersion)
+                , Ui.ruler
+                , E.column
+                    [ E.width E.fill, E.height (E.fillPortion 2) ]
+                    [ E.el [ E.width E.fill, E.height E.fill ] E.none
+                    , E.el [ Ui.smallerFont, E.centerX, Font.color Color.neutral70, E.paddingXY 0 12 ]
+                        (E.text ("width = " ++ String.fromInt model.device.width ++ ", height = " ++ String.fromInt model.device.height))
+                    ]
                 ]
         , page =
             E.column
@@ -310,7 +313,7 @@ view model =
                         , E.height E.fill
                         , E.paddingXY 24 24
                         , Border.widthEach { left = 2, top = 0, bottom = 0, right = 0 }
-                        , Border.color Color.neutral80
+                        , Border.color Color.neutral90
                         ]
                         [ Ui.configCustom
                             { label = "Données de l'application:"

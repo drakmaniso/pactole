@@ -34,6 +34,7 @@ view model =
                 [ E.el
                     [ E.width E.fill, E.height (E.fillPortion 1) ]
                     (Summary.view model)
+                , Ui.ruler
                 , E.el
                     [ E.width E.fill, E.height (E.fillPortion 2) ]
                     (dayView model)

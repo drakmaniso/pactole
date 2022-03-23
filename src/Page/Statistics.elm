@@ -29,6 +29,7 @@ view model =
                 [ E.el
                     [ E.width E.fill, E.height (E.fillPortion 1) ]
                     (Summary.view model)
+                , Ui.ruler
                 , E.el
                     [ E.width E.fill, E.height (E.fillPortion 2) ]
                     E.none
@@ -37,6 +38,7 @@ view model =
             E.column
                 [ E.width E.fill
                 , E.height E.fill
+
                 -- , E.clipX
                 -- , E.clipY
                 ]

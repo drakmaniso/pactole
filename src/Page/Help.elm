@@ -19,7 +19,14 @@ view model =
                 , E.clipX
                 , E.clipY
                 ]
-                []
+                [ E.el
+                    [ E.width E.fill, E.height (E.fillPortion 1) ]
+                    (Ui.logo model.serviceVersion)
+                , Ui.ruler
+                , E.el
+                    [ E.width E.fill, E.height (E.fillPortion 2) ]
+                    E.none
+                ]
         , page =
             E.column
                 [ E.width E.fill

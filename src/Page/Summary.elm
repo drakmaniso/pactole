@@ -28,10 +28,10 @@ view model =
             , E.centerX
             , E.paddingXY 0 24
             ]
-            [ E.row [ E.height (E.fillPortion 1) ] [ E.none ]
+            [ E.el [ E.height E.fill ] E.none
             , E.row
                 [ E.width E.fill
-                , E.paddingEach { top = 0, bottom = 6, left = 0, right = 0 }
+                , E.paddingEach { left = 0, top = 0, bottom = 12, right = 0 }
                 ]
                 [ E.el [ E.width E.fill ]
                     E.none
@@ -42,12 +42,10 @@ view model =
 
                     _ ->
                         accountsRow model
-                , E.el [ E.width E.fill ]
-                    E.none
+                , E.el [ E.width E.fill ] E.none
                 ]
             , E.el
                 [ Ui.smallFont
-                , E.paddingEach { top = 0, bottom = 6, left = 0, right = 0 }
                 , E.width E.fill
                 , Font.center
                 , Font.color Color.neutral50
@@ -55,8 +53,7 @@ view model =
                 ]
                 (E.text "Solde actuel:")
             , balanceRow model
-            , E.row [ E.height (E.fillPortion 2) ] [ E.none ]
-            , Ui.ruler
+            , E.row [ E.height E.fill ] [ E.none ]
             ]
         )
 
