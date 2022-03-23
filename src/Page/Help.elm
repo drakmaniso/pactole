@@ -9,41 +9,37 @@ import Ui
 import Ui.Color as Color
 
 
-view : Model.Model -> E.Element Msg.Msg
-view model =
-    Ui.pageWithSidePanel (Msg.navigationBarConfig model)
-        { panel =
-            E.column
-                [ E.width E.fill
-                , E.height E.fill
-                , E.clipX
-                , E.clipY
-                ]
-                [ E.el
-                    [ E.width E.fill, E.height (E.fillPortion 1) ]
-                    (Ui.logo model.serviceVersion)
-                , Ui.ruler
-                , E.el
-                    [ E.width E.fill, E.height (E.fillPortion 2) ]
-                    E.none
-                ]
-        , page =
-            E.column
-                [ E.width E.fill
-                , E.height E.fill
-                ]
-                [ Ui.pageTitle (E.text "Guide d'utilisation")
-                , E.column
-                    [ E.width E.fill
-                    , E.height E.fill
-                    , E.paddingXY 24 24
-                    , Border.widthEach { left = 2, top = 0, bottom = 0, right = 0 }
-                    , Border.color Color.neutral80
-                    ]
-                    [ configLocked model
-                    ]
-                ]
+
+-- VIEW
+
+
+view :
+    Model.Model
+    ->
+        { summary : E.Element Msg.Msg
+        , detail : E.Element Msg.Msg
+        , main : E.Element Msg.Msg
         }
+view model =
+    { summary = Ui.logo model.serviceVersion
+    , detail = E.none
+    , main =
+        E.column
+            [ E.width E.fill
+            , E.height E.fill
+            ]
+            [ Ui.pageTitle (E.text "Guide d'utilisation")
+            , E.column
+                [ E.width E.fill
+                , E.height E.fill
+                , E.paddingXY 24 24
+                , Border.widthEach { left = 2, top = 0, bottom = 0, right = 0 }
+                , Border.color Color.neutral80
+                ]
+                [ configLocked model
+                ]
+            ]
+    }
 
 
 configLocked : Model.Model -> E.Element Msg.Msg

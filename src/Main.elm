@@ -7,6 +7,11 @@ import Browser.Navigation as Navigation
 import Database
 import Date
 import Dict
+import Element as E
+import Element.Background as Background
+import Element.Border as Border
+import Element.Font as Font
+import Element.Input as Input
 import Json.Decode as Decode
 import Ledger
 import Log
@@ -21,6 +26,7 @@ import Page.Statistics as Statistics
 import Process
 import Task
 import Ui
+import Ui.Color as Color
 import Url
 
 
@@ -243,7 +249,7 @@ view model =
                 Nothing ->
                     model.settingsDialog |> Maybe.map (\_ -> Settings.viewDialog model)
 
-        activePage =
+        activePageParts =
             case model.page of
                 Model.HelpPage ->
                     Help.view model
@@ -259,5 +265,192 @@ view model =
 
                 Model.MainPage ->
                     Calendar.view model
+
+        activePage =
+            pageWithSidePanel model
+                { panel =
+                    E.column
+                        [ E.width E.fill
+                        , E.height E.fill
+                        , E.clipX
+                        , E.clipY
+                        ]
+                        [ E.el
+                            [ E.width E.fill, E.height (E.fillPortion 1) ]
+                            activePageParts.summary
+                        , Ui.ruler
+                        , E.el
+                            [ E.width E.fill, E.height (E.fillPortion 2) ]
+                            activePageParts.detail
+                        ]
+                , page = activePageParts.main
+                }
     in
-    Ui.document "Pactole" activePage activeDialog Msg.Close model.showFocus
+    { title = "Pactole"
+    , body =
+        [ E.layoutWith
+            { options =
+                [ E.focusStyle
+                    { borderColor = Nothing
+                    , backgroundColor = Nothing
+                    , shadow =
+                        if model.showFocus then
+                            Just
+                                { color = Color.focusColor
+                                , offset = ( 0, 0 )
+                                , blur = 0
+                                , size = 4
+                                }
+
+                        else
+                            Nothing
+                    }
+                ]
+            }
+            (case activeDialog of
+                Just d ->
+                    [ E.inFront
+                        (E.el
+                            [ E.width E.fill
+                            , E.height E.fill
+                            , Ui.fontFamily
+                            , Font.color Color.neutral30
+                            , E.padding 16
+                            , E.scrollbarY
+                            , E.behindContent
+                                (Input.button
+                                    [ E.width E.fill
+                                    , E.height E.fill
+                                    , Background.color (E.rgba 0 0 0 0.6)
+                                    ]
+                                    { label = E.none
+                                    , onPress = Just Msg.Close
+                                    }
+                                )
+                            ]
+                            d
+                        )
+                    ]
+
+                Nothing ->
+                    [ E.inFront
+                        (E.column []
+                            []
+                        )
+                    ]
+            )
+            activePage
+        ]
+    }
+
+
+pageWithSidePanel : Model.Model -> { panel : E.Element Msg.Msg, page : E.Element Msg.Msg } -> E.Element Msg.Msg
+pageWithSidePanel model { panel, page } =
+    E.row
+        [ E.width E.fill
+        , E.height E.fill
+        , E.clipX
+        , E.clipY
+        , Background.color Color.white
+        , Ui.fontFamily
+        , Ui.normalFont
+        , Font.color Color.neutral30
+        ]
+        [ E.column
+            [ E.width (E.fillPortion 1 |> E.minimum 450)
+            , E.height E.fill
+            , E.clipY
+            , E.paddingXY 6 6
+            ]
+            [ navigationBar model
+            , E.el
+                [ E.width E.fill
+                , E.height E.fill
+                , E.clipY
+                , E.paddingXY 6 6
+                , E.alignTop
+                ]
+                panel
+            ]
+        , E.el
+            [ E.width (E.fillPortion 3)
+            , E.height E.fill
+            , E.clipY
+            , E.paddingEach { top = 6, left = 0, bottom = 3, right = 6 }
+            ]
+            page
+        ]
+
+
+navigationBar model =
+    let
+        navigationButton { targetPage, label } =
+            Input.button
+                [ E.paddingXY 12 6
+                , Background.color
+                    (if model.page == targetPage then
+                        Color.primary40
+
+                     else
+                        Color.primary95
+                    )
+                , Font.color
+                    (if model.page == targetPage then
+                        Color.white
+
+                     else
+                        Color.primary40
+                    )
+                , E.height E.fill
+                , Border.roundEach { topLeft = 32, bottomLeft = 32, topRight = 32, bottomRight = 32 }
+                ]
+                { onPress = Just (Msg.ChangePage targetPage)
+                , label = label
+                }
+    in
+    E.row
+        [ E.width E.fill
+        , Border.roundEach { topLeft = 32, bottomLeft = 32, topRight = 32, bottomRight = 32 }
+        , Background.color Color.primary95
+        , Ui.smallerShadow
+        ]
+        [ navigationButton
+            { targetPage = Model.MainPage
+            , label = E.text "Pactole"
+            }
+        , if model.settings.summaryEnabled then
+            navigationButton
+                { targetPage = Model.StatsPage
+                , label = E.text "Bilan"
+                }
+
+          else
+            E.none
+        , if model.settings.reconciliationEnabled then
+            navigationButton
+                { targetPage = Model.ReconcilePage
+                , label = E.text "Pointer"
+                }
+
+          else
+            E.none
+        , E.el
+            [ E.width E.fill
+            , E.height E.fill
+            ]
+            E.none
+        , if model.settings.settingsLocked then
+            E.none
+
+          else
+            navigationButton
+                { targetPage = Model.SettingsPage
+                , label =
+                    E.el [ Ui.iconFont, Ui.bigFont, E.centerX, E.paddingXY 0 0 ] (E.text "\u{F013}")
+                }
+        , navigationButton
+            { targetPage = Model.HelpPage
+            , label =
+                E.el [ Ui.iconFont, Ui.bigFont, E.centerX, E.paddingXY 0 0 ] (E.text "\u{F059}")
+            }
+        ]

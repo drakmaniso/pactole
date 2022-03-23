@@ -17,36 +17,27 @@ import Ui.Color as Color
 -- VIEW
 
 
-view : Model.Model -> E.Element Msg.Msg
-view model =
-    Ui.pageWithSidePanel (Msg.navigationBarConfig model)
-        { panel =
-            E.column
-                [ E.width E.fill
-                , E.height E.fill
-                , E.clipX
-                , E.clipY
-                ]
-                [ E.el
-                    [ E.width E.fill, E.height (E.fillPortion 1) ]
-                    (Summary.view model)
-                , Ui.ruler
-                , E.el
-                    [ E.width E.fill, E.height (E.fillPortion 2) ]
-                    E.none
-                ]
-        , page =
-            E.column
-                [ E.width E.fill
-                , E.height E.fill
-
-                -- , E.clipY
-                ]
-                [ Ui.dateNavigationBar model Msg.SelectDate
-                , viewReconciled model
-                , viewTransactions model
-                ]
+view :
+    Model.Model
+    ->
+        { summary : E.Element Msg.Msg
+        , detail : E.Element Msg.Msg
+        , main : E.Element Msg.Msg
         }
+view model =
+    { summary = Summary.view model
+    , detail = E.none
+    , main =
+        E.column
+            [ E.width E.fill
+            , E.height E.fill
+            , E.clipY
+            ]
+            [ Ui.dateNavigationBar model Msg.SelectDate
+            , viewReconciled model
+            , viewTransactions model
+            ]
+    }
 
 
 viewReconciled : Model.Model -> E.Element msg

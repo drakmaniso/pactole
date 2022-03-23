@@ -16,67 +16,59 @@ import Ui.Color as Color
 -- VIEW
 
 
-view : Model.Model -> E.Element Msg.Msg
-view model =
-    Ui.pageWithSidePanel (Msg.navigationBarConfig model)
-        { panel =
-            E.column
-                [ E.width E.fill
-                , E.height E.fill
-                , E.clipX
-                , E.clipY
-                ]
-                [ E.el
-                    [ E.width E.fill, E.height (E.fillPortion 1) ]
-                    (Summary.view model)
-                , Ui.ruler
-                , E.el
-                    [ E.width E.fill, E.height (E.fillPortion 2) ]
-                    E.none
-                ]
-        , page =
-            E.column
-                [ E.width E.fill
-                , E.height E.fill
-
-                -- , E.clipX
-                -- , E.clipY
-                ]
-                [ Ui.dateNavigationBar model Msg.SelectDate
-                , viewMonthBalance model
-                , viewMonthFutureWarning model
-                , Ui.ruler
-                , E.column
-                    [ E.width E.fill
-                    , E.height E.fill
-                    , E.scrollbarY
-                    ]
-                    [ E.el [ E.height E.fill ] E.none
-                    , viewItem
-                        ""
-                        "Entrées d'argent: "
-                        (Ledger.getIncomeForMonth model.ledger model.account model.date model.today)
-                    , if model.settings.categoriesEnabled then
-                        viewCategories model
-
-                      else
-                        E.none
-                    , if model.settings.categoriesEnabled then
-                        viewItem
-                            ""
-                            "Sans catégorie: "
-                            (Ledger.getCategoryTotalForMonth model.ledger model.account model.date model.today 0)
-
-                      else
-                        viewItem
-                            ""
-                            "Dépenses: "
-                            (Ledger.getExpenseForMonth model.ledger model.account model.date model.today)
-                    , E.text " "
-                    , E.el [ E.height E.fill ] E.none
-                    ]
-                ]
+view :
+    Model.Model
+    ->
+        { summary : E.Element Msg.Msg
+        , detail : E.Element Msg.Msg
+        , main : E.Element Msg.Msg
         }
+view model =
+    { summary = Summary.view model
+    , detail = E.none
+    , main =
+        E.column
+            [ E.width E.fill
+            , E.height E.fill
+
+            -- , E.clipX
+            -- , E.clipY
+            ]
+            [ Ui.dateNavigationBar model Msg.SelectDate
+            , viewMonthBalance model
+            , viewMonthFutureWarning model
+            , Ui.ruler
+            , E.column
+                [ E.width E.fill
+                , E.height E.fill
+                , E.scrollbarY
+                ]
+                [ E.el [ E.height E.fill ] E.none
+                , viewItem
+                    ""
+                    "Entrées d'argent: "
+                    (Ledger.getIncomeForMonth model.ledger model.account model.date model.today)
+                , if model.settings.categoriesEnabled then
+                    viewCategories model
+
+                  else
+                    E.none
+                , if model.settings.categoriesEnabled then
+                    viewItem
+                        ""
+                        "Sans catégorie: "
+                        (Ledger.getCategoryTotalForMonth model.ledger model.account model.date model.today 0)
+
+                  else
+                    viewItem
+                        ""
+                        "Dépenses: "
+                        (Ledger.getExpenseForMonth model.ledger model.account model.date model.today)
+                , E.text " "
+                , E.el [ E.height E.fill ] E.none
+                ]
+            ]
+    }
 
 
 viewMonthBalance : Model.Model -> E.Element msg

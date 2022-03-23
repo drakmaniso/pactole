@@ -1,4 +1,4 @@
-module Msg exposing (DatabaseMsg(..), DialogMsg(..), Msg(..), SettingsDialogMsg(..), navigationBarConfig, NavigationBarConfig)
+module Msg exposing (DatabaseMsg(..), DialogMsg(..), Msg(..), SettingsDialogMsg(..))
 
 import Date
 import Json.Decode as Decode
@@ -60,40 +60,3 @@ type SettingsDialogMsg
     | SettingsDeleteRecurring Int
     | SettingsAskImportConfirmation
     | SettingsAskExportConfirmation
-
-
-type alias NavigationBarConfig =
-    { activePage : Model.Page
-    , onChange : Model.Page -> Msg
-    , mainPage : Model.Page
-    , statsPage : Maybe Model.Page
-    , reconcilePage : Maybe Model.Page
-    , settingsPage : Maybe Model.Page
-    , helpPage : Model.Page
-    }
-
-navigationBarConfig : Model.Model -> NavigationBarConfig
-navigationBarConfig model =
-    { activePage = model.page
-    , onChange = ChangePage
-    , mainPage = Model.MainPage
-    , statsPage =
-        if model.settings.summaryEnabled then
-            Just Model.StatsPage
-
-        else
-            Nothing
-    , reconcilePage =
-        if model.settings.reconciliationEnabled then
-            Just Model.ReconcilePage
-
-        else
-            Nothing
-    , settingsPage =
-        if model.settings.settingsLocked then
-            Nothing
-
-        else
-            Just Model.SettingsPage
-    , helpPage = Model.HelpPage
-    }

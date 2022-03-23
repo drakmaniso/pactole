@@ -17,7 +17,6 @@ module Ui exposing
     , defaultShadow
     , deleteIcon
     , device
-    , document
     , editIcon
     , expenseButton
     , expenseIcon
@@ -33,12 +32,10 @@ module Ui exposing
     , minusIcon
     , mouseDown
     , mouseOver
-    , navigationBar
     , normalFont
     , notSelectable
     , onEnter
     , pageTitle
-    , pageWithSidePanel
     , plusIcon
     , radioButton
     , radioRowOption
@@ -56,10 +53,9 @@ module Ui exposing
     , viewMoney
     , viewSum
     , warningIcon
-    , warningParagraph
+    , warningParagraph, smallerShadow
     )
 
-import Browser
 import Date
 import Element as E
 import Element.Background as Background
@@ -293,205 +289,6 @@ loadIcon =
 
 
 -- CONTAINERS
-
-
-document : String -> E.Element msg -> Maybe (E.Element msg) -> msg -> Bool -> Browser.Document msg
-document titleText activePage activeDialog closeMsg showFocus =
-    { title = titleText
-    , body =
-        [ E.layoutWith
-            { options =
-                [ E.focusStyle
-                    { borderColor = Nothing
-                    , backgroundColor = Nothing
-                    , shadow =
-                        if showFocus then
-                            Just
-                                { color = Color.focusColor
-                                , offset = ( 0, 0 )
-                                , blur = 0
-                                , size = 4
-                                }
-
-                        else
-                            Nothing
-                    }
-                ]
-            }
-            (case activeDialog of
-                Just d ->
-                    [ E.inFront
-                        (E.el
-                            [ E.width E.fill
-                            , E.height E.fill
-                            , fontFamily
-                            , Font.color Color.neutral30
-                            , E.padding 16
-                            , E.scrollbarY
-                            , E.behindContent
-                                (Input.button
-                                    [ E.width E.fill
-                                    , E.height E.fill
-                                    , Background.color (E.rgba 0 0 0 0.6)
-                                    ]
-                                    { label = E.none
-                                    , onPress = Just closeMsg
-                                    }
-                                )
-                            ]
-                            d
-                        )
-                    ]
-
-                Nothing ->
-                    [ E.inFront
-                        (E.column []
-                            []
-                        )
-                    ]
-            )
-            activePage
-        ]
-    }
-
-
-type alias NavigationBarConfig page msg =
-    { activePage : page
-    , onChange : page -> msg
-    , mainPage : page
-    , statsPage : Maybe page
-    , reconcilePage : Maybe page
-    , settingsPage : Maybe page
-    , helpPage : page
-    }
-
-
-pageWithSidePanel : NavigationBarConfig a msg -> { panel : E.Element msg, page : E.Element msg } -> E.Element msg
-pageWithSidePanel navBarConf { panel, page } =
-    E.row
-        [ E.width E.fill
-        , E.height E.fill
-        , E.clipX
-        , E.clipY
-        , Background.color Color.white
-        , fontFamily
-        , normalFont
-        , Font.color Color.neutral30
-        ]
-        [ E.column
-            [ E.width (E.fillPortion 1 |> E.minimum 450)
-            , E.height E.fill
-            , E.clipY
-            , E.paddingXY 6 6
-            ]
-            [ navigationBar navBarConf
-            , E.el
-                [ E.width E.fill
-                , E.height E.fill
-                , E.clipY
-                , E.paddingXY 6 6
-                , E.alignTop
-                ]
-                panel
-            ]
-        , E.el
-            [ E.width (E.fillPortion 3)
-            , E.height E.fill
-            , E.clipY
-            , E.paddingEach { top = 6, left = 0, bottom = 3, right = 6 }
-
-            -- , Border.widthEach { top = 0, left = borderWidth, bottom = 0, right = 0 }
-            -- , Border.color Color.white -- bgDark
-            ]
-            page
-        ]
-
-
-navigationBar { activePage, onChange, mainPage, statsPage, reconcilePage, settingsPage, helpPage } =
-    E.row
-        [ E.width E.fill
-        , Border.roundEach { topLeft = 32, bottomLeft = 32, topRight = 32, bottomRight = 32 }
-        , Background.color Color.primary95
-        , smallerShadow
-        ]
-        [ navigationButton
-            { activePage = activePage
-            , onChange = onChange
-            , targetPage = mainPage
-            , label = E.text "Pactole"
-            }
-        , case statsPage of
-            Just page ->
-                navigationButton
-                    { activePage = activePage
-                    , onChange = onChange
-                    , targetPage = page
-                    , label = E.text "Bilan"
-                    }
-
-            _ ->
-                E.none
-        , case reconcilePage of
-            Just page ->
-                navigationButton
-                    { activePage = activePage
-                    , onChange = onChange
-                    , targetPage = page
-                    , label = E.text "Pointer"
-                    }
-
-            _ ->
-                E.none
-        , E.el
-            [ E.width E.fill
-            , E.height E.fill
-            ]
-            E.none
-        , case settingsPage of
-            Just page ->
-                navigationButton
-                    { activePage = activePage
-                    , onChange = onChange
-                    , targetPage = page
-                    , label =
-                        E.el [ iconFont, bigFont, E.centerX, E.paddingXY 0 0 ] (E.text "\u{F013}")
-                    }
-
-            _ ->
-                E.none
-        , navigationButton
-            { activePage = activePage
-            , onChange = onChange
-            , targetPage = helpPage
-            , label =
-                E.el [ iconFont, bigFont, E.centerX, E.paddingXY 0 0 ] (E.text "\u{F059}")
-            }
-        ]
-
-
-navigationButton { activePage, onChange, targetPage, label } =
-    Input.button
-        [ E.paddingXY 12 6
-        , Background.color
-            (if activePage == targetPage then
-                Color.primary40
-
-             else
-                Color.primary95
-            )
-        , Font.color
-            (if activePage == targetPage then
-                Color.white
-
-             else
-                Color.primary40
-            )
-        , E.height E.fill
-        , Border.roundEach { topLeft = 32, bottomLeft = 32, topRight = 32, bottomRight = 32 }
-        ]
-        { onPress = Just (onChange targetPage)
-        , label = label
-        }
 
 
 configRadio :

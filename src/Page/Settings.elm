@@ -272,141 +272,136 @@ update msg model =
 -- VIEW
 
 
-view : Model.Model -> E.Element Msg.Msg
+view :
+    Model.Model
+    ->
+        { summary : E.Element Msg.Msg
+        , detail : E.Element Msg.Msg
+        , main : E.Element Msg.Msg
+        }
 view model =
-    Ui.pageWithSidePanel (Msg.navigationBarConfig model)
-        { panel =
-            E.column
+    { summary = Ui.logo model.serviceVersion
+    , detail =
+        E.column
+            [ E.width E.fill, E.height E.fill ]
+            [ E.el [ E.width E.fill, E.height E.fill ] E.none
+            , if model.hasStorageAPI then
+                E.el [ Ui.smallerFont, E.centerX, Font.color Color.neutral70, E.paddingXY 0 6 ]
+                    (E.text "Storage API is present")
+
+              else
+                E.el [ Ui.smallerFont, E.centerX, Font.color Color.warning60, E.paddingXY 0 6 ]
+                    (E.text "Storage API is NOT present!")
+            , if model.isStoragePersisted then
+                E.el [ Ui.smallerFont, E.centerX, Font.color Color.neutral70, E.paddingXY 0 6 ]
+                    (E.text "Storage is persisted")
+
+              else
+                E.el [ Ui.smallerFont, E.centerX, Font.color Color.warning60, E.paddingXY 0 6 ]
+                    (E.text "Storage is NOT persisted!")
+            , E.el [ Ui.smallerFont, E.centerX, Font.color Color.neutral70, E.paddingXY 0 6 ]
+                (E.text ("width = " ++ String.fromInt model.device.width ++ ", height = " ++ String.fromInt model.device.height))
+            ]
+    , main =
+        E.column
+            -- This extra column is necessary to circumvent a
+            -- scrollbar-related bug in elm-ui
+            [ E.width E.fill
+            , E.height E.fill
+            , E.clipY
+            ]
+            [ E.column
                 [ E.width E.fill
                 , E.height E.fill
-                , E.clipX
-                , E.clipY
+                , E.paddingXY 0 0
+                , E.scrollbarY
                 ]
-                [ E.el
-                    [ E.width E.fill, E.height (E.fillPortion 1) ]
-                    (Ui.logo model.serviceVersion)
-                , Ui.ruler
+                [ Ui.pageTitle (E.text "Configuration")
                 , E.column
-                    [ E.width E.fill, E.height (E.fillPortion 2) ]
-                    [ E.el [ E.width E.fill, E.height E.fill ] E.none
-                    , if model.hasStorageAPI then
-                        E.el [ Ui.smallerFont, E.centerX, Font.color Color.neutral70, E.paddingXY 0 6 ]
-                            (E.text "Storage API is present")
-
-                      else
-                        E.el [ Ui.smallerFont, E.centerX, Font.color Color.warning60, E.paddingXY 0 6 ]
-                            (E.text "Storage API is NOT present!")
-                    , if model.isStoragePersisted then
-                        E.el [ Ui.smallerFont, E.centerX, Font.color Color.neutral70, E.paddingXY 0 6 ]
-                            (E.text "Storage is persisted")
-
-                      else
-                        E.el [ Ui.smallerFont, E.centerX, Font.color Color.warning60, E.paddingXY 0 6 ]
-                            (E.text "Storage is NOT persisted!")
-                    , E.el [ Ui.smallerFont, E.centerX, Font.color Color.neutral70, E.paddingXY 0 6 ]
-                        (E.text ("width = " ++ String.fromInt model.device.width ++ ", height = " ++ String.fromInt model.device.height))
-                    ]
-                ]
-        , page =
-            E.column
-                -- This extra column is necessary to circumvent a
-                -- scrollbar-related bug in elm-ui
-                [ E.width E.fill
-                , E.height E.fill
-                , E.clipY
-                ]
-                [ E.column
                     [ E.width E.fill
                     , E.height E.fill
-                    , E.paddingXY 0 0
-                    , E.scrollbarY
+                    , E.paddingXY 24 24
+                    , Border.widthEach { left = 2, top = 0, bottom = 0, right = 0 }
+                    , Border.color Color.neutral90
                     ]
-                    [ Ui.pageTitle (E.text "Configuration")
-                    , E.column
-                        [ E.width E.fill
-                        , E.height E.fill
-                        , E.paddingXY 24 24
-                        , Border.widthEach { left = 2, top = 0, bottom = 0, right = 0 }
-                        , Border.color Color.neutral90
-                        ]
-                        [ Ui.configCustom
-                            { label = "Données de l'application:"
-                            , content =
-                                E.column [ E.spacing 24 ]
-                                    [ E.row
-                                        [ E.width E.fill ]
-                                        [ E.paragraph
-                                            [ E.width E.fill
-                                            , E.paddingEach { top = 24, bottom = 24, left = 12, right = 12 }
-                                            ]
-                                            [ E.text "Pactole enregistre ses données directement sur l'ordinateur (dans la base de données du navigateur). "
-                                            , E.text "Rien n'est sauvegardé en ligne. De cette façon, les données de l'utilisateur ne sont jamais envoyées sur internet."
-                                            ]
-                                        ]
-                                    , E.column
+                    [ Ui.configCustom
+                        { label = "Données de l'application:"
+                        , content =
+                            E.column [ E.spacing 24 ]
+                                [ E.row
+                                    [ E.width E.fill ]
+                                    [ E.paragraph
                                         [ E.width E.fill
-                                        , E.spacing 24
-                                        , E.paddingEach { top = 12, bottom = 12, left = 12, right = 12 }
+                                        , E.paddingEach { top = 24, bottom = 24, left = 12, right = 12 }
                                         ]
-                                        [ Ui.simpleButton
-                                            { onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsAskExportConfirmation)
-                                            , label = E.row [ E.spacing 12 ] [ Ui.saveIcon, E.text "Faire une copie de sauvegarde" ]
-                                            }
-                                        , Ui.simpleButton
-                                            { onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsAskImportConfirmation)
-                                            , label = E.row [ E.spacing 12 ] [ Ui.loadIcon, E.text "Récupérer une sauvegarde" ]
-                                            }
+                                        [ E.text "Pactole enregistre ses données directement sur l'ordinateur (dans la base de données du navigateur). "
+                                        , E.text "Rien n'est sauvegardé en ligne. De cette façon, les données de l'utilisateur ne sont jamais envoyées sur internet."
                                         ]
                                     ]
-                            }
-                        , Ui.configCustom
-                            { label = "Personnes utilisant l'application:"
-                            , content =
-                                E.column [ E.spacing 24 ]
-                                    [ E.table [ E.spacing 6 ]
-                                        { data = Dict.toList model.accounts
-                                        , columns =
-                                            [ { header = E.none
-                                              , width = E.fill
-                                              , view = \a -> E.el [ E.centerY ] (E.text (Tuple.second a))
-                                              }
-                                            , { header = E.none
-                                              , width = E.shrink
-                                              , view =
-                                                    \a ->
-                                                        Ui.iconButton
-                                                            { icon = Ui.editIcon
-                                                            , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsRenameAccount (Tuple.first a))
-                                                            }
-                                              }
-                                            , { header = E.none
-                                              , width = E.shrink
-                                              , view =
-                                                    \a ->
-                                                        Ui.iconButton
-                                                            { icon = Ui.deleteIcon
-                                                            , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsDeleteAccount (Tuple.first a))
-                                                            }
-                                              }
-                                            ]
+                                , E.column
+                                    [ E.width E.fill
+                                    , E.spacing 24
+                                    , E.paddingEach { top = 12, bottom = 12, left = 12, right = 12 }
+                                    ]
+                                    [ Ui.simpleButton
+                                        { onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsAskExportConfirmation)
+                                        , label = E.row [ E.spacing 12 ] [ Ui.saveIcon, E.text "Faire une copie de sauvegarde" ]
                                         }
                                     , Ui.simpleButton
-                                        { onPress = Just (Msg.ForDatabase <| Msg.DbCreateAccount (newAccountName (Dict.values model.accounts) 1))
-                                        , label = E.row [] [ Ui.plusIcon, E.text "  Nouveau compte" ]
+                                        { onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsAskImportConfirmation)
+                                        , label = E.row [ E.spacing 12 ] [ Ui.loadIcon, E.text "Récupérer une sauvegarde" ]
                                         }
                                     ]
-                            }
-                        , configWarning model
-                        , configSummary model
-                        , configReconciliation model
-                        , configCategoriesEnabled model
-                        , configCategories model
-                        , configRecurring model
-                        , configLocked model
-                        ]
+                                ]
+                        }
+                    , Ui.configCustom
+                        { label = "Personnes utilisant l'application:"
+                        , content =
+                            E.column [ E.spacing 24 ]
+                                [ E.table [ E.spacing 6 ]
+                                    { data = Dict.toList model.accounts
+                                    , columns =
+                                        [ { header = E.none
+                                          , width = E.fill
+                                          , view = \a -> E.el [ E.centerY ] (E.text (Tuple.second a))
+                                          }
+                                        , { header = E.none
+                                          , width = E.shrink
+                                          , view =
+                                                \a ->
+                                                    Ui.iconButton
+                                                        { icon = Ui.editIcon
+                                                        , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsRenameAccount (Tuple.first a))
+                                                        }
+                                          }
+                                        , { header = E.none
+                                          , width = E.shrink
+                                          , view =
+                                                \a ->
+                                                    Ui.iconButton
+                                                        { icon = Ui.deleteIcon
+                                                        , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsDeleteAccount (Tuple.first a))
+                                                        }
+                                          }
+                                        ]
+                                    }
+                                , Ui.simpleButton
+                                    { onPress = Just (Msg.ForDatabase <| Msg.DbCreateAccount (newAccountName (Dict.values model.accounts) 1))
+                                    , label = E.row [] [ Ui.plusIcon, E.text "  Nouveau compte" ]
+                                    }
+                                ]
+                        }
+                    , configWarning model
+                    , configSummary model
+                    , configReconciliation model
+                    , configCategoriesEnabled model
+                    , configCategories model
+                    , configRecurring model
+                    , configLocked model
                     ]
                 ]
-        }
+            ]
+    }
 
 
 configWarning : Model.Model -> E.Element Msg.Msg
