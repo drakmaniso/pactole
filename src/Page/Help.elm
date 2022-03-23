@@ -31,7 +31,15 @@ view model =
                 -- , Border.color Color.neutral80
                 ]
                 [ Ui.pageTitle (E.text "Guide d'utilisation")
-                , configLocked model
+                , E.column
+                    [ E.width E.fill
+                    , E.height E.fill
+                    , E.paddingXY 24 24
+                    , Border.widthEach { left = 2, top = 0, bottom = 0, right = 0 }
+                    , Border.color Color.neutral80
+                    ]
+                    [ configLocked model
+                    ]
                 ]
         }
 

@@ -308,80 +308,88 @@ view model =
                     , E.scrollbarY
                     ]
                     [ Ui.pageTitle (E.text "Configuration")
-                    , Ui.configCustom
-                        { label = "Données de l'application:"
-                        , content =
-                            E.column [ E.spacing 24 ]
-                                [ E.row
-                                    [ E.width E.fill ]
-                                    [ E.paragraph
+                    , E.column
+                        [ E.width E.fill
+                        , E.height E.fill
+                        , E.paddingXY 24 24
+                        , Border.widthEach { left = 2, top = 0, bottom = 0, right = 0 }
+                        , Border.color Color.neutral80
+                        ]
+                        [ Ui.configCustom
+                            { label = "Données de l'application:"
+                            , content =
+                                E.column [ E.spacing 24 ]
+                                    [ E.row
+                                        [ E.width E.fill ]
+                                        [ E.paragraph
+                                            [ E.width E.fill
+                                            , E.paddingEach { top = 24, bottom = 24, left = 12, right = 12 }
+                                            ]
+                                            [ E.text "Pactole enregistre ses données directement sur l'ordinateur (dans la base de données du navigateur). "
+                                            , E.text "Rien n'est sauvegardé en ligne. De cette façon, les données de l'utilisateur ne sont jamais envoyées sur internet."
+                                            ]
+                                        ]
+                                    , E.column
                                         [ E.width E.fill
-                                        , E.paddingEach { top = 24, bottom = 24, left = 12, right = 12 }
+                                        , E.spacing 24
+                                        , E.paddingEach { top = 12, bottom = 12, left = 12, right = 12 }
                                         ]
-                                        [ E.text "Pactole enregistre ses données directement sur l'ordinateur (dans la base de données du navigateur). "
-                                        , E.text "Rien n'est sauvegardé en ligne. De cette façon, les données de l'utilisateur ne sont jamais envoyées sur internet."
+                                        [ Ui.simpleButton
+                                            { onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsAskExportConfirmation)
+                                            , label = E.row [ E.spacing 12 ] [ Ui.saveIcon, E.text "Faire une copie de sauvegarde" ]
+                                            }
+                                        , Ui.simpleButton
+                                            { onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsAskImportConfirmation)
+                                            , label = E.row [ E.spacing 12 ] [ Ui.loadIcon, E.text "Récupérer une sauvegarde" ]
+                                            }
                                         ]
                                     ]
-                                , E.column
-                                    [ E.width E.fill
-                                    , E.spacing 24
-                                    , E.paddingEach { top = 12, bottom = 12, left = 12, right = 12 }
-                                    ]
-                                    [ Ui.simpleButton
-                                        { onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsAskExportConfirmation)
-                                        , label = E.row [ E.spacing 12 ] [ Ui.saveIcon, E.text "Faire une copie de sauvegarde" ]
+                            }
+                        , Ui.configCustom
+                            { label = "Personnes utilisant l'application:"
+                            , content =
+                                E.column [ E.spacing 24 ]
+                                    [ E.table [ E.spacing 6 ]
+                                        { data = Dict.toList model.accounts
+                                        , columns =
+                                            [ { header = E.none
+                                              , width = E.fill
+                                              , view = \a -> E.el [ E.centerY ] (E.text (Tuple.second a))
+                                              }
+                                            , { header = E.none
+                                              , width = E.shrink
+                                              , view =
+                                                    \a ->
+                                                        Ui.iconButton
+                                                            { icon = Ui.editIcon
+                                                            , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsRenameAccount (Tuple.first a))
+                                                            }
+                                              }
+                                            , { header = E.none
+                                              , width = E.shrink
+                                              , view =
+                                                    \a ->
+                                                        Ui.iconButton
+                                                            { icon = Ui.deleteIcon
+                                                            , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsDeleteAccount (Tuple.first a))
+                                                            }
+                                              }
+                                            ]
                                         }
                                     , Ui.simpleButton
-                                        { onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsAskImportConfirmation)
-                                        , label = E.row [ E.spacing 12 ] [ Ui.loadIcon, E.text "Récupérer une sauvegarde" ]
+                                        { onPress = Just (Msg.ForDatabase <| Msg.DbCreateAccount (newAccountName (Dict.values model.accounts) 1))
+                                        , label = E.row [] [ Ui.plusIcon, E.text "  Nouveau compte" ]
                                         }
                                     ]
-                                ]
-                        }
-                    , Ui.configCustom
-                        { label = "Personnes utilisant l'application:"
-                        , content =
-                            E.column [ E.spacing 24 ]
-                                [ E.table [ E.spacing 6 ]
-                                    { data = Dict.toList model.accounts
-                                    , columns =
-                                        [ { header = E.none
-                                          , width = E.fill
-                                          , view = \a -> E.el [ E.centerY ] (E.text (Tuple.second a))
-                                          }
-                                        , { header = E.none
-                                          , width = E.shrink
-                                          , view =
-                                                \a ->
-                                                    Ui.iconButton
-                                                        { icon = Ui.editIcon
-                                                        , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsRenameAccount (Tuple.first a))
-                                                        }
-                                          }
-                                        , { header = E.none
-                                          , width = E.shrink
-                                          , view =
-                                                \a ->
-                                                    Ui.iconButton
-                                                        { icon = Ui.deleteIcon
-                                                        , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsDeleteAccount (Tuple.first a))
-                                                        }
-                                          }
-                                        ]
-                                    }
-                                , Ui.simpleButton
-                                    { onPress = Just (Msg.ForDatabase <| Msg.DbCreateAccount (newAccountName (Dict.values model.accounts) 1))
-                                    , label = E.row [] [ Ui.plusIcon, E.text "  Nouveau compte" ]
-                                    }
-                                ]
-                        }
-                    , configWarning model
-                    , configSummary model
-                    , configReconciliation model
-                    , configCategoriesEnabled model
-                    , configCategories model
-                    , configRecurring model
-                    , configLocked model
+                            }
+                        , configWarning model
+                        , configSummary model
+                        , configReconciliation model
+                        , configCategoriesEnabled model
+                        , configCategories model
+                        , configRecurring model
+                        , configLocked model
+                        ]
                     ]
                 ]
         }
