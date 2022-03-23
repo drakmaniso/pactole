@@ -289,7 +289,21 @@ view model =
                 , E.column
                     [ E.width E.fill, E.height (E.fillPortion 2) ]
                     [ E.el [ E.width E.fill, E.height E.fill ] E.none
-                    , E.el [ Ui.smallerFont, E.centerX, Font.color Color.neutral70, E.paddingXY 0 12 ]
+                    , if model.hasStorageAPI then
+                        E.el [ Ui.smallerFont, E.centerX, Font.color Color.neutral70, E.paddingXY 0 6 ]
+                            (E.text "Storage API is present")
+
+                      else
+                        E.el [ Ui.smallerFont, E.centerX, Font.color Color.warning60, E.paddingXY 0 6 ]
+                            (E.text "Storage API is NOT present!")
+                    , if model.isStoragePersisted then
+                        E.el [ Ui.smallerFont, E.centerX, Font.color Color.neutral70, E.paddingXY 0 6 ]
+                            (E.text "Storage is persisted")
+
+                      else
+                        E.el [ Ui.smallerFont, E.centerX, Font.color Color.warning60, E.paddingXY 0 6 ]
+                            (E.text "Storage is NOT persisted!")
+                    , E.el [ Ui.smallerFont, E.centerX, Font.color Color.neutral70, E.paddingXY 0 6 ]
                         (E.text ("width = " ++ String.fromInt model.device.width ++ ", height = " ++ String.fromInt model.device.height))
                     ]
                 ]

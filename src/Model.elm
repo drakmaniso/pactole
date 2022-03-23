@@ -30,6 +30,8 @@ import Ui
 type alias Model =
     { settings : Settings
     , today : Date.Date
+    , hasStorageAPI : Bool
+    , isStoragePersisted : Bool
     , date : Date.Date
     , ledger : Ledger.Ledger
     , recurring : Ledger.Ledger

@@ -56,24 +56,26 @@
       fatalError('service workers not supported by the navigator.')
     }
 
+    // Ask for persistent storage
     if (navigator.storage && navigator.storage.persist) {
-      navigator.storage.persist().then(persistent => {
-        if (persistent) {
-          navigator.storage.estimate().then(info => {
-            log(
-              `Persistent storage: usage = ${Math.round(
-                info.usage / 1024,
-              )} kb, (quota = ${Math.round(info.quota / (1024 * 1024))} Mb).`,
-            )
-          })
+      navigator.storage.persist().then(granted => {
+        if (granted) {
+          log("Persistent storage has been granted.")
         } else {
           //TODO: fatalError instead?
-          error('persistent storage not granted')
+          error('persistent storage has not granted')
         }
       })
     } else {
       //TODO: fatalError instead?
       error('no persistent storage API')
+    }
+    if (navigator.storage && navigator.storage.estimate) {
+      navigator.storage.estimate().then(info => {
+        log(
+          `Persistent storage estimation: usage = ${Math.round(info.usage)} bytes, (quota = ${Math.round(info.quota / (1024 * 1024))} Mb).`
+        )
+      })
     }
 
 
@@ -133,46 +135,60 @@
 
     navigator.serviceWorker.ready
       .then(_ => {
-        let today = new Date()
-        let flags = {
-          today: {
-            year: today.getFullYear(),
-            month: today.getMonth(),
-            day: today.getDate()
-          },
-          width: window.innerWidth,
-          height: window.innerHeight
-        }
-        app = Elm.Main.init({ flags: flags })
-
-        app.ports.send.subscribe(function (args) {
-          [title, content] = args
-          switch (title) {
-            case "error":
-              console.error(`[ELM] ${content}`)
-              return
-
-            case "export database":
-              exportDatabase(content)
-              return
-
-            case "select import":
-              selectImport()
-              return
-
-            default:
-              sendToServiceWorker(title, content)
-          }
-        })
-
         navigator.serviceWorker.onmessage = event => {
           log(`Received "${event.data.title}".`)
           app.ports.receive.send([event.data.title, event.data.content])
         }
 
-        log(`Starting application.`)
-        //sendToServiceWorker("request whole database", null)
-        app.ports.receive.send(["start application", null])
+        // Check persistent storage status
+        let hasStorageAPI = false
+        let isStoragePersisted = false
+        if (navigator.storage && navigator.storage.persist) {
+          log(`Persistent storage API is present.`)
+          hasStorageAPI = true
+          navigator.storage.persisted().then(isPersisted => {
+            log(`Storage is persisted: ${isPersisted}`)
+            isStoragePersisted = isPersisted
+
+            let today = new Date()
+            let flags = {
+              today: {
+                year: today.getFullYear(),
+                month: today.getMonth(),
+                day: today.getDate()
+              },
+              width: window.innerWidth,
+              height: window.innerHeight,
+              hasStorageAPI: hasStorageAPI,
+              isStoragePersisted: isStoragePersisted
+            }
+            app = Elm.Main.init({ flags: flags })
+
+            app.ports.send.subscribe(function (args) {
+              [title, content] = args
+              switch (title) {
+                case "error":
+                  console.error(`[ELM] ${content}`)
+                  return
+
+                case "export database":
+                  exportDatabase(content)
+                  return
+
+                case "select import":
+                  selectImport()
+                  return
+
+                default:
+                  sendToServiceWorker(title, content)
+              }
+            })
+
+            log(`Starting application.`)
+            //sendToServiceWorker("request whole database", null)
+            app.ports.receive.send(["start application", null])
+          })
+        }
 
       })
       .catch(err => error(`Service worker not ready: ${err}`))
