@@ -339,7 +339,19 @@ view model =
                         )
                     ]
             )
-            activePage
+            (E.column [ E.width E.fill, E.height E.fill, Background.color Color.warning60 ]
+                [ if not model.isStoragePersisted then
+                    E.row [ E.width E.fill ]
+                        [ E.el
+                            [ Font.color Color.white, Ui.normalFont, E.centerX, E.padding 3 ]
+                            (E.text "Not Persisted!!!")
+                        ]
+
+                  else
+                    E.none
+                , activePage
+                ]
+            )
         ]
     }
 
