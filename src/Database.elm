@@ -250,6 +250,17 @@ receive =
 msgFromService : ( String, Decode.Value ) -> Model.Model -> ( Model.Model, Cmd Msg.Msg )
 msgFromService ( title, content ) model =
     case title of
+        "persistent storage granted" ->
+            case Decode.decodeValue (Decode.at [ "granted" ] Decode.bool) content of
+                Ok granted ->
+                    ( { model | isPersistentStorageGranted = granted, isStoragePersisted = granted }
+                    , Cmd.none
+                    )
+
+                Err e ->
+                    --TODO: error
+                    ( model, Log.error ("while decoding whole database: " ++ Decode.errorToString e) )
+
         "start application" ->
             ( model, Ports.send ( "request whole database", Encode.null ) )
 

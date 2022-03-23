@@ -105,10 +105,11 @@ init flags _ _ =
             , reconciliationEnabled = False
             , summaryEnabled = False
             , balanceWarning = 100
-            , settingsLocked = False
+            , settingsLocked = True
             }
       , today = today
       , hasStorageAPI = hasStorageAPI
+      , isPersistentStorageGranted = False
       , isStoragePersisted = isStoragePersisted
       , date = today
       , ledger = Ledger.empty
@@ -344,7 +345,7 @@ view model =
                     E.row [ E.width E.fill ]
                         [ E.el
                             [ Font.color Color.white, Ui.normalFont, E.centerX, E.padding 3 ]
-                            (E.text "Not Persisted!!!")
+                            (E.text "Il y a un problème avec le stockage des données de l'application!")
                         ]
 
                   else

@@ -83,6 +83,10 @@ self.addEventListener('message', event => {
   log(`Received "${msg.title}".`)
   switch (msg.title) {
 
+    case 'persistent storage granted':
+      broadcast('persistent storage granted', { granted: msg.content })
+      break
+
     // Initialization
 
     case 'request whole database':

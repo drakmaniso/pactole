@@ -31,6 +31,7 @@ type alias Model =
     { settings : Settings
     , today : Date.Date
     , hasStorageAPI : Bool
+    , isPersistentStorageGranted : Bool
     , isStoragePersisted : Bool
     , date : Date.Date
     , ledger : Ledger.Ledger

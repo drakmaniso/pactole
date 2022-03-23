@@ -292,6 +292,13 @@ view model =
               else
                 E.el [ Ui.smallerFont, E.centerX, Font.color Color.warning60, E.paddingXY 0 6 ]
                     (E.text "Storage API is NOT present!")
+            , if model.isPersistentStorageGranted then
+                E.el [ Ui.smallerFont, E.centerX, Font.color Color.neutral70, E.paddingXY 0 6 ]
+                    (E.text "Persistent storage has been granted")
+
+              else
+                E.el [ Ui.smallerFont, E.centerX, Font.color Color.warning60, E.paddingXY 0 6 ]
+                    (E.text "Persistent storage has NOT been granted!")
             , if model.isStoragePersisted then
                 E.el [ Ui.smallerFont, E.centerX, Font.color Color.neutral70, E.paddingXY 0 6 ]
                     (E.text "Storage is persisted")

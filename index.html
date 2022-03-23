@@ -66,6 +66,10 @@
           //TODO: fatalError instead?
           error('persistent storage has not been granted')
         }
+        navigator.serviceWorker.ready
+          .then(service =>
+            sendToServiceWorker("persistent storage granted", granted)
+          )
       })
     } else {
       //TODO: fatalError instead?
