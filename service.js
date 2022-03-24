@@ -13,6 +13,7 @@ const files = [
   'fonts/work-sans-v7-latin-regular.woff2',
   'fonts/work-sans-v7-latin-700.woff2',
   'images/icon-512x512.png',
+  'images/general-presentation-FR.png',
 ]
 
 

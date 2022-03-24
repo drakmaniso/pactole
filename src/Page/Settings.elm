@@ -636,38 +636,72 @@ configRecurring model =
 
 configLocked : Model.Model -> E.Element Msg.Msg
 configLocked model =
-    E.column [ E.width E.fill ]
-        [ Ui.configRadio
-            { onChange =
-                \o ->
-                    let
-                        settings =
-                            model.settings
-                    in
-                    if o then
-                        Msg.ForDatabase <| Msg.DbStoreSettings { settings | settingsLocked = True }
-
-                    else
-                        Msg.ForDatabase <| Msg.DbStoreSettings { settings | settingsLocked = False }
-            , label = "Verrouiller les réglages:"
-            , options =
-                [ Ui.radioRowOption False (E.text "Non")
-                , Ui.radioRowOption True (E.text "Oui")
-                ]
-            , selected = Just model.settings.settingsLocked
-            }
-        , E.paragraph
-            [ E.width E.fill
-            , E.paddingEach { top = 0, bottom = 24, left = 64 + 12, right = 0 }
+    let
+        settings =
+            model.settings
+    in
+    Ui.helpTextColumn
+        [ Ui.helpSectionTitle "Verrouiller l'accès aux réglages"
+        , Ui.helpParagraph
+            [ Ui.helpText
+                """
+                Si l'utilisateur principal de l'application n'est pas à l'aise avec
+                toutes les fonctionnalités, vous pouvez re-verrouiller l'accès aux réglages
+                afin de prévenir toute fausse manipulation.
+                """
             ]
-            [ E.text "Lorsque les réglages sont verrouillés, il faut cliquer 5 fois de suite sur l'icône \""
-            , E.el [ Ui.iconFont, Ui.normalFont, Font.color Color.neutral70 ] (E.text "\u{F013}")
-            , E.text "\" pour accéder aux réglages."
+        , Ui.helpParagraph
+            [ Ui.helpText
+                """
+                Pour ce faire, cliquez sur ce lien: 
+                """
+            , Ui.helpMiniButton
+                { label =
+                    Ui.helpText "verrouiller les réglages"
+                , onPress = Msg.ForDatabase <| Msg.DbStoreSettings { settings | settingsLocked = True }
+                }
+            , Ui.helpText "."
+            ]
+        , Ui.helpParagraph
+            [ Ui.helpText
+                """
+                Pour déverrouiller les réglages à nouveau, utilisez le lien dans la section
+                "Fonctions avancées" du guide d'utilisation.
+                """
             ]
         ]
 
 
 
+-- E.column
+-- [ E.width E.fill ]
+-- [ Ui.configRadio
+--     { onChange =
+--         \o ->
+--             let
+--                 settings =
+--                     model.settings
+--             in
+--             if o then
+--                 Msg.ForDatabase <| Msg.DbStoreSettings { settings | settingsLocked = True }
+--             else
+--                 Msg.ForDatabase <| Msg.DbStoreSettings { settings | settingsLocked = False }
+--     , label = "Verrouiller les réglages:"
+--     , options =
+--         [ Ui.radioRowOption False (E.text "Non")
+--         , Ui.radioRowOption True (E.text "Oui")
+--         ]
+--     , selected = Just model.settings.settingsLocked
+--     }
+-- , E.paragraph
+--     [ E.width E.fill
+--     , E.paddingEach { top = 0, bottom = 24, left = 64 + 12, right = 0 }
+--     ]
+--     [ E.text "Lorsque les réglages sont verrouillés, il faut cliquer 5 fois de suite sur l'icône \""
+--     , E.el [ Ui.iconFont, Ui.normalFont, Font.color Color.neutral70 ] (E.text "\u{F013}")
+--     , E.text "\" pour accéder aux réglages."
+--     ]
+-- ]
 -- DIALOG
 
 

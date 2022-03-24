@@ -2,7 +2,6 @@ module Page.Help exposing (view)
 
 import Element as E
 import Element.Border as Border
-import Element.Font as Font
 import Model
 import Msg
 import Ui
@@ -38,7 +37,6 @@ view model =
                 , Border.color Color.neutral80
                 ]
                 [ presentation model
-                , configLocked model
                 ]
             ]
     }
@@ -70,14 +68,16 @@ configLocked model =
 
 
 presentation : Model.Model -> E.Element Msg.Msg
-presentation _ =
+presentation model =
+    let
+        settings =
+            model.settings
+    in
     Ui.helpTextColumn
         [ Ui.helpParagraph
             [ Ui.helpText
                 """
-                Pactole est une application très simple de gestion de budget personel. Elle est
-                destinée aux personnes pour qui les applications traditionnelles sont trop
-                complexes.
+                Pactole est une application très simple de gestion de budget personel.
                 """
             ]
         , Ui.helpParagraph
@@ -93,78 +93,103 @@ presentation _ =
                 La page principale de Pactole est divisée en trois parties:
                 """
             ]
-        , Ui.helpList
-            [ Ui.helpListItem
-                [ Ui.helpText
-                    """
-                    à droite: le calendrier;
-                    """
-                ]
-            , Ui.helpListItem
-                [ Ui.helpText
-                    """
-                    en haut à gauche: le solde du compte;
-                    """
-                ]
-            , Ui.helpListItem
-                [ Ui.helpText
-                    """
-                en dessous du solde: le détail du jour sélectionné dans le calendrier.
+        , Ui.helpImage "images/general-presentation-FR.png"
+            """
+            les trois parties de la page principale: à droite, le calendrier;
+            en haut à gauche, le solde du compte; et juste en dessous,
+            le détail du jour sélectionné.
+            """
+        , Ui.helpSectionTitle "Utiliser le calendrier"
+        , Ui.helpParagraph
+            [ Ui.helpText
                 """
-                ]
+                Le calendrier affiche une vue d'ensemble de vos opérations.
+                """
             ]
-        , Ui.helpImage "images/icon-512x512.png" "les trois parties de la page principale"
+        , Ui.helpParagraph
+            [ Ui.helpText
+                """
+                Vous pouvez sélectionner un jour en cliquant dessus. Cela va
+                afficher la liste des opérations correspondantes dans la
+                partie de gauche.
+                """
+            ]
+        , Ui.helpParagraph
+            [ Ui.helpText
+                """
+                Pour voir un autre mois, utilisez les deux boutons avec une flèche,
+                en haut du calendrier.
+                """
+            ]
         , Ui.helpSectionTitle "Enregistrer le solde initial"
         , Ui.helpParagraph
             [ Ui.helpText
                 """
-                Lors de la première utilisation de pactole, vous devez entrer le solde
+                Lors de la première utilisation de Pactole, vous devez entrer le solde
                 actuellement disponible sur votre compte.
                 """
             ]
         , Ui.helpParagraph
             [ Ui.helpText
                 """
-                Pour cela il suffit d'ajouter une nouvelle entrée d'argent correspondant
-                à ce montant. Vous pouvez la créer à la date d'aujourd'hui, et y mettre
-                une description, par exemple "Solde initial".
+                Pour cela il suffit de créer une nouvelle opération: une entrée d'argent
+                correspondant au montant disponible sur votre compte.
                 """
             ]
-        , Ui.helpParagraph
-            [ Ui.helpText
-                """
-                Pour savoir comment ajouter une nouvelle entrée d'argent, lisez la section suivante.
-                """
-            ]
-        , Ui.helpSectionTitle "Enregistrer une nouvelle opération"
         , Ui.helpNumberedList
             [ Ui.helpListItem
                 [ Ui.helpText
                     """
-                    Dans le calendrier, sélectionnez le jour où vous voulez enregistrer une
-                    opération. Si le mois affiché n'est pas le bon, utilisez les deux boutons en
-                    haut du calendrier pour changer le mois.
+                    Sélectionnez la date d'aujourd'hui dans le calendrier.
                     """
                 ]
             , Ui.helpListItem
                 [ Ui.helpText
                     """
-                    Dans la partie de gauche, tout en bas, cliquez sur le bouton "-" si vous
-                    voulez enregistrer une dépense, ou bien sur le bouton "+" si vous voulez
-                    enregistrer une entrée d'argent.
+                    Appuyez sur le bouton "+". Une boite de dialogue va s'ouvrir.
                     """
                 ]
             , Ui.helpListItem
                 [ Ui.helpText
                     """
-                    Dans la fenêtre de dialogue qui s'ouvre, entrez le montant de l'opération.
+                    Entrez le montant disponible sur votre compte. Vous pouvez aussi
+                    entrer une description, par exemple "Solde initial".
+                    """
+                ]
+            , Ui.helpListItem
+                [ Ui.helpText
+                    """
+                    Confirmez la création de l'opération en appuyant sur le bouton "OK".
+                    """
+                ]
+            ]
+        , Ui.helpSectionTitle "Créer une nouvelle opération"
+        , Ui.helpNumberedList
+            [ Ui.helpListItem
+                [ Ui.helpText
+                    """
+                    Sélectionnez le jour voulu dans le calendrier.
+                    """
+                ]
+            , Ui.helpListItem
+                [ Ui.helpText
+                    """
+                    Appuyez sur le bouton "-" si vous voulez créer une dépense, ou bien
+                    sur le bouton "+" si vous voulez créer une entrée d'argent. Une boite
+                    de dialogue va s'ouvrir.
+                    """
+                ]
+            , Ui.helpListItem
+                [ Ui.helpText
+                    """
+                    Entrez le montant de l'opération.
                     Vous pouvez également entrer une description.
                     """
                 ]
             , Ui.helpListItem
                 [ Ui.helpText
                     """
-                    Enfin, confirmez l'ajout de l'opération en cliquent sur le bouton "OK".
+                    Confirmez la création de l'opération en cliquant sur le bouton "OK".
                     """
                 ]
             ]
@@ -173,14 +198,15 @@ presentation _ =
             [ Ui.helpListItem
                 [ Ui.helpText
                     """
-                    Dans le calendrier, sélectionnez le jour où se trouve l'opération que vous
-                    voulez supprimer.
+                    Dans le calendrier, sélectionnez le jour où se trouve l'opération
+                    que vous voulez supprimer.
                     """
                 ]
             , Ui.helpListItem
                 [ Ui.helpText
                     """
                     Dans la partie de gauche, cliquez sur la ligne correspondant à l'opération.
+                    Une boite de dialogue va s'ouvrir.
                     """
                 ]
             , Ui.helpListItem
@@ -203,37 +229,44 @@ presentation _ =
                 [ Ui.helpText
                     """
                     Dans la partie de gauche, cliquez sur la ligne correspondant à l'opération.
+                    Une boite de dialogue va s'ouvrir.
                     """
                 ]
             , Ui.helpListItem
                 [ Ui.helpText
                     """
-                    Dans la fenêtre de dialogue qui s'ouvre, vous pouvez changer le montant et la
-                    description.
+                    Changez le montant et la description de l'opération.
                     """
                 ]
             , Ui.helpListItem
                 [ Ui.helpText
                     """
-                    Lorsque vous avez fini, confirmez les changements en cliquant sur le bouton
-                    "OK".
+                    Confirmez les changements en appuyant sur le bouton "OK".
                     """
                 ]
             ]
         , Ui.helpSectionTitle "Changer la date d'une opération"
-        , Ui.helpNumberedList
-            [ Ui.helpListItem
-                [ Ui.helpText
-                    """
-                    Enregistrer une nouvelle opération à la date voulue.
-                    """
-                ]
-            , Ui.helpListItem
-                [ Ui.helpText
-                    """
-                    Supprimer l'ancienne opération.
-                    """
-                ]
+        , Ui.helpParagraph
+            [ Ui.helpText
+                """
+                Pour déplacer une opération à une date différente, il suffit de supprimer
+                l'opération existante et de la recréer à la date voulue.
+                """
+            ]
+        , Ui.helpSectionTitle "Fonctions avancées"
+        , Ui.helpParagraph
+            [ Ui.helpText
+                """
+                Certaines fonctionnalités supplémentaires de Pactole sont désactivées par
+                défaut. Si vous voulez les utiliser, vous pouvez déverrouiller l'accès aux
+                réglages de l'application, en cliquant sur ce lien: 
+                """
+            , Ui.helpMiniButton
+                { label =
+                    Ui.helpText "déverrouiller les réglages"
+                , onPress = Msg.ForDatabase <| Msg.DbStoreSettings { settings | settingsLocked = False }
+                }
+            , Ui.helpText "."
             ]
         , Ui.helpParagraph
             [ Ui.helpText

@@ -24,6 +24,7 @@ module Ui exposing
     , helpImage
     , helpList
     , helpListItem
+    , helpMiniButton
     , helpNumberedList
     , helpParagraph
     , helpSectionTitle
@@ -993,7 +994,7 @@ helpNumberedList listItems =
             E.row
                 [ E.paddingEach { left = 0, top = 6, bottom = 6, right = 0 }
                 ]
-                [ E.column [ E.height E.fill, E.spacing 12 ]
+                [ E.column [ E.height E.fill, E.spacing 0 ]
                     [ E.el [ E.width (E.px 48), Font.center ] (E.text (String.fromInt (index + 1) ++ "."))
                     , E.el [ E.height E.fill ] E.none
                     ]
@@ -1025,3 +1026,16 @@ helpImage : String -> String -> E.Element msg
 helpImage src description =
     E.image [ E.centerX ]
         { src = src, description = description }
+
+
+helpMiniButton : { label : E.Element msg, onPress : msg } -> E.Element msg
+helpMiniButton { label, onPress } =
+    Input.button
+        [ Font.color Color.primary40
+        , Font.underline
+        , E.mouseDown [ Font.color Color.primary30 ]
+        , E.mouseOver [ Font.color Color.primary50 ]
+        ]
+        { label = label
+        , onPress = Just onPress
+        }
