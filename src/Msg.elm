@@ -9,6 +9,7 @@ import Model
 type Msg
     = ChangePage Model.Page
     | Close
+    | CloseErrorBanner
     | SelectDate Date.Date
     | SelectAccount Int
     | KeyDown String

@@ -122,6 +122,8 @@ init flags _ _ =
       , settingsDialog = Nothing
       , serviceVersion = "unknown"
       , device = Ui.device width height
+      , showError = True
+      , errors = [ { date = today, msg = "Test error" } ]
       }
     , cmd
     )
@@ -140,8 +142,10 @@ update msg model =
             )
 
         Msg.Close ->
-            --TODO: delegate to Dialog?
             ( { model | dialog = Nothing, settingsDialog = Nothing }, Cmd.none )
+
+        Msg.CloseErrorBanner ->
+            ( { model | showError = False }, Cmd.none )
 
         Msg.SelectDate date ->
             ( { model | date = date }, Cmd.none )
@@ -301,15 +305,44 @@ view model =
                     ]
             )
             (E.column [ E.width E.fill, E.height E.fill, Background.color Color.warning60 ]
-                [ if not model.isStoragePersisted then
-                    E.row [ E.width E.fill ]
-                        [ E.el
-                            [ Font.color Color.white, Ui.normalFont, E.centerX, E.padding 3 ]
-                            (E.text "Il y a un problème avec le stockage des données de l'application!")
-                        ]
+                -- [ if not model.isStoragePersisted then
+                --     E.row [ E.width E.fill ]
+                --         [ E.el
+                --             [ Font.color Color.white, Ui.normalFont, E.centerX, E.padding 3 ]
+                --             (E.text "Il y a un problème avec le stockage des données de l'application!")
+                --         ]
+                --   else
+                --     E.none
+                [ case ( model.showError, model.errors ) of
+                    ( True, error :: _ ) ->
+                        E.row [ E.width E.fill ]
+                            [ E.el [ E.width (E.px 32) ] E.none
+                            , E.el
+                                [ Font.color Color.white
+                                , Font.center
+                                , Ui.normalFont
+                                , E.centerX
+                                , E.padding 3
+                                ]
+                                (E.text error.msg)
+                            , Input.button
+                                [ Background.color Color.transparent
+                                , Ui.normalFont
+                                , Font.color Color.white
+                                , Font.center
+                                , E.padding 3
+                                , E.width (E.px 32)
+                                , E.height (E.px 32)
+                                , E.mouseDown [ Background.color Color.warning50 ]
+                                , E.mouseOver [ Background.color Color.warning70 ]
+                                ]
+                                { onPress = Just Msg.CloseErrorBanner
+                                , label = Ui.closeIcon
+                                }
+                            ]
 
-                  else
-                    E.none
+                    _ ->
+                        E.none
                 , activePage
                 ]
             )

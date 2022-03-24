@@ -45,6 +45,8 @@ type alias Model =
     , settingsDialog : Maybe SettingsDialog
     , serviceVersion : String
     , device : Ui.Device
+    , showError : Bool
+    , errors : List Error
     }
 
 
@@ -57,7 +59,7 @@ type Page
 
 
 
--- TYPE CATEGORY
+-- CATEGORY
 
 
 type alias Category =
@@ -95,7 +97,7 @@ decodeCategory =
 
 
 
--- TYPE ACCOUNT
+-- ACCOUNT
 
 
 encodeAccounts : Dict.Dict Int String -> Encode.Value
@@ -125,7 +127,7 @@ account accountID model =
 
 
 
--- TYPE SETTINGS
+-- SETTINGS
 
 
 type alias Settings =
@@ -198,3 +200,13 @@ type SettingsDialog
         }
     | AskImportConfirmation
     | AskExportConfirmation
+
+
+
+-- ERROR
+
+
+type alias Error =
+    { date : Date.Date
+    , msg : String
+    }
