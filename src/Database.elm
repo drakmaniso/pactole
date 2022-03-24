@@ -253,17 +253,23 @@ msgFromService ( title, content ) model =
         "persistent storage granted" ->
             case Decode.decodeValue (Decode.at [ "granted" ] Decode.bool) content of
                 Ok granted ->
-                    let
-                        result =
-                            ( { model | isPersistentStorageGranted = granted, isStoragePersisted = granted }
-                            , Cmd.none
-                            )
-                    in
                     if granted then
-                        result
+                        ( { model
+                            | error = Nothing
+                            , isPersistentStorageGranted = True
+                            , isStoragePersisted = True
+                          }
+                        , Cmd.none
+                        )
 
                     else
-                        Log.error "Persistent storage not granted" result
+                        ( { model
+                            | error = Just "pas d'autoristation de stockage persistant!"
+                            , isPersistentStorageGranted = False
+                            , isStoragePersisted = False
+                          }
+                        , Cmd.none
+                        )
 
                 Err e ->
                     Log.error ("decoding database: " ++ Decode.errorToString e) ( model, Cmd.none )
@@ -345,6 +351,14 @@ msgFromService ( title, content ) model =
 
                 Err e ->
                     Log.error (Decode.errorToString e) ( model, Cmd.none )
+
+        "javascript error" ->
+            case Decode.decodeValue Decode.string content of
+                Ok msg ->
+                    ( { model | error = Just msg }, Cmd.none )
+
+                _ ->
+                    ( { model | error = Just "undecodable javascript error" }, Cmd.none )
 
         _ ->
             Log.error ("unkown message from service: \"" ++ title ++ "\"") ( model, Cmd.none )

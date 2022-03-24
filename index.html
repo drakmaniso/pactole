@@ -227,7 +227,7 @@
     function selectImport() {
       var input = document.createElement("input")
       input.type = "file"
-      input.accept = "application/json"
+      input.accept = "application/json,.json"
       input.addEventListener("change", processSelectedImportFile, false)
       input.click()
     }
@@ -235,6 +235,10 @@
     function processSelectedImportFile() {
       if (this.files.length != 1) {
         console.error(`[CLIENT] wrong number of selected files: ${this.files.length}`)
+        navigator.serviceWorker.ready
+          .then(service =>
+            sendToServiceWorker("javascript error", "impossible d'importer plus d'un fichier à la fois")
+          )
         return
       }
       const file = this.files[0]
@@ -247,7 +251,10 @@
         }
         catch (err) {
           console.error(`[CLIENT] error in file selected for import: ${err}`)
-          //TODO: UI feedback
+          navigator.serviceWorker.ready
+            .then(service =>
+              sendToServiceWorker("javascript error", "impossible de lire le fichier choisi")
+            )
         }
       }
       reader.readAsText(file)

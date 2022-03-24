@@ -124,7 +124,12 @@ init flags _ _ =
       , settingsDialog = Nothing
       , serviceVersion = "unknown"
       , device = Ui.device width height
-      , error = Nothing
+      , error =
+            if not isStoragePersisted then
+                Just "pas d'autoristation de stockage persistant!"
+
+            else
+                Nothing
       }
     , Cmd.none
     )
@@ -308,7 +313,7 @@ view model =
             (E.column [ E.width E.fill, E.height E.fill, Background.color Color.warning60 ]
                 [ case model.error of
                     Just error ->
-                        E.row [ E.width E.fill ]
+                        E.row [ E.width E.fill, E.padding 6 ]
                             [ E.el [ E.width (E.px 32) ] E.none
                             , E.el [ E.width E.fill ] E.none
                             , Ui.errorIcon
@@ -318,7 +323,7 @@ view model =
                                 , E.centerX
                                 , E.padding 3
                                 ]
-                                (E.text ("Error: " ++ error))
+                                (E.text ("Erreur: " ++ error))
                             , Ui.errorIcon
                             , E.el [ E.width E.fill ] E.none
                             , Input.button
@@ -329,6 +334,7 @@ view model =
                                 , E.padding 3
                                 , E.width (E.px 32)
                                 , E.height (E.px 32)
+                                , Border.rounded 32
                                 , E.mouseDown [ Background.color Color.warning50 ]
                                 , E.mouseOver [ Background.color Color.warning70 ]
                                 ]

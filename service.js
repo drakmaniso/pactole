@@ -336,8 +336,14 @@ self.addEventListener('message', event => {
       }
       break
 
+    case 'javascript error':
+      broadcast('javascript error', msg.content)
+      break
+
     default:
-      error(`Unknown message \"${msg.title}\" with content: ${msg.content}`)
+      const e = `Unknown message \"${msg.title}\" with content: ${msg.content}`
+      error(e)
+      broadcast('javascript error', e)
   }
 })
 
