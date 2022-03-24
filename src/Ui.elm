@@ -940,10 +940,10 @@ onEnter msg =
 
 helpTextColumn : List (E.Element msg) -> E.Element msg
 helpTextColumn paragraphs =
-    E.row [ E.width E.fill ]
-        [ E.el [ E.width (E.fill |> E.maximum 128) ] E.none
-        , E.textColumn [ E.width (E.px 800) ] paragraphs
-        , E.el [ E.width E.fill ] E.none
+    E.row [ E.alignLeft, E.width (E.fill |> E.maximum 1200) ]
+        [ E.el [ E.alignLeft, E.width (E.fillPortion 1) ] E.none
+        , E.textColumn [ E.alignLeft, E.width (E.fillPortion 10) ] paragraphs
+        , E.el [ E.alignLeft, E.width (E.fillPortion 1) ] E.none
         ]
 
 
@@ -1024,7 +1024,9 @@ helpText txt =
 
 helpImage : String -> String -> E.Element msg
 helpImage src description =
-    E.image [ E.centerX ]
+    E.image
+        [ E.centerX
+        ]
         { src = src, description = description }
 
 
