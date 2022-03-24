@@ -59,7 +59,6 @@
     // Ask for persistent storage
     if (navigator.storage && navigator.storage.persist) {
       navigator.storage.persist().then(granted => {
-        //TODO: sent message to application
         if (granted) {
           log("Persistent storage has been granted.")
         } else {

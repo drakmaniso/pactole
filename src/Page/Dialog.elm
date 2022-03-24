@@ -50,7 +50,7 @@ update msg model =
         Msg.DialogEditTransaction id ->
             case Ledger.getTransaction id model.ledger of
                 Nothing ->
-                    ( model, Log.error "DialogEditTransaction: unable to get transaction" )
+                    Log.error "DialogEditTransaction: unable to get transaction" ( model, Cmd.none )
 
                 Just t ->
                     ( { model
@@ -72,7 +72,7 @@ update msg model =
         Msg.DialogShowRecurring id ->
             case Ledger.getTransaction id model.recurring of
                 Nothing ->
-                    ( model, Log.error "DialogShowRecurring: unable to get recurring transaction" )
+                    Log.error "DialogShowRecurring: unable to get recurring transaction" ( model, Cmd.none )
 
                 Just t ->
                     ( { model
@@ -185,7 +185,7 @@ update msg model =
                             )
 
                 _ ->
-                    ( model, Log.error "impossible Confirm message" )
+                    Log.error "impossible Confirm message" ( model, Cmd.none )
 
         Msg.DialogDelete ->
             case model.dialog of
@@ -197,10 +197,10 @@ update msg model =
                             )
 
                         Nothing ->
-                            ( model, Log.error "impossible Delete message" )
+                            Log.error "impossible Delete message" ( model, Cmd.none )
 
                 Nothing ->
-                    ( model, Log.error "impossible Delete message" )
+                    Log.error "impossible Delete message" ( model, Cmd.none )
 
 
 

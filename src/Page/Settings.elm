@@ -120,9 +120,10 @@ update msg model =
                     )
 
                 Just other ->
-                    ( { model | settingsDialog = Just other }
-                    , Log.error "invalid context for Msg.SettingsChangeName"
-                    )
+                    Log.error "invalid context for Msg.SettingsChangeName"
+                        ( { model | settingsDialog = Just other }
+                        , Cmd.none
+                        )
 
                 Nothing ->
                     ( { model | settingsDialog = Nothing }, Cmd.none )
@@ -135,9 +136,10 @@ update msg model =
                     )
 
                 Just other ->
-                    ( { model | settingsDialog = Just other }
-                    , Log.error "invalid context for Msg.SettingsChangeIsExpense"
-                    )
+                    Log.error "invalid context for Msg.SettingsChangeIsExpense"
+                        ( { model | settingsDialog = Just other }
+                        , Cmd.none
+                        )
 
                 Nothing ->
                     ( { model | settingsDialog = Nothing }, Cmd.none )
@@ -150,9 +152,10 @@ update msg model =
                     )
 
                 Just other ->
-                    ( { model | settingsDialog = Just other }
-                    , Log.error "invalid context for Msg.SettingsChangeAmount"
-                    )
+                    Log.error "invalid context for Msg.SettingsChangeAmount"
+                        ( { model | settingsDialog = Just other }
+                        , Cmd.none
+                        )
 
                 Nothing ->
                     ( { model | settingsDialog = Nothing }, Cmd.none )
@@ -165,9 +168,10 @@ update msg model =
                     )
 
                 Just other ->
-                    ( { model | settingsDialog = Just other }
-                    , Log.error "invalid context for Msg.SettingsChangeAccount"
-                    )
+                    Log.error "invalid context for Msg.SettingsChangeAccount"
+                        ( { model | settingsDialog = Just other }
+                        , Cmd.none
+                        )
 
                 Nothing ->
                     ( { model | settingsDialog = Nothing }, Cmd.none )
@@ -180,9 +184,10 @@ update msg model =
                     )
 
                 Just other ->
-                    ( { model | settingsDialog = Just other }
-                    , Log.error "invalid context for Msg.SettingsChangeDueDate"
-                    )
+                    Log.error "invalid context for Msg.SettingsChangeDueDate"
+                        ( { model | settingsDialog = Just other }
+                        , Cmd.none
+                        )
 
                 Nothing ->
                     ( { model | settingsDialog = Nothing }, Cmd.none )
@@ -195,9 +200,10 @@ update msg model =
                     )
 
                 Just other ->
-                    ( { model | settingsDialog = Just other }
-                    , Log.error "invalid context for Msg.SettingsChangeIcon"
-                    )
+                    Log.error "invalid context for Msg.SettingsChangeIcon"
+                        ( { model | settingsDialog = Just other }
+                        , Cmd.none
+                        )
 
                 Nothing ->
                     ( { model | settingsDialog = Nothing }, Cmd.none )

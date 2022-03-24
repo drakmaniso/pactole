@@ -253,13 +253,20 @@ msgFromService ( title, content ) model =
         "persistent storage granted" ->
             case Decode.decodeValue (Decode.at [ "granted" ] Decode.bool) content of
                 Ok granted ->
-                    ( { model | isPersistentStorageGranted = granted, isStoragePersisted = granted }
-                    , Cmd.none
-                    )
+                    let
+                        result =
+                            ( { model | isPersistentStorageGranted = granted, isStoragePersisted = granted }
+                            , Cmd.none
+                            )
+                    in
+                    if granted then
+                        result
+
+                    else
+                        Log.error "Persistent storage not granted" result
 
                 Err e ->
-                    --TODO: error
-                    ( model, Log.error ("while decoding whole database: " ++ Decode.errorToString e) )
+                    Log.error ("decoding database: " ++ Decode.errorToString e) ( model, Cmd.none )
 
         "start application" ->
             ( model, Ports.send ( "request whole database", Encode.null ) )
@@ -283,8 +290,7 @@ msgFromService ( title, content ) model =
                         |> processRecurringTransactions
 
                 Err e ->
-                    --TODO: error
-                    ( model, Log.error ("while decoding whole database: " ++ Decode.errorToString e) )
+                    Log.error ("decoding database: " ++ Decode.errorToString e) ( model, Cmd.none )
 
         "update settings" ->
             case Decode.decodeValue Model.decodeSettings content of
@@ -292,8 +298,7 @@ msgFromService ( title, content ) model =
                     ( { model | settings = settings }, Cmd.none )
 
                 Err e ->
-                    --TODO: error
-                    ( model, Log.error ("while decoding settings: " ++ Decode.errorToString e) )
+                    Log.error ("decoding settings: " ++ Decode.errorToString e) ( model, Cmd.none )
 
         "update accounts" ->
             case Decode.decodeValue (Decode.list Model.decodeAccount) content of
@@ -303,7 +308,6 @@ msgFromService ( title, content ) model =
                             head :: tail
 
                         accountID =
-                            --TODO: use current account if set
                             Tuple.first head
                     in
                     ( { model | accounts = Dict.fromList accounts, account = accountID }
@@ -311,12 +315,10 @@ msgFromService ( title, content ) model =
                     )
 
                 Err e ->
-                    --TODO: error
-                    ( model, Log.error ("while decoding account list: " ++ Decode.errorToString e) )
+                    Log.error ("decoding accounts: " ++ Decode.errorToString e) ( model, Cmd.none )
 
                 _ ->
-                    --TODO: error
-                    ( model, Log.error "received account list is empty" )
+                    Log.error "received account list is empty" ( model, Cmd.none )
 
         "update categories" ->
             case Decode.decodeValue (Decode.list Model.decodeCategory) content of
@@ -324,8 +326,7 @@ msgFromService ( title, content ) model =
                     ( { model | categories = Dict.fromList categories }, Cmd.none )
 
                 Err e ->
-                    --TODO: error
-                    ( model, Log.error ("while decoding category list: " ++ Decode.errorToString e) )
+                    Log.error ("decoding categories: " ++ Decode.errorToString e) ( model, Cmd.none )
 
         "update ledger" ->
             case Decode.decodeValue Ledger.decode content of
@@ -335,7 +336,7 @@ msgFromService ( title, content ) model =
                     )
 
                 Err e ->
-                    ( model, Log.error (Decode.errorToString e) )
+                    Log.error (Decode.errorToString e) ( model, Cmd.none )
 
         "update recurring transactions" ->
             case Decode.decodeValue Ledger.decode content of
@@ -343,18 +344,17 @@ msgFromService ( title, content ) model =
                     ( { model | recurring = recurring }, Cmd.none )
 
                 Err e ->
-                    ( model, Log.error (Decode.errorToString e) )
+                    Log.error (Decode.errorToString e) ( model, Cmd.none )
 
         _ ->
-            --TODO: error
-            ( model, Log.error ("in message from service: unknown title \"" ++ title ++ "\"") )
+            Log.error ("unkown message from service: \"" ++ title ++ "\"") ( model, Cmd.none )
 
 
 
 -- UTILITIES
 
 
-upgradeSettingsToV2 : Decode.Value -> ( { a | settings : Model.Settings }, Cmd msg ) -> ( { a | settings : Model.Settings }, Cmd msg )
+upgradeSettingsToV2 : Decode.Value -> ( Model.Model, Cmd msg ) -> ( Model.Model, Cmd msg )
 upgradeSettingsToV2 json ( model, previousCmds ) =
     let
         decoder =
@@ -381,13 +381,10 @@ upgradeSettingsToV2 json ( model, previousCmds ) =
             ( model, Cmd.batch (previousCmds :: storeSettings model.settings :: cmds) )
 
         Err e ->
-            --TODO: error
-            ( model
-            , Cmd.batch
-                [ previousCmds
-                , Log.error ("while decoding whole database: " ++ Decode.errorToString e)
-                ]
-            )
+            Log.error ("decoding database: " ++ Decode.errorToString e)
+                ( model
+                , previousCmds
+                )
 
 
 decodeDB : Decode.Decoder { settings : Model.Settings, accounts : List ( Int, String ), categories : List ( Int, { name : String, icon : String } ), ledger : Ledger.Ledger, recurring : Ledger.Ledger, serviceVersion : String }

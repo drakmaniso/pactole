@@ -101,7 +101,6 @@ self.addEventListener('message', event => {
                     .then(ledger =>
                       getLedger('recurring')
                         .then(recurring => {
-                          //TODO not broadcast!
                           let db = {
                             settings: settings,
                             accounts: accounts,

@@ -18,6 +18,7 @@ module Ui exposing
     , deleteIcon
     , device
     , editIcon
+    , errorIcon
     , expenseButton
     , expenseIcon
     , fontFamily
@@ -263,6 +264,12 @@ checkIcon =
 warningIcon : E.Element msg
 warningIcon =
     E.el [ iconFont, bigFont, E.centerX, E.paddingXY 24 0, Font.color Color.warning60 ]
+        (E.text "\u{F071}")
+
+
+errorIcon : E.Element msg
+errorIcon =
+    E.el [ iconFont, normalFont, E.centerX, E.paddingXY 24 0, Font.color Color.white ]
         (E.text "\u{F071}")
 
 

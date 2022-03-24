@@ -79,13 +79,15 @@ init flags _ _ =
                     --TODO
                     0
 
-        ( today, cmd ) =
+        today =
             case Date.fromParts { day = day, month = month, year = year } of
                 Just d ->
-                    ( d, Cmd.none )
+                    d
 
                 Nothing ->
-                    ( Date.default, Log.error "init flags: invalid date for today" )
+                    --TODO:
+                    -- ( Date.default, Log.error "init flags: invalid date for today" )
+                    Date.default
 
         width =
             Decode.decodeValue (Decode.at [ "width" ] Decode.int) flags |> Result.withDefault 800
@@ -122,10 +124,9 @@ init flags _ _ =
       , settingsDialog = Nothing
       , serviceVersion = "unknown"
       , device = Ui.device width height
-      , showError = True
-      , errors = [ { date = today, msg = "Test error" } ]
+      , error = Nothing
       }
-    , cmd
+    , Cmd.none
     )
 
 
@@ -145,7 +146,7 @@ update msg model =
             ( { model | dialog = Nothing, settingsDialog = Nothing }, Cmd.none )
 
         Msg.CloseErrorBanner ->
-            ( { model | showError = False }, Cmd.none )
+            ( { model | error = Nothing }, Cmd.none )
 
         Msg.SelectDate date ->
             ( { model | date = date }, Cmd.none )
@@ -305,26 +306,21 @@ view model =
                     ]
             )
             (E.column [ E.width E.fill, E.height E.fill, Background.color Color.warning60 ]
-                -- [ if not model.isStoragePersisted then
-                --     E.row [ E.width E.fill ]
-                --         [ E.el
-                --             [ Font.color Color.white, Ui.normalFont, E.centerX, E.padding 3 ]
-                --             (E.text "Il y a un problème avec le stockage des données de l'application!")
-                --         ]
-                --   else
-                --     E.none
-                [ case ( model.showError, model.errors ) of
-                    ( True, error :: _ ) ->
+                [ case model.error of
+                    Just error ->
                         E.row [ E.width E.fill ]
                             [ E.el [ E.width (E.px 32) ] E.none
+                            , E.el [ E.width E.fill ] E.none
+                            , Ui.errorIcon
                             , E.el
                                 [ Font.color Color.white
-                                , Font.center
                                 , Ui.normalFont
                                 , E.centerX
                                 , E.padding 3
                                 ]
-                                (E.text error.msg)
+                                (E.text ("Error: " ++ error))
+                            , Ui.errorIcon
+                            , E.el [ E.width E.fill ] E.none
                             , Input.button
                                 [ Background.color Color.transparent
                                 , Ui.normalFont
