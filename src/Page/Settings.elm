@@ -739,7 +739,7 @@ viewDialog model =
                                 { offset = ( 0, 0 )
                                 , size = 4
                                 , blur = 0
-                                , color = Color.focusColor
+                                , color = Color.focus85
                                 }
                             ]
                         ]
@@ -948,7 +948,7 @@ viewDialog model =
                                 { offset = ( 0, 0 )
                                 , size = 4
                                 , blur = 0
-                                , color = Color.focusColor
+                                , color = Color.focus85
                                 }
                             ]
                         ]
@@ -1036,7 +1036,7 @@ viewDialog model =
                                 { offset = ( 0, 0 )
                                 , size = 4
                                 , blur = 0
-                                , color = Color.focusColor
+                                , color = Color.focus85
                                 }
                             ]
                         ]
@@ -1057,7 +1057,7 @@ viewDialog model =
                                 { offset = ( 0, 0 )
                                 , size = 4
                                 , blur = 0
-                                , color = Color.focusColor
+                                , color = Color.focus85
                                 }
                             ]
                         ]

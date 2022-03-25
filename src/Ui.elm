@@ -17,6 +17,8 @@ module Ui exposing
     , defaultShadow
     , deleteIcon
     , device
+    , dialogSection
+    , dialogSectionRow
     , editIcon
     , errorIcon
     , expenseButton
@@ -52,7 +54,6 @@ module Ui exposing
     , roundCorners
     , ruler
     , saveIcon
-    , section
     , simpleButton
     , smallFont
     , smallShadow
@@ -65,6 +66,7 @@ module Ui exposing
     , viewSum
     , warningIcon
     , warningParagraph
+    , warningPopup
     )
 
 import Date
@@ -415,8 +417,24 @@ pageTitle element =
         ]
 
 
-section : E.Color -> String -> E.Element msg -> E.Element msg
-section titleColor titleText content =
+dialogSectionRow : E.Color -> String -> E.Element msg -> E.Element msg
+dialogSectionRow titleColor titleText content =
+    E.row [ E.width E.fill, E.spacing 6 ]
+        [ E.el
+            [ Font.color titleColor
+            , bigFont
+            , Font.bold
+            , E.padding 0
+            , notSelectable
+            ]
+            (E.text titleText)
+        , E.el [ E.paddingXY 0 0 ] content
+        , E.el [ E.width E.fill ] E.none
+        ]
+
+
+dialogSection : E.Color -> String -> E.Element msg -> E.Element msg
+dialogSection titleColor titleText content =
     E.column [ E.width E.fill, E.spacing 12 ]
         [ E.el
             [ E.width E.fill
@@ -447,7 +465,7 @@ logo version =
         [ E.el [ E.width E.fill, E.height E.fill ] E.none
         , E.row [ E.width E.fill, E.height E.shrink ]
             [ E.el [ E.width E.fill, E.height E.fill ] E.none
-            , E.image [ E.width (E.px 128), E.height (E.px 128) ]
+            , E.image [ E.width (E.fillPortion 2) ]
                 { src = "images/icon-512x512.png"
                 , description = "Pactole Logo"
                 }
@@ -477,6 +495,55 @@ warningParagraph elements =
         [ bigWarningIcon
         , E.paragraph [] elements
         ]
+
+
+warningPopup : List (E.Element msg) -> E.Element msg
+warningPopup elements =
+    E.el
+        [ E.padding 18
+        , E.centerX
+        , notSelectable
+        , E.htmlAttribute <| Html.Attributes.style "cursor" "default"
+        ]
+    <|
+        E.row
+            [ Font.color Color.neutral20
+            , Background.color Color.focus85
+            , E.centerY
+            , E.spacing 12
+            , E.width <| E.px 430
+            , E.height (E.shrink |> E.minimum 48)
+            , E.centerX
+            , E.paddingEach { left = 24, right = 24, top = 12, bottom = 12 }
+            , E.spacing 6
+            , Border.rounded 6
+            , smallerShadow
+            , E.spacing 12
+            , E.above <|
+                E.el
+                    [ E.centerX
+                    , E.alignBottom
+                    , iconFont
+                    , biggestFont
+                    , Font.color Color.focus85
+                    , notSelectable
+                    , E.htmlAttribute <| Html.Attributes.style "transform" "translate(0, 18px)"
+                    ]
+                <|
+                    E.text "\u{F0D8}"
+            ]
+            [ E.el
+                [ iconFont
+                , Font.size 48
+                , E.alignLeft
+                , E.centerY
+                , E.padding 0
+                , Font.color Color.warning60
+                , notSelectable
+                ]
+                (E.text "\u{F071}")
+            , E.paragraph [ normalFont, Font.regular, notSelectable ] elements
+            ]
 
 
 dateNavigationBar : { a | showFocus : Bool, date : Date.Date, today : Date.Date } -> (Date.Date -> msg) -> E.Element msg

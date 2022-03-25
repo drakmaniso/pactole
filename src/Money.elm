@@ -98,7 +98,10 @@ validate input =
                 ""
 
             [ i ] ->
-                if i /= (String.length trimmed - 3) then
+                if i == 0 then
+                    "Mettre au moins un chiffre avant la virgule."
+
+                else if i /= (String.length trimmed - 3) then
                     "Mettre deux chiffres après la virgule."
 
                 else

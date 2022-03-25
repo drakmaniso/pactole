@@ -280,7 +280,7 @@ viewAmount model dialog =
                     "Entrée d'argent:"
     in
     if dialog.isRecurring then
-        Ui.section titleColor
+        Ui.dialogSectionRow titleColor
             titleText
             (E.el
                 [ Ui.bigFont
@@ -289,6 +289,7 @@ viewAmount model dialog =
                 , Border.width 1
                 , Border.color Color.transparent
                 , Font.color titleColor
+                , E.paddingXY 12 0
                 ]
                 (E.text
                     ((if dialog.isExpense then
@@ -304,7 +305,7 @@ viewAmount model dialog =
             )
 
     else
-        Ui.section titleColor
+        Ui.dialogSectionRow titleColor
             titleText
             (E.row [ E.width E.fill, E.paddingXY 24 0 ]
                 [ E.el
@@ -335,12 +336,19 @@ viewAmount model dialog =
                     , Background.color Color.neutral95
                     , Ui.innerShadow
                     , E.focused
-                        [ Border.color Color.focusColor
+                        [ Border.color Color.focus85
                         ]
                     , E.htmlAttribute <| HtmlAttr.id "dialog-amount"
                     , E.htmlAttribute <| HtmlAttr.autocomplete False
                     , Font.color titleColor
                     , Font.bold
+                    , if dialog.amountError /= "" then
+                        E.below <|
+                            Ui.warningPopup
+                                [ E.text dialog.amountError ]
+
+                      else
+                        E.below <| E.none
                     ]
                     { label = Input.labelHidden "Somme"
                     , text = dialog.amount
@@ -358,12 +366,6 @@ viewAmount model dialog =
                     , Ui.notSelectable
                     ]
                     (E.el [ Font.color titleColor, Font.bold ] (E.text "€"))
-                , if dialog.amountError /= "" then
-                    Ui.warningParagraph
-                        [ E.text dialog.amountError ]
-
-                  else
-                    E.el [ E.height (E.shrink |> E.minimum 48) ] E.none
                 ]
             )
 
@@ -371,7 +373,7 @@ viewAmount model dialog =
 viewDescription : Model.Model -> Model.Dialog -> E.Element Msg.Msg
 viewDescription _ dialog =
     if dialog.isRecurring then
-        Ui.section Color.neutral40
+        Ui.dialogSection Color.neutral40
             "Description:"
             (E.el
                 [ Ui.bigFont
@@ -383,7 +385,7 @@ viewDescription _ dialog =
             )
 
     else
-        Ui.section Color.neutral40
+        Ui.dialogSection Color.neutral40
             "Description:"
             (Input.multiline
                 [ Ui.bigFont
@@ -392,7 +394,7 @@ viewDescription _ dialog =
                 , Background.color Color.neutral95
                 , Ui.innerShadow
                 , E.focused
-                    [ Border.color Color.focusColor
+                    [ Border.color Color.focus85
                     ]
                 , E.width E.fill
                 , Font.color Color.neutral20
@@ -434,7 +436,7 @@ viewCategories model dialog =
                                 |> List.reverse
                        )
         in
-        Ui.section Color.neutral40
+        Ui.dialogSection Color.neutral40
             "Catégorie:"
             (E.table
                 [ E.width E.fill

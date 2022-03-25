@@ -267,7 +267,7 @@ view model =
                     , shadow =
                         if model.showFocus then
                             Just
-                                { color = Color.focusColor
+                                { color = Color.focus85
                                 , offset = ( 0, 0 )
                                 , blur = 0
                                 , size = 4
