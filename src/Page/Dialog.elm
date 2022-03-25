@@ -215,9 +215,7 @@ view model =
                 [ Ui.onEnter (Msg.ForDialog <| Msg.DialogConfirm)
                 , E.centerX
                 , E.centerY
-                , E.width (E.px 960)
-
-                --, E.clip
+                , E.width <| E.minimum 600 <| E.maximum 960 <| E.fill
                 , E.scrollbarY
                 , E.paddingXY 48 24
                 , E.spacing 36
@@ -229,7 +227,6 @@ view model =
                 , viewAmount model dialog
                 , viewDescription model dialog
                 , viewCategories model dialog
-                , E.el [ E.height E.fill, Background.color Color.white ] E.none
                 , viewButtons dialog
                 ]
 
@@ -239,7 +236,7 @@ view model =
 
 viewDate : Model.Model -> Model.Dialog -> E.Element Msg.Msg
 viewDate model _ =
-    E.row [ E.width E.fill ]
+    E.row [ E.width E.fill, E.paddingEach { left = 0, right = 0, top = 0, bottom = 12 } ]
         [ E.el [ E.width E.fill ] E.none
         , Ui.viewDate model.date
         , E.el [ E.width E.fill ] E.none
@@ -254,7 +251,7 @@ viewAmount model dialog =
 
         titleColor =
             if isFuture then
-                Color.neutral40
+                Color.neutral30
 
             else
                 Color.transactionColor dialog.isExpense
@@ -280,10 +277,11 @@ viewAmount model dialog =
                     "Entrée d'argent:"
     in
     if dialog.isRecurring then
-        Ui.dialogSectionRow titleColor
+        Ui.dialogSectionRow Color.neutral30
             titleText
             (E.el
                 [ Ui.bigFont
+                , Font.bold
                 , E.width (E.shrink |> E.minimum 220)
                 , E.alignLeft
                 , Border.width 1
@@ -305,7 +303,7 @@ viewAmount model dialog =
             )
 
     else
-        Ui.dialogSectionRow titleColor
+        Ui.dialogSectionRow Color.neutral30
             titleText
             (E.row [ E.width E.fill, E.paddingXY 24 0 ]
                 [ E.el
@@ -328,6 +326,7 @@ viewAmount model dialog =
                     )
                 , Input.text
                     [ Ui.bigFont
+                    , Font.bold
                     , E.paddingXY 8 12
                     , E.width (E.shrink |> E.minimum 220)
                     , E.alignLeft
@@ -341,7 +340,6 @@ viewAmount model dialog =
                     , E.htmlAttribute <| HtmlAttr.id "dialog-amount"
                     , E.htmlAttribute <| HtmlAttr.autocomplete False
                     , Font.color titleColor
-                    , Font.bold
                     , if dialog.amountError /= "" then
                         E.below <|
                             Ui.warningPopup
@@ -371,9 +369,9 @@ viewAmount model dialog =
 
 
 viewDescription : Model.Model -> Model.Dialog -> E.Element Msg.Msg
-viewDescription _ dialog =
+viewDescription model dialog =
     if dialog.isRecurring then
-        Ui.dialogSection Color.neutral40
+        Ui.dialogSection Color.neutral30
             "Description:"
             (E.el
                 [ Ui.bigFont
@@ -385,7 +383,7 @@ viewDescription _ dialog =
             )
 
     else
-        Ui.dialogSection Color.neutral40
+        Ui.dialogSection Color.neutral30
             "Description:"
             (Input.multiline
                 [ Ui.bigFont
@@ -436,7 +434,7 @@ viewCategories model dialog =
                                 |> List.reverse
                        )
         in
-        Ui.dialogSection Color.neutral40
+        Ui.dialogSection Color.neutral30
             "Catégorie:"
             (E.table
                 [ E.width E.fill
@@ -506,6 +504,7 @@ viewButtons dialog =
             [ E.width E.fill
             , E.spacing 24
             , Background.color Color.white
+            , E.paddingEach { left = 0, right = 0, top = 12, bottom = 0 }
             ]
             [ E.el [ E.width E.fill ] E.none
             , Ui.mainButton
@@ -519,6 +518,7 @@ viewButtons dialog =
             [ E.width E.fill
             , E.spacing 24
             , Background.color Color.white
+            , E.paddingEach { left = 0, right = 0, top = 12, bottom = 0 }
             ]
             [ E.el [ E.width E.fill ] E.none
             , Ui.simpleButton
