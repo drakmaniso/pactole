@@ -354,6 +354,21 @@ view model =
 
 pageWithSidePanel : Model.Model -> { panel : E.Element Msg.Msg, page : E.Element Msg.Msg } -> E.Element Msg.Msg
 pageWithSidePanel model { panel, page } =
+    let
+        minLeftSize =
+            case ( model.settings.summaryEnabled, model.settings.reconciliationEnabled ) of
+                ( True, True ) ->
+                    450
+
+                ( True, False ) ->
+                    360
+
+                ( False, True ) ->
+                    360
+
+                ( False, False ) ->
+                    320
+    in
     E.row
         [ E.width E.fill
         , E.height E.fill
@@ -365,7 +380,7 @@ pageWithSidePanel model { panel, page } =
         , Font.color Color.neutral30
         ]
         [ E.column
-            [ E.width (E.fillPortion 1 |> E.minimum 450)
+            [ E.width (E.fillPortion 1 |> E.minimum minLeftSize)
             , E.height E.fill
             , E.clipY
             , E.paddingXY 6 6
