@@ -506,12 +506,11 @@ warningPopup elements =
         , E.htmlAttribute <| Html.Attributes.style "cursor" "default"
         ]
     <|
-        E.row
-            [ Font.color Color.neutral20
+        E.paragraph
+            [ Font.color Color.neutral10
             , Background.color Color.focus85
             , E.centerY
             , E.spacing 12
-            , E.width <| E.px 430
             , E.height (E.shrink |> E.minimum 48)
             , E.centerX
             , E.paddingEach { left = 24, right = 24, top = 12, bottom = 12 }
@@ -531,19 +530,13 @@ warningPopup elements =
                     ]
                 <|
                     E.text "\u{F0D8}"
+            , E.width <| E.px 380
+            , Font.center
+            , normalFont
+            , Font.regular
+            , notSelectable
             ]
-            [ E.el
-                [ iconFont
-                , Font.size 48
-                , E.alignLeft
-                , E.centerY
-                , E.padding 0
-                , Font.color Color.warning60
-                , notSelectable
-                ]
-                (E.text "\u{F071}")
-            , E.paragraph [ normalFont, Font.regular, notSelectable ] elements
-            ]
+            elements
 
 
 dateNavigationBar : { a | showFocus : Bool, date : Date.Date, today : Date.Date } -> (Date.Date -> msg) -> E.Element msg

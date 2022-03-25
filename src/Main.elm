@@ -310,10 +310,10 @@ view model =
                         )
                     ]
             )
-            (E.column [ E.width E.fill, E.height E.fill, Background.color Color.warning60 ]
+            (E.column [ E.width E.fill, E.height E.fill ]
                 [ case model.error of
                     Just error ->
-                        E.row [ E.width E.fill, E.padding 6 ]
+                        E.row [ E.width E.fill, E.padding 6, Background.color Color.warning60 ]
                             [ E.el [ E.width (E.px 32) ] E.none
                             , E.el [ E.width E.fill ] E.none
                             , Ui.errorIcon

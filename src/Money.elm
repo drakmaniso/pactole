@@ -87,10 +87,10 @@ validate input =
             String.filter (\c -> c /= ' ') input
     in
     if trimmed == "" then
-        "Entrer un nombre."
+        "Entrez un nombre."
 
     else if String.any (\c -> not (Char.isDigit c || c == ',')) trimmed then
-        "Utiliser uniquement des chiffres et une virgule."
+        "Utilisez uniquement des chiffres et une virgule."
 
     else
         case String.indices "," trimmed of
@@ -99,16 +99,16 @@ validate input =
 
             [ i ] ->
                 if i == 0 then
-                    "Mettre au moins un chiffre avant la virgule."
+                    "Mettez au moins un chiffre avant la virgule."
 
                 else if i /= (String.length trimmed - 3) then
-                    "Mettre deux chiffres après la virgule."
+                    "Mettez deux chiffres après la virgule."
 
                 else
                     ""
 
             _ ->
-                "Utiliser une seule virgule."
+                "Utilisez une seule virgule."
 
 
 fromInput : Bool -> String -> Maybe Money
