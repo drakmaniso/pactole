@@ -89,7 +89,7 @@ accountsRow model =
             List.map
                 (\account ->
                     Ui.radioRowOption account
-                        (E.text (Model.account account model))
+                        (E.text (Model.accountName account model))
                 )
                 (Dict.keys model.accounts)
         }

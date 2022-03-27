@@ -255,8 +255,7 @@ msgFromService ( title, content ) model =
                 Ok granted ->
                     if granted then
                         ( { model
-                            | error = Nothing
-                            , isPersistentStorageGranted = True
+                            | isPersistentStorageGranted = True
                             , isStoragePersisted = True
                           }
                         , Cmd.none
@@ -264,7 +263,7 @@ msgFromService ( title, content ) model =
 
                     else
                         ( { model
-                            | error = Just "pas d'autoristation de stockage persistant!"
+                            | error = Just "l'autorisation de stockage persistant n'a pas été donnée!"
                             , isPersistentStorageGranted = False
                             , isStoragePersisted = False
                           }

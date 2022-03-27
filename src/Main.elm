@@ -14,11 +14,13 @@ import Element.Font as Font
 import Element.Input as Input
 import Json.Decode as Decode
 import Ledger
+import Log
 import Model exposing (Model)
 import Msg exposing (Msg)
 import Page.Calendar as Calendar
 import Page.Dialog as Dialog
 import Page.Help as Help
+import Page.Installation as Installation
 import Page.Reconcile as Reconcile
 import Page.Settings as Settings
 import Page.Statistics as Statistics
@@ -123,12 +125,7 @@ init flags _ _ =
       , settingsDialog = Nothing
       , serviceVersion = "unknown"
       , device = Ui.device width height
-      , error =
-            if not isStoragePersisted then
-                Just "pas d'autoristation de stockage persistant!"
-
-            else
-                Nothing
+      , error = Nothing
       }
     , Cmd.none
     )
@@ -140,6 +137,63 @@ init flags _ _ =
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
+    if Dict.isEmpty model.accounts then
+        installUpdate msg model
+
+    else
+        appUpdate msg model
+
+
+installUpdate : Msg -> Model -> ( Model, Cmd Msg )
+installUpdate msg model =
+    case msg of
+        Msg.Close ->
+            ( model, Database.createAccount "Foo" )
+
+        Msg.CloseErrorBanner ->
+            ( { model | error = Nothing }, Cmd.none )
+
+        Msg.SelectDate _ ->
+            ( model, Cmd.none )
+                |> Log.error "unexpected `SelectDate` message in `installUpdate`"
+
+        Msg.SelectAccount _ ->
+            ( model, Cmd.none )
+                |> Log.error "unexpected `SelectAccount` message in `installUpdate`"
+
+        Msg.KeyDown _ ->
+            ( model, Cmd.none )
+                |> Log.error "unexpected `KeyDown` message in `installUpdate`"
+
+        Msg.WindowResize size ->
+            ( { model
+                | device = Ui.device size.width size.height
+              }
+            , Cmd.none
+            )
+
+        Msg.ForDatabase m ->
+            Database.update m model
+
+        Msg.ForDialog _ ->
+            ( model, Cmd.none )
+                |> Log.error "unexpected `ForDialog` message in `installUpdate`"
+
+        Msg.ForSettingsDialog _ ->
+            ( model, Cmd.none )
+                |> Log.error "unexpected `ForSettingsDialog` message in `installUpdate`"
+
+        Msg.NoOp ->
+            ( model, Cmd.none )
+                |> Log.error "unexpected `NoOp` message in `installUpdate`"
+
+        Msg.ChangePage _ ->
+            ( model, Cmd.none )
+                |> Log.error "unexpected `ChangePage` message in `installUpdate`"
+
+
+appUpdate : Msg -> Model -> ( Model, Cmd Msg )
+appUpdate msg model =
     case msg of
         Msg.ChangePage page ->
             ( { model | page = page }
@@ -156,6 +210,7 @@ update msg model =
             ( { model | date = date }, Cmd.none )
 
         Msg.SelectAccount accountID ->
+            --TODO: check that accountID corresponds to an account
             ( { model | account = accountID }, Cmd.none )
 
         Msg.KeyDown string ->
@@ -210,6 +265,15 @@ keyDecoder msg =
 
 view : Model -> Browser.Document Msg
 view model =
+    if Dict.isEmpty model.accounts then
+        document model (Installation.view model) Nothing
+
+    else
+        appView model
+
+
+appView : Model -> Browser.Document Msg
+appView model =
     let
         activeDialog =
             case model.dialog of
@@ -256,6 +320,10 @@ view model =
                 , page = activePageParts.main
                 }
     in
+    document model activePage activeDialog
+
+
+document model activePage activeDialog =
     { title = "Pactole"
     , body =
         [ E.layoutWith
@@ -310,37 +378,14 @@ view model =
                     ]
             )
             (E.column [ E.width E.fill, E.height E.fill ]
-                [ case model.error of
+                [ if not (Dict.isEmpty model.accounts) && not model.isStoragePersisted then
+                    errorBanner "Attention: le stockage n'est pas persistant!" Nothing
+
+                  else
+                    E.none
+                , case model.error of
                     Just error ->
-                        E.row [ E.width E.fill, E.padding 6, Background.color Color.warning60 ]
-                            [ E.el [ E.width (E.px 32) ] E.none
-                            , E.el [ E.width E.fill ] E.none
-                            , Ui.errorIcon
-                            , E.el
-                                [ Font.color Color.white
-                                , Ui.normalFont
-                                , E.centerX
-                                , E.padding 3
-                                ]
-                                (E.text ("Erreur: " ++ error))
-                            , Ui.errorIcon
-                            , E.el [ E.width E.fill ] E.none
-                            , Input.button
-                                [ Background.color Color.transparent
-                                , Ui.normalFont
-                                , Font.color Color.white
-                                , Font.center
-                                , E.padding 3
-                                , E.width (E.px 32)
-                                , E.height (E.px 32)
-                                , Border.rounded 32
-                                , E.mouseDown [ Background.color Color.warning50 ]
-                                , E.mouseOver [ Background.color Color.warning70 ]
-                                ]
-                                { onPress = Just Msg.CloseErrorBanner
-                                , label = Ui.closeIcon
-                                }
-                            ]
+                        errorBanner ("Erreur: " ++ error) (Just Msg.CloseErrorBanner)
 
                     _ ->
                         E.none
@@ -349,6 +394,43 @@ view model =
             )
         ]
     }
+
+
+errorBanner error maybeCloseMsg =
+    E.row [ E.width E.fill, E.padding 6, Background.color Color.warning60 ]
+        [ E.el [ E.width (E.px 32) ] E.none
+        , E.el [ E.width E.fill ] E.none
+        , Ui.errorIcon
+        , E.el
+            [ Font.color Color.white
+            , Ui.normalFont
+            , E.centerX
+            , E.padding 3
+            ]
+            (E.text error)
+        , Ui.errorIcon
+        , E.el [ E.width E.fill ] E.none
+        , case maybeCloseMsg of
+            Just closeMsg ->
+                Input.button
+                    [ Background.color Color.transparent
+                    , Ui.normalFont
+                    , Font.color Color.white
+                    , Font.center
+                    , E.padding 3
+                    , E.width (E.px 32)
+                    , E.height (E.px 32)
+                    , Border.rounded 32
+                    , E.mouseDown [ Background.color Color.warning50 ]
+                    , E.mouseOver [ Background.color Color.warning70 ]
+                    ]
+                    { onPress = Just closeMsg
+                    , label = Ui.closeIcon
+                    }
+
+            Nothing ->
+                E.el [ E.width (E.px 32) ] E.none
+        ]
 
 
 pageWithSidePanel : Model -> { panel : E.Element Msg, page : E.Element Msg } -> E.Element Msg

@@ -492,18 +492,7 @@ function getAccounts() {
         const os = tr.objectStore('accounts')
         const req = os.getAll()
         req.onerror = () => reject(req.error)
-        req.onsuccess = () => {
-          if (req.result.length == 0) {
-            const tr = db.transaction(['accounts'], 'readwrite')
-            tr.onerror = () => reject(tr.error)
-            const os = tr.objectStore('accounts')
-            const req = os.put({ name: 'Compte' })
-            req.onerror = () => reject(req.error)
-            req.onsuccess = () => resolve([{ id: req.result, name: 'Compte' }])
-          } else {
-            resolve(req.result)
-          }
-        }
+        req.onsuccess = () => resolve(req.result)
       })
       .catch(err => reject(err))
   })

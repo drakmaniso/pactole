@@ -5,7 +5,7 @@ module Model exposing
     , Page(..)
     , Settings
     , SettingsDialog(..)
-    , account
+    , accountName
     , category
     , decodeAccount
     , decodeCategory
@@ -120,8 +120,8 @@ decodeAccount =
         (Decode.field "name" Decode.string)
 
 
-account : Int -> Model -> String
-account accountID model =
+accountName : Int -> Model -> String
+accountName accountID model =
     Maybe.withDefault
         ("COMPTE_" ++ String.fromInt accountID)
         (Dict.get accountID model.accounts)

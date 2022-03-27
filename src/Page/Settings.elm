@@ -590,7 +590,7 @@ configRecurring model =
                           , width = E.shrink
                           , view =
                                 \t ->
-                                    E.el [ Font.center, E.centerY ] (E.text (Model.account t.account model))
+                                    E.el [ Font.center, E.centerY ] (E.text (Model.accountName t.account model))
                           }
                         , { header = headerTxt "Montant"
                           , width = E.shrink
