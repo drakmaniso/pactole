@@ -215,7 +215,7 @@ view model =
                 [ Ui.onEnter (Msg.ForDialog <| Msg.DialogConfirm)
                 , E.centerX
                 , E.centerY
-                , E.width <| E.minimum 600 <| E.maximum 960 <| E.fill
+                , E.width <| E.minimum 600 <| E.maximum 920 <| E.fill
                 , E.scrollbarY
                 , E.paddingXY 48 24
                 , E.spacing 36
@@ -287,7 +287,7 @@ viewAmount model dialog =
                 , Border.width 1
                 , Border.color Color.transparent
                 , Font.color titleColor
-                , E.paddingXY 12 0
+                , E.padding 0
                 ]
                 (E.text
                     ((if dialog.isExpense then
@@ -305,11 +305,11 @@ viewAmount model dialog =
     else
         Ui.dialogSectionRow Color.neutral30
             titleText
-            (E.row [ E.width E.fill, E.paddingXY 24 0 ]
+            (E.row [ E.width E.fill, E.padding 0 ]
                 [ E.el
                     [ Ui.bigFont
                     , Font.color Color.neutral40
-                    , E.paddingEach { top = 12, bottom = 12, left = 0, right = 6 }
+                    , E.paddingEach { top = 12, bottom = 12, left = 0, right = 0 }
                     , E.width E.shrink
                     , E.alignLeft
                     , Border.width 1
@@ -371,7 +371,7 @@ viewAmount model dialog =
 viewDescription : Model -> Model.Dialog -> E.Element Msg
 viewDescription _ dialog =
     if dialog.isRecurring then
-        Ui.dialogSection Color.neutral30
+        Ui.dialogSectionRow Color.neutral30
             "Description:"
             (E.el
                 [ Ui.bigFont
@@ -383,7 +383,7 @@ viewDescription _ dialog =
             )
 
     else
-        Ui.dialogSection Color.neutral30
+        Ui.dialogSectionRow Color.neutral30
             "Description:"
             (Input.multiline
                 [ Ui.bigFont

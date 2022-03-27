@@ -419,7 +419,7 @@ pageTitle element =
 
 dialogSectionRow : E.Color -> String -> E.Element msg -> E.Element msg
 dialogSectionRow titleColor titleText content =
-    E.row [ E.width E.fill, E.spacing 6 ]
+    E.row [ E.width E.fill, E.spacing 24 ]
         [ E.el
             [ Font.color titleColor
             , normalFont
@@ -428,8 +428,7 @@ dialogSectionRow titleColor titleText content =
             , notSelectable
             ]
             (E.text titleText)
-        , E.el [ E.paddingXY 0 0 ] content
-        , E.el [ E.width E.fill ] E.none
+        , content
         ]
 
 
