@@ -7,9 +7,9 @@ import Element.Font as Font
 import Element.Input as Input
 import Element.Keyed as Keyed
 import Ledger
-import Model
+import Model exposing (Model)
 import Money
-import Msg
+import Msg exposing (Msg)
 import Ui
 import Ui.Color as Color
 
@@ -18,7 +18,7 @@ import Ui.Color as Color
 -- SUMMARY VIEW
 
 
-view : Model.Model -> E.Element Msg.Msg
+view : Model -> E.Element Msg
 view model =
     Keyed.el [ E.width E.fill, E.height E.fill ]
         ( "summary"
@@ -58,7 +58,7 @@ view model =
         )
 
 
-accountsRow : Model.Model -> E.Element Msg.Msg
+accountsRow : Model -> E.Element Msg
 accountsRow model =
     Input.radioRow
         [ E.width E.shrink
@@ -95,7 +95,7 @@ accountsRow model =
         }
 
 
-balanceRow : Model.Model -> E.Element msg
+balanceRow : Model -> E.Element msg
 balanceRow model =
     let
         balance =

@@ -14,9 +14,9 @@ import Element.Font as Font
 import Element.Input as Input
 import Ledger
 import Log
-import Model
+import Model exposing (Model)
 import Money
-import Msg
+import Msg exposing (Msg)
 import String
 import Ui
 import Ui.Color as Color
@@ -26,7 +26,7 @@ import Ui.Color as Color
 -- UPDATE
 
 
-update : Msg.SettingsDialogMsg -> Model.Model -> ( Model.Model, Cmd Msg.Msg )
+update : Msg.SettingsDialogMsg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Msg.SettingsRenameAccount id ->
@@ -279,11 +279,11 @@ update msg model =
 
 
 view :
-    Model.Model
+    Model
     ->
-        { summary : E.Element Msg.Msg
-        , detail : E.Element Msg.Msg
-        , main : E.Element Msg.Msg
+        { summary : E.Element Msg
+        , detail : E.Element Msg
+        , main : E.Element Msg
         }
 view model =
     { summary = Ui.logo model.serviceVersion
@@ -417,7 +417,7 @@ view model =
     }
 
 
-configWarning : Model.Model -> E.Element Msg.Msg
+configWarning : Model -> E.Element Msg
 configWarning model =
     let
         settings =
@@ -445,7 +445,7 @@ configWarning model =
         }
 
 
-configSummary : Model.Model -> E.Element Msg.Msg
+configSummary : Model -> E.Element Msg
 configSummary model =
     Ui.configRadio
         { onChange =
@@ -468,7 +468,7 @@ configSummary model =
         }
 
 
-configReconciliation : Model.Model -> E.Element Msg.Msg
+configReconciliation : Model -> E.Element Msg
 configReconciliation model =
     Ui.configRadio
         { onChange =
@@ -491,7 +491,7 @@ configReconciliation model =
         }
 
 
-configCategoriesEnabled : Model.Model -> E.Element Msg.Msg
+configCategoriesEnabled : Model -> E.Element Msg
 configCategoriesEnabled model =
     Ui.configRadio
         { onChange =
@@ -514,7 +514,7 @@ configCategoriesEnabled model =
         }
 
 
-configCategories : Model.Model -> E.Element Msg.Msg
+configCategories : Model -> E.Element Msg
 configCategories model =
     Ui.configCustom
         { label =
@@ -567,7 +567,7 @@ configCategories model =
         }
 
 
-configRecurring : Model.Model -> E.Element Msg.Msg
+configRecurring : Model -> E.Element Msg
 configRecurring model =
     let
         headerTxt txt =
@@ -640,7 +640,7 @@ configRecurring model =
         }
 
 
-configLocked : Model.Model -> E.Element Msg.Msg
+configLocked : Model -> E.Element Msg
 configLocked model =
     let
         settings =
@@ -711,7 +711,7 @@ configLocked model =
 -- DIALOG
 
 
-viewDialog : Model.Model -> E.Element Msg.Msg
+viewDialog : Model -> E.Element Msg
 viewDialog model =
     case model.settingsDialog of
         Nothing ->

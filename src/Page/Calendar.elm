@@ -1,6 +1,6 @@
 module Page.Calendar exposing (view)
 
-import Date
+import Date exposing (Date)
 import Element as E
 import Element.Background as Background
 import Element.Border as Border
@@ -8,9 +8,9 @@ import Element.Font as Font
 import Element.Input as Input
 import Html.Attributes
 import Ledger
-import Model
+import Model exposing (Model)
 import Money
-import Msg
+import Msg exposing (Msg)
 import Page.Summary as Summary
 import Time
 import Ui
@@ -22,11 +22,11 @@ import Ui.Color as Color
 
 
 view :
-    Model.Model
+    Model
     ->
-        { summary : E.Element Msg.Msg
-        , detail : E.Element Msg.Msg
-        , main : E.Element Msg.Msg
+        { summary : E.Element Msg
+        , detail : E.Element Msg
+        , main : E.Element Msg
         }
 view model =
     { summary = Summary.view model
@@ -39,7 +39,7 @@ view model =
 -- THE CALENDAR
 
 
-calendar : Model.Model -> E.Element Msg.Msg
+calendar : Model -> E.Element Msg
 calendar model =
     let
         findTheFirst date =
@@ -104,7 +104,7 @@ calendar model =
         )
 
 
-calendarHeader : Model.Model -> E.Element Msg.Msg
+calendarHeader : Model -> E.Element Msg
 calendarHeader model =
     E.column
         [ E.width E.fill
@@ -130,7 +130,7 @@ calendarHeader model =
         ]
 
 
-calendarCell : Model.Model -> Date.Date -> E.Element Msg.Msg
+calendarCell : Model -> Date -> E.Element Msg
 calendarCell model day =
     let
         sel =
@@ -272,7 +272,7 @@ calendarCell model day =
             E.none
 
 
-cellContentFor : Model.Model -> Date.Date -> List (E.Element Msg.Msg)
+cellContentFor : Model -> Date -> List (E.Element Msg)
 cellContentFor model day =
     let
         render transaction =
@@ -320,7 +320,7 @@ cellContentFor model day =
 -- DAY VIEW
 
 
-dayView : Model.Model -> E.Element Msg.Msg
+dayView : Model -> E.Element Msg
 dayView model =
     let
         dayDiff =
@@ -379,7 +379,7 @@ dayView model =
         ]
 
 
-dayContentFor : Model.Model -> Date.Date -> List (E.Element Msg.Msg)
+dayContentFor : Model -> Date -> List (E.Element Msg)
 dayContentFor model day =
     let
         future =

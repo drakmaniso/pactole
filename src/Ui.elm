@@ -69,7 +69,7 @@ module Ui exposing
     , warningPopup
     )
 
-import Date
+import Date exposing (Date)
 import Element as E
 import Element.Background as Background
 import Element.Border as Border
@@ -539,7 +539,7 @@ warningPopup elements =
             elements
 
 
-dateNavigationBar : { a | showFocus : Bool, date : Date.Date, today : Date.Date } -> (Date.Date -> msg) -> E.Element msg
+dateNavigationBar : { a | showFocus : Bool, date : Date, today : Date } -> (Date -> msg) -> E.Element msg
 dateNavigationBar model changeMsg =
     E.row
         [ E.width E.fill
@@ -639,7 +639,7 @@ dateNavigationBar model changeMsg =
         ]
 
 
-viewDate : Date.Date -> E.Element msg
+viewDate : Date -> E.Element msg
 viewDate date =
     E.el
         [ E.width E.fill

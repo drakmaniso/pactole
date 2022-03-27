@@ -1,6 +1,6 @@
 module Msg exposing (DatabaseMsg(..), DialogMsg(..), Msg(..), SettingsDialogMsg(..))
 
-import Date
+import Date exposing (Date)
 import Json.Decode as Decode
 import Ledger
 import Model
@@ -10,7 +10,7 @@ type Msg
     = ChangePage Model.Page
     | Close
     | CloseErrorBanner
-    | SelectDate Date.Date
+    | SelectDate Date
     | SelectAccount Int
     | KeyDown String
     | WindowResize { width : Int, height : Int }
@@ -31,7 +31,7 @@ type DatabaseMsg
 
 
 type DialogMsg
-    = DialogNewTransaction Bool Date.Date -- isExpense date
+    = DialogNewTransaction Bool Date -- isExpense date
     | DialogEditTransaction Int
     | DialogShowRecurring Int
     | DialogChangeAmount String

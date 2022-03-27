@@ -1,12 +1,12 @@
 module Log exposing (error)
 
 import Json.Encode as Encode
-import Model
-import Platform.Cmd
+import Model exposing (Model)
+import Platform.Cmd exposing (Cmd)
 import Ports
 
 
-error : String -> ( Model.Model, Cmd msg ) -> ( Model.Model, Cmd msg )
+error : String -> ( Model, Cmd msg ) -> ( Model, Cmd msg )
 error msg ( model, cmd ) =
     ( { model | error = Just msg }
     , Platform.Cmd.batch

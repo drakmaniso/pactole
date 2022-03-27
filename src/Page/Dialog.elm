@@ -15,9 +15,9 @@ import Element.Input as Input
 import Html.Attributes as HtmlAttr
 import Ledger
 import Log
-import Model
+import Model exposing (Model)
 import Money
-import Msg
+import Msg exposing (Msg)
 import Task
 import Ui
 import Ui.Color as Color
@@ -27,7 +27,7 @@ import Ui.Color as Color
 -- UPDATE
 
 
-update : Msg.DialogMsg -> Model.Model -> ( Model.Model, Cmd Msg.Msg )
+update : Msg.DialogMsg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Msg.DialogNewTransaction isExpense date ->
@@ -207,7 +207,7 @@ update msg model =
 -- VIEW
 
 
-view : Model.Model -> E.Element Msg.Msg
+view : Model -> E.Element Msg
 view model =
     case model.dialog of
         Just dialog ->
@@ -234,7 +234,7 @@ view model =
             E.none
 
 
-viewDate : Model.Model -> Model.Dialog -> E.Element Msg.Msg
+viewDate : Model -> Model.Dialog -> E.Element Msg
 viewDate model _ =
     E.row [ E.width E.fill, E.paddingEach { left = 0, right = 0, top = 0, bottom = 12 } ]
         [ E.el [ E.width E.fill ] E.none
@@ -243,7 +243,7 @@ viewDate model _ =
         ]
 
 
-viewAmount : Model.Model -> Model.Dialog -> E.Element Msg.Msg
+viewAmount : Model -> Model.Dialog -> E.Element Msg
 viewAmount model dialog =
     let
         isFuture =
@@ -368,8 +368,8 @@ viewAmount model dialog =
             )
 
 
-viewDescription : Model.Model -> Model.Dialog -> E.Element Msg.Msg
-viewDescription model dialog =
+viewDescription : Model -> Model.Dialog -> E.Element Msg
+viewDescription _ dialog =
     if dialog.isRecurring then
         Ui.dialogSection Color.neutral30
             "Description:"
@@ -406,7 +406,7 @@ viewDescription model dialog =
             )
 
 
-viewCategories : Model.Model -> Model.Dialog -> E.Element Msg.Msg
+viewCategories : Model -> Model.Dialog -> E.Element Msg
 viewCategories model dialog =
     if dialog.isRecurring || not dialog.isExpense || not model.settings.categoriesEnabled then
         E.none
@@ -497,7 +497,7 @@ viewCategories model dialog =
             )
 
 
-viewButtons : Model.Dialog -> E.Element Msg.Msg
+viewButtons : Model.Dialog -> E.Element Msg
 viewButtons dialog =
     if dialog.isRecurring then
         E.row

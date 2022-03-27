@@ -4,9 +4,9 @@ import Dict
 import Element as E
 import Element.Font as Font
 import Ledger
-import Model
+import Model exposing (Model)
 import Money
-import Msg
+import Msg exposing (Msg)
 import Page.Summary as Summary
 import Ui
 import Ui.Color as Color
@@ -17,11 +17,11 @@ import Ui.Color as Color
 
 
 view :
-    Model.Model
+    Model
     ->
-        { summary : E.Element Msg.Msg
-        , detail : E.Element Msg.Msg
-        , main : E.Element Msg.Msg
+        { summary : E.Element Msg
+        , detail : E.Element Msg
+        , main : E.Element Msg
         }
 view model =
     { summary = Summary.view model
@@ -71,7 +71,7 @@ view model =
     }
 
 
-viewMonthBalance : Model.Model -> E.Element msg
+viewMonthBalance : Model -> E.Element msg
 viewMonthBalance shared =
     let
         monthBal =
@@ -91,7 +91,7 @@ viewMonthBalance shared =
         ]
 
 
-viewMonthFutureWarning : Model.Model -> E.Element msg
+viewMonthFutureWarning : Model -> E.Element msg
 viewMonthFutureWarning shared =
     if
         Ledger.hasFutureTransactionsForMonth shared.recurring shared.account shared.date shared.today
@@ -114,7 +114,7 @@ viewMonthFutureWarning shared =
         E.none
 
 
-viewCategories : Model.Model -> E.Element Msg.Msg
+viewCategories : Model -> E.Element Msg
 viewCategories shared =
     E.column
         [ E.width E.fill

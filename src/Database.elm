@@ -29,10 +29,10 @@ import Date
 import Dict
 import Json.Decode as Decode
 import Json.Encode as Encode
-import Ledger
+import Ledger exposing (Ledger)
 import Log
-import Model
-import Msg
+import Model exposing (Model)
+import Msg exposing (Msg)
 import Ports
 
 
@@ -40,7 +40,7 @@ import Ports
 -- UPDATE
 
 
-update : Msg.DatabaseMsg -> Model.Model -> ( Model.Model, Cmd Msg.Msg )
+update : Msg.DatabaseMsg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Msg.DbFromService ( title, json ) ->
@@ -196,7 +196,7 @@ deleteRecurringTransaction id =
         )
 
 
-exportFileName : Model.Model -> String
+exportFileName : Model -> String
 exportFileName model =
     let
         today =
@@ -214,7 +214,7 @@ exportFileName model =
     "Pactole-" ++ year ++ "-" ++ month ++ "-" ++ day ++ ".json"
 
 
-exportDatabase : Model.Model -> Cmd msg
+exportDatabase : Model -> Cmd msg
 exportDatabase model =
     Ports.send
         ( "export database"
@@ -242,12 +242,12 @@ importDatabase =
 -- FROM THE SERVICE WORKER
 
 
-receive : Sub Msg.Msg
+receive : Sub Msg
 receive =
     Ports.receive (Msg.ForDatabase << Msg.DbFromService)
 
 
-msgFromService : ( String, Decode.Value ) -> Model.Model -> ( Model.Model, Cmd Msg.Msg )
+msgFromService : ( String, Decode.Value ) -> Model -> ( Model, Cmd Msg )
 msgFromService ( title, content ) model =
     case title of
         "persistent storage granted" ->
@@ -368,7 +368,7 @@ msgFromService ( title, content ) model =
 -- UTILITIES
 
 
-upgradeSettingsToV2 : Decode.Value -> ( Model.Model, Cmd msg ) -> ( Model.Model, Cmd msg )
+upgradeSettingsToV2 : Decode.Value -> ( Model, Cmd msg ) -> ( Model, Cmd msg )
 upgradeSettingsToV2 json ( model, previousCmds ) =
     let
         decoder =
@@ -401,7 +401,7 @@ upgradeSettingsToV2 json ( model, previousCmds ) =
                 )
 
 
-decodeDB : Decode.Decoder { settings : Model.Settings, accounts : List ( Int, String ), categories : List ( Int, { name : String, icon : String } ), ledger : Ledger.Ledger, recurring : Ledger.Ledger, serviceVersion : String }
+decodeDB : Decode.Decoder { settings : Model.Settings, accounts : List ( Int, String ), categories : List ( Int, { name : String, icon : String } ), ledger : Ledger, recurring : Ledger, serviceVersion : String }
 decodeDB =
     Decode.map6
         (\s a c l r srd ->
@@ -431,7 +431,7 @@ firstAccount accounts =
             -1
 
 
-processRecurringTransactions : ( Model.Model, Cmd Msg.Msg ) -> ( Model.Model, Cmd Msg.Msg )
+processRecurringTransactions : ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
 processRecurringTransactions ( model, previousCmds ) =
     let
         activated =

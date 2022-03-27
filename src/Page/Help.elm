@@ -2,8 +2,8 @@ module Page.Help exposing (view)
 
 import Element as E
 import Element.Border as Border
-import Model
-import Msg
+import Model exposing (Model)
+import Msg exposing (Msg)
 import Ui
 import Ui.Color as Color
 
@@ -13,11 +13,11 @@ import Ui.Color as Color
 
 
 view :
-    Model.Model
+    Model
     ->
-        { summary : E.Element Msg.Msg
-        , detail : E.Element Msg.Msg
-        , main : E.Element Msg.Msg
+        { summary : E.Element Msg
+        , detail : E.Element Msg
+        , main : E.Element Msg
         }
 view model =
     { summary = Ui.logo model.serviceVersion
@@ -42,32 +42,34 @@ view model =
     }
 
 
-configLocked : Model.Model -> E.Element Msg.Msg
-configLocked model =
-    Ui.helpTextColumn
-        [ Ui.configRadio
-            { onChange =
-                \o ->
-                    let
-                        settings =
-                            model.settings
-                    in
-                    if o then
-                        Msg.ForDatabase <| Msg.DbStoreSettings { settings | settingsLocked = True }
 
-                    else
-                        Msg.ForDatabase <| Msg.DbStoreSettings { settings | settingsLocked = False }
-            , label = "Déverrouiller l'accès aux réglages de l'application:"
-            , options =
-                [ Ui.radioRowOption True (E.text "Non")
-                , Ui.radioRowOption False (E.text "Oui")
-                ]
-            , selected = Just model.settings.settingsLocked
-            }
-        ]
+{- configLocked : Model -> E.Element Msg
+   configLocked model =
+       Ui.helpTextColumn
+           [ Ui.configRadio
+               { onChange =
+                   \o ->
+                       let
+                           settings =
+                               model.settings
+                       in
+                       if o then
+                           Msg.ForDatabase <| Msg.DbStoreSettings { settings | settingsLocked = True }
+
+                       else
+                           Msg.ForDatabase <| Msg.DbStoreSettings { settings | settingsLocked = False }
+               , label = "Déverrouiller l'accès aux réglages de l'application:"
+               , options =
+                   [ Ui.radioRowOption True (E.text "Non")
+                   , Ui.radioRowOption False (E.text "Oui")
+                   ]
+               , selected = Just model.settings.settingsLocked
+               }
+           ]
+-}
 
 
-presentation : Model.Model -> E.Element Msg.Msg
+presentation : Model -> E.Element Msg
 presentation model =
     let
         settings =

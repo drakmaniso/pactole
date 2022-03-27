@@ -15,11 +15,11 @@ module Model exposing
     , encodeSettings
     )
 
-import Date
+import Date exposing (Date)
 import Dict
 import Json.Decode as Decode
 import Json.Encode as Encode
-import Ledger
+import Ledger exposing (Ledger)
 import Ui
 
 
@@ -28,17 +28,12 @@ import Ui
 
 
 type alias Model =
-    { settings : Settings
-    , today : Date.Date
+    { today : Date
     , hasStorageAPI : Bool
     , isPersistentStorageGranted : Bool
     , isStoragePersisted : Bool
-    , date : Date.Date
-    , ledger : Ledger.Ledger
-    , recurring : Ledger.Ledger
-    , accounts : Dict.Dict Int String
+    , date : Date
     , account : Int
-    , categories : Dict.Dict Int Category
     , showFocus : Bool
     , page : Page
     , dialog : Maybe Dialog
@@ -46,6 +41,13 @@ type alias Model =
     , serviceVersion : String
     , device : Ui.Device
     , error : Maybe String
+
+    -- Persistent Data
+    , settings : Settings
+    , ledger : Ledger
+    , recurring : Ledger
+    , accounts : Dict.Dict Int String
+    , categories : Dict.Dict Int Category
     }
 
 
@@ -175,7 +177,7 @@ type alias Dialog =
     { id : Maybe Int
     , isExpense : Bool
     , isRecurring : Bool
-    , date : Date.Date
+    , date : Date
     , amount : String
     , amountError : String
     , description : String

@@ -14,9 +14,8 @@ import Element.Font as Font
 import Element.Input as Input
 import Json.Decode as Decode
 import Ledger
-import Log
-import Model
-import Msg
+import Model exposing (Model)
+import Msg exposing (Msg)
 import Page.Calendar as Calendar
 import Page.Dialog as Dialog
 import Page.Help as Help
@@ -33,7 +32,7 @@ import Url
 -- MAIN
 
 
-main : Program Decode.Value Model.Model Msg.Msg
+main : Program Decode.Value Model Msg
 main =
     Browser.application
         { init = init
@@ -49,7 +48,7 @@ main =
 -- INIT
 
 
-init : Decode.Value -> Url.Url -> Navigation.Key -> ( Model.Model, Cmd Msg.Msg )
+init : Decode.Value -> Url.Url -> Navigation.Key -> ( Model, Cmd Msg )
 init flags _ _ =
     let
         day =
@@ -139,7 +138,7 @@ init flags _ _ =
 -- UPDATE
 
 
-update : Msg.Msg -> Model.Model -> ( Model.Model, Cmd Msg.Msg )
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Msg.ChangePage page ->
@@ -190,7 +189,7 @@ update msg model =
 -- SUBSCRIPTIONS
 
 
-subscriptions : Model.Model -> Sub Msg.Msg
+subscriptions : Model -> Sub Msg
 subscriptions _ =
     Sub.batch
         [ Database.receive
@@ -199,7 +198,7 @@ subscriptions _ =
         ]
 
 
-keyDecoder : (String -> Msg.Msg) -> Decode.Decoder Msg.Msg
+keyDecoder : (String -> Msg) -> Decode.Decoder Msg
 keyDecoder msg =
     Decode.field "key" Decode.string
         |> Decode.map msg
@@ -209,7 +208,7 @@ keyDecoder msg =
 -- VIEW
 
 
-view : Model.Model -> Browser.Document Msg.Msg
+view : Model -> Browser.Document Msg
 view model =
     let
         activeDialog =
@@ -352,7 +351,7 @@ view model =
     }
 
 
-pageWithSidePanel : Model.Model -> { panel : E.Element Msg.Msg, page : E.Element Msg.Msg } -> E.Element Msg.Msg
+pageWithSidePanel : Model -> { panel : E.Element Msg, page : E.Element Msg } -> E.Element Msg
 pageWithSidePanel model { panel, page } =
     let
         minLeftSize =
@@ -405,7 +404,7 @@ pageWithSidePanel model { panel, page } =
         ]
 
 
-navigationBar : Model.Model -> E.Element Msg.Msg
+navigationBar : Model -> E.Element Msg
 navigationBar model =
     let
         navigationButton { targetPage, label } =
