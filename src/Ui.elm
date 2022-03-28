@@ -6,6 +6,7 @@ module Ui exposing
     , bigWarningIcon
     , biggerFont
     , biggestFont
+    , boldText
     , borderWidth
     , checkBox
     , checkIcon
@@ -29,10 +30,6 @@ module Ui exposing
     , helpListItem
     , helpMiniButton
     , helpNumberedList
-    , helpParagraph
-    , helpSectionTitle
-    , helpText
-    , helpTextColumn
     , iconButton
     , iconFont
     , incomeButton
@@ -48,6 +45,8 @@ module Ui exposing
     , notSelectable
     , onEnter
     , pageTitle
+    , paragraph
+    , paragraphParts
     , plusIcon
     , radioButton
     , radioRowOption
@@ -59,6 +58,10 @@ module Ui exposing
     , smallShadow
     , smallerFont
     , smallerShadow
+    , spacer
+    , text
+    , textColumn
+    , title
     , transition
     , verySmallFont
     , viewDate
@@ -319,12 +322,11 @@ configRadio :
     -> E.Element msg
 configRadio { label, options, selected, onChange } =
     Input.radioRow
-        [ E.paddingEach { top = 12, bottom = 24, left = 12 + 64, right = 12 }
-        , E.width E.fill
+        [ E.width E.fill
         ]
         { label =
-            Input.labelAbove
-                [ E.paddingEach { bottom = 0, top = 48, left = 12, right = 12 } ]
+            Input.labelLeft
+                [ E.paddingEach { bottom = 0, top = 0, left = 0, right = 24 } ]
                 (E.el [ Font.bold ] (E.text label))
         , options = options
         , selected = selected
@@ -1004,42 +1006,11 @@ onEnter msg =
 -- HELP ELEMENTS
 
 
-helpTextColumn : List (E.Element msg) -> E.Element msg
-helpTextColumn paragraphs =
-    E.row [ E.alignLeft, E.width (E.fill |> E.maximum 1200) ]
-        [ E.el [ E.alignLeft, E.width (E.fillPortion 1) ] E.none
-        , E.textColumn [ E.alignLeft, E.width (E.fillPortion 10) ] paragraphs
-        , E.el [ E.alignLeft, E.width (E.fillPortion 1) ] E.none
-        ]
-
-
-helpSectionTitle : String -> E.Element msg
-helpSectionTitle txt =
-    E.paragraph
-        [ bigFont
-        , Font.bold
-        , E.paddingEach { left = 12, top = 48, bottom = 12, right = 12 }
-        ]
-        [ E.text txt ]
-
-
-helpParagraph : List (E.Element msg) -> E.Element msg
-helpParagraph texts =
-    E.paragraph
-        [ normalFont
-        , Font.color Color.neutral30
-        , E.paddingEach { left = 12, top = 12, bottom = 12, right = 12 }
-        ]
-        texts
-
-
 helpList : List (E.Element msg) -> E.Element msg
 helpList listItems =
     let
         withBullet para =
-            E.row
-                [ E.paddingEach { left = 0, top = 6, bottom = 6, right = 0 }
-                ]
+            E.row []
                 [ E.column [ E.height E.fill ]
                     [ E.el [ E.paddingXY 6 0 ] (E.text "•")
                     , E.el [ E.height E.fill ] E.none
@@ -1047,9 +1018,7 @@ helpList listItems =
                 , para
                 ]
     in
-    E.column
-        [ E.paddingEach { left = 12, top = 6, bottom = 6, right = 12 }
-        ]
+    E.column [ E.spacing 24 ]
         (List.map withBullet listItems)
 
 
@@ -1058,8 +1027,7 @@ helpNumberedList listItems =
     let
         withBullet index para =
             E.row
-                [ E.paddingEach { left = 0, top = 6, bottom = 6, right = 0 }
-                ]
+                []
                 [ E.column [ E.height E.fill, E.spacing 0 ]
                     [ E.el [ E.width (E.px 48), Font.center ] (E.text (String.fromInt (index + 1) ++ "."))
                     , E.el [ E.height E.fill ] E.none
@@ -1068,7 +1036,7 @@ helpNumberedList listItems =
                 ]
     in
     E.column
-        [ E.paddingEach { left = 12, top = 6, bottom = 6, right = 12 }
+        [ E.spacing 24
         ]
         (List.indexedMap withBullet listItems)
 
@@ -1081,11 +1049,6 @@ helpListItem texts =
         , E.padding 0
         ]
         texts
-
-
-helpText : String -> E.Element msg
-helpText txt =
-    E.text txt
 
 
 helpImage : String -> String -> E.Element msg
@@ -1107,3 +1070,69 @@ helpMiniButton { label, onPress } =
         { label = label
         , onPress = Just onPress
         }
+
+
+
+-- TEXT
+
+
+textColumn : List (E.Element msg) -> E.Element msg
+textColumn elements =
+    E.column [ E.width E.fill, E.spacing 24 ]
+        (elements
+            |> List.map
+                (\el ->
+                    E.el
+                        [ E.centerX
+                        , E.width <| E.maximum paragraphWidth <| E.fill
+                        , E.padding 6
+                        ]
+                        el
+                )
+        )
+
+
+paragraphWidth : Int
+paragraphWidth =
+    860
+
+
+title : String -> E.Element msg
+title txt =
+    E.paragraph
+        [ bigFont
+        , Font.bold
+        , Font.color Color.neutral30
+        ]
+        [ E.text txt ]
+
+
+spacer : E.Element msg
+spacer =
+    E.el [ E.height (E.px 0) ] E.none
+
+
+paragraph : String -> E.Element msg
+paragraph txt =
+    E.paragraph
+        [ normalFont
+        , Font.color Color.neutral30
+        ]
+        [ E.text txt ]
+
+
+paragraphParts : List (E.Element msg) -> E.Element msg
+paragraphParts parts =
+    E.paragraph
+        [ normalFont
+        , Font.color Color.neutral30
+        ]
+        parts
+
+
+text txt =
+    E.text txt
+
+
+boldText txt =
+    E.el [ Font.bold ] (E.text txt)

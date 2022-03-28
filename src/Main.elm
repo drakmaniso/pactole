@@ -163,7 +163,6 @@ installUpdate msg model =
 
         Msg.KeyDown _ ->
             ( model, Cmd.none )
-                |> Log.error "unexpected `KeyDown` message in `installUpdate`"
 
         Msg.WindowResize size ->
             ( { model
@@ -185,7 +184,6 @@ installUpdate msg model =
 
         Msg.NoOp ->
             ( model, Cmd.none )
-                |> Log.error "unexpected `NoOp` message in `installUpdate`"
 
         Msg.ChangePage _ ->
             ( model, Cmd.none )
@@ -266,10 +264,15 @@ keyDecoder msg =
 view : Model -> Browser.Document Msg
 view model =
     if Dict.isEmpty model.accounts then
-        document model (Installation.view model) Nothing
+        installView model
 
     else
         appView model
+
+
+installView : Model -> Browser.Document Msg
+installView model =
+    document model (Installation.view model) Nothing
 
 
 appView : Model -> Browser.Document Msg
