@@ -1,5 +1,6 @@
 module Page.Settings exposing
-    ( update
+    ( configLocked
+    , update
     , view
     , viewDialog
     )
@@ -358,29 +359,22 @@ viewSettings model =
             faire une copie de sauvegarde et la récupérer sur le nouvel appareil.
             """
         , configBackup model
-        , Ui.spacer
+        , Ui.verticalSpacer
         , Ui.title "Configuration des comptes"
         , configWarning model
         , configAccounts model
-        , Ui.spacer
+        , Ui.verticalSpacer
         , Ui.title "Fonctions optionnelles"
         , configSummary model
         , configReconciliation model
-        , Ui.spacer
+        , Ui.verticalSpacer
         , Ui.title "Catégories de dépenses"
         , configCategoriesEnabled model
         , configCategories model
-        , Ui.spacer
+        , Ui.verticalSpacer
         , Ui.title "Opération mensuelles"
         , configRecurring model
-        , Ui.spacer
-        , Ui.title "Verrouillage des réglages"
-        , Ui.paragraph
-            """
-            Si l'utilisateur principal de l'application n'est pas à l'aise avec
-            toutes les fonctionnalités, vous pouvez re-verrouiller l'accès aux réglages
-            afin de prévenir toute fausse manipulation.
-            """
+        , Ui.verticalSpacer
         , configLocked model
         ]
 
@@ -448,7 +442,7 @@ configWarning model =
             model.settings
     in
     E.column [ E.spacing 12 ]
-        [ Ui.text "Avertissement en dessous de:"
+        [ Ui.paragraph "Avertissement lorsque le solde passe en dessous de:"
         , E.row [ E.spacing 12 ]
             [ Ui.iconButton
                 { icon = Ui.minusIcon
@@ -658,7 +652,14 @@ configLocked model =
     in
     E.column
         [ E.width E.fill, E.spacing 24 ]
-        [ Ui.configRadio
+        [ Ui.title "Verrouillage des réglages"
+        , Ui.paragraph
+            """
+            Si l'utilisateur principal de l'application n'est pas à l'aise avec
+            toutes les fonctionnalités, vous pouvez verrouiller l'accès aux réglages
+            afin de prévenir toute fausse manipulation.
+            """
+        , Ui.configRadio
             { onChange =
                 \o ->
                     if o then
@@ -666,13 +667,19 @@ configLocked model =
 
                     else
                         Msg.ForDatabase <| Msg.DbStoreSettings { settings | settingsLocked = False }
-            , label = "Réglages:"
+            , label = "Accès aux réglages:"
             , options =
-                [ Ui.radioRowOption False (E.text "Accessibles")
-                , Ui.radioRowOption True (E.text "Verrouillés")
+                [ Ui.radioRowOption False (E.text "Libre")
+                , Ui.radioRowOption True (E.text "Verrouillé")
                 ]
             , selected = Just model.settings.settingsLocked
             }
+        , Ui.paragraph
+            """
+            Note: lorsque les réglages sont vérouillés, vous pouvez les déverrouiler
+            dans la page d'aide de l'application.
+            """
+        , Ui.verticalSpacer
         ]
 
 

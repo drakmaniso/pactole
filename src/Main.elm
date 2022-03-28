@@ -21,6 +21,7 @@ import Page.Calendar as Calendar
 import Page.Dialog as Dialog
 import Page.Help as Help
 import Page.Installation as Installation
+import Page.Loading as Loading
 import Page.Reconcile as Reconcile
 import Page.Settings as Settings
 import Page.Statistics as Statistics
@@ -107,7 +108,7 @@ init flags _ _ =
             , reconciliationEnabled = False
             , summaryEnabled = False
             , balanceWarning = 100
-            , settingsLocked = True
+            , settingsLocked = False
             }
       , today = today
       , hasStorageAPI = hasStorageAPI
@@ -120,7 +121,7 @@ init flags _ _ =
       , account = -1 --TODO!!!
       , categories = Dict.empty
       , showFocus = False
-      , page = Model.MainPage
+      , page = Model.LoadingPage
       , dialog = Nothing
       , settingsDialog = Nothing
       , serviceVersion = "unknown"
@@ -137,18 +138,21 @@ init flags _ _ =
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    if Dict.isEmpty model.accounts then
-        installUpdate msg model
+    case model.page of
+        Model.InstallationPage installation ->
+            installUpdate msg model installation
 
-    else
-        appUpdate msg model
+        _ ->
+            appUpdate msg model
 
 
-installUpdate : Msg -> Model -> ( Model, Cmd Msg )
-installUpdate msg model =
+installUpdate : Msg -> Model -> Model.InstallationData -> ( Model, Cmd Msg )
+installUpdate msg model installation =
     case msg of
         Msg.Close ->
-            ( model, Database.createAccount "Foo" )
+            ( { model | page = Model.MainPage }
+            , Database.createAccount installation.firstAccount
+            )
 
         Msg.CloseErrorBanner ->
             ( { model | error = Nothing }, Cmd.none )
@@ -263,20 +267,15 @@ keyDecoder msg =
 
 view : Model -> Browser.Document Msg
 view model =
-    if Dict.isEmpty model.accounts then
-        installView model
-
-    else
-        appView model
-
-
-installView : Model -> Browser.Document Msg
-installView model =
-    document model (Installation.view model) Nothing
-
-
-appView : Model -> Browser.Document Msg
-appView model =
+    --     if Dict.isEmpty model.accounts then
+    --         installView model
+    --     else
+    --         appView model
+    -- installView : Model -> Browser.Document Msg
+    -- installView model =
+    --     document model (Installation.view model) Nothing
+    -- appView : Model -> Browser.Document Msg
+    -- appView model =
     let
         activeDialog =
             case model.dialog of
@@ -288,6 +287,12 @@ appView model =
 
         activePageParts =
             case model.page of
+                Model.LoadingPage ->
+                    Loading.view model
+
+                Model.InstallationPage _ ->
+                    Installation.view model
+
                 Model.HelpPage ->
                     Help.view model
 
@@ -522,43 +527,52 @@ navigationBar model =
         , Background.color Color.primary95
         , Ui.smallerShadow
         ]
-        [ navigationButton
-            { targetPage = Model.MainPage
-            , label = E.text "Pactole"
-            }
-        , if model.settings.summaryEnabled then
-            navigationButton
-                { targetPage = Model.StatsPage
-                , label = E.text "Bilan"
-                }
+        (case model.page of
+            Model.LoadingPage ->
+                [ E.el [ E.paddingXY 12 6, Font.color Color.primary40, E.centerX ] (E.text "Chargement...") ]
 
-          else
-            E.none
-        , if model.settings.reconciliationEnabled then
-            navigationButton
-                { targetPage = Model.ReconcilePage
-                , label = E.text "Pointer"
-                }
+            Model.InstallationPage _ ->
+                [ E.el [ E.paddingXY 12 6, Font.bold, Font.color Color.primary40, E.centerX ] (E.text "Pactole") ]
 
-          else
-            E.none
-        , E.el
-            [ E.width E.fill
-            , E.height E.fill
-            ]
-            E.none
-        , if model.settings.settingsLocked then
-            E.none
+            _ ->
+                [ navigationButton
+                    { targetPage = Model.MainPage
+                    , label = E.text "Pactole"
+                    }
+                , if model.settings.summaryEnabled then
+                    navigationButton
+                        { targetPage = Model.StatsPage
+                        , label = E.text "Bilan"
+                        }
 
-          else
-            navigationButton
-                { targetPage = Model.SettingsPage
-                , label =
-                    E.el [ Ui.iconFont, Ui.bigFont, E.centerX, E.paddingXY 0 0 ] (E.text "\u{F013}")
-                }
-        , navigationButton
-            { targetPage = Model.HelpPage
-            , label =
-                E.el [ Ui.iconFont, Ui.bigFont, E.centerX, E.paddingXY 0 0 ] (E.text "\u{F059}")
-            }
-        ]
+                  else
+                    E.none
+                , if model.settings.reconciliationEnabled then
+                    navigationButton
+                        { targetPage = Model.ReconcilePage
+                        , label = E.text "Pointer"
+                        }
+
+                  else
+                    E.none
+                , E.el
+                    [ E.width E.fill
+                    , E.height E.fill
+                    ]
+                    E.none
+                , if model.settings.settingsLocked then
+                    E.none
+
+                  else
+                    navigationButton
+                        { targetPage = Model.SettingsPage
+                        , label =
+                            E.el [ Ui.iconFont, Ui.bigFont, E.centerX, E.paddingXY 0 0 ] (E.text "\u{F013}")
+                        }
+                , navigationButton
+                    { targetPage = Model.HelpPage
+                    , label =
+                        E.el [ Ui.iconFont, Ui.bigFont, E.centerX, E.paddingXY 0 0 ] (E.text "\u{F059}")
+                    }
+                ]
+        )

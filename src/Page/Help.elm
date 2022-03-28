@@ -57,7 +57,7 @@ presentation model =
             """
             Ce guide explique comment se servir de l'application.
             """
-        , Ui.spacer
+        , Ui.verticalSpacer
         , Ui.title "Présentation générale"
         , Ui.paragraph
             """
@@ -69,7 +69,7 @@ presentation model =
             en haut à gauche, le solde du compte; et juste en dessous,
             le détail du jour sélectionné.
             """
-        , Ui.spacer
+        , Ui.verticalSpacer
         , Ui.title "Pour utiliser le calendrier"
         , Ui.paragraph
             """
@@ -90,7 +90,7 @@ presentation model =
             C'est dans cette liste d'opérations que vous pouvez créer et
             modifier les opérations.
             """
-        , Ui.spacer
+        , Ui.verticalSpacer
         , Ui.title "Pour enregistrer le solde initial"
         , Ui.paragraph
             """
@@ -128,7 +128,7 @@ presentation model =
                     Appuyez sur le bouton "OK" pour confirmer la création de l'opération.
                     """
             ]
-        , Ui.spacer
+        , Ui.verticalSpacer
         , Ui.title "Pour créer une nouvelle opération"
         , Ui.helpList
             [ Ui.paragraph
@@ -157,7 +157,7 @@ presentation model =
                     Appuyez sur le bouton "OK" pour confirmer la création de l'opération.
                     """
             ]
-        , Ui.spacer
+        , Ui.verticalSpacer
         , Ui.title "Pour supprimer une opération"
         , Ui.helpList
             [ Ui.paragraph
@@ -177,7 +177,7 @@ presentation model =
                     Appuyez sur le bouton "Supprimer".
                     """
             ]
-        , Ui.spacer
+        , Ui.verticalSpacer
         , Ui.title "Pour changer le montant ou la description d'une opération"
         , Ui.helpList
             [ Ui.paragraph
@@ -201,14 +201,14 @@ presentation model =
                     Appuyez sur le bouton "OK" pour confirmer les changements.
                     """
             ]
-        , Ui.spacer
+        , Ui.verticalSpacer
         , Ui.title "Pour changer la date d'une opération"
         , Ui.paragraph
             """
                 Pour déplacer une opération à une date différente, il suffit de supprimer
                 l'opération existante et de la recréer à la nouvelle date.
                 """
-        , Ui.spacer
+        , Ui.verticalSpacer
         , Ui.title "Pour les fonctions avancées"
         , Ui.paragraphParts
             [ Ui.text

@@ -1,6 +1,7 @@
 module Model exposing
     ( Category
     , Dialog
+    , InstallationData
     , Model
     , Page(..)
     , Settings
@@ -52,11 +53,20 @@ type alias Model =
 
 
 type Page
-    = MainPage
+    = LoadingPage
+    | InstallationPage InstallationData
+    | MainPage
     | StatsPage
     | ReconcilePage
     | HelpPage
     | SettingsPage
+
+
+type alias InstallationData =
+    { firstAccount : String
+    , initialBalance : String
+    , initialBalanceError : Maybe String
+    }
 
 
 
@@ -166,7 +176,7 @@ decodeSettings =
         (Decode.oneOf [ Decode.field "reconciliationEnabled" Decode.bool, Decode.succeed False ])
         (Decode.oneOf [ Decode.field "summaryEnabled" Decode.bool, Decode.succeed False ])
         (Decode.oneOf [ Decode.field "balanceWarning" Decode.int, Decode.succeed 100 ])
-        (Decode.oneOf [ Decode.field "settingsLocked" Decode.bool, Decode.succeed True ])
+        (Decode.oneOf [ Decode.field "settingsLocked" Decode.bool, Decode.succeed False ])
 
 
 

@@ -287,7 +287,16 @@ msgFromService ( title, content ) model =
                         , ledger = db.ledger
                         , recurring = db.recurring
                         , serviceVersion = db.serviceVersion
-                        , page = Model.MainPage
+                        , page =
+                            if List.isEmpty db.accounts then
+                                Model.InstallationPage
+                                    { firstAccount = "Mon compte"
+                                    , initialBalance = ""
+                                    , initialBalanceError = Nothing
+                                    }
+
+                            else
+                                Model.MainPage
                       }
                     , Cmd.none
                     )

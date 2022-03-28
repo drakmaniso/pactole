@@ -35,6 +35,7 @@ module Ui exposing
     , incomeButton
     , incomeIcon
     , innerShadow
+    , labelLeft
     , loadIcon
     , logo
     , mainButton
@@ -58,11 +59,12 @@ module Ui exposing
     , smallShadow
     , smallerFont
     , smallerShadow
-    , spacer
     , text
     , textColumn
+    , textInput
     , title
     , transition
+    , verticalSpacer
     , verySmallFont
     , viewDate
     , viewMoney
@@ -980,6 +982,32 @@ radioButton { onPress, icon, label, active } =
         }
 
 
+labelLeft : String -> Input.Label msg
+labelLeft txt =
+    Input.labelLeft [ E.paddingEach { left = 0, right = 12, top = 0, bottom = 0 } ] (E.text txt)
+
+
+textInput : { width : Int, label : Input.Label msg, text : String, onChange : String -> msg } -> E.Element msg
+textInput args =
+    Input.text
+        [ E.width (E.px args.width)
+        , Border.width 4
+        , Border.color Color.white
+        , Background.color Color.neutral95
+        , innerShadow
+        , E.focused
+            [ Border.color Color.focus85
+            ]
+        , Font.color Color.neutral20
+        , E.htmlAttribute <| Html.Attributes.autocomplete False
+        ]
+        { label = args.label
+        , text = args.text
+        , placeholder = Nothing
+        , onChange = args.onChange
+        }
+
+
 
 -- ATTRIBUTES
 
@@ -1106,8 +1134,8 @@ title txt =
         [ E.text txt ]
 
 
-spacer : E.Element msg
-spacer =
+verticalSpacer : E.Element msg
+verticalSpacer =
     E.el [ E.height (E.px 0) ] E.none
 
 
