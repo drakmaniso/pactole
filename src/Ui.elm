@@ -327,7 +327,7 @@ configRadio { label, options, selected, onChange } =
         { label =
             Input.labelLeft
                 [ E.paddingEach { bottom = 0, top = 0, left = 0, right = 24 } ]
-                (E.el [ Font.bold ] (E.text label))
+                (E.el [] (E.text label))
         , options = options
         , selected = selected
         , onChange = onChange
@@ -343,7 +343,6 @@ radioRowOption value element =
                 ([ E.centerX
                  , E.paddingXY 16 7
                  , Border.rounded 3
-                 , bigFont
                  , transition
                  ]
                     ++ (case state of

@@ -346,80 +346,98 @@ view model =
 
 viewSettings model =
     Ui.textColumn
-        [ Ui.configCustom
-            { label = "Données de l'application:"
-            , content =
-                E.column [ E.spacing 24 ]
-                    [ E.row
-                        [ E.width E.fill ]
-                        [ E.paragraph
-                            [ E.width E.fill
-                            , E.paddingEach { top = 24, bottom = 24, left = 12, right = 12 }
-                            ]
-                            [ E.text "Pactole enregistre ses données directement sur l'ordinateur (dans la base de données du navigateur). "
-                            , E.text "Rien n'est sauvegardé en ligne. De cette façon, les données de l'utilisateur ne sont jamais envoyées sur internet."
-                            ]
-                        ]
-                    , E.column
-                        [ E.width E.fill
-                        , E.spacing 24
-                        , E.paddingEach { top = 12, bottom = 12, left = 12, right = 12 }
-                        ]
-                        [ Ui.simpleButton
-                            { onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsAskExportConfirmation)
-                            , label = E.row [ E.spacing 12 ] [ Ui.saveIcon, E.text "Faire une copie de sauvegarde" ]
-                            }
-                        , Ui.simpleButton
-                            { onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsAskImportConfirmation)
-                            , label = E.row [ E.spacing 12 ] [ Ui.loadIcon, E.text "Récupérer une sauvegarde" ]
-                            }
-                        ]
-                    ]
-            }
-        , Ui.configCustom
-            { label = "Personnes utilisant l'application:"
-            , content =
-                E.column [ E.spacing 24 ]
-                    [ E.table [ E.spacing 6 ]
-                        { data = Dict.toList model.accounts
-                        , columns =
-                            [ { header = E.none
-                              , width = E.fill
-                              , view = \a -> E.el [ E.centerY ] (E.text (Tuple.second a))
-                              }
-                            , { header = E.none
-                              , width = E.shrink
-                              , view =
-                                    \a ->
-                                        Ui.iconButton
-                                            { icon = Ui.editIcon
-                                            , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsRenameAccount (Tuple.first a))
-                                            }
-                              }
-                            , { header = E.none
-                              , width = E.shrink
-                              , view =
-                                    \a ->
-                                        Ui.iconButton
-                                            { icon = Ui.deleteIcon
-                                            , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsDeleteAccount (Tuple.first a))
-                                            }
-                              }
-                            ]
-                        }
-                    , Ui.simpleButton
-                        { onPress = Just (Msg.ForDatabase <| Msg.DbCreateAccount (newAccountName (Dict.values model.accounts) 1))
-                        , label = E.row [] [ Ui.plusIcon, E.text "  Nouveau compte" ]
-                        }
-                    ]
-            }
+        [ Ui.title "Données de l'application"
+        , Ui.paragraph
+            """
+            Les données de Pactoles ne sont pas enregistrées en ligne.
+            Elles sont uniquement sur l'appareil que vous êtes en train d'utiliser.
+            """
+        , Ui.paragraph
+            """
+            Si vous voulez transférer vos données ailleurs, vous pouvez
+            faire une copie de sauvegarde et la récupérer sur le nouvel appareil.
+            """
+        , configBackup model
+        , Ui.spacer
+        , Ui.title "Configuration des comptes"
         , configWarning model
+        , configAccounts model
+        , Ui.spacer
+        , Ui.title "Fonctions optionnelles"
         , configSummary model
         , configReconciliation model
+        , Ui.spacer
+        , Ui.title "Catégories de dépenses"
         , configCategoriesEnabled model
         , configCategories model
+        , Ui.spacer
+        , Ui.title "Opération mensuelles"
         , configRecurring model
+        , Ui.spacer
+        , Ui.title "Verrouillage des réglages"
+        , Ui.paragraph
+            """
+            Si l'utilisateur principal de l'application n'est pas à l'aise avec
+            toutes les fonctionnalités, vous pouvez re-verrouiller l'accès aux réglages
+            afin de prévenir toute fausse manipulation.
+            """
         , configLocked model
+        ]
+
+
+configBackup : Model -> E.Element Msg
+configBackup _ =
+    E.column
+        [ E.width E.fill
+        , E.spacing 24
+        , E.paddingEach { top = 12, bottom = 12, left = 12, right = 12 }
+        ]
+        [ Ui.simpleButton
+            { onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsAskExportConfirmation)
+            , label = E.row [ E.spacing 12 ] [ Ui.saveIcon, E.text "Faire une copie de sauvegarde" ]
+            }
+        , Ui.simpleButton
+            { onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsAskImportConfirmation)
+            , label = E.row [ E.spacing 12 ] [ Ui.loadIcon, E.text "Récupérer une sauvegarde" ]
+            }
+        ]
+
+
+configAccounts : Model -> E.Element Msg
+configAccounts model =
+    E.column [ E.spacing 12 ]
+        [ Ui.paragraph "Liste des comptes:"
+        , E.table [ E.spacing 6 ]
+            { data = Dict.toList model.accounts
+            , columns =
+                [ { header = E.none
+                  , width = E.fill
+                  , view = \a -> E.el [ E.centerY ] (E.text (Tuple.second a))
+                  }
+                , { header = E.none
+                  , width = E.shrink
+                  , view =
+                        \a ->
+                            Ui.iconButton
+                                { icon = Ui.editIcon
+                                , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsRenameAccount (Tuple.first a))
+                                }
+                  }
+                , { header = E.none
+                  , width = E.shrink
+                  , view =
+                        \a ->
+                            Ui.iconButton
+                                { icon = Ui.deleteIcon
+                                , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsDeleteAccount (Tuple.first a))
+                                }
+                  }
+                ]
+            }
+        , Ui.simpleButton
+            { onPress = Just (Msg.ForDatabase <| Msg.DbCreateAccount (newAccountName (Dict.values model.accounts) 1))
+            , label = E.row [] [ Ui.plusIcon, E.text "  Nouveau compte" ]
+            }
         ]
 
 
@@ -429,26 +447,25 @@ configWarning model =
         settings =
             model.settings
     in
-    Ui.configCustom
-        { label = "Avertissement lorsque le solde passe sous:"
-        , content =
-            E.row [ E.spacing 12 ]
-                [ Ui.iconButton
-                    { icon = Ui.minusIcon
-                    , onPress =
-                        Just (Msg.ForDatabase <| Msg.DbStoreSettings { settings | balanceWarning = settings.balanceWarning - 10 })
-                    }
-                , E.el [ Ui.bigFont ]
-                    (E.text (String.fromInt model.settings.balanceWarning))
-                , E.el [ Ui.normalFont ]
-                    (E.text "€")
-                , Ui.iconButton
-                    { icon = Ui.plusIcon
-                    , onPress =
-                        Just (Msg.ForDatabase <| Msg.DbStoreSettings { settings | balanceWarning = settings.balanceWarning + 10 })
-                    }
-                ]
-        }
+    E.column [ E.spacing 12 ]
+        [ Ui.text "Avertissement en dessous de:"
+        , E.row [ E.spacing 12 ]
+            [ Ui.iconButton
+                { icon = Ui.minusIcon
+                , onPress =
+                    Just (Msg.ForDatabase <| Msg.DbStoreSettings { settings | balanceWarning = settings.balanceWarning - 10 })
+                }
+            , E.el [ Ui.bigFont ]
+                (E.text (String.fromInt model.settings.balanceWarning))
+            , E.el [ Ui.normalFont ]
+                (E.text "€")
+            , Ui.iconButton
+                { icon = Ui.plusIcon
+                , onPress =
+                    Just (Msg.ForDatabase <| Msg.DbStoreSettings { settings | balanceWarning = settings.balanceWarning + 10 })
+                }
+            ]
+        ]
 
 
 configSummary : Model -> E.Element Msg
@@ -465,10 +482,10 @@ configSummary model =
 
                 else
                     Msg.ForDatabase <| Msg.DbStoreSettings { settings | summaryEnabled = False }
-        , label = "Activer la page de bilan:"
+        , label = "Page de bilan:"
         , options =
-            [ Ui.radioRowOption False (E.text "Non")
-            , Ui.radioRowOption True (E.text "Oui")
+            [ Ui.radioRowOption False (E.text "Désactivée")
+            , Ui.radioRowOption True (E.text "Activée")
             ]
         , selected = Just model.settings.summaryEnabled
         }
@@ -488,10 +505,10 @@ configReconciliation model =
 
                 else
                     Msg.ForDatabase <| Msg.DbStoreSettings { settings | reconciliationEnabled = False }
-        , label = "Activer la page de pointage:"
+        , label = "Page de pointage:"
         , options =
-            [ Ui.radioRowOption False (E.text "Non")
-            , Ui.radioRowOption True (E.text "Oui")
+            [ Ui.radioRowOption False (E.text "Désactivée")
+            , Ui.radioRowOption True (E.text "Activée")
             ]
         , selected = Just model.settings.reconciliationEnabled
         }
@@ -511,10 +528,10 @@ configCategoriesEnabled model =
 
                 else
                     Msg.ForDatabase <| Msg.DbStoreSettings { settings | categoriesEnabled = False }
-        , label = "Activer les catégories:"
+        , label = ""
         , options =
-            [ Ui.radioRowOption False (E.text "Non")
-            , Ui.radioRowOption True (E.text "Oui")
+            [ Ui.radioRowOption False (E.text "Désactivées")
+            , Ui.radioRowOption True (E.text "Activées")
             ]
         , selected = Just model.settings.categoriesEnabled
         }
@@ -522,55 +539,46 @@ configCategoriesEnabled model =
 
 configCategories : Model -> E.Element Msg
 configCategories model =
-    Ui.configCustom
-        { label =
-            if model.settings.categoriesEnabled then
-                "Catégories:"
-
-            else
-                "Catégories (désactivées):"
-        , content =
-            E.column [ E.spacing 24 ]
-                [ E.table [ E.spacing 12 ]
-                    { data = Dict.toList model.categories
-                    , columns =
-                        [ { header = E.none
-                          , width = E.shrink
-                          , view =
-                                \a ->
-                                    E.el [ E.centerY, Ui.iconFont ]
-                                        (E.text (Tuple.second a).icon)
-                          }
-                        , { header = E.none
-                          , width = E.fill
-                          , view = \a -> E.el [ E.centerY ] (E.text (Tuple.second a).name)
-                          }
-                        , { header = E.none
-                          , width = E.shrink
-                          , view =
-                                \a ->
-                                    Ui.iconButton
-                                        { icon = Ui.editIcon
-                                        , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsRenameCategory (Tuple.first a))
-                                        }
-                          }
-                        , { header = E.none
-                          , width = E.shrink
-                          , view =
-                                \a ->
-                                    Ui.iconButton
-                                        { icon = Ui.deleteIcon
-                                        , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsDeleteCategory (Tuple.first a))
-                                        }
-                          }
-                        ]
-                    }
-                , Ui.simpleButton
-                    { onPress = Just (Msg.ForDatabase <| Msg.DbCreateCategory "Nouvelle catégorie" "")
-                    , label = E.row [] [ Ui.plusIcon, E.text "  Nouvelle catégorie" ]
-                    }
+    E.column [ E.spacing 24 ]
+        [ E.table [ E.spacing 12 ]
+            { data = Dict.toList model.categories
+            , columns =
+                [ { header = E.none
+                  , width = E.shrink
+                  , view =
+                        \a ->
+                            E.el [ E.centerY, Ui.iconFont ]
+                                (E.text (Tuple.second a).icon)
+                  }
+                , { header = E.none
+                  , width = E.fill
+                  , view = \a -> E.el [ E.centerY ] (E.text (Tuple.second a).name)
+                  }
+                , { header = E.none
+                  , width = E.shrink
+                  , view =
+                        \a ->
+                            Ui.iconButton
+                                { icon = Ui.editIcon
+                                , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsRenameCategory (Tuple.first a))
+                                }
+                  }
+                , { header = E.none
+                  , width = E.shrink
+                  , view =
+                        \a ->
+                            Ui.iconButton
+                                { icon = Ui.deleteIcon
+                                , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsDeleteCategory (Tuple.first a))
+                                }
+                  }
                 ]
-        }
+            }
+        , Ui.simpleButton
+            { onPress = Just (Msg.ForDatabase <| Msg.DbCreateCategory "Nouvelle catégorie" "")
+            , label = E.row [] [ Ui.plusIcon, E.text "  Nouvelle catégorie" ]
+            }
+        ]
 
 
 configRecurring : Model -> E.Element Msg
@@ -579,71 +587,67 @@ configRecurring model =
         headerTxt txt =
             E.el [ Font.center, Ui.smallFont, Font.color Color.neutral70 ] (E.text txt)
     in
-    Ui.configCustom
-        { label = "Opérations mensuelles:"
-        , content =
-            E.column [ E.spacing 24 ]
-                [ E.table [ E.spacingXY 12 6 ]
-                    { data = Ledger.getAllTransactions model.recurring
-                    , columns =
-                        [ { header = headerTxt "Échéance"
-                          , width = E.fill
-                          , view =
-                                \t ->
-                                    E.el [ Font.center, E.centerY ] (E.text (Date.toString t.date))
-                          }
-                        , { header = headerTxt "Compte"
-                          , width = E.shrink
-                          , view =
-                                \t ->
-                                    E.el [ Font.center, E.centerY ] (E.text (Model.accountName t.account model))
-                          }
-                        , { header = headerTxt "Montant"
-                          , width = E.shrink
-                          , view =
-                                \t ->
-                                    let
-                                        m =
-                                            Money.toStrings t.amount
-                                    in
-                                    E.el [ Font.alignRight, E.centerY ] (E.text (m.sign ++ m.units ++ "," ++ m.cents))
-                          }
-                        , { header = headerTxt "Description"
-                          , width = E.fill
-                          , view =
-                                \t ->
-                                    E.el [ E.centerY ] (E.text t.description)
-                          }
-                        , { header = E.none
-                          , width = E.shrink
-                          , view =
-                                \t ->
-                                    Ui.iconButton
-                                        { icon = Ui.editIcon
-                                        , onPress =
-                                            Just
-                                                (Msg.ForSettingsDialog <|
-                                                    Msg.SettingsEditRecurring t.id t.account t
-                                                )
-                                        }
-                          }
-                        , { header = E.none
-                          , width = E.shrink
-                          , view =
-                                \t ->
-                                    Ui.iconButton
-                                        { icon = Ui.deleteIcon
-                                        , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsDeleteRecurring t.id)
-                                        }
-                          }
-                        ]
-                    }
-                , Ui.simpleButton
-                    { onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsNewRecurring)
-                    , label = E.row [] [ Ui.plusIcon, E.text "  Nouvelle opération mensuelle" ]
-                    }
+    E.column [ E.spacing 24 ]
+        [ E.table [ E.spacingXY 12 6 ]
+            { data = Ledger.getAllTransactions model.recurring
+            , columns =
+                [ { header = headerTxt "Échéance"
+                  , width = E.fill
+                  , view =
+                        \t ->
+                            E.el [ Font.center, E.centerY ] (E.text (Date.toString t.date))
+                  }
+                , { header = headerTxt "Compte"
+                  , width = E.shrink
+                  , view =
+                        \t ->
+                            E.el [ Font.center, E.centerY ] (E.text (Model.accountName t.account model))
+                  }
+                , { header = headerTxt "Montant"
+                  , width = E.shrink
+                  , view =
+                        \t ->
+                            let
+                                m =
+                                    Money.toStrings t.amount
+                            in
+                            E.el [ Font.alignRight, E.centerY ] (E.text (m.sign ++ m.units ++ "," ++ m.cents))
+                  }
+                , { header = headerTxt "Description"
+                  , width = E.fill
+                  , view =
+                        \t ->
+                            E.el [ E.centerY ] (E.text t.description)
+                  }
+                , { header = E.none
+                  , width = E.shrink
+                  , view =
+                        \t ->
+                            Ui.iconButton
+                                { icon = Ui.editIcon
+                                , onPress =
+                                    Just
+                                        (Msg.ForSettingsDialog <|
+                                            Msg.SettingsEditRecurring t.id t.account t
+                                        )
+                                }
+                  }
+                , { header = E.none
+                  , width = E.shrink
+                  , view =
+                        \t ->
+                            Ui.iconButton
+                                { icon = Ui.deleteIcon
+                                , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsDeleteRecurring t.id)
+                                }
+                  }
                 ]
-        }
+            }
+        , Ui.simpleButton
+            { onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsNewRecurring)
+            , label = E.row [] [ Ui.plusIcon, E.text "  Nouvelle opération mensuelle" ]
+            }
+        ]
 
 
 configLocked : Model -> E.Element Msg
@@ -654,14 +658,7 @@ configLocked model =
     in
     E.column
         [ E.width E.fill, E.spacing 24 ]
-        [ Ui.title "Verrouiller l'accès aux réglages"
-        , Ui.paragraph
-            """
-               Si l'utilisateur principal de l'application n'est pas à l'aise avec
-               toutes les fonctionnalités, vous pouvez re-verrouiller l'accès aux réglages
-               afin de prévenir toute fausse manipulation.
-               """
-        , Ui.configRadio
+        [ Ui.configRadio
             { onChange =
                 \o ->
                     if o then
@@ -669,20 +666,13 @@ configLocked model =
 
                     else
                         Msg.ForDatabase <| Msg.DbStoreSettings { settings | settingsLocked = False }
-            , label = "Verrouiller les réglages:"
+            , label = "Réglages:"
             , options =
-                [ Ui.radioRowOption False (E.text "Non")
-                , Ui.radioRowOption True (E.text "Oui")
+                [ Ui.radioRowOption False (E.text "Accessibles")
+                , Ui.radioRowOption True (E.text "Verrouillés")
                 ]
             , selected = Just model.settings.settingsLocked
             }
-        , E.paragraph
-            [ E.width E.fill
-            ]
-            [ E.text "Lorsque les réglages sont verrouillés, il faut cliquer 5 fois de suite sur l'icône \""
-            , E.el [ Ui.iconFont, Ui.normalFont, Font.color Color.neutral70 ] (E.text "\u{F013}")
-            , E.text "\" pour accéder aux réglages."
-            ]
         ]
 
 

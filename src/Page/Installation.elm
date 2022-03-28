@@ -38,9 +38,8 @@ view _ =
                 """
             , Ui.paragraph
                 """
-                Notez que vos données ne seront pas enregistrées
-                en ligne! Elles seront uniquement sur l'appareil que vous utilisez
-                actuellement.
+                Notez que vos données ne seront pas enregistrées en ligne! 
+                Elles seront uniquement disponibles sur l'appareil que vous utilisez actuellement.
                 """
             , Ui.paragraphParts
                 [ Ui.boldText
