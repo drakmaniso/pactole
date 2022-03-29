@@ -424,7 +424,8 @@ dayContentFor model day =
                     [ E.width E.fill
                     , E.paddingEach { top = 8, bottom = 8, left = 12, right = 12 }
                     , Border.width 4
-                    , Border.color (E.rgba 0 0 0 0)
+                    , Border.color Color.transparent
+                    , Ui.focusVisibleOnly
                     , E.mouseDown [ Background.color Color.neutral90 ]
                     , E.mouseOver [ Background.color Color.neutral95 ]
                     , Ui.transition

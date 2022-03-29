@@ -35,7 +35,6 @@ type alias Model =
     , isStoragePersisted : Bool
     , date : Date
     , account : Int
-    , showFocus : Bool
     , page : Page
     , dialog : Maybe Dialog
     , settingsDialog : Maybe SettingsDialog

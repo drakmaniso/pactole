@@ -62,25 +62,28 @@ accountsRow : Model -> E.Element Msg
 accountsRow model =
     Input.radioRow
         [ E.width E.shrink
-        , if model.showFocus then
-            E.focused
-                [ Border.shadow
-                    { offset = ( 0, 0 )
-                    , size = 4
-                    , blur = 0
-                    , color = Color.focus85
-                    }
-                ]
+        , Border.width 4
+        , Border.color Color.transparent
+        , Ui.focusVisibleOnly
 
-          else
-            E.focused
-                [ Border.shadow
-                    { offset = ( 0, 0 )
-                    , size = 0
-                    , blur = 0
-                    , color = Color.transparent
-                    }
-                ]
+        -- , if model.showFocus then
+        --     E.focused
+        --         [ Border.shadow
+        --             { offset = ( 0, 0 )
+        --             , size = 4
+        --             , blur = 0
+        --             , color = Color.focus85
+        --             }
+        --         ]
+        --   else
+        --     E.focused
+        --         [ Border.shadow
+        --             { offset = ( 0, 0 )
+        --             , size = 0
+        --             , blur = 0
+        --             , color = Color.transparent
+        --             }
+        --         ]
         ]
         { onChange = Msg.SelectAccount
         , selected = Just model.account

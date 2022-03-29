@@ -12,7 +12,6 @@ type Msg
     | CloseErrorBanner
     | SelectDate Date
     | SelectAccount Int
-    | KeyDown String
     | WindowResize { width : Int, height : Int }
     | ForInstallation InstallMsg
     | ForDatabase DatabaseMsg

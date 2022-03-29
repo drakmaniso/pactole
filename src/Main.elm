@@ -119,7 +119,6 @@ init flags _ _ =
       , accounts = Dict.empty
       , account = -1 --TODO!!!
       , categories = Dict.empty
-      , showFocus = False
       , page = Model.LoadingPage
       , dialog = Nothing
       , settingsDialog = Nothing
@@ -156,13 +155,6 @@ update msg model =
             --TODO: check that accountID corresponds to an account
             ( { model | account = accountID }, Cmd.none )
 
-        Msg.KeyDown string ->
-            if string == "Tab" then
-                ( { model | showFocus = True }, Cmd.none )
-
-            else
-                ( model, Cmd.none )
-
         Msg.WindowResize size ->
             ( { model
                 | device = Ui.device size.width size.height
@@ -194,7 +186,6 @@ subscriptions : Model -> Sub Msg
 subscriptions _ =
     Sub.batch
         [ Database.receive
-        , Browser.Events.onKeyDown (keyDecoder Msg.KeyDown)
         , Browser.Events.onResize (\width height -> Msg.WindowResize { width = width, height = height })
         ]
 
@@ -211,15 +202,6 @@ keyDecoder msg =
 
 view : Model -> Browser.Document Msg
 view model =
-    --     if Dict.isEmpty model.accounts then
-    --         installView model
-    --     else
-    --         appView model
-    -- installView : Model -> Browser.Document Msg
-    -- installView model =
-    --     document model (Installation.view model) Nothing
-    -- appView : Model -> Browser.Document Msg
-    -- appView model =
     let
         activeDialog =
             case model.dialog of
@@ -283,17 +265,7 @@ document model activePage activeDialog =
                 [ E.focusStyle
                     { borderColor = Nothing
                     , backgroundColor = Nothing
-                    , shadow =
-                        if model.showFocus then
-                            Just
-                                { color = Color.focus85
-                                , offset = ( 0, 0 )
-                                , blur = 0
-                                , size = 4
-                                }
-
-                        else
-                            Nothing
+                    , shadow = Nothing
                     }
                 ]
             }
@@ -443,7 +415,8 @@ navigationBar model =
     let
         navigationButton { targetPage, label } =
             Input.button
-                [ E.paddingXY 12 6
+                [ E.paddingXY 6 2
+                , Border.color Color.transparent
                 , Background.color
                     (if model.page == targetPage then
                         Color.primary40
@@ -460,6 +433,8 @@ navigationBar model =
                     )
                 , E.height E.fill
                 , Border.roundEach { topLeft = 32, bottomLeft = 32, topRight = 32, bottomRight = 32 }
+                , Border.width 4
+                , Ui.focusVisibleOnly
                 ]
                 { onPress = Just (Msg.ChangePage targetPage)
                 , label = label

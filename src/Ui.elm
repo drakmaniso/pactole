@@ -24,6 +24,7 @@ module Ui exposing
     , errorIcon
     , expenseButton
     , expenseIcon
+    , focusVisibleOnly
     , fontFamily
     , helpImage
     , helpList
@@ -126,6 +127,11 @@ notSelectable =
 
 
 -- STYLES FOR INTERACTIVE ELEMENTS
+
+
+focusVisibleOnly : E.Attribute msg
+focusVisibleOnly =
+    E.htmlAttribute <| Html.Attributes.class "focus-visible-only"
 
 
 transition : E.Attribute msg
@@ -326,6 +332,9 @@ configRadio :
 configRadio { label, options, selected, onChange } =
     Input.radioRow
         [ E.width E.fill
+        , Border.width 4
+        , Border.color Color.transparent
+        , focusVisibleOnly
         ]
         { label =
             Input.labelLeft
@@ -540,7 +549,7 @@ warningPopup elements =
             elements
 
 
-dateNavigationBar : { a | showFocus : Bool, date : Date, today : Date } -> (Date -> msg) -> E.Element msg
+dateNavigationBar : { a | date : Date, today : Date } -> (Date -> msg) -> E.Element msg
 dateNavigationBar model changeMsg =
     E.row
         [ E.width E.fill
@@ -564,13 +573,10 @@ dateNavigationBar model changeMsg =
                         , E.height E.fill
                         , Border.roundEach { topLeft = 32, bottomLeft = 32, topRight = 0, bottomRight = 0 }
                         , Font.color Color.neutral30
-                        , Border.widthEach { top = 0, bottom = 0, left = 0, right = 0 }
                         , Background.color Color.neutral95
-                        , Border.color Color.neutral90
-                        , Border.widthEach { left = 0, top = 0, bottom = 0, right = 0 }
-                        , E.paddingEach { top = 4, bottom = 8, left = 0, right = 0 }
-
-                        -- , smallShadow
+                        , Border.width 4
+                        , Border.color Color.transparent
+                        , focusVisibleOnly
                         , transition
                         , mouseDown [ Background.color Color.neutral90 ]
                         , mouseOver [ Background.color Color.neutral98 ]
@@ -590,7 +596,6 @@ dateNavigationBar model changeMsg =
               , E.el
                     [ E.width (E.fillPortion 3)
                     , E.height E.fill
-                    , E.paddingEach { top = 4, bottom = 8, left = 0, right = 0 }
                     , notSelectable
                     ]
                     (E.el
@@ -598,6 +603,7 @@ dateNavigationBar model changeMsg =
                         , Font.bold
                         , bigFont
                         , Font.color Color.neutral30
+                        , E.padding 6
                         ]
                         (E.text (Date.getMonthFullName model.today model.date))
                     )
@@ -613,13 +619,10 @@ dateNavigationBar model changeMsg =
                         , E.height E.fill
                         , Border.roundEach { topLeft = 0, bottomLeft = 0, topRight = 32, bottomRight = 32 }
                         , Font.color Color.neutral30
-                        , Border.widthEach { top = 0, bottom = 0, left = 0, right = 0 }
                         , Background.color Color.neutral95
-                        , Border.color Color.neutral90
-                        , Border.widthEach { left = 0, top = 0, bottom = 0, right = 0 }
-                        , E.paddingEach { top = 4, bottom = 8, left = 0, right = 0 }
-
-                        -- , smallShadow
+                        , Border.width 4
+                        , Border.color Color.transparent
+                        , focusVisibleOnly
                         , transition
                         , mouseDown [ Background.color Color.neutral90 ]
                         , mouseOver [ Background.color Color.neutral98 ]
@@ -782,13 +785,15 @@ simpleButton { onPress, label } =
         , Font.color Color.neutral30
         , Font.center
         , roundCorners
-        , Border.width 0
-        , Border.color Color.neutral70
+        , Border.width 4
+        , Border.color Color.transparent
+        , focusVisibleOnly
         , defaultShadow
         , transition
-        , E.paddingXY 24 8
+        , E.paddingXY 20 4
         , mouseDown [ Background.color Color.neutral90 ]
         , mouseOver [ Background.color Color.white ]
+        , E.htmlAttribute <| Html.Attributes.class "focus-visible-only"
         ]
         { onPress = onPress
         , label = label
@@ -805,11 +810,12 @@ mainButton { onPress, label } =
         , Font.color Color.white
         , Font.center
         , roundCorners
-        , Border.width borderWidth
-        , Border.color Color.primary40
+        , Border.width 4
+        , Border.color Color.transparent
+        , focusVisibleOnly
         , defaultShadow
         , transition
-        , E.paddingXY 24 8
+        , E.paddingXY 20 4
         , mouseDown [ Background.color Color.primary30, Border.color Color.primary30 ]
         , mouseOver [ Background.color Color.primary50, Border.color Color.primary50 ]
         ]
@@ -828,11 +834,12 @@ dangerButton { onPress, label } =
         , Font.color Color.white
         , Font.center
         , roundCorners
-        , Border.width borderWidth
-        , Border.color Color.warning60
+        , Border.width 4
+        , Border.color Color.transparent
+        , focusVisibleOnly
         , defaultShadow
         , transition
-        , E.paddingXY 24 8
+        , E.paddingXY 20 4
         , mouseDown [ Background.color Color.warning50, Border.color Color.warning50 ]
         , mouseOver [ Background.color Color.warning70, Border.color Color.warning70 ]
         ]
@@ -851,13 +858,15 @@ incomeButton { onPress, label } =
         , normalFont
         , Font.center
         , roundCorners
-        , Border.width borderWidth
-        , Border.color Color.income90
+        , Border.width 4
+        , Border.color Color.transparent
+        , focusVisibleOnly
         , defaultShadow
         , transition
-        , E.paddingXY 24 8
+        , E.paddingXY 20 4
         , mouseDown [ Background.color Color.income80, Border.color Color.income80 ]
         , mouseOver [ Background.color Color.income95, Border.color Color.income95 ]
+        , E.htmlAttribute <| Html.Attributes.class "focus-visible-only"
         ]
         { onPress = onPress
         , label = label
@@ -874,13 +883,15 @@ expenseButton { onPress, label } =
         , normalFont
         , Font.center
         , roundCorners
-        , Border.width borderWidth
-        , Border.color Color.expense90
+        , Border.width 4
+        , Border.color Color.transparent
+        , focusVisibleOnly
         , defaultShadow
         , transition
-        , E.paddingXY 24 8
+        , E.paddingXY 20 4
         , mouseDown [ Background.color Color.expense80, Border.color Color.expense80 ]
         , mouseOver [ Background.color Color.expense95, Border.color Color.expense95 ]
+        , focusVisibleOnly
         ]
         { onPress = onPress
         , label = label
@@ -897,7 +908,10 @@ iconButton { onPress, icon } =
         , Font.color Color.primary40
         , Font.center
         , roundCorners
-        , E.padding 8
+        , Border.width 4
+        , Border.color Color.transparent
+        , focusVisibleOnly
+        , E.padding 4
         , E.width (E.shrink |> E.minimum 64)
         , E.height (E.px 48)
         , E.mouseDown [ Background.color Color.neutral90 ]
@@ -920,9 +934,9 @@ checkBox { state, onPress } =
         , E.height (E.px 48)
         , E.alignRight
         , Background.color (E.rgba 1 1 1 1)
-        , Border.rounded 0
-        , Border.width borderWidth
-        , Border.color Color.neutral70
+        , Border.width 4
+        , Border.color Color.neutral80
+        , focusVisibleOnly
         , E.padding 2
         , innerShadow
         , transition
@@ -944,7 +958,10 @@ radioButton { onPress, icon, label, active } =
     Input.button
         ([ normalFont
          , Border.rounded 4
-         , E.paddingXY 24 8
+         , E.paddingXY 20 4
+         , Border.width 4
+         , Border.color Color.transparent
+         , focusVisibleOnly
          , transition
          ]
             ++ (if active then
@@ -1128,6 +1145,9 @@ helpMiniButton { label, onPress } =
     Input.button
         [ Font.color Color.primary40
         , Font.underline
+        , Border.width 4
+        , Border.color Color.transparent
+        , focusVisibleOnly
         , E.mouseDown [ Font.color Color.primary30 ]
         , E.mouseOver [ Font.color Color.primary50 ]
         ]
