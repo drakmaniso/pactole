@@ -14,7 +14,6 @@ import Element.Font as Font
 import Element.Input as Input
 import Json.Decode as Decode
 import Ledger
-import Log
 import Model exposing (Model)
 import Msg exposing (Msg)
 import Page.Calendar as Calendar

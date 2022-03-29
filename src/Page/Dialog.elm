@@ -12,7 +12,6 @@ import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
 import Element.Input as Input
-import Html.Attributes as HtmlAttr
 import Ledger
 import Log
 import Model exposing (Model)
@@ -296,18 +295,16 @@ viewAmount model dialog =
     else
         Ui.dialogSectionRow Color.neutral30
             titleText
-            (E.row [ E.width E.fill, E.padding 0, Ui.bigFont, Font.bold ]
+            (E.row [ E.width E.fill, E.padding 0, Font.color titleColor, Ui.normalFont, Font.bold ]
                 [ E.el
-                    [ Ui.bigFont
-                    , Font.color Color.neutral40
-                    , E.paddingEach { top = 12, bottom = 12, left = 0, right = 0 }
+                    [ E.paddingEach { top = 12, bottom = 12, left = 0, right = 0 }
                     , E.width E.shrink
                     , E.alignLeft
                     , Border.width 1
                     , Border.color (E.rgba 0 0 0 0)
                     , Ui.notSelectable
                     ]
-                    (E.el [ Font.color titleColor, Font.bold ]
+                    (E.el []
                         (if dialog.isExpense then
                             E.text "-"
 
@@ -322,9 +319,7 @@ viewAmount model dialog =
                     , onChange = Msg.ForDialog << Msg.DialogChangeAmount
                     }
                 , E.el
-                    [ Ui.bigFont
-                    , Font.color Color.neutral40
-                    , E.paddingEach { top = 12, bottom = 12, left = 6, right = 24 }
+                    [ E.paddingEach { top = 12, bottom = 12, left = 6, right = 24 }
                     , E.width E.shrink
                     , E.alignLeft
                     , Border.width 1
@@ -354,7 +349,7 @@ viewDescription _ dialog =
         Ui.dialogSectionRow Color.neutral30
             "Description:"
             (Input.multiline
-                [ Ui.bigFont
+                [ Ui.normalFont
                 , Border.width 4
                 , Border.color Color.white
                 , Background.color Color.neutral95

@@ -427,7 +427,6 @@ dialogSectionRow titleColor titleText content =
         [ E.el
             [ Font.color titleColor
             , normalFont
-            , Font.bold
             , E.padding 0
             , notSelectable
             ]
@@ -443,7 +442,6 @@ dialogSection titleColor titleText content =
             [ E.width E.fill
             , Font.color titleColor
             , normalFont
-            , Font.bold
             , E.padding 0
             , notSelectable
             ]
