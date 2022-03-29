@@ -1214,9 +1214,11 @@ paragraphParts parts =
         parts
 
 
+text : String -> E.Element msg
 text txt =
     E.text txt
 
 
+boldText : String -> E.Element msg
 boldText txt =
     E.el [ Font.bold ] (E.text txt)

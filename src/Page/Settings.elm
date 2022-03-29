@@ -349,6 +349,7 @@ view model =
     }
 
 
+viewSettings : Model -> E.Element Msg
 viewSettings model =
     Ui.textColumn
         [ configBackup model

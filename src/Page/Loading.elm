@@ -1,4 +1,4 @@
-module Page.Loading exposing (..)
+module Page.Loading exposing (view)
 
 import Element as E
 import Model exposing (Model)

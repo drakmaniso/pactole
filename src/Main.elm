@@ -257,6 +257,7 @@ view model =
     document model activePage activeDialog
 
 
+document : Model -> E.Element Msg -> Maybe (E.Element Msg) -> Browser.Document Msg
 document model activePage activeDialog =
     { title = "Pactole"
     , body =
@@ -320,6 +321,7 @@ document model activePage activeDialog =
     }
 
 
+errorBanner : String -> Maybe Msg -> E.Element Msg
 errorBanner error maybeCloseMsg =
     E.row [ E.width E.fill, E.padding 6, Background.color Color.warning60 ]
         [ E.el [ E.width (E.px 32) ] E.none
