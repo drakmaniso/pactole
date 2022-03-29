@@ -43,11 +43,7 @@ view model =
 
 
 presentation : Model -> E.Element Msg
-presentation model =
-    let
-        settings =
-            model.settings
-    in
+presentation _ =
     Ui.textColumn
         [ Ui.paragraph
             """
@@ -170,13 +166,12 @@ presentation model =
             [ Ui.text
                 """
                 Certaines fonctionnalités supplémentaires de Pactole sont désactivées par
-                défaut. Si vous voulez les utiliser, vous pouvez déverrouiller l'accès aux
-                réglages de l'application, en cliquant sur ce lien: 
+                défaut. Si vous voulez les utiliser, vous pouvez les activer 
                 """
             , Ui.helpMiniButton
                 { label =
-                    Ui.text "déverrouiller les réglages"
-                , onPress = Msg.ForDatabase <| Msg.DbStoreSettings { settings | settingsLocked = False }
+                    Ui.text "dans les réglages de l'application"
+                , onPress = Msg.ChangePage Model.SettingsPage
                 }
             , Ui.text "."
             ]

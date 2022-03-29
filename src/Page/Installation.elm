@@ -5,6 +5,7 @@ import Element as E
 import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
+import Element.Keyed as Keyed
 import Log
 import Model exposing (Model)
 import Money
@@ -68,21 +69,24 @@ view model installation =
     { summary = Ui.logo model.serviceVersion
     , detail = E.none
     , main =
-        E.column
-            [ E.width E.fill
-            , E.height E.fill
-            , E.scrollbarY
-            ]
-            [ E.column
+        Keyed.el [ E.width E.fill, E.height E.fill, E.scrollbarY ]
+            ( "Installation"
+            , E.column
                 [ E.width E.fill
                 , E.height E.fill
-                , E.paddingXY 24 24
-                , Border.widthEach { left = 2, top = 0, bottom = 0, right = 0 }
-                , Border.color Color.neutral90
+                , E.scrollbarY
                 ]
-                [ viewInstallation model installation
+                [ E.column
+                    [ E.width E.fill
+                    , E.height E.fill
+                    , E.paddingXY 24 24
+                    , Border.widthEach { left = 2, top = 0, bottom = 0, right = 0 }
+                    , Border.color Color.neutral90
+                    ]
+                    [ viewInstallation model installation
+                    ]
                 ]
-            ]
+            )
     }
 
 
@@ -121,7 +125,7 @@ viewInstallation model installation =
             , Ui.paragraph
                 """
                 Si vous utilisez Firefox, le navigateur vous demandera l'autorisation de "conserver les
-                données dans le stockage persistant".
+                données dans le stockage persistant": répondre par l'affirmative    .
                 """
             , Ui.paragraph
                 """

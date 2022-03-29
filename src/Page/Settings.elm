@@ -13,6 +13,7 @@ import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
 import Element.Input as Input
+import Element.Keyed as Keyed
 import Ledger
 import Log
 import Model exposing (Model)
@@ -324,23 +325,26 @@ view model =
             , E.height E.fill
             , E.clipY
             ]
-            [ E.column
-                [ E.width E.fill
-                , E.height E.fill
-                , E.paddingXY 0 0
-                , E.scrollbarY
-                ]
-                [ Ui.pageTitle (E.text "Configuration")
+            [ Keyed.el [ E.width E.fill, E.height E.fill, E.scrollbarY ]
+                ( "Settings"
                 , E.column
                     [ E.width E.fill
                     , E.height E.fill
-                    , E.paddingXY 24 24
-                    , Border.widthEach { left = 2, top = 0, bottom = 0, right = 0 }
-                    , Border.color Color.neutral90
+                    , E.paddingXY 0 0
+                    , E.scrollbarY
                     ]
-                    [ viewSettings model
+                    [ Ui.pageTitle (E.text "Configuration")
+                    , E.column
+                        [ E.width E.fill
+                        , E.height E.fill
+                        , E.paddingXY 24 24
+                        , Border.widthEach { left = 2, top = 0, bottom = 0, right = 0 }
+                        , Border.color Color.neutral90
+                        ]
+                        [ viewSettings model
+                        ]
                     ]
-                ]
+                )
             ]
     }
 
@@ -669,11 +673,11 @@ configLocked model =
     in
     E.column
         [ E.width E.fill, E.spacing 24 ]
-        [ Ui.title "Verrouillage des réglages"
+        [ Ui.title "Accès aux réglages"
         , Ui.paragraph
             """
             Si l'utilisateur principal de l'application n'est pas à l'aise avec
-            toutes les fonctionnalités, vous pouvez verrouiller l'accès aux réglages
+            toutes les fonctionnalités, vous pouvez cacher l'accès aux réglages
             afin de prévenir toute fausse manipulation.
             """
         , Ui.configRadio
@@ -686,15 +690,15 @@ configLocked model =
                         Msg.ForDatabase <| Msg.DbStoreSettings { settings | settingsLocked = False }
             , label = "Accès aux réglages:"
             , options =
-                [ Ui.radioRowOption False (E.text "Libre")
-                , Ui.radioRowOption True (E.text "Verrouillé")
+                [ Ui.radioRowOption False (E.text "Visible")
+                , Ui.radioRowOption True (E.text "Caché")
                 ]
             , selected = Just model.settings.settingsLocked
             }
         , Ui.paragraph
             """
-            Note: lorsque les réglages sont vérouillés, vous pouvez les déverrouiler
-            dans la page d'aide de l'application.
+            Note: dans tous les cas, les réglages restent accessibles en utilisant
+            le lien présent dans la page d'aide de l'application.
             """
         , Ui.verticalSpacer
         ]
