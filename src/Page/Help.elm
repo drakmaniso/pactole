@@ -55,13 +55,7 @@ presentation model =
             """
         , Ui.paragraph
             """
-            Ce guide explique comment se servir de l'application.
-            """
-        , Ui.verticalSpacer
-        , Ui.title "Présentation générale"
-        , Ui.paragraph
-            """
-            La page principale de Pactole est divisée en trois parties:
+            La page principale est divisée en trois parties:
             """
         , Ui.helpImage "images/general-presentation-FR.png"
             """
@@ -90,44 +84,6 @@ presentation model =
             C'est dans cette liste d'opérations que vous pouvez créer et
             modifier les opérations.
             """
-        , Ui.verticalSpacer
-        , Ui.title "Pour enregistrer le solde initial"
-        , Ui.paragraph
-            """
-            Lors de la première utilisation de Pactole, vous devez entrer le solde
-            actuellement disponible sur votre compte.
-            """
-        , Ui.paragraph
-            """
-            Pour cela il suffit de créer une nouvelle opération: une entrée d'argent
-            correspondant au montant disponible sur votre compte.
-            """
-        , Ui.helpList
-            [ Ui.paragraph
-                """
-                    Sélectionnez la date d'aujourd'hui dans le calendrier.
-                    """
-            , Ui.paragraph
-                """
-                    Appuyez sur le bouton "+".
-                    """
-            , Ui.paragraph
-                """
-                    Une boite de dialogue va s'ouvrir.
-                    """
-            , Ui.paragraph
-                """
-                    Entrez le montant disponible sur votre compte.
-                    """
-            , Ui.paragraph
-                """
-                    Vous pouvez aussi entrer une description, par exemple "Solde initial".
-                    """
-            , Ui.paragraph
-                """
-                    Appuyez sur le bouton "OK" pour confirmer la création de l'opération.
-                    """
-            ]
         , Ui.verticalSpacer
         , Ui.title "Pour créer une nouvelle opération"
         , Ui.helpList

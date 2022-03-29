@@ -88,6 +88,37 @@ self.addEventListener('message', event => {
       broadcast('persistent storage granted', { granted: msg.content })
       break
 
+    // Installation
+
+    case 'proceed with installation':
+      try {
+        const {
+          firstAccount, initialBalance, date
+        } = msg.content
+        createAccount(firstAccount)
+          .then(() => getAccounts())
+          .then(accounts => {
+            const { id, name } = accounts[0]
+            const transaction = {
+              account: id,
+              date,
+              amount: initialBalance,
+              description: "Solde initial",
+              category: 0,
+              checked: false,
+            }
+            addTransaction('ledger', transaction)
+          })
+          .then(() => broadcast('start application', null))
+          .catch(err => error(`broadcast import database: ${err}`))
+
+      }
+      catch (err) {
+        error(`broadcast import database: ${err}`)
+      }
+      break
+
+
     // Initialization
 
     case 'request whole database':

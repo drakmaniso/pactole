@@ -13,6 +13,7 @@ module Database exposing
     , firstAccount
     , importDatabase
     , msgFromService
+    , proceedWithInstallation
     , processRecurringTransactions
     , receive
     , renameAccount
@@ -25,13 +26,14 @@ module Database exposing
     , upgradeSettingsToV2
     )
 
-import Date
+import Date exposing (Date)
 import Dict
 import Json.Decode as Decode
 import Json.Encode as Encode
 import Ledger exposing (Ledger)
 import Log
 import Model exposing (Model)
+import Money exposing (Money)
 import Msg exposing (Msg)
 import Ports
 
@@ -92,6 +94,18 @@ storeSettings settings =
 createAccount : String -> Cmd msg
 createAccount name =
     Ports.send ( "create account", Encode.string name )
+
+
+proceedWithInstallation : { firstAccount : String, initialBalance : Money, date : Date } -> Cmd msg
+proceedWithInstallation data =
+    Ports.send
+        ( "proceed with installation"
+        , Encode.object
+            [ ( "firstAccount", Encode.string data.firstAccount )
+            , ( "initialBalance", Money.encoder data.initialBalance )
+            , ( "date", Date.toInt data.date |> Encode.int )
+            ]
+        )
 
 
 renameAccount : Int -> String -> Cmd msg
@@ -249,6 +263,12 @@ receive =
 
 msgFromService : ( String, Decode.Value ) -> Model -> ( Model, Cmd Msg )
 msgFromService ( title, content ) model =
+    let
+        defaultInstallationData =
+            { firstAccount = "Mon compte"
+            , initialBalance = ( "", Nothing )
+            }
+    in
     case title of
         "persistent storage granted" ->
             case Decode.decodeValue (Decode.at [ "granted" ] Decode.bool) content of
@@ -289,11 +309,7 @@ msgFromService ( title, content ) model =
                         , serviceVersion = db.serviceVersion
                         , page =
                             if List.isEmpty db.accounts then
-                                Model.InstallationPage
-                                    { firstAccount = "Mon compte"
-                                    , initialBalance = ""
-                                    , initialBalanceError = Nothing
-                                    }
+                                Model.InstallationPage defaultInstallationData
 
                             else
                                 Model.MainPage
@@ -328,11 +344,17 @@ msgFromService ( title, content ) model =
                     , Cmd.none
                     )
 
+                Ok [] ->
+                    ( { model
+                        | accounts = Dict.empty
+                        , account = -1
+                        , page = Model.InstallationPage defaultInstallationData
+                      }
+                    , Cmd.none
+                    )
+
                 Err e ->
                     Log.error ("decoding accounts: " ++ Decode.errorToString e) ( model, Cmd.none )
-
-                _ ->
-                    Log.error "received account list is empty" ( model, Cmd.none )
 
         "update categories" ->
             case Decode.decodeValue (Decode.list Model.decodeCategory) content of

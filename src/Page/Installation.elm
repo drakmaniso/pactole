@@ -1,24 +1,70 @@
-module Page.Installation exposing (..)
+module Page.Installation exposing (update, view)
 
+import Database
 import Element as E
 import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
+import Log
 import Model exposing (Model)
+import Money
 import Msg exposing (Msg)
 import Page.Settings as Settings
 import Ui
 import Ui.Color as Color
 
 
+update : Msg.InstallMsg -> Model -> ( Model, Cmd Msg )
+update msg model =
+    case model.page of
+        Model.InstallationPage installation ->
+            case msg of
+                Msg.InstallProceed ->
+                    case Money.fromInput False (Tuple.first installation.initialBalance) of
+                        Ok initialBalance ->
+                            ( { model | page = Model.MainPage }
+                            , Database.proceedWithInstallation
+                                { firstAccount = installation.firstAccount
+                                , initialBalance = initialBalance
+                                , date = model.today
+                                }
+                            )
+
+                        Err error ->
+                            ( { model
+                                | page =
+                                    Model.InstallationPage
+                                        { installation
+                                            | initialBalance = ( Tuple.first installation.initialBalance, Just error )
+                                        }
+                              }
+                            , Cmd.none
+                            )
+
+                Msg.InstallChangeName newName ->
+                    ( { model | page = Model.InstallationPage { installation | firstAccount = newName } }
+                    , Cmd.none
+                    )
+
+                Msg.InstallChangeBalance newBalance ->
+                    ( { model | page = Model.InstallationPage { installation | initialBalance = ( newBalance, Nothing ) } }
+                    , Cmd.none
+                    )
+
+        _ ->
+            ( model, Cmd.none )
+                |> Log.error "what?"
+
+
 view :
     Model
+    -> Model.InstallationData
     ->
         { summary : E.Element Msg
         , detail : E.Element Msg
         , main : E.Element Msg
         }
-view model =
+view model installation =
     { summary = Ui.logo model.serviceVersion
     , detail = E.none
     , main =
@@ -27,25 +73,21 @@ view model =
             , E.height E.fill
             , E.scrollbarY
             ]
-            [ Ui.pageTitle (E.text "Installation")
-            , E.column
+            [ E.column
                 [ E.width E.fill
                 , E.height E.fill
                 , E.paddingXY 24 24
                 , Border.widthEach { left = 2, top = 0, bottom = 0, right = 0 }
                 , Border.color Color.neutral90
                 ]
-                [ viewInstallation model
+                [ viewInstallation model installation
                 ]
             ]
     }
 
 
-viewInstallation model =
-    let
-        settings =
-            model.settings
-    in
+viewInstallation : Model -> Model.InstallationData -> E.Element Msg
+viewInstallation model installation =
     E.row
         [ E.width E.fill
         , E.height E.fill
@@ -68,56 +110,66 @@ viewInstallation model =
                 Pactole est une application qui fonctionne dans le navigateur. 
                 Ce n'est pas un site web: la page reste accessible même sans connexion internet.
                 """
+            , Ui.paragraphParts
+                [ Ui.text
+                    """Afin que le navigateur sache que vous voulez conserver les données de l'application, """
+                , Ui.boldText
+                    """
+                    il est nécessaire d'ajouter cette page à vos marque-pages. 
+                    """
+                ]
+            , Ui.paragraph
+                """
+                Si vous utilisez Firefox, le navigateur vous demandera l'autorisation de "conserver les
+                données dans le stockage persistant".
+                """
+            , Ui.paragraph
+                """
+                Si vous utilisez Chrome, Edge ou Safari, vous
+                pouvez ajouter l'application à votre écran d'accueil pour un accès plus rapide.
+                """
             , Ui.paragraph
                 """
                 Notez que vos données ne sont pas enregistrées en ligne:
                 elles sont uniquement disponibles sur l'appareil que vous utilisez actuellement.
                 """
-            , Ui.paragraphParts
-                [ Ui.text
-                    """Afin que le navigateur sache que vous voulez conserver ces données, """
-                , Ui.boldText
-                    """
-                    il est nécessaire d'ajouter cette page à vos marque-pages.
-                    """
-                ]
-            , E.el [ E.paddingXY 36 0 ]
-                (E.el
-                    [ Background.color Color.focus85
-                    , Border.rounded 6
-                    , E.padding 12
+            , E.row [ E.width E.fill, E.spacing 12 ]
+                [ E.el
+                    [ E.width (E.px 12)
+                    , E.height E.fill
+                    , Background.color Color.focus85
                     ]
-                    (Ui.paragraphParts
-                        [ Ui.text "Important: "
-                        , Ui.boldText
-                            """il ne faut jamais utiliser la fonctionnalité de nettoyage des données
+                    E.none
+                , Ui.paragraphParts
+                    [ Ui.text "Important: "
+                    , Ui.boldText
+                        """il ne faut jamais utiliser la fonctionnalité de nettoyage des données
                     du navigateur."""
-                        , Ui.text
-                            """
+                    , Ui.text
+                        """
                     Cela effacerait tout les opérations que vous avez entré dans Pactole.
                     """
-                        ]
-                    )
-                )
+                    ]
+                ]
             , Ui.verticalSpacer
             , Ui.title "Configuration initiale"
             , Ui.textInput
                 { width = 400
                 , label = Ui.labelLeft "Nom du compte:"
-                , text = "Mon compte"
-                , onChange = \_ -> Msg.NoOp
+                , text = installation.firstAccount
+                , onChange = \txt -> Msg.InstallChangeName txt |> Msg.ForInstallation
                 }
-            , Ui.textInput
-                { width = 200
-                , label = Ui.labelLeft "Solde initial:"
-                , text = ""
-                , onChange = \_ -> Msg.NoOp
+            , Ui.moneyInput
+                { label = Ui.labelLeft "Solde initial:"
+                , color = Color.neutral20
+                , state = installation.initialBalance
+                , onChange = Msg.ForInstallation << Msg.InstallChangeBalance
                 }
             , Ui.verticalSpacer
             , Settings.configLocked model
             , Ui.mainButton
                 { label = E.text "Installer Pactole"
-                , onPress = Just Msg.Close
+                , onPress = Just (Msg.InstallProceed |> Msg.ForInstallation)
                 }
             , Ui.verticalSpacer
             ]

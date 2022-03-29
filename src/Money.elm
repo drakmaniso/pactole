@@ -111,9 +111,13 @@ validate input =
                 "Utilisez une seule virgule."
 
 
-fromInput : Bool -> String -> Maybe Money
+fromInput : Bool -> String -> Result String Money
 fromInput expense input =
-    if validate input == "" then
+    let
+        validationError =
+            validate input
+    in
+    if validationError == "" then
         let
             sign =
                 if expense then
@@ -124,9 +128,12 @@ fromInput expense input =
         in
         case String.split "," input of
             [ unitsStr ] ->
-                Maybe.map
-                    (\v -> Money (sign * v * 100))
-                    (String.toInt unitsStr)
+                case String.toInt unitsStr of
+                    Just v ->
+                        Ok (Money (sign * v * 100))
+
+                    Nothing ->
+                        Err "Nombre invalide"
 
             [ unitsStr, centsStr ] ->
                 let
@@ -138,14 +145,18 @@ fromInput expense input =
                     cents =
                         String.toInt centsStr
                 in
-                Maybe.map2 (\a b -> sign * (a + b)) units cents
-                    |> Maybe.map Money
+                case ( units, cents ) of
+                    ( Just u, Just c ) ->
+                        Ok (Money (sign * (u + c)))
+
+                    _ ->
+                        Err "Nombre invalide"
 
             _ ->
-                Nothing
+                Err "Trop de virgules"
 
     else
-        Nothing
+        Err validationError
 
 
 encoder : Money -> Encode.Value

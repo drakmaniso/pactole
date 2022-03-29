@@ -138,64 +138,6 @@ init flags _ _ =
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    case model.page of
-        Model.InstallationPage installation ->
-            installUpdate msg model installation
-
-        _ ->
-            appUpdate msg model
-
-
-installUpdate : Msg -> Model -> Model.InstallationData -> ( Model, Cmd Msg )
-installUpdate msg model installation =
-    case msg of
-        Msg.Close ->
-            ( { model | page = Model.MainPage }
-            , Database.createAccount installation.firstAccount
-            )
-
-        Msg.CloseErrorBanner ->
-            ( { model | error = Nothing }, Cmd.none )
-
-        Msg.SelectDate _ ->
-            ( model, Cmd.none )
-                |> Log.error "unexpected `SelectDate` message in `installUpdate`"
-
-        Msg.SelectAccount _ ->
-            ( model, Cmd.none )
-                |> Log.error "unexpected `SelectAccount` message in `installUpdate`"
-
-        Msg.KeyDown _ ->
-            ( model, Cmd.none )
-
-        Msg.WindowResize size ->
-            ( { model
-                | device = Ui.device size.width size.height
-              }
-            , Cmd.none
-            )
-
-        Msg.ForDatabase m ->
-            Database.update m model
-
-        Msg.ForDialog _ ->
-            ( model, Cmd.none )
-                |> Log.error "unexpected `ForDialog` message in `installUpdate`"
-
-        Msg.ForSettingsDialog _ ->
-            ( model, Cmd.none )
-                |> Log.error "unexpected `ForSettingsDialog` message in `installUpdate`"
-
-        Msg.NoOp ->
-            ( model, Cmd.none )
-
-        Msg.ChangePage _ ->
-            ( model, Cmd.none )
-                |> Log.error "unexpected `ChangePage` message in `installUpdate`"
-
-
-appUpdate : Msg -> Model -> ( Model, Cmd Msg )
-appUpdate msg model =
     case msg of
         Msg.ChangePage page ->
             ( { model | page = page }
@@ -228,6 +170,9 @@ appUpdate msg model =
               }
             , Cmd.none
             )
+
+        Msg.ForInstallation m ->
+            Installation.update m model
 
         Msg.ForDatabase m ->
             Database.update m model
@@ -290,8 +235,8 @@ view model =
                 Model.LoadingPage ->
                     Loading.view model
 
-                Model.InstallationPage _ ->
-                    Installation.view model
+                Model.InstallationPage installation ->
+                    Installation.view model installation
 
                 Model.HelpPage ->
                     Help.view model

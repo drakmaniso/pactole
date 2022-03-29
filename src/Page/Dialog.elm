@@ -38,8 +38,7 @@ update msg model =
                         , isExpense = isExpense
                         , isRecurring = False
                         , date = date
-                        , amount = ""
-                        , amountError = ""
+                        , amount = ( "", Nothing )
                         , description = ""
                         , category = 0
                         }
@@ -60,8 +59,7 @@ update msg model =
                                 , isExpense = Money.isExpense t.amount
                                 , isRecurring = False
                                 , date = t.date
-                                , amount = Money.toInput t.amount
-                                , amountError = ""
+                                , amount = ( Money.toInput t.amount, Nothing )
                                 , description = t.description
                                 , category = t.category
                                 }
@@ -82,8 +80,7 @@ update msg model =
                                 , isExpense = Money.isExpense t.amount
                                 , isRecurring = True
                                 , date = t.date
-                                , amount = Money.toInput t.amount
-                                , amountError = ""
+                                , amount = ( Money.toInput t.amount, Nothing )
                                 , description = t.description
                                 , category = t.category
                                 }
@@ -95,12 +92,7 @@ update msg model =
             case model.dialog of
                 Just dialog ->
                     ( { model
-                        | dialog =
-                            Just
-                                { dialog
-                                    | amount = amount
-                                    , amountError = ""
-                                }
+                        | dialog = Just { dialog | amount = ( amount, Nothing ) }
                       }
                     , Cmd.none
                     )
@@ -144,11 +136,10 @@ update msg model =
                 Just dialog ->
                     case
                         ( dialog.id
-                        , Money.fromInput dialog.isExpense dialog.amount
-                        , Money.validate dialog.amount
+                        , Money.fromInput dialog.isExpense (Tuple.first dialog.amount)
                         )
                     of
-                        ( Just id, Just amount, "" ) ->
+                        ( Just id, Ok amount ) ->
                             ( { model | dialog = Nothing }
                             , Database.replaceTransaction
                                 { id = id
@@ -161,7 +152,7 @@ update msg model =
                                 }
                             )
 
-                        ( Nothing, Just amount, "" ) ->
+                        ( Nothing, Ok amount ) ->
                             ( { model | dialog = Nothing }
                             , Database.createTransaction
                                 { account = model.account
@@ -173,10 +164,10 @@ update msg model =
                                 }
                             )
 
-                        ( _, _, amountError ) ->
+                        ( _, Err amountError ) ->
                             let
                                 newDialog =
-                                    { dialog | amountError = amountError }
+                                    { dialog | amount = ( Tuple.first dialog.amount, Just amountError ) }
                             in
                             ( { model
                                 | dialog = Just newDialog
@@ -296,7 +287,7 @@ viewAmount model dialog =
                       else
                         "+"
                      )
-                        ++ dialog.amount
+                        ++ Tuple.first dialog.amount
                         ++ " €"
                     )
                 )
@@ -305,7 +296,7 @@ viewAmount model dialog =
     else
         Ui.dialogSectionRow Color.neutral30
             titleText
-            (E.row [ E.width E.fill, E.padding 0 ]
+            (E.row [ E.width E.fill, E.padding 0, Ui.bigFont, Font.bold ]
                 [ E.el
                     [ Ui.bigFont
                     , Font.color Color.neutral40
@@ -324,33 +315,10 @@ viewAmount model dialog =
                             E.text "+"
                         )
                     )
-                , Input.text
-                    [ Ui.bigFont
-                    , Font.bold
-                    , E.paddingXY 8 12
-                    , E.width (E.shrink |> E.minimum 220)
-                    , E.alignLeft
-                    , Border.width 4
-                    , Border.color Color.white
-                    , Background.color Color.neutral95
-                    , Ui.innerShadow
-                    , E.focused
-                        [ Border.color Color.focus85
-                        ]
-                    , E.htmlAttribute <| HtmlAttr.id "dialog-amount"
-                    , E.htmlAttribute <| HtmlAttr.autocomplete False
-                    , Font.color titleColor
-                    , if dialog.amountError /= "" then
-                        E.below <|
-                            Ui.warningPopup
-                                [ E.text dialog.amountError ]
-
-                      else
-                        E.below <| E.none
-                    ]
+                , Ui.moneyInput
                     { label = Input.labelHidden "Somme"
-                    , text = dialog.amount
-                    , placeholder = Nothing
+                    , color = titleColor
+                    , state = dialog.amount
                     , onChange = Msg.ForDialog << Msg.DialogChangeAmount
                     }
                 , E.el

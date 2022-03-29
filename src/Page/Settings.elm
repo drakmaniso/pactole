@@ -256,7 +256,7 @@ update msg model =
                         { id = submodel.idx
                         , account = submodel.account
                         , amount =
-                            Maybe.withDefault Money.zero
+                            Result.withDefault Money.zero
                                 (Money.fromInput submodel.isExpense submodel.amount)
                         , description = submodel.description
                         , category = submodel.category
@@ -347,19 +347,7 @@ view model =
 
 viewSettings model =
     Ui.textColumn
-        [ Ui.title "Données de l'application"
-        , Ui.paragraph
-            """
-            Les données de Pactoles ne sont pas enregistrées en ligne.
-            Elles sont uniquement sur l'appareil que vous êtes en train d'utiliser.
-            """
-        , Ui.paragraph
-            """
-            Si vous voulez transférer vos données ailleurs, vous pouvez
-            faire une copie de sauvegarde et la récupérer sur le nouvel appareil.
-            """
-        , configBackup model
-        , Ui.verticalSpacer
+        [ configBackup model
         , Ui.title "Configuration des comptes"
         , configWarning model
         , configAccounts model
@@ -384,9 +372,37 @@ configBackup _ =
     E.column
         [ E.width E.fill
         , E.spacing 24
-        , E.paddingEach { top = 12, bottom = 12, left = 12, right = 12 }
         ]
-        [ Ui.simpleButton
+        [ Ui.title "Données de l'application"
+        , Ui.paragraph
+            """
+            Les données de Pactole ne sont pas enregistrées en ligne.
+            Elles sont disponible uniquement sur l'appareil que vous êtes en train d'utiliser.
+            """
+        , E.row [ E.width E.fill, E.spacing 12 ]
+            [ E.el
+                [ E.width (E.px 12)
+                , E.height E.fill
+                , Background.color Color.focus85
+                ]
+                E.none
+            , Ui.paragraphParts
+                [ Ui.text "Rappel: "
+                , Ui.boldText
+                    """il ne faut jamais utiliser la fonctionnalité de nettoyage des données
+                    du navigateur."""
+                , Ui.text
+                    """
+                    Cela effacerait tout les opérations que vous avez entré dans Pactole.
+                    """
+                ]
+            ]
+        , Ui.paragraph
+            """
+            Si vous voulez transférer vos données sur un nouvel appareil, vous pouvez
+            faire une copie de sauvegarde, transférer le fichier et le récupérer sur le nouvel appareil.
+            """
+        , Ui.simpleButton
             { onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsAskExportConfirmation)
             , label = E.row [ E.spacing 12 ] [ Ui.saveIcon, E.text "Faire une copie de sauvegarde" ]
             }
@@ -394,6 +410,7 @@ configBackup _ =
             { onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsAskImportConfirmation)
             , label = E.row [ E.spacing 12 ] [ Ui.loadIcon, E.text "Récupérer une sauvegarde" ]
             }
+        , Ui.verticalSpacer
         ]
 
 

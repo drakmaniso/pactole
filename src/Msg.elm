@@ -1,4 +1,4 @@
-module Msg exposing (DatabaseMsg(..), DialogMsg(..), Msg(..), SettingsDialogMsg(..))
+module Msg exposing (DatabaseMsg(..), DialogMsg(..), InstallMsg(..), Msg(..), SettingsDialogMsg(..))
 
 import Date exposing (Date)
 import Json.Decode as Decode
@@ -14,10 +14,17 @@ type Msg
     | SelectAccount Int
     | KeyDown String
     | WindowResize { width : Int, height : Int }
+    | ForInstallation InstallMsg
     | ForDatabase DatabaseMsg
     | ForDialog DialogMsg
     | ForSettingsDialog SettingsDialogMsg
     | NoOp
+
+
+type InstallMsg
+    = InstallChangeName String
+    | InstallChangeBalance String
+    | InstallProceed
 
 
 type DatabaseMsg

@@ -64,8 +64,7 @@ type Page
 
 type alias InstallationData =
     { firstAccount : String
-    , initialBalance : String
-    , initialBalanceError : Maybe String
+    , initialBalance : ( String, Maybe String )
     }
 
 
@@ -188,8 +187,7 @@ type alias Dialog =
     , isExpense : Bool
     , isRecurring : Bool
     , date : Date
-    , amount : String
-    , amountError : String
+    , amount : ( String, Maybe String )
     , description : String
     , category : Int
     }

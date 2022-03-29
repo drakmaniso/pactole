@@ -40,6 +40,7 @@ module Ui exposing
     , logo
     , mainButton
     , minusIcon
+    , moneyInput
     , mouseDown
     , mouseOver
     , normalFont
@@ -1003,6 +1004,44 @@ textInput args =
         ]
         { label = args.label
         , text = args.text
+        , placeholder = Nothing
+        , onChange = args.onChange
+        }
+
+
+moneyInput :
+    { label : Input.Label msg
+    , color : E.Color
+    , state : ( String, Maybe String )
+    , onChange : String -> msg
+    }
+    -> E.Element msg
+moneyInput args =
+    Input.text
+        [ E.paddingXY 8 12
+        , E.width (E.shrink |> E.minimum 220)
+        , E.alignLeft
+        , Border.width 4
+        , Border.color Color.white
+        , Background.color Color.neutral95
+        , innerShadow
+        , E.focused
+            [ Border.color Color.focus85
+            ]
+        , E.htmlAttribute <| Html.Attributes.id "dialog-amount"
+        , E.htmlAttribute <| Html.Attributes.autocomplete False
+        , Font.color args.color
+        , case Tuple.second args.state of
+            Just error ->
+                E.below <|
+                    warningPopup
+                        [ E.text error ]
+
+            _ ->
+                E.below <| E.none
+        ]
+        { label = args.label
+        , text = Tuple.first args.state
         , placeholder = Nothing
         , onChange = args.onChange
         }
