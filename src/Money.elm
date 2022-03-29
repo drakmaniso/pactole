@@ -1,8 +1,8 @@
 module Money exposing
     ( Money
     , add
-    , decoder
-    , encoder
+    , decode
+    , encode
     , fromInput
     , isExpense
     , isGreaterThan
@@ -159,11 +159,11 @@ fromInput expense input =
         Err validationError
 
 
-encoder : Money -> Encode.Value
-encoder (Money money) =
+encode : Money -> Encode.Value
+encode (Money money) =
     Encode.int money
 
 
-decoder : Decode.Decoder Money
-decoder =
+decode : Decode.Decoder Money
+decode =
     Decode.map Money Decode.int

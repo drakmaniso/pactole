@@ -305,8 +305,8 @@ encodeTransaction transaction =
     Encode.object
         [ ( "account", Encode.int transaction.account )
         , ( "id", Encode.int transaction.id )
-        , ( "date", Encode.int (Date.toInt transaction.date) )
-        , ( "amount", Money.encoder transaction.amount )
+        , ( "date", Date.encode transaction.date )
+        , ( "amount", Money.encode transaction.amount )
         , ( "description", Encode.string transaction.description )
         , ( "category", Encode.int transaction.category )
         , ( "checked", Encode.bool transaction.checked )
@@ -318,8 +318,8 @@ decodeTransaction =
     Decode.map7 Transaction
         (Decode.field "id" Decode.int)
         (Decode.field "account" Decode.int)
-        (Decode.map Date.fromInt (Decode.field "date" Decode.int))
-        (Decode.field "amount" Money.decoder)
+        (Decode.field "date" Date.decode)
+        (Decode.field "amount" Money.decode)
         (Decode.field "description" Decode.string)
         (Decode.field "category" Decode.int)
         (Decode.field "checked" Decode.bool)
@@ -329,8 +329,8 @@ encodeNewTransaction : NewTransaction -> Encode.Value
 encodeNewTransaction transaction =
     Encode.object
         [ ( "account", Encode.int transaction.account )
-        , ( "date", Encode.int (Date.toInt transaction.date) )
-        , ( "amount", Money.encoder transaction.amount )
+        , ( "date", Date.encode transaction.date )
+        , ( "amount", Money.encode transaction.amount )
         , ( "description", Encode.string transaction.description )
         , ( "category", Encode.int transaction.category )
         , ( "checked", Encode.bool transaction.checked )
@@ -341,8 +341,8 @@ decodeNewTransaction : Decode.Decoder NewTransaction
 decodeNewTransaction =
     Decode.map6 NewTransaction
         (Decode.field "account" Decode.int)
-        (Decode.map Date.fromInt (Decode.field "date" Decode.int))
-        (Decode.field "amount" Money.decoder)
+        (Decode.field "date" Date.decode)
+        (Decode.field "amount" Money.decode)
         (Decode.field "description" Decode.string)
         (Decode.field "category" Decode.int)
         (Decode.field "checked" Decode.bool)

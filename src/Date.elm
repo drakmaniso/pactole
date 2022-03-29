@@ -1,13 +1,14 @@
 module Date exposing
     ( Date
     , compare
+    , decode
     , decrementDay
     , decrementMonth
     , decrementMonthUI
     , default
+    , encode
     , findNextDayOfMonth
     , firstDayOf
-    , fromInt
     , fromParts
     , getDay
     , getDayDiff
@@ -23,13 +24,14 @@ module Date exposing
     , incrementMonthUI
     , incrementWeek
     , lastDayOf
-    , toInt
     , toShortString
     , toString
     )
 
 import Array
 import Calendar
+import Json.Decode as Decode
+import Json.Encode as Encode
 import Time
 
 
@@ -249,6 +251,11 @@ toInt (Date date) =
     d + 100 * m + 10000 * y
 
 
+encode : Date -> Encode.Value
+encode date =
+    toInt date |> Encode.int
+
+
 fromInt : Int -> Date
 fromInt n =
     let
@@ -282,6 +289,11 @@ fromInt n =
 
         Just date ->
             Date date
+
+
+decode : Decode.Decoder Date
+decode =
+    Decode.map fromInt Decode.int
 
 
 decrementMonth : Date -> Date

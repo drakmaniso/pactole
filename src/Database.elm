@@ -102,8 +102,8 @@ proceedWithInstallation data =
         ( "proceed with installation"
         , Encode.object
             [ ( "firstAccount", Encode.string data.firstAccount )
-            , ( "initialBalance", Money.encoder data.initialBalance )
-            , ( "date", Date.toInt data.date |> Encode.int )
+            , ( "initialBalance", Money.encode data.initialBalance )
+            , ( "date", Date.encode data.date )
             ]
         )
 
