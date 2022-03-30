@@ -56,6 +56,9 @@ update msg model =
                     , Cmd.none
                     )
 
+                Msg.InstallImport ->
+                    ( model, Database.importDatabase )
+
         _ ->
             ( model, Cmd.none )
                 |> Log.error "what?"
@@ -176,10 +179,16 @@ viewInstallation model installation =
                 }
             , Ui.verticalSpacer
             , Settings.configLocked model
-            , Ui.mainButton
-                { label = E.text "Installer Pactole"
-                , onPress = Just (Msg.InstallProceed |> Msg.ForInstallation)
-                }
+            , E.row [ E.spacing 36 ]
+                [ Ui.mainButton
+                    { label = E.text "Installer Pactole"
+                    , onPress = Just (Msg.InstallProceed |> Msg.ForInstallation)
+                    }
+                , Ui.simpleButton
+                    { label = E.text "Récupérer une sauvegarde"
+                    , onPress = Just (Msg.InstallImport |> Msg.ForInstallation)
+                    }
+                ]
             , Ui.verticalSpacer
             ]
         ]

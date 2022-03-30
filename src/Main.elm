@@ -358,6 +358,7 @@ errorBanner error maybeCloseMsg =
                     , Border.rounded 32
                     , E.mouseDown [ Background.color Color.warning50 ]
                     , E.mouseOver [ Background.color Color.warning70 ]
+                    , E.alignTop
                     ]
                     { onPress = Just closeMsg
                     , label = Ui.closeIcon
