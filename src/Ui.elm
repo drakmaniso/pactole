@@ -415,7 +415,8 @@ configCustom { label, content } =
 pageTitle : E.Element msg -> E.Element msg
 pageTitle element =
     E.row
-        [ E.width E.fill
+        [ E.width <| E.maximum pageTitleWidth <| E.fill
+        , E.centerX
         , E.paddingEach { top = 3, bottom = 8, left = 8, right = 8 }
         ]
         [ E.el [ E.width (E.fill |> E.maximum 64) ] E.none
@@ -565,7 +566,8 @@ dateNavigationBar model changeMsg =
         ]
         [ E.el [ E.width (E.fill |> E.maximum 64) ] E.none
         , Keyed.row
-            [ E.width E.fill
+            [ E.width <| E.maximum pageTitleWidth <| E.fill
+            , E.centerX
             , E.alignTop
             , Background.color Color.neutral95
             , Border.roundEach { topLeft = 32, bottomLeft = 32, topRight = 32, bottomRight = 32 }
@@ -653,7 +655,7 @@ dateNavigationBar model changeMsg =
 
 viewDate : Date -> E.Element msg
 viewDate date =
-    E.el
+    E.paragraph
         [ E.width E.fill
         , Font.bold
         , bigFont
@@ -661,14 +663,14 @@ viewDate date =
         , Font.color Color.neutral30
         , Font.center
         ]
-        (E.text
+        [ E.text
             (Date.getWeekdayName date
                 ++ " "
                 ++ String.fromInt (Date.getDay date)
                 ++ " "
                 ++ Date.getMonthName date
             )
-        )
+        ]
 
 
 viewMoney : Money.Money -> Bool -> E.Element msg
@@ -1187,6 +1189,11 @@ textColumn elements =
 paragraphWidth : Int
 paragraphWidth =
     860
+
+
+pageTitleWidth : Int
+pageTitleWidth =
+    1200
 
 
 title : String -> E.Element msg

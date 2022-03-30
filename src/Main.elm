@@ -15,6 +15,7 @@ import Element.Input as Input
 import Json.Decode as Decode
 import Ledger
 import Model exposing (Model)
+import Money
 import Msg exposing (Msg)
 import Page.Calendar as Calendar
 import Page.Dialog as Dialog
@@ -267,7 +268,11 @@ view model =
                 , page = activePageContent
                 }
     in
-    document model activePage activeDialog
+    if model.topBar && model.page /= Model.MainPage then
+        document model activePageContent activeDialog
+
+    else
+        document model activePage activeDialog
 
 
 document : Model -> E.Element Msg -> Maybe (E.Element Msg) -> Browser.Document Msg
@@ -315,7 +320,13 @@ document model activePage activeDialog =
                         )
                     ]
             )
-            (E.column [ E.width E.fill, E.height E.fill ]
+            (E.column
+                [ E.width E.fill
+                , E.height E.fill
+                , Ui.fontFamily
+                , Ui.normalFont
+                , Font.color Color.neutral30
+                ]
                 [ if not (Dict.isEmpty model.accounts) && not model.isStoragePersisted then
                     errorBanner "Attention: le stockage n'est pas persistant!" Nothing
 
@@ -406,7 +417,7 @@ pageWithSidePanel model { panel, page } =
         , Font.color Color.neutral30
         ]
         [ E.column
-            [ E.width (E.fillPortion 1 |> E.minimum minLeftSize)
+            [ E.width (E.fillPortion 1)
             , E.height E.fill
             , E.clipX
             , E.clipY
@@ -419,7 +430,7 @@ pageWithSidePanel model { panel, page } =
             , panel
             ]
         , E.el
-            [ E.width (E.fillPortion 3 |> E.minimum 800)
+            [ E.width (E.fillPortion 3)
             , E.height E.fill
             , E.clipX
             , E.clipY
@@ -490,6 +501,8 @@ navigationBar model =
 
           else
             E.padding 3
+        , Ui.normalFont
+        , Ui.fontFamily
         ]
         (E.row
             [ E.width E.fill
@@ -525,11 +538,15 @@ navigationBar model =
 
                       else
                         E.none
-                    , E.el
-                        [ E.width E.fill
-                        , E.height E.fill
-                        ]
-                        E.none
+                    , if model.topBar then
+                        viewBalance model
+
+                      else
+                        E.el
+                            [ E.width E.fill
+                            , E.height E.fill
+                            ]
+                            E.none
                     , if model.settings.settingsLocked then
                         E.none
 
@@ -547,3 +564,64 @@ navigationBar model =
                     ]
             )
         )
+
+
+viewBalance : Model -> E.Element msg
+viewBalance model =
+    let
+        balance =
+            Ledger.getBalance model.ledger model.account model.today
+
+        parts =
+            Money.toStrings balance
+
+        sign =
+            if parts.sign == "+" then
+                ""
+
+            else
+                "-"
+
+        color =
+            if Money.isGreaterThan balance 0 then
+                Color.neutral30
+
+            else
+                Color.warning60
+    in
+    E.paragraph
+        [ Font.center, Ui.bigFont, Font.color color, Ui.notSelectable ]
+        [ E.el [ Font.bold ] (E.text (Model.accountName model.account model))
+        , E.text ": "
+        , if Money.isGreaterThan balance model.settings.balanceWarning then
+            E.none
+
+          else
+            Ui.warningIcon
+        , E.el
+            [ Ui.bigFont
+            , Font.bold
+            , E.centerX
+            ]
+            (E.text (sign ++ parts.units))
+        , E.el
+            [ Ui.normalFont
+            , Font.bold
+            , E.alignBottom
+            , E.paddingEach { top = 0, bottom = 2, left = 0, right = 0 }
+            , E.centerX
+            ]
+            (E.text ("," ++ parts.cents))
+        , E.el
+            [ Ui.normalFont
+            , E.alignTop
+            , E.paddingEach { top = 2, bottom = 0, left = 4, right = 0 }
+            , E.centerX
+            ]
+            (E.text "€")
+        , if Money.isGreaterThan balance model.settings.balanceWarning then
+            E.none
+
+          else
+            Ui.warningIcon
+        ]

@@ -23,7 +23,11 @@ import Ui.Color as Color
 
 viewPanel : Model -> E.Element Msg
 viewPanel model =
-    Ui.twoPartsSidePanel { top = Summary.view model, bottom = dayView model }
+    if model.topBar then
+        dayView model
+
+    else
+        Ui.twoPartsSidePanel { top = Summary.view model, bottom = dayView model }
 
 
 
@@ -469,14 +473,14 @@ dayContentFor model day =
     in
     case transactions of
         [] ->
-            [ E.el
+            [ E.paragraph
                 [ E.width E.fill
                 , Font.center
                 , Font.color Color.neutral50
                 , Ui.normalFont
                 , E.paddingXY 8 32
                 ]
-                (E.text "(Aucune opération)")
+                [ E.text "(Aucune opération)" ]
             ]
 
         t ->

@@ -309,7 +309,6 @@ viewPanel model =
                 (E.text "Storage is NOT persisted!")
         , E.el [ Ui.smallerFont, E.centerX, Font.color Color.neutral70, E.paddingXY 0 6 ]
             (E.text ("width = " ++ String.fromInt model.device.width ++ ", height = " ++ String.fromInt model.device.height))
-        , configLayout model
         ]
 
 
@@ -334,7 +333,8 @@ viewContent model =
                 ]
                 [ Ui.pageTitle (E.text "Configuration")
                 , Ui.textColumn
-                    [ Ui.verticalSpacer
+                    [ configLayout model
+                    , Ui.verticalSpacer
                     , configBackup model
                     , Ui.title "Configuration des comptes"
                     , configWarning model
