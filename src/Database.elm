@@ -70,12 +70,6 @@ update msg model =
                 }
             )
 
-        Msg.DbExport ->
-            ( model, exportDatabase model )
-
-        Msg.DbImport ->
-            ( model, importDatabase )
-
 
 
 -- TO THE SERVICE WORKER
