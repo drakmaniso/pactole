@@ -125,6 +125,7 @@ init flags _ _ =
       , serviceVersion = "unknown"
       , device = Ui.device width height
       , error = Nothing
+      , topBar = False
       }
     , Cmd.none
     )
@@ -173,6 +174,9 @@ update msg model =
 
         Msg.ForSettingsDialog m ->
             Settings.update m model
+
+        Msg.ChangeLayout l ->
+            ( { model | topBar = l }, Cmd.none )
 
         Msg.NoOp ->
             ( model, Cmd.none )
@@ -323,6 +327,11 @@ document model activePage activeDialog =
 
                     _ ->
                         E.none
+                , if model.topBar then
+                    navigationBar model
+
+                  else
+                    E.none
                 , activePage
                 ]
             )
@@ -402,7 +411,11 @@ pageWithSidePanel model { panel, page } =
             , E.clipX
             , E.clipY
             ]
-            [ navigationBar model
+            [ if not model.topBar then
+                navigationBar model
+
+              else
+                E.none
             , panel
             ]
         , E.el
@@ -418,6 +431,13 @@ pageWithSidePanel model { panel, page } =
 navigationBar : Model -> E.Element Msg
 navigationBar model =
     let
+        roundedBorders =
+            if model.topBar then
+                Border.rounded 0
+
+            else
+                Border.roundEach { topLeft = 32, bottomLeft = 32, topRight = 32, bottomRight = 32 }
+
         navigationButton { targetPage, label } =
             Input.button
                 [ E.paddingXY 6 2
@@ -455,7 +475,7 @@ navigationBar model =
                         )
                     ]
                 , E.height E.fill
-                , Border.roundEach { topLeft = 32, bottomLeft = 32, topRight = 32, bottomRight = 32 }
+                , roundedBorders
                 , Border.width 4
                 , Ui.focusVisibleOnly
                 ]
@@ -463,10 +483,17 @@ navigationBar model =
                 , label = label
                 }
     in
-    E.el [ E.width E.fill, E.padding 3 ]
+    E.el
+        [ E.width E.fill
+        , if model.topBar then
+            E.paddingEach { left = 0, right = 0, top = 0, bottom = 6 }
+
+          else
+            E.padding 3
+        ]
         (E.row
             [ E.width E.fill
-            , Border.roundEach { topLeft = 32, bottomLeft = 32, topRight = 32, bottomRight = 32 }
+            , roundedBorders
             , Background.color Color.primary90
             , Ui.smallerShadow
             ]

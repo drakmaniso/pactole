@@ -309,6 +309,7 @@ viewPanel model =
                 (E.text "Storage is NOT persisted!")
         , E.el [ Ui.smallerFont, E.centerX, Font.color Color.neutral70, E.paddingXY 0 6 ]
             (E.text ("width = " ++ String.fromInt model.device.width ++ ", height = " ++ String.fromInt model.device.height))
+        , configLayout model
         ]
 
 
@@ -332,38 +333,28 @@ viewContent model =
                 , Border.color Color.neutral90
                 ]
                 [ Ui.pageTitle (E.text "Configuration")
-                , E.column
-                    [ E.width E.fill
-                    , E.height E.fill
-                    , E.paddingXY 24 24
-                    ]
-                    [ viewSettings model
+                , Ui.textColumn
+                    [ Ui.verticalSpacer
+                    , configBackup model
+                    , Ui.title "Configuration des comptes"
+                    , configWarning model
+                    , configAccounts model
+                    , Ui.verticalSpacer
+                    , Ui.title "Fonctions optionnelles"
+                    , configSummary model
+                    , configReconciliation model
+                    , Ui.verticalSpacer
+                    , Ui.title "Catégories de dépenses"
+                    , configCategoriesEnabled model
+                    , configCategories model
+                    , Ui.verticalSpacer
+                    , Ui.title "Opération mensuelles"
+                    , configRecurring model
+                    , Ui.verticalSpacer
+                    , configLocked model
                     ]
                 ]
             )
-        ]
-
-
-viewSettings : Model -> E.Element Msg
-viewSettings model =
-    Ui.textColumn
-        [ configBackup model
-        , Ui.title "Configuration des comptes"
-        , configWarning model
-        , configAccounts model
-        , Ui.verticalSpacer
-        , Ui.title "Fonctions optionnelles"
-        , configSummary model
-        , configReconciliation model
-        , Ui.verticalSpacer
-        , Ui.title "Catégories de dépenses"
-        , configCategoriesEnabled model
-        , configCategories model
-        , Ui.verticalSpacer
-        , Ui.title "Opération mensuelles"
-        , configRecurring model
-        , Ui.verticalSpacer
-        , configLocked model
         ]
 
 
@@ -700,35 +691,24 @@ configLocked model =
         ]
 
 
+configLayout : Model -> E.Element Msg
+configLayout model =
+    E.el
+        [ E.centerX, E.spacing 6, Ui.smallerFont ]
+        (Ui.configRadio
+            { onChange =
+                \v -> Msg.ChangeLayout v
+            , label = "Navigation Bar:"
+            , options =
+                [ Ui.radioRowOption False (E.text "Mini")
+                , Ui.radioRowOption True (E.text "Top")
+                ]
+            , selected = Just model.topBar
+            }
+        )
 
-{-
-   Ui.textColumn
-       [ Ui.title "Verrouiller l'accès aux réglages"
-       , Ui.paragraph
-           """
-               Si l'utilisateur principal de l'application n'est pas à l'aise avec
-               toutes les fonctionnalités, vous pouvez re-verrouiller l'accès aux réglages
-               afin de prévenir toute fausse manipulation.
-               """
-       , Ui.paragraphParts
-           [ Ui.text
-               """
-               Pour ce faire, cliquez sur ce lien:
-               """
-           , Ui.helpMiniButton
-               { label =
-                   Ui.text "verrouiller les réglages"
-               , onPress = Msg.ForDatabase <| Msg.DbStoreSettings { settings | settingsLocked = True }
-               }
-           , Ui.text "."
-           ]
-       , Ui.paragraph
-           """
-               Pour déverrouiller les réglages à nouveau, utilisez le lien dans la section
-               "Fonctions avancées" du guide d'utilisation.
-               """
-       ]
--}
+
+
 -- DIALOG
 
 
