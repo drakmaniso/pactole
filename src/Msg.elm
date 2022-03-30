@@ -24,6 +24,7 @@ type InstallMsg
     = InstallChangeName String
     | InstallChangeBalance String
     | InstallProceed
+    | InstallImport
 
 
 type DatabaseMsg
