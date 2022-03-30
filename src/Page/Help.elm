@@ -2,7 +2,6 @@ module Page.Help exposing (viewContent, viewPanel)
 
 import Element as E
 import Element.Border as Border
-import Element.Font as Font
 import Model exposing (Model)
 import Msg exposing (Msg)
 import Ui

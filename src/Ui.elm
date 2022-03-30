@@ -586,8 +586,8 @@ dateNavigationBar model changeMsg =
                         , Border.color Color.transparent
                         , focusVisibleOnly
                         , transition
-                        , mouseDown [ Background.color Color.neutral90 ]
-                        , mouseOver [ Background.color Color.neutral98 ]
+                        , E.mouseDown [ Background.color Color.neutral90 ]
+                        , E.mouseOver [ Background.color Color.neutral98 ]
                         ]
                         { label =
                             E.row
@@ -632,8 +632,8 @@ dateNavigationBar model changeMsg =
                         , Border.color Color.transparent
                         , focusVisibleOnly
                         , transition
-                        , mouseDown [ Background.color Color.neutral90 ]
-                        , mouseOver [ Background.color Color.neutral98 ]
+                        , E.mouseDown [ Background.color Color.neutral90 ]
+                        , E.mouseOver [ Background.color Color.neutral98 ]
                         ]
                         { label =
                             E.row

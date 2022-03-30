@@ -433,7 +433,7 @@ navigationBar model =
                         Color.primary40
 
                      else
-                        Color.primary95
+                        Color.primary90
                     )
                 , Font.color
                     (if model.page == targetPage then
@@ -442,6 +442,24 @@ navigationBar model =
                      else
                         Color.primary40
                     )
+                , E.mouseDown
+                    [ Background.color
+                        (if model.page == targetPage then
+                            Color.primary30
+
+                         else
+                            Color.primary80
+                        )
+                    ]
+                , E.mouseOver
+                    [ Background.color
+                        (if model.page == targetPage then
+                            Color.primary50
+
+                         else
+                            Color.primary95
+                        )
+                    ]
                 , E.height E.fill
                 , Border.roundEach { topLeft = 32, bottomLeft = 32, topRight = 32, bottomRight = 32 }
                 , Border.width 4
@@ -454,7 +472,7 @@ navigationBar model =
     E.row
         [ E.width E.fill
         , Border.roundEach { topLeft = 32, bottomLeft = 32, topRight = 32, bottomRight = 32 }
-        , Background.color Color.primary95
+        , Background.color Color.primary90
         , Ui.smallerShadow
         ]
         (case model.page of
