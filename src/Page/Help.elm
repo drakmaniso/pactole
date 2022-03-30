@@ -1,7 +1,8 @@
-module Page.Help exposing (view)
+module Page.Help exposing (viewContent, viewPanel)
 
 import Element as E
 import Element.Border as Border
+import Element.Font as Font
 import Model exposing (Model)
 import Msg exposing (Msg)
 import Ui
@@ -12,34 +13,32 @@ import Ui.Color as Color
 -- VIEW
 
 
-view :
-    Model
-    ->
-        { summary : E.Element Msg
-        , detail : E.Element Msg
-        , main : E.Element Msg
-        }
-view model =
-    { summary = Ui.logo model.serviceVersion
-    , detail = E.none
-    , main =
-        E.column
+viewPanel : Model -> E.Element Msg
+viewPanel model =
+    E.column [ E.width E.fill, E.height E.fill ]
+        [ Ui.logo model.serviceVersion
+        , E.el [ E.height E.fill ] E.none
+        ]
+
+
+viewContent : Model -> E.Element Msg
+viewContent model =
+    E.column
+        [ E.width E.fill
+        , E.height E.fill
+        , E.scrollbarY
+        , Border.widthEach { left = 2, top = 0, bottom = 0, right = 0 }
+        , Border.color Color.neutral90
+        ]
+        [ Ui.pageTitle (E.text "Guide d'utilisation")
+        , E.column
             [ E.width E.fill
             , E.height E.fill
-            , E.scrollbarY
-            , Border.widthEach { left = 2, top = 0, bottom = 0, right = 0 }
-            , Border.color Color.neutral90
+            , E.paddingXY 24 24
             ]
-            [ Ui.pageTitle (E.text "Guide d'utilisation")
-            , E.column
-                [ E.width E.fill
-                , E.height E.fill
-                , E.paddingXY 24 24
-                ]
-                [ presentation model
-                ]
+            [ presentation model
             ]
-    }
+        ]
 
 
 presentation : Model -> E.Element Msg

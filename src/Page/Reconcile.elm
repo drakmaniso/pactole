@@ -1,4 +1,4 @@
-module Page.Reconcile exposing (view)
+module Page.Reconcile exposing (viewContent, viewPanel)
 
 import Date exposing (Date)
 import Element as E
@@ -17,27 +17,25 @@ import Ui.Color as Color
 -- VIEW
 
 
-view :
-    Model
-    ->
-        { summary : E.Element Msg
-        , detail : E.Element Msg
-        , main : E.Element Msg
+viewPanel : Model -> E.Element Msg
+viewPanel model =
+    Ui.twoPartsSidePanel
+        { top = Summary.view model
+        , bottom = E.none
         }
-view model =
-    { summary = Summary.view model
-    , detail = E.none
-    , main =
-        E.column
-            [ E.width E.fill
-            , E.height E.fill
-            , E.clipY
-            ]
-            [ Ui.dateNavigationBar model Msg.SelectDate
-            , viewReconciled model
-            , viewTransactions model
-            ]
-    }
+
+
+viewContent : Model -> E.Element Msg
+viewContent model =
+    E.column
+        [ E.width E.fill
+        , E.height E.fill
+        , E.clipY
+        ]
+        [ Ui.dateNavigationBar model Msg.SelectDate
+        , viewReconciled model
+        , viewTransactions model
+        ]
 
 
 viewReconciled : Model -> E.Element msg

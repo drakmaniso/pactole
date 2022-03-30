@@ -1,8 +1,9 @@
 module Page.Settings exposing
     ( configLocked
     , update
-    , view
+    , viewContent
     , viewDialog
+    , viewPanel
     )
 
 import Database
@@ -280,73 +281,67 @@ update msg model =
 -- VIEW
 
 
-view :
-    Model
-    ->
-        { summary : E.Element Msg
-        , detail : E.Element Msg
-        , main : E.Element Msg
-        }
-view model =
-    { summary = Ui.logo model.serviceVersion
-    , detail =
-        E.column
-            [ E.width E.fill, E.height E.fill ]
-            [ E.el [ E.width E.fill, E.height E.fill ] E.none
-            , if model.hasStorageAPI then
-                E.el [ Ui.smallerFont, E.centerX, Font.color Color.neutral70, E.paddingXY 0 6 ]
-                    (E.text "Storage API is present")
+viewPanel : Model -> E.Element Msg
+viewPanel model =
+    E.column [ E.width E.fill, E.height E.fill ]
+        [ Ui.logo model.serviceVersion
+        , E.el [ E.width E.fill, E.height E.fill ] E.none
+        , if model.hasStorageAPI then
+            E.el [ Ui.smallerFont, E.centerX, Font.color Color.neutral70, E.paddingXY 0 6 ]
+                (E.text "Storage API is present")
 
-              else
-                E.el [ Ui.smallerFont, E.centerX, Font.color Color.warning60, E.paddingXY 0 6 ]
-                    (E.text "Storage API is NOT present!")
-            , if model.isPersistentStorageGranted then
-                E.el [ Ui.smallerFont, E.centerX, Font.color Color.neutral70, E.paddingXY 0 6 ]
-                    (E.text "Persistent storage has been granted")
+          else
+            E.el [ Ui.smallerFont, E.centerX, Font.color Color.warning60, E.paddingXY 0 6 ]
+                (E.text "Storage API is NOT present!")
+        , if model.isPersistentStorageGranted then
+            E.el [ Ui.smallerFont, E.centerX, Font.color Color.neutral70, E.paddingXY 0 6 ]
+                (E.text "Persistent storage has been granted")
 
-              else
-                E.el [ Ui.smallerFont, E.centerX, Font.color Color.warning60, E.paddingXY 0 6 ]
-                    (E.text "Persistent storage has NOT been granted!")
-            , if model.isStoragePersisted then
-                E.el [ Ui.smallerFont, E.centerX, Font.color Color.neutral70, E.paddingXY 0 6 ]
-                    (E.text "Storage is persisted")
+          else
+            E.el [ Ui.smallerFont, E.centerX, Font.color Color.warning60, E.paddingXY 0 6 ]
+                (E.text "Persistent storage has NOT been granted!")
+        , if model.isStoragePersisted then
+            E.el [ Ui.smallerFont, E.centerX, Font.color Color.neutral70, E.paddingXY 0 6 ]
+                (E.text "Storage is persisted")
 
-              else
-                E.el [ Ui.smallerFont, E.centerX, Font.color Color.warning60, E.paddingXY 0 6 ]
-                    (E.text "Storage is NOT persisted!")
-            , E.el [ Ui.smallerFont, E.centerX, Font.color Color.neutral70, E.paddingXY 0 6 ]
-                (E.text ("width = " ++ String.fromInt model.device.width ++ ", height = " ++ String.fromInt model.device.height))
-            ]
-    , main =
-        E.column
-            -- This extra column is necessary to circumvent a
-            -- scrollbar-related bug in elm-ui
-            [ E.width E.fill
-            , E.height E.fill
-            , E.clipY
-            ]
-            [ Keyed.el [ E.width E.fill, E.height E.fill, E.scrollbarY ]
-                ( "Settings"
+          else
+            E.el [ Ui.smallerFont, E.centerX, Font.color Color.warning60, E.paddingXY 0 6 ]
+                (E.text "Storage is NOT persisted!")
+        , E.el [ Ui.smallerFont, E.centerX, Font.color Color.neutral70, E.paddingXY 0 6 ]
+            (E.text ("width = " ++ String.fromInt model.device.width ++ ", height = " ++ String.fromInt model.device.height))
+        ]
+
+
+viewContent : Model -> E.Element Msg
+viewContent model =
+    E.column
+        -- This extra column is necessary to circumvent a
+        -- scrollbar-related bug in elm-ui
+        [ E.width E.fill
+        , E.height E.fill
+        , E.clipY
+        ]
+        [ Keyed.el [ E.width E.fill, E.height E.fill, E.scrollbarY ]
+            ( "Settings"
+            , E.column
+                [ E.width E.fill
+                , E.height E.fill
+                , E.paddingXY 0 0
+                , E.scrollbarY
+                , Border.widthEach { left = 2, top = 0, bottom = 0, right = 0 }
+                , Border.color Color.neutral90
+                ]
+                [ Ui.pageTitle (E.text "Configuration")
                 , E.column
                     [ E.width E.fill
                     , E.height E.fill
-                    , E.paddingXY 0 0
-                    , E.scrollbarY
-                         , Border.widthEach { left = 2, top = 0, bottom = 0, right = 0 }
-                        , Border.color Color.neutral90
-                   ]
-                    [ Ui.pageTitle (E.text "Configuration")
-                    , E.column
-                        [ E.width E.fill
-                        , E.height E.fill
-                        , E.paddingXY 24 24
-                        ]
-                        [ viewSettings model
-                        ]
+                    , E.paddingXY 24 24
                     ]
-                )
-            ]
-    }
+                    [ viewSettings model
+                    ]
+                ]
+            )
+        ]
 
 
 viewSettings : Model -> E.Element Msg

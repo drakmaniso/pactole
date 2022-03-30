@@ -211,47 +211,56 @@ view model =
                 Nothing ->
                     model.settingsDialog |> Maybe.map (\_ -> Settings.viewDialog model)
 
-        activePageParts =
+        activePageContent =
             case model.page of
                 Model.LoadingPage ->
-                    Loading.view model
+                    Loading.viewContent model
 
                 Model.InstallationPage installation ->
-                    Installation.view model installation
+                    Installation.viewContent model installation
 
                 Model.HelpPage ->
-                    Help.view model
+                    Help.viewContent model
 
                 Model.SettingsPage ->
-                    Settings.view model
+                    Settings.viewContent model
 
                 Model.StatsPage ->
-                    Statistics.view model
+                    Statistics.viewContent model
 
                 Model.ReconcilePage ->
-                    Reconcile.view model
+                    Reconcile.viewContent model
 
                 Model.MainPage ->
-                    Calendar.view model
+                    Calendar.viewContent model
+
+        activePagePanel =
+            case model.page of
+                Model.LoadingPage ->
+                    Loading.viewPanel model
+
+                Model.InstallationPage installation ->
+                    Installation.viewPanel model installation
+
+                Model.HelpPage ->
+                    Help.viewPanel model
+
+                Model.SettingsPage ->
+                    Settings.viewPanel model
+
+                Model.StatsPage ->
+                    Statistics.viewPanel model
+
+                Model.ReconcilePage ->
+                    Reconcile.viewPanel model
+
+                Model.MainPage ->
+                    Calendar.viewPanel model
 
         activePage =
             pageWithSidePanel model
-                { panel =
-                    E.column
-                        [ E.width E.fill
-                        , E.height E.fill
-                        , E.clipX
-                        , E.clipY
-                        ]
-                        [ E.el
-                            [ E.width E.fill, E.height (E.fillPortion 1) ]
-                            activePageParts.summary
-                        , Ui.ruler
-                        , E.el
-                            [ E.width E.fill, E.height (E.fillPortion 2) ]
-                            activePageParts.detail
-                        ]
-                , page = activePageParts.main
+                { panel = activePagePanel
+                , page = activePageContent
                 }
     in
     document model activePage activeDialog

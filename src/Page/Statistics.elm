@@ -1,4 +1,4 @@
-module Page.Statistics exposing (view)
+module Page.Statistics exposing (viewContent, viewPanel)
 
 import Dict
 import Element as E
@@ -16,59 +16,54 @@ import Ui.Color as Color
 -- VIEW
 
 
-view :
-    Model
-    ->
-        { summary : E.Element Msg
-        , detail : E.Element Msg
-        , main : E.Element Msg
+viewPanel : Model -> E.Element Msg
+viewPanel model =
+    Ui.twoPartsSidePanel
+        { top = Summary.view model
+        , bottom = E.none
         }
-view model =
-    { summary = Summary.view model
-    , detail = E.none
-    , main =
-        E.column
+
+
+viewContent : Model -> E.Element Msg
+viewContent model =
+    E.column
+        [ E.width E.fill
+        , E.height E.fill
+        ]
+        [ Ui.dateNavigationBar model Msg.SelectDate
+        , viewMonthBalance model
+        , viewMonthFutureWarning model
+        , Ui.ruler
+        , E.column
             [ E.width E.fill
             , E.height E.fill
-
-            -- , E.clipX
-            -- , E.clipY
+            , E.scrollbarY
             ]
-            [ Ui.dateNavigationBar model Msg.SelectDate
-            , viewMonthBalance model
-            , viewMonthFutureWarning model
-            , Ui.ruler
-            , E.column
-                [ E.width E.fill
-                , E.height E.fill
-                , E.scrollbarY
-                ]
-                [ E.el [ E.height E.fill ] E.none
-                , viewItem
+            [ E.el [ E.height E.fill ] E.none
+            , viewItem
+                ""
+                "Entrées d'argent: "
+                (Ledger.getIncomeForMonth model.ledger model.account model.date model.today)
+            , if model.settings.categoriesEnabled then
+                viewCategories model
+
+              else
+                E.none
+            , if model.settings.categoriesEnabled then
+                viewItem
                     ""
-                    "Entrées d'argent: "
-                    (Ledger.getIncomeForMonth model.ledger model.account model.date model.today)
-                , if model.settings.categoriesEnabled then
-                    viewCategories model
+                    "Sans catégorie: "
+                    (Ledger.getCategoryTotalForMonth model.ledger model.account model.date model.today 0)
 
-                  else
-                    E.none
-                , if model.settings.categoriesEnabled then
-                    viewItem
-                        ""
-                        "Sans catégorie: "
-                        (Ledger.getCategoryTotalForMonth model.ledger model.account model.date model.today 0)
-
-                  else
-                    viewItem
-                        ""
-                        "Dépenses: "
-                        (Ledger.getExpenseForMonth model.ledger model.account model.date model.today)
-                , E.text " "
-                , E.el [ E.height E.fill ] E.none
-                ]
+              else
+                viewItem
+                    ""
+                    "Dépenses: "
+                    (Ledger.getExpenseForMonth model.ledger model.account model.date model.today)
+            , E.text " "
+            , E.el [ E.height E.fill ] E.none
             ]
-    }
+        ]
 
 
 viewMonthBalance : Model -> E.Element msg

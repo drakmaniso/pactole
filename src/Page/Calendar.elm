@@ -1,4 +1,4 @@
-module Page.Calendar exposing (view)
+module Page.Calendar exposing (viewContent, viewPanel)
 
 import Date exposing (Date)
 import Element as E
@@ -21,26 +21,17 @@ import Ui.Color as Color
 -- VIEW
 
 
-view :
-    Model
-    ->
-        { summary : E.Element Msg
-        , detail : E.Element Msg
-        , main : E.Element Msg
-        }
-view model =
-    { summary = Summary.view model
-    , detail = dayView model
-    , main = calendar model
-    }
+viewPanel : Model -> E.Element Msg
+viewPanel model =
+    Ui.twoPartsSidePanel { top = Summary.view model, bottom = dayView model }
 
 
 
 -- THE CALENDAR
 
 
-calendar : Model -> E.Element Msg
-calendar model =
+viewContent : Model -> E.Element Msg
+viewContent model =
     let
         findTheFirst date =
             if Date.getDay date == 1 then

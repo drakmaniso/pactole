@@ -1,19 +1,19 @@
-module Page.Loading exposing (view)
+module Page.Loading exposing (viewContent, viewPanel)
 
 import Element as E
 import Model exposing (Model)
 import Msg exposing (Msg)
 
 
-view :
-    Model
-    ->
-        { summary : E.Element Msg
-        , detail : E.Element Msg
-        , main : E.Element Msg
-        }
-view _ =
-    { summary = E.none
-    , detail = E.none
-    , main = E.none
-    }
+
+-- VIEW
+
+
+viewPanel : Model -> E.Element Msg
+viewPanel _ =
+    E.none
+
+
+viewContent : Model -> E.Element Msg
+viewContent _ =
+    E.none

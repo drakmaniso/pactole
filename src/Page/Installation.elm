@@ -1,4 +1,4 @@
-module Page.Installation exposing (update, view)
+module Page.Installation exposing (update, viewContent, viewPanel)
 
 import Database
 import Element as E
@@ -13,6 +13,10 @@ import Msg exposing (Msg)
 import Page.Settings as Settings
 import Ui
 import Ui.Color as Color
+
+
+
+-- UPDATE
 
 
 update : Msg.InstallMsg -> Model -> ( Model, Cmd Msg )
@@ -57,37 +61,38 @@ update msg model =
                 |> Log.error "what?"
 
 
-view :
-    Model
-    -> Model.InstallationData
-    ->
-        { summary : E.Element Msg
-        , detail : E.Element Msg
-        , main : E.Element Msg
-        }
-view model installation =
-    { summary = Ui.logo model.serviceVersion
-    , detail = E.none
-    , main =
-        Keyed.el [ E.width E.fill, E.height E.fill, E.scrollbarY ]
-            ( "Installation"
-            , E.column
+
+-- VIEW
+
+
+viewPanel : Model -> Model.InstallationData -> E.Element Msg
+viewPanel model _ =
+    E.column [ E.width E.fill, E.height E.fill ]
+        [ Ui.logo model.serviceVersion
+        , E.el [ E.height E.fill ] E.none
+        ]
+
+
+viewContent : Model -> Model.InstallationData -> E.Element Msg
+viewContent model installation =
+    Keyed.el [ E.width E.fill, E.height E.fill, E.scrollbarY ]
+        ( "Installation"
+        , E.column
+            [ E.width E.fill
+            , E.height E.fill
+            , E.scrollbarY
+            , Border.widthEach { left = 2, top = 0, bottom = 0, right = 0 }
+            , Border.color Color.neutral90
+            ]
+            [ E.column
                 [ E.width E.fill
                 , E.height E.fill
-                , E.scrollbarY
-                    , Border.widthEach { left = 2, top = 0, bottom = 0, right = 0 }
-                    , Border.color Color.neutral90
+                , E.paddingXY 24 24
                 ]
-                [ E.column
-                    [ E.width E.fill
-                    , E.height E.fill
-                    , E.paddingXY 24 24
-                    ]
-                    [ viewInstallation model installation
-                    ]
+                [ viewInstallation model installation
                 ]
-            )
-    }
+            ]
+        )
 
 
 viewInstallation : Model -> Model.InstallationData -> E.Element Msg

@@ -65,6 +65,7 @@ module Ui exposing
     , textInput
     , title
     , transition
+    , twoPartsSidePanel
     , verticalSpacer
     , viewDate
     , viewMoney
@@ -310,6 +311,24 @@ loadIcon =
 -- CONTAINERS
 
 
+twoPartsSidePanel : { top : E.Element msg, bottom : E.Element msg } -> E.Element msg
+twoPartsSidePanel { top, bottom } =
+    E.column
+        [ E.width E.fill
+        , E.height E.fill
+        , E.clipX
+        , E.clipY
+        ]
+        [ E.el
+            [ E.width E.fill, E.height (E.fillPortion 1) ]
+            top
+        , ruler
+        , E.el
+            [ E.width E.fill, E.height (E.fillPortion 2) ]
+            bottom
+        ]
+
+
 configRadio :
     { label : String
     , options : List (Input.Option option msg)
@@ -461,8 +480,8 @@ ruler =
 
 logo : String -> E.Element msg
 logo version =
-    E.column [ E.width E.fill, E.height E.fill ]
-        [ E.el [ E.width E.fill, E.height E.fill ] E.none
+    E.column [ E.width E.fill ]
+        [ E.el [ smallFont ] (E.text " ")
         , E.row [ E.width E.fill, E.height E.shrink ]
             [ E.el [ E.width E.fill, E.height E.fill ] E.none
             , E.image [ E.width (E.fillPortion 2) ]
@@ -478,7 +497,6 @@ logo version =
             , E.paddingEach { left = 0, top = 12, bottom = 0, right = 0 }
             ]
             (E.text ("version " ++ version))
-        , E.el [ E.width E.fill, E.height E.fill ] E.none
         ]
 
 
