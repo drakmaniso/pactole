@@ -416,7 +416,7 @@ pageTitle : E.Element msg -> E.Element msg
 pageTitle element =
     E.row
         [ E.width E.fill
-        , E.paddingEach { top = 0, bottom = 8, left = 8, right = 8 }
+        , E.paddingEach { top = 3, bottom = 8, left = 8, right = 8 }
         ]
         [ E.el [ E.width (E.fill |> E.maximum 64) ] E.none
         , E.el
@@ -561,7 +561,7 @@ dateNavigationBar : { a | date : Date, today : Date } -> (Date -> msg) -> E.Elem
 dateNavigationBar model changeMsg =
     E.row
         [ E.width E.fill
-        , E.paddingEach { top = 0, bottom = 8, left = 8, right = 8 }
+        , E.paddingEach { top = 3, bottom = 8, left = 8, right = 8 }
         ]
         [ E.el [ E.width (E.fill |> E.maximum 64) ] E.none
         , Keyed.row

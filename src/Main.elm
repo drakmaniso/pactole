@@ -399,24 +399,17 @@ pageWithSidePanel model { panel, page } =
         [ E.column
             [ E.width (E.fillPortion 1 |> E.minimum minLeftSize)
             , E.height E.fill
+            , E.clipX
             , E.clipY
-            , E.paddingXY 6 6
             ]
             [ navigationBar model
-            , E.el
-                [ E.width E.fill
-                , E.height E.fill
-                , E.clipY
-                , E.paddingXY 6 6
-                , E.alignTop
-                ]
-                panel
+            , panel
             ]
         , E.el
-            [ E.width (E.fillPortion 3)
+            [ E.width (E.fillPortion 3 |> E.minimum 800)
             , E.height E.fill
+            , E.clipX
             , E.clipY
-            , E.paddingEach { top = 6, left = 0, bottom = 3, right = 6 }
             ]
             page
         ]
@@ -470,58 +463,60 @@ navigationBar model =
                 , label = label
                 }
     in
-    E.row
-        [ E.width E.fill
-        , Border.roundEach { topLeft = 32, bottomLeft = 32, topRight = 32, bottomRight = 32 }
-        , Background.color Color.primary90
-        , Ui.smallerShadow
-        ]
-        (case model.page of
-            Model.LoadingPage ->
-                [ E.el [ E.paddingXY 12 6, Font.color Color.primary40, E.centerX ] (E.text "Chargement...") ]
+    E.el [ E.width E.fill, E.padding 3 ]
+        (E.row
+            [ E.width E.fill
+            , Border.roundEach { topLeft = 32, bottomLeft = 32, topRight = 32, bottomRight = 32 }
+            , Background.color Color.primary90
+            , Ui.smallerShadow
+            ]
+            (case model.page of
+                Model.LoadingPage ->
+                    [ E.el [ E.paddingXY 12 6, Font.color Color.primary40, E.centerX ] (E.text "Chargement...") ]
 
-            Model.InstallationPage _ ->
-                [ E.el [ E.paddingXY 12 6, Font.bold, Font.color Color.primary40, E.centerX ] (E.text "Pactole") ]
+                Model.InstallationPage _ ->
+                    [ E.el [ E.paddingXY 12 6, Font.bold, Font.color Color.primary40, E.centerX ] (E.text "Pactole") ]
 
-            _ ->
-                [ navigationButton
-                    { targetPage = Model.MainPage
-                    , label = E.text "Pactole"
-                    }
-                , if model.settings.summaryEnabled then
-                    navigationButton
-                        { targetPage = Model.StatsPage
-                        , label = E.text "Bilan"
+                _ ->
+                    [ navigationButton
+                        { targetPage = Model.MainPage
+                        , label = E.text "Pactole"
                         }
+                    , if model.settings.summaryEnabled then
+                        navigationButton
+                            { targetPage = Model.StatsPage
+                            , label = E.text "Bilan"
+                            }
 
-                  else
-                    E.none
-                , if model.settings.reconciliationEnabled then
-                    navigationButton
-                        { targetPage = Model.ReconcilePage
-                        , label = E.text "Pointer"
-                        }
+                      else
+                        E.none
+                    , if model.settings.reconciliationEnabled then
+                        navigationButton
+                            { targetPage = Model.ReconcilePage
+                            , label = E.text "Pointer"
+                            }
 
-                  else
-                    E.none
-                , E.el
-                    [ E.width E.fill
-                    , E.height E.fill
-                    ]
-                    E.none
-                , if model.settings.settingsLocked then
-                    E.none
+                      else
+                        E.none
+                    , E.el
+                        [ E.width E.fill
+                        , E.height E.fill
+                        ]
+                        E.none
+                    , if model.settings.settingsLocked then
+                        E.none
 
-                  else
-                    navigationButton
-                        { targetPage = Model.SettingsPage
+                      else
+                        navigationButton
+                            { targetPage = Model.SettingsPage
+                            , label =
+                                E.el [ Ui.iconFont, Ui.bigFont, E.centerX, E.paddingXY 0 0 ] (E.text "\u{F013}")
+                            }
+                    , navigationButton
+                        { targetPage = Model.HelpPage
                         , label =
-                            E.el [ Ui.iconFont, Ui.bigFont, E.centerX, E.paddingXY 0 0 ] (E.text "\u{F013}")
+                            E.el [ Ui.iconFont, Ui.bigFont, E.centerX, E.paddingXY 0 0 ] (E.text "\u{F059}")
                         }
-                , navigationButton
-                    { targetPage = Model.HelpPage
-                    , label =
-                        E.el [ Ui.iconFont, Ui.bigFont, E.centerX, E.paddingXY 0 0 ] (E.text "\u{F059}")
-                    }
-                ]
+                    ]
+            )
         )
