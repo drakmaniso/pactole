@@ -37,7 +37,7 @@ view model =
                     E.none
                 , case Dict.values model.accounts of
                     [ singleAccount ] ->
-                        E.el [ Ui.bigFont, Font.color Color.neutral30, Ui.notSelectable, Font.center ]
+                        E.el [ Ui.normalFont, Font.color Color.neutral30, Ui.notSelectable, Font.center ]
                             (E.text singleAccount)
 
                     _ ->
@@ -65,25 +65,6 @@ accountsRow model =
         , Border.width 4
         , Border.color Color.transparent
         , Ui.focusVisibleOnly
-
-        -- , if model.showFocus then
-        --     E.focused
-        --         [ Border.shadow
-        --             { offset = ( 0, 0 )
-        --             , size = 4
-        --             , blur = 0
-        --             , color = Color.focus85
-        --             }
-        --         ]
-        --   else
-        --     E.focused
-        --         [ Border.shadow
-        --             { offset = ( 0, 0 )
-        --             , size = 0
-        --             , blur = 0
-        --             , color = Color.transparent
-        --             }
-        --         ]
         ]
         { onChange = Msg.SelectAccount
         , selected = Just model.account
@@ -135,7 +116,7 @@ balanceRow model =
             ]
             (E.text (sign ++ parts.units))
         , E.el
-            [ Ui.biggerFont
+            [ Ui.bigFont
             , Font.bold
             , E.alignBottom
             , E.paddingEach { top = 0, bottom = 2, left = 0, right = 0 }

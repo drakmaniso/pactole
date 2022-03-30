@@ -4,7 +4,6 @@ module Ui exposing
     , bigFont
     , bigInnerShadow
     , bigWarningIcon
-    , biggerFont
     , biggestFont
     , boldText
     , borderWidth
@@ -67,7 +66,6 @@ module Ui exposing
     , title
     , transition
     , verticalSpacer
-    , verySmallFont
     , viewDate
     , viewMoney
     , viewSum
@@ -194,11 +192,6 @@ biggestFont =
     Font.size 48
 
 
-biggerFont : E.Attr decorative msg
-biggerFont =
-    Font.size 36
-
-
 bigFont : E.Attr decorative msg
 bigFont =
     Font.size 32
@@ -217,11 +210,6 @@ smallFont =
 smallerFont : E.Attr decorative msg
 smallerFont =
     Font.size 14
-
-
-verySmallFont : E.Attr decorative msg
-verySmallFont =
-    Font.size 16
 
 
 iconFont : E.Attribute msg
@@ -436,6 +424,7 @@ dialogSectionRow titleColor titleText content =
         [ E.el
             [ Font.color titleColor
             , normalFont
+            , Font.bold
             , E.padding 0
             , notSelectable
             ]
@@ -451,6 +440,7 @@ dialogSection titleColor titleText content =
             [ E.width E.fill
             , Font.color titleColor
             , normalFont
+            , Font.bold
             , E.padding 0
             , notSelectable
             ]
@@ -754,7 +744,7 @@ viewSum money =
         ]
         [ E.el
             [ E.width (E.fillPortion 75)
-            , biggerFont
+            , bigFont
             , Font.alignRight
             , Font.bold
             ]

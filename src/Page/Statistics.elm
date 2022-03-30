@@ -84,7 +84,7 @@ viewMonthBalance shared =
         ]
         [ E.el [ E.width (E.fillPortion 2) ] E.none
         , E.el
-            [ Ui.biggerFont, Font.alignRight ]
+            [ Ui.bigFont, Font.alignRight ]
             (E.text "Bilan du mois: ")
         , Ui.viewSum monthBal
         , E.el [ E.width (E.fillPortion 2) ] E.none

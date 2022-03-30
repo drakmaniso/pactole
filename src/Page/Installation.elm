@@ -75,13 +75,13 @@ view model installation =
                 [ E.width E.fill
                 , E.height E.fill
                 , E.scrollbarY
+                    , Border.widthEach { left = 2, top = 0, bottom = 0, right = 0 }
+                    , Border.color Color.neutral90
                 ]
                 [ E.column
                     [ E.width E.fill
                     , E.height E.fill
                     , E.paddingXY 24 24
-                    , Border.widthEach { left = 2, top = 0, bottom = 0, right = 0 }
-                    , Border.color Color.neutral90
                     ]
                     [ viewInstallation model installation
                     ]

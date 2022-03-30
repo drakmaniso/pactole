@@ -278,7 +278,7 @@ document model activePage activeDialog =
                             , E.height E.fill
                             , Ui.fontFamily
                             , Font.color Color.neutral30
-                            , E.padding 16
+                            , E.padding 0
                             , E.scrollbarY
                             , E.behindContent
                                 (Input.button
