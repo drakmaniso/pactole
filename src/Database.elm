@@ -264,21 +264,22 @@ msgFromService ( title, content ) model =
             }
     in
     case title of
+        "start application" ->
+            ( model, Ports.send ( "request whole database", Encode.null ) )
+
         "persistent storage granted" ->
             case Decode.decodeValue (Decode.at [ "granted" ] Decode.bool) content of
                 Ok granted ->
                     if granted then
                         ( { model
-                            | isPersistentStorageGranted = True
-                            , isStoragePersisted = True
+                            | isStoragePersisted = True
                           }
                         , Cmd.none
                         )
 
                     else
                         ( { model
-                            | error = Just "l'autorisation de stockage persistant n'a pas été donnée!"
-                            , isPersistentStorageGranted = False
+                            | error = Just "le stockage persistant n'a pas été autorisé!"
                             , isStoragePersisted = False
                           }
                         , Cmd.none
@@ -286,9 +287,6 @@ msgFromService ( title, content ) model =
 
                 Err e ->
                     Log.error ("decoding database: " ++ Decode.errorToString e) ( model, Cmd.none )
-
-        "start application" ->
-            ( model, Ports.send ( "request whole database", Encode.null ) )
 
         "update whole database" ->
             case Decode.decodeValue decodeDB content of
@@ -308,7 +306,11 @@ msgFromService ( title, content ) model =
                             else
                                 Model.MainPage
                       }
-                    , Cmd.none
+                    , if not (List.isEmpty db.accounts) then
+                        Ports.send ( "request storage persistence", Encode.null )
+
+                      else
+                        Cmd.none
                     )
                         |> upgradeSettingsToV2 content
                         |> processRecurringTransactions

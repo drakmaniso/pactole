@@ -97,9 +97,6 @@ init flags _ _ =
         height =
             Decode.decodeValue (Decode.at [ "height" ] Decode.int) flags |> Result.withDefault 600
 
-        hasStorageAPI =
-            Decode.decodeValue (Decode.at [ "hasStorageAPI" ] Decode.bool) flags |> Result.withDefault False
-
         isStoragePersisted =
             Decode.decodeValue (Decode.at [ "isStoragePersisted" ] Decode.bool) flags |> Result.withDefault False
     in
@@ -111,8 +108,6 @@ init flags _ _ =
             , settingsLocked = False
             }
       , today = today
-      , hasStorageAPI = hasStorageAPI
-      , isPersistentStorageGranted = False
       , isStoragePersisted = isStoragePersisted
       , date = today
       , ledger = Ledger.empty

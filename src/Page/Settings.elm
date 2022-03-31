@@ -286,20 +286,6 @@ viewPanel model =
     E.column [ E.width E.fill, E.height E.fill ]
         [ Ui.logo model.serviceVersion
         , E.el [ E.width E.fill, E.height E.fill ] E.none
-        , if model.hasStorageAPI then
-            E.el [ Ui.smallerFont, E.centerX, Font.color Color.neutral70, E.paddingXY 0 6 ]
-                (E.text "Storage API is present")
-
-          else
-            E.el [ Ui.smallerFont, E.centerX, Font.color Color.warning60, E.paddingXY 0 6 ]
-                (E.text "Storage API is NOT present!")
-        , if model.isPersistentStorageGranted then
-            E.el [ Ui.smallerFont, E.centerX, Font.color Color.neutral70, E.paddingXY 0 6 ]
-                (E.text "Persistent storage has been granted")
-
-          else
-            E.el [ Ui.smallerFont, E.centerX, Font.color Color.warning60, E.paddingXY 0 6 ]
-                (E.text "Persistent storage has NOT been granted!")
         , if model.isStoragePersisted then
             E.el [ Ui.smallerFont, E.centerX, Font.color Color.neutral70, E.paddingXY 0 6 ]
                 (E.text "Storage is persisted")

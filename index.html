@@ -60,37 +60,13 @@
       fatalError('service workers not supported by the navigator.')
     }
 
-    // Ask for persistent storage
-    if (navigator.storage && navigator.storage.persist) {
-      navigator.storage.persist().then(granted => {
-        if (granted) {
-          log("Persistent storage has been granted.")
-        } else {
-          //TODO: fatalError instead?
-          error('persistent storage has not been granted')
-        }
-        navigator.serviceWorker.ready
-          .then(service =>
-            sendToServiceWorker("persistent storage granted", granted)
-          )
-      })
-    } else {
-      //TODO: fatalError instead?
-      error('no persistent storage API')
-    }
-    if (navigator.storage && navigator.storage.estimate) {
-      navigator.storage.estimate().then(info => {
-        log(
-          `Persistent storage estimation: usage = ${Math.round(info.usage)} bytes, (quota = ${Math.round(info.quota / (1024 * 1024))} Mb).`
-        )
-      })
+    if (!(navigator.storage && navigator.storage.persist)) {
+      fatalError('no persistent storage API')
     }
 
 
     //TODO: add a settings button to call this?
     let updateService
-
-
     onload = () => {
       navigator.serviceWorker
         .register('./service.js')
@@ -131,72 +107,63 @@
       }
       isRefreshing = true
       window.location.reload()
-      //log(`Restarting application.`)
-      //app.ports.receive.send(["start application", null])
     });
 
 
     // ELM STUFF //////////////////////////////////////////////////////////////
 
 
-    let app
-
     navigator.serviceWorker.ready
       .then(_ => {
-        navigator.serviceWorker.onmessage = event => {
-          log(`Received "${event.data.title}".`)
-          app.ports.receive.send([event.data.title, event.data.content])
-        }
-
         // Check persistent storage status
-        let hasStorageAPI = false
-        let isStoragePersisted = false
-        if (navigator.storage && navigator.storage.persist) {
-          log(`Persistent storage API is present.`)
-          hasStorageAPI = true
-          navigator.storage.persisted().then(isPersisted => {
-            log(`Storage is persisted: ${isPersisted}`)
-            isStoragePersisted = isPersisted
+        navigator.storage.persisted().then(isPersisted => {
+          log(`Storage is persisted: ${isPersisted}`)
 
-            let today = new Date()
-            let flags = {
-              today: {
-                year: today.getFullYear(),
-                month: today.getMonth(),
-                day: today.getDate()
-              },
-              width: window.innerWidth,
-              height: window.innerHeight,
-              hasStorageAPI: hasStorageAPI,
-              isStoragePersisted: isStoragePersisted
+          const today = new Date()
+          const flags = {
+            today: {
+              year: today.getFullYear(),
+              month: today.getMonth(),
+              day: today.getDate()
+            },
+            width: window.innerWidth,
+            height: window.innerHeight,
+            isStoragePersisted: isPersisted
+          }
+          const app = Elm.Main.init({ flags: flags })
+
+          navigator.serviceWorker.onmessage = event => {
+            log(`Received "${event.data.title}".`)
+            app.ports.receive.send([event.data.title, event.data.content])
+          }
+
+          app.ports.send.subscribe(function (args) {
+            [title, content] = args
+            switch (title) {
+              case "error":
+                console.error(`[ELM] ${content}`)
+                return
+
+              case "export database":
+                exportDatabase(content)
+                return
+
+              case "select import":
+                selectImport()
+                return
+
+              case "request storage persistence":
+                requestStoragePersistence()
+                return
+
+              default:
+                sendToServiceWorker(title, content)
             }
-            app = Elm.Main.init({ flags: flags })
-
-            app.ports.send.subscribe(function (args) {
-              [title, content] = args
-              switch (title) {
-                case "error":
-                  console.error(`[ELM] ${content}`)
-                  return
-
-                case "export database":
-                  exportDatabase(content)
-                  return
-
-                case "select import":
-                  selectImport()
-                  return
-
-                default:
-                  sendToServiceWorker(title, content)
-              }
-            })
-
-            log(`Starting application.`)
-            //sendToServiceWorker("request whole database", null)
-            app.ports.receive.send(["start application", null])
           })
-        }
+
+          log(`Starting Elm application.`)
+          app.ports.receive.send(["start application", null])
+        })
 
       })
       .catch(err => error(`Service worker not ready: ${err}`))
@@ -215,6 +182,28 @@
         error(`Unable to send message "${title}" to service: the page has no controller`)
         //TODO: what?
       }
+    }
+
+    function requestStoragePersistence() {
+      navigator.storage.persist().then(granted => {
+        if (granted) {
+          log("Persistent storage has been granted.")
+        } else {
+          //TODO: fatalError instead?
+          error('persistent storage has not been granted')
+        }
+        navigator.serviceWorker.ready
+          .then(service =>
+            sendToServiceWorker("persistent storage granted", granted)
+          )
+        if (navigator.storage.estimate) {
+          navigator.storage.estimate().then(info => {
+            log(
+              `Persistent storage estimation: usage = ${Math.round(info.usage)} bytes, (quota = ${Math.round(info.quota / (1024 * 1024))} Mb).`
+            )
+          })
+        }
+      })
     }
 
     function exportDatabase(database) {

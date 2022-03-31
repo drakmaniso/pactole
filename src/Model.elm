@@ -30,8 +30,6 @@ import Ui
 
 type alias Model =
     { today : Date
-    , hasStorageAPI : Bool
-    , isPersistentStorageGranted : Bool
     , isStoragePersisted : Bool
     , date : Date
     , account : Int

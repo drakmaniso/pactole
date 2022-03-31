@@ -84,11 +84,17 @@ self.addEventListener('message', event => {
   log(`Received "${msg.title}".`)
   switch (msg.title) {
 
+    // Initialization
+
+    case 'request whole database':
+      requestWholeDatabase()
+        .then(db => respond(event, 'update whole database', db))
+        .catch(err => error(`request whole database`))
+      break
+
     case 'persistent storage granted':
       broadcast('persistent storage granted', { granted: msg.content })
       break
-
-    // Installation
 
     case 'proceed with installation':
       try {
@@ -116,38 +122,6 @@ self.addEventListener('message', event => {
       catch (err) {
         error(`broadcast import database: ${err}`)
       }
-      break
-
-
-    // Initialization
-
-    case 'request whole database':
-      getSettings()
-        .then(settings =>
-          getAccounts()
-            .then(accounts =>
-              getCategories()
-                .then(categories =>
-                  getLedger('ledger')
-                    .then(ledger =>
-                      getLedger('recurring')
-                        .then(recurring => {
-                          let db = {
-                            settings: settings,
-                            accounts: accounts,
-                            categories: categories,
-                            ledger: ledger,
-                            recurring: recurring,
-                            serviceVersion: serviceVersion
-                          }
-                          respond(event, 'update whole database', db)
-                        })
-                    )
-
-                )
-            )
-        )
-        .catch(err => error(`request whole database: ${err}`))
       break
 
     // Settings
@@ -391,6 +365,38 @@ function broadcast(title, content) {
     for (const c of clients) {
       c.postMessage({ title: title, content: content })
     }
+  })
+}
+
+
+function requestWholeDatabase(event) {
+  return new Promise((resolve, reject) => {
+    getSettings()
+      .then(settings =>
+        getAccounts()
+          .then(accounts =>
+            getCategories()
+              .then(categories =>
+                getLedger('ledger')
+                  .then(ledger =>
+                    getLedger('recurring')
+                      .then(recurring => {
+                        let db = {
+                          settings: settings,
+                          accounts: accounts,
+                          categories: categories,
+                          ledger: ledger,
+                          recurring: recurring,
+                          serviceVersion: serviceVersion
+                        }
+                        resolve(db)
+                      })
+                  )
+
+              )
+          )
+      )
+      .catch(err => error(`request whole database: ${err}`))
   })
 }
 
