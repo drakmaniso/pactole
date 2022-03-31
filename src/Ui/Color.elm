@@ -34,7 +34,6 @@ warning50 =
 
 focus85 : E.Color
 focus85 =
-    -- E.rgb 1.0 0.7 0
     hex 0x00FFD000
 
 
@@ -50,31 +49,26 @@ neutral98 =
 
 neutral95 : E.Color
 neutral95 =
-    -- E.rgb 0.95 0.95 0.95
     hex 0x00F1F1F1
 
 
 neutral93 : E.Color
 neutral93 =
-    -- E.rgb 0.9 0.9 0.9
     hex 0x00EBEBEB
 
 
 neutral90 : E.Color
 neutral90 =
-    -- E.rgb 0.9 0.9 0.9
     hex 0x00E2E2E2
 
 
 neutral80 : E.Color
 neutral80 =
-    -- E.rgb 0.7 0.7 0.7
     hex 0x00C7C7C7
 
 
 neutral70 : E.Color
 neutral70 =
-    -- E.rgb 0.7 0.7 0.7
     hex 0x00ABABAB
 
 
@@ -85,7 +79,6 @@ neutral60 =
 
 neutral50 : E.Color
 neutral50 =
-    -- E.rgb 0.5 0.5 0.5
     hex 0x00777777
 
 
@@ -125,8 +118,6 @@ transactionColor isExpense =
 
 expense40 : E.Color
 expense40 =
-    -- E.rgb 0.64 0.12 0.00
-    -- hex 0xA31F00
     hex 0x00B30009
 
 
@@ -142,29 +133,21 @@ expense30 =
 
 expense90 : E.Color
 expense90 =
-    -- E.rgb 0.94 0.87 0.87
-    -- hex 0xF0DEDE
     hex 0x00F4DCD8
 
 
 expense95 : E.Color
 expense95 =
-    -- E.rgb 1 0.96 0.96
     hex 0x00FAEEEC
 
 
 expense80 : E.Color
 expense80 =
-    -- E.rgb 0.8 0.6 0.6
-    -- hex 0xCC9999
     hex 0x00E9BAB3
 
 
 income40 : E.Color
 income40 =
-    -- E.rgb 0.1 0.44 0
-    -- hex 0x1A7000
-    -- hex 0x006F53
     hex 0x000D7200
 
 
@@ -180,19 +163,16 @@ income30 =
 
 income90 : E.Color
 income90 =
-    -- E.rgb 0.92 0.94 0.86
     hex 0x00DAE7D8
 
 
 income95 : E.Color
 income95 =
-    -- E.rgb 0.98 1 0.96
     hex 0x00ECF3EB
 
 
 income80 : E.Color
 income80 =
-    -- E.rgb 0.7 0.8 0.6
     hex 0x00B7CFB4
 
 
@@ -213,25 +193,16 @@ primary80 =
 
 primary50 : E.Color
 primary50 =
-    -- E.rgb 0.18 0.52 0.66
-    -- hex 0x007DC2
-    -- hex 0x387BBB
     hex 0x00387BBB
 
 
 primary40 : E.Color
 primary40 =
-    -- E.rgb 0.08 0.26 0.42
-    -- hex 0x14426b
-    -- hex 0x00639B
-    -- hex 0x1B4873
     hex 0x00286197
 
 
 primary30 : E.Color
 primary30 =
-    -- E.rgb 0.08 0.19 0.3
-    -- hex 0x004A75
     hex 0x001B4873
 
 
@@ -243,3 +214,21 @@ greenApajh =
 greenApajh90 : E.Color
 greenApajh90 =
     hex 0x00DCE8C8
+
+
+redApajh : E.Color
+redApajh =
+    hex 0x0085144B
+
+
+blueApajh : E.Color
+blueApajh =
+    hex 0x00011F3F
+
+
+bgApajh =
+    hex 0x00FCFAF8
+
+
+fgApajh =
+    hex 0x00212529
