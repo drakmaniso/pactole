@@ -162,6 +162,13 @@ calendarCell model day =
                 [ E.width E.fill
                 , E.height E.fill
                 , E.scrollbarY
+                , Background.color
+                    (if sel then
+                        Color.white
+
+                     else
+                        Color.neutral93
+                    )
                 ]
                 { label =
                     E.column
@@ -171,7 +178,7 @@ calendarCell model day =
                         ]
                         [ E.el
                             [ E.width E.fill
-                            , E.paddingEach { top = 2, bottom = 4, left = 0, right = 0 }
+                            , E.paddingEach { top = 0, bottom = 2, left = 0, right = 0 }
                             , Border.widthEach { left = 3, top = 3, right = 3, bottom = 0 }
                             , Ui.smallFont
                             , Font.center
@@ -209,12 +216,22 @@ calendarCell model day =
                                     [ Border.color Color.focus85
                                     ]
                             ]
-                            (E.text
+                            (E.el
+                                [ E.centerX
+                                , Font.center
+                                , if day == model.today then
+                                    Font.bold
+
+                                  else
+                                    Font.regular
+                                , E.width <| E.minimum 48 <| E.shrink
+                                ]
                                 (if day == model.today then
-                                    "Aujourd'hui"
+                                    E.text ("· " ++ (String.fromInt <| Date.getDay day) ++ " ·")
+                                    --"★" "·" "—"
 
                                  else
-                                    String.fromInt (Date.getDay day)
+                                    E.text <| String.fromInt <| Date.getDay day
                                 )
                             )
                         , E.paragraph
