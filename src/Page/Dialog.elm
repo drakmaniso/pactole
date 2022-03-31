@@ -226,11 +226,8 @@ view model =
 
 viewDate : Model -> Model.Dialog -> E.Element Msg
 viewDate model _ =
-    E.row [ E.width E.fill, E.paddingEach { left = 0, right = 0, top = 0, bottom = 12 } ]
-        [ E.el [ E.width E.fill ] E.none
-        , Ui.viewDate model.date
-        , E.el [ E.width E.fill ] E.none
-        ]
+    E.el [ E.width E.fill, E.paddingEach { left = 0, right = 0, top = 0, bottom = 12 } ]
+        (E.el [ E.centerX ] (Ui.viewDate model.date))
 
 
 viewAmount : Model -> Model.Dialog -> E.Element Msg
@@ -477,24 +474,24 @@ viewButtons dialog =
             ]
 
     else
-        E.row
+        E.el
             [ E.width E.fill
-            , E.spacing 24
             , Background.color Color.white
             , E.paddingEach { left = 0, right = 0, top = 12, bottom = 0 }
             ]
-            [ E.el [ E.width E.fill ] E.none
-            , Ui.simpleButton
-                { label = E.text "Annuler", onPress = Just Msg.Close }
-            , case dialog.id of
-                Just _ ->
-                    Ui.simpleButton
-                        { label = E.text "Supprimer", onPress = Just (Msg.ForDialog <| Msg.DialogDelete) }
+            (E.row [ E.alignRight, E.spacing 24 ]
+                [ Ui.simpleButton
+                    { label = E.text "Annuler", onPress = Just Msg.Close }
+                , case dialog.id of
+                    Just _ ->
+                        Ui.simpleButton
+                            { label = E.text "Supprimer", onPress = Just (Msg.ForDialog <| Msg.DialogDelete) }
 
-                Nothing ->
-                    E.none
-            , Ui.mainButton
-                { label = E.text "  OK  "
-                , onPress = Just (Msg.ForDialog <| Msg.DialogConfirm)
-                }
-            ]
+                    Nothing ->
+                        E.none
+                , Ui.mainButton
+                    { label = E.text "  OK  "
+                    , onPress = Just (Msg.ForDialog <| Msg.DialogConfirm)
+                    }
+                ]
+            )

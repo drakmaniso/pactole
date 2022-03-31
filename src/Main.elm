@@ -268,11 +268,19 @@ view model =
                 , page = activePageContent
                 }
     in
-    if model.topBar && model.page /= Model.MainPage then
-        document model activePageContent activeDialog
+    case model.page of
+        Model.InstallationPage _ ->
+            document model activePageContent activeDialog
 
-    else
-        document model activePage activeDialog
+        Model.MainPage ->
+            document model activePage activeDialog
+
+        _ ->
+            if model.topBar then
+                document model activePageContent activeDialog
+
+            else
+                document model activePage activeDialog
 
 
 document : Model -> E.Element Msg -> Maybe (E.Element Msg) -> Browser.Document Msg
@@ -391,21 +399,6 @@ errorBanner error maybeCloseMsg =
 
 pageWithSidePanel : Model -> { panel : E.Element Msg, page : E.Element Msg } -> E.Element Msg
 pageWithSidePanel model { panel, page } =
-    let
-        minLeftSize =
-            case ( model.settings.summaryEnabled, model.settings.reconciliationEnabled ) of
-                ( True, True ) ->
-                    450
-
-                ( True, False ) ->
-                    360
-
-                ( False, True ) ->
-                    360
-
-                ( False, False ) ->
-                    320
-    in
     E.row
         [ E.width E.fill
         , E.height E.fill

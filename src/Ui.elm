@@ -1015,7 +1015,7 @@ labelLeft txt =
 textInput : { width : Int, label : Input.Label msg, text : String, onChange : String -> msg } -> E.Element msg
 textInput args =
     Input.text
-        [ E.width (E.px args.width)
+        [ E.width <| E.fill
         , Border.width 4
         , Border.color Color.white
         , Background.color Color.neutral95

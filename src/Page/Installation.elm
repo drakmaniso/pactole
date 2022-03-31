@@ -179,7 +179,7 @@ viewInstallation model installation =
                 }
             , Ui.verticalSpacer
             , Settings.configLocked model
-            , E.row [ E.spacing 36 ]
+            , E.wrappedRow [ E.spacing 36 ]
                 [ Ui.mainButton
                     { label = E.text "Installer Pactole"
                     , onPress = Just (Msg.InstallProceed |> Msg.ForInstallation)
