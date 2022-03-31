@@ -109,7 +109,8 @@ viewInstallation model installation =
         , Font.color Color.neutral30
         ]
         [ Ui.textColumn
-            [ Ui.paragraph
+            [ titleBanner
+            , Ui.paragraph
                 """
                 Pactole est une application très simple de gestion de budget personnel. Elle est
                 destinée aux personnes pour qui les applications traditionnelles sont trop
@@ -192,3 +193,30 @@ viewInstallation model installation =
             , Ui.verticalSpacer
             ]
         ]
+
+
+titleBanner =
+    E.row
+        [ E.width E.fill
+        , Background.color Color.greenApajh90
+        , Border.rounded 44
+        , Font.color Color.greenApajh
+        , E.padding 12
+        , E.spacing 12
+        ]
+        [ E.image [ E.alignLeft, E.height <| E.maximum 64 <| E.shrink ]
+            { src = "images/icon-512x512.png"
+            , description = "Pactole Logo"
+            }
+        , E.el [ E.alignLeft, Ui.biggestFont, Font.bold ] (E.text "Pactole")
+        ]
+
+
+
+-- [ E.el [ E.width <| E.px 32 ] E.none
+-- , E.el [ E.alignLeft, Ui.biggestFont, Font.bold ] (E.text "Pactole")
+-- , E.image [ E.alignRight, E.height <| E.maximum 64 <| E.shrink ]
+--     { src = "images/icon-512x512.png"
+--     , description = "Pactole Logo"
+--     }
+-- ]
