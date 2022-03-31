@@ -316,7 +316,6 @@ twoPartsSidePanel { top, bottom } =
     E.column
         [ E.width E.fill
         , E.height E.fill
-        , E.clipX
         , E.clipY
         ]
         [ E.el

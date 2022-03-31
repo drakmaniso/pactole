@@ -409,8 +409,6 @@ pageWithSidePanel model { panel, page } =
     E.row
         [ E.width E.fill
         , E.height E.fill
-        , E.clipX
-        , E.clipY
         , Background.color Color.white
         , Ui.fontFamily
         , Ui.normalFont
@@ -419,8 +417,6 @@ pageWithSidePanel model { panel, page } =
         [ E.column
             [ E.width (E.fillPortion 1)
             , E.height E.fill
-            , E.clipX
-            , E.clipY
             ]
             [ if not model.topBar then
                 navigationBar model
@@ -432,7 +428,6 @@ pageWithSidePanel model { panel, page } =
         , E.el
             [ E.width (E.fillPortion 3)
             , E.height E.fill
-            , E.clipX
             , E.clipY
             ]
             page

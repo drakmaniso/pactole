@@ -352,7 +352,7 @@ dayView model =
             ]
         , E.column
             [ E.width E.fill
-            , E.height E.fill
+            , E.height <| E.minimum 80 <| E.fill
             , E.scrollbarY
             ]
             (dayContentFor model model.date)
