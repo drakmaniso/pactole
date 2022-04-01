@@ -230,7 +230,7 @@
         console.error(`[CLIENT] wrong number of selected files: ${this.files.length}`)
         navigator.serviceWorker.ready
           .then(service =>
-            sendToServiceWorker("javascript error", "impossible d'importer plus d'un fichier à la fois")
+            sendToServiceWorker("user error", "impossible d'importer plus d'un fichier à la fois")
           )
         return
       }
@@ -246,7 +246,7 @@
           console.error(`[CLIENT] error in file selected for import: ${err}`)
           navigator.serviceWorker.ready
             .then(service =>
-              sendToServiceWorker("javascript error", "impossible de lire le fichier choisi")
+              sendToServiceWorker("user error", "impossible de lire le fichier choisi")
             )
         }
       }

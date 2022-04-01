@@ -336,7 +336,7 @@ msgFromService ( title, content ) model =
 
                     else
                         ( { model
-                            | error = Just "le stockage persistant n'a pas été autorisé!"
+                            | errors = model.errors ++ [ "Warning: persistent storage not granted!" ]
                             , isStoragePersisted = False
                           }
                         , Cmd.none
@@ -435,13 +435,21 @@ msgFromService ( title, content ) model =
                 Err e ->
                     Log.error (Decode.errorToString e) ( model, Cmd.none )
 
+        "user error" ->
+            case Decode.decodeValue Decode.string content of
+                Ok msg ->
+                    ( { model | settingsDialog = Just (Model.UserError msg) }, Cmd.none )
+
+                _ ->
+                    ( { model | errors = model.errors ++ [ "ERROR: undecodable javascript in \"user error\" message" ] }, Cmd.none )
+
         "javascript error" ->
             case Decode.decodeValue Decode.string content of
                 Ok msg ->
-                    ( { model | error = Just msg }, Cmd.none )
+                    ( { model | errors = model.errors ++ [ "ERROR: " ++ msg ] }, Cmd.none )
 
                 _ ->
-                    ( { model | error = Just "undecodable javascript error" }, Cmd.none )
+                    ( { model | errors = model.errors ++ [ "ERROR: undecodable javascript" ] }, Cmd.none )
 
         _ ->
             Log.error ("unkown message from service: \"" ++ title ++ "\"") ( model, Cmd.none )

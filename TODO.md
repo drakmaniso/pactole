@@ -1,7 +1,7 @@
 Urgent:
 - When changing month, deselect day
 - Color-blind modes
-- Add persistent storage status in the settings info section
+- Unify dialogs
 
 Long-term:
 - Use <dialog> for dialogs

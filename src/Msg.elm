@@ -9,7 +9,6 @@ import Model
 type Msg
     = ChangePage Model.Page
     | Close
-    | CloseErrorBanner
     | SelectDate Date
     | SelectAccount Int
     | WindowResize { width : Int, height : Int }

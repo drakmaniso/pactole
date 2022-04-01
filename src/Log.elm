@@ -8,7 +8,7 @@ import Ports
 
 error : String -> ( Model, Cmd msg ) -> ( Model, Cmd msg )
 error msg ( model, cmd ) =
-    ( { model | error = Just msg }
+    ( { model | errors = model.errors ++ [ msg ] }
     , Platform.Cmd.batch
         [ Ports.send ( "error", Encode.string msg )
         , cmd

@@ -1,4 +1,4 @@
-module Page.Installation exposing (update, viewContent, viewPanel)
+module Page.Installation exposing (update, viewContent)
 
 import Database
 import Element as E
@@ -66,14 +66,6 @@ update msg model =
 
 
 -- VIEW
-
-
-viewPanel : Model -> Model.InstallationData -> E.Element Msg
-viewPanel model _ =
-    E.column [ E.width E.fill, E.height E.fill ]
-        [ Ui.logo model.serviceVersion
-        , E.el [ E.height E.fill ] E.none
-        ]
 
 
 viewContent : Model -> Model.InstallationData -> E.Element Msg
@@ -195,6 +187,7 @@ viewInstallation model installation =
         ]
 
 
+titleBanner : E.Element Msg
 titleBanner =
     E.row
         [ E.width E.fill

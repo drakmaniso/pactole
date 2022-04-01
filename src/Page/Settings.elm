@@ -3,7 +3,6 @@ module Page.Settings exposing
     , update
     , viewContent
     , viewDialog
-    , viewPanel
     )
 
 import Database
@@ -273,29 +272,15 @@ update msg model =
                 Just Model.AskExportConfirmation ->
                     ( { model | settingsDialog = Nothing }, Database.exportDatabase model )
 
+                Just (Model.UserError _) ->
+                    ( { model | settingsDialog = Nothing }, Cmd.none )
+
                 Nothing ->
                     ( { model | settingsDialog = Nothing }, Cmd.none )
 
 
 
 -- VIEW
-
-
-viewPanel : Model -> E.Element Msg
-viewPanel model =
-    E.column [ E.width E.fill, E.height E.fill ]
-        [ Ui.logo model.serviceVersion
-        , E.el [ E.width E.fill, E.height E.fill ] E.none
-        , if model.isStoragePersisted then
-            E.el [ Ui.smallerFont, E.centerX, Font.color Color.neutral70, E.paddingXY 0 6 ]
-                (E.text "Storage is persisted")
-
-          else
-            E.el [ Ui.smallerFont, E.centerX, Font.color Color.warning60, E.paddingXY 0 6 ]
-                (E.text "Storage is NOT persisted!")
-        , E.el [ Ui.smallerFont, E.centerX, Font.color Color.neutral70, E.paddingXY 0 6 ]
-            (E.text ("width = " ++ String.fromInt model.device.width ++ ", height = " ++ String.fromInt model.device.height))
-        ]
 
 
 viewContent : Model -> E.Element Msg
@@ -1155,6 +1140,42 @@ viewDialog model =
                         }
                     , Ui.mainButton
                         { label = E.text "Sauvegarder"
+                        , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsConfirm)
+                        }
+                    ]
+                ]
+
+        Just (Model.UserError error) ->
+            E.column
+                [ E.centerX
+                , E.centerY
+                , E.width (E.px 800)
+                , E.height E.shrink
+                , E.paddingXY 0 0
+                , E.spacing 0
+                , E.scrollbarY
+                , Background.color Color.white
+                , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 32, color = E.rgba 0 0 0 0.75 }
+                ]
+                [ E.el
+                    [ E.paddingEach { top = 24, bottom = 24, right = 48, left = 48 }
+                    , Ui.bigFont
+                    , Font.bold
+                    ]
+                    (E.text "Erreur")
+                , E.el [ E.paddingEach { left = 64, right = 48, top = 12, bottom = 24 } ]
+                    (Ui.warningParagraph
+                        [ E.text error
+                        ]
+                    )
+                , E.row
+                    [ E.width E.fill
+                    , E.spacing 24
+                    , E.paddingEach { top = 64, bottom = 24, right = 48, left = 48 }
+                    ]
+                    [ E.el [ E.width E.fill ] E.none
+                    , Ui.mainButton
+                        { label = E.text "OK"
                         , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsConfirm)
                         }
                     ]

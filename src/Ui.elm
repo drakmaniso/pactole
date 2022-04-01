@@ -37,7 +37,6 @@ module Ui exposing
     , innerShadow
     , labelLeft
     , loadIcon
-    , logo
     , mainButton
     , minusIcon
     , moneyInput
@@ -476,28 +475,6 @@ ruler =
         , E.paddingXY 48 0
         ]
         (E.el [ E.width E.fill, E.height E.fill, Background.color Color.neutral90 ] E.none)
-
-
-logo : String -> E.Element msg
-logo version =
-    E.column [ E.width E.fill ]
-        [ E.el [ smallFont ] (E.text " ")
-        , E.row [ E.width E.fill, E.height E.shrink ]
-            [ E.el [ E.width E.fill, E.height E.fill ] E.none
-            , E.image [ E.width (E.fillPortion 2) ]
-                { src = "images/icon-512x512.png"
-                , description = "Pactole Logo"
-                }
-            , E.el [ E.width E.fill, E.height E.fill ] E.none
-            ]
-        , E.el
-            [ smallFont
-            , E.centerX
-            , Font.color Color.neutral50
-            , E.paddingEach { left = 0, top = 12, bottom = 0, right = 0 }
-            ]
-            (E.text ("version " ++ version))
-        ]
 
 
 warningParagraph : List (E.Element msg) -> E.Element msg
@@ -1213,8 +1190,7 @@ verticalSpacer =
 paragraph : String -> E.Element msg
 paragraph txt =
     E.paragraph
-        [ normalFont
-        , Font.color Color.neutral30
+        [ Font.color Color.neutral30
         ]
         [ E.text txt ]
 

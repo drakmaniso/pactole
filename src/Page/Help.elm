@@ -1,4 +1,4 @@
-module Page.Help exposing (viewContent, viewPanel)
+module Page.Help exposing (viewContent)
 
 import Element as E
 import Element.Border as Border
@@ -10,14 +10,6 @@ import Ui.Color as Color
 
 
 -- VIEW
-
-
-viewPanel : Model -> E.Element Msg
-viewPanel model =
-    E.column [ E.width E.fill, E.height E.fill ]
-        [ Ui.logo model.serviceVersion
-        , E.el [ E.height E.fill ] E.none
-        ]
 
 
 viewContent : Model -> E.Element Msg

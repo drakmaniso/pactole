@@ -38,7 +38,7 @@ type alias Model =
     , settingsDialog : Maybe SettingsDialog
     , serviceVersion : String
     , device : Ui.Device
-    , error : Maybe String
+    , errors : List String
 
     -- Persistent Data
     , settings : Settings
@@ -57,6 +57,7 @@ type Page
     | ReconcilePage
     | HelpPage
     | SettingsPage
+    | DiagnosticsPage
 
 
 type alias InstallationData =
@@ -206,3 +207,4 @@ type SettingsDialog
         }
     | AskImportConfirmation
     | AskExportConfirmation
+    | UserError String

@@ -313,8 +313,8 @@ self.addEventListener('message', event => {
       }
       break
 
-    case 'javascript error':
-      broadcast('javascript error', msg.content)
+    case 'user error':
+      broadcast('user error', msg.content)
       break
 
     default:

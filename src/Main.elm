@@ -17,6 +17,7 @@ import Ledger
 import Model exposing (Model)
 import Msg exposing (Msg)
 import Page.Calendar as Calendar
+import Page.Diagnostics as Diagnostics
 import Page.Dialog as Dialog
 import Page.Help as Help
 import Page.Installation as Installation
@@ -119,7 +120,7 @@ init flags _ _ =
       , settingsDialog = Nothing
       , serviceVersion = "unknown"
       , device = Ui.device width height
-      , error = Nothing
+      , errors = []
       }
     , Cmd.none
     )
@@ -139,9 +140,6 @@ update msg model =
 
         Msg.Close ->
             ( { model | dialog = Nothing, settingsDialog = Nothing }, Cmd.none )
-
-        Msg.CloseErrorBanner ->
-            ( { model | error = Nothing }, Cmd.none )
 
         Msg.SelectDate date ->
             ( { model | date = date }, Cmd.none )
@@ -229,19 +227,22 @@ view model =
                 Model.MainPage ->
                     Calendar.viewContent model
 
+                Model.DiagnosticsPage ->
+                    Diagnostics.viewContent model
+
         activePagePanel =
             case model.page of
                 Model.LoadingPage ->
-                    Loading.viewPanel model
+                    E.none
 
-                Model.InstallationPage installation ->
-                    Installation.viewPanel model installation
+                Model.InstallationPage _ ->
+                    E.none
 
                 Model.HelpPage ->
-                    Help.viewPanel model
+                    logoPanel model
 
                 Model.SettingsPage ->
-                    Settings.viewPanel model
+                    logoPanel model
 
                 Model.StatsPage ->
                     Statistics.viewPanel model
@@ -252,6 +253,9 @@ view model =
                 Model.MainPage ->
                     Calendar.viewPanel model
 
+                Model.DiagnosticsPage ->
+                    logoPanel model
+
         activePage =
             pageWithSidePanel model
                 { panel = activePagePanel
@@ -259,6 +263,9 @@ view model =
                 }
     in
     case model.page of
+        Model.LoadingPage ->
+            document model activePageContent activeDialog
+
         Model.InstallationPage _ ->
             document model activePageContent activeDialog
 
@@ -322,19 +329,16 @@ document model activePage activeDialog =
                 , Font.color Color.neutral30
                 ]
                 [ case ( model.page, model.isStoragePersisted ) of
+                    ( Model.LoadingPage, _ ) ->
+                        E.none
+
                     ( Model.InstallationPage _, _ ) ->
                         E.none
 
                     ( _, False ) ->
-                        errorBanner "Attention: le stockage n'est pas persistant!" Nothing
+                        warningBanner "Attention: le stockage n'est pas persistant!"
 
                     ( _, True ) ->
-                        E.none
-                , case model.error of
-                    Just error ->
-                        errorBanner ("Erreur: " ++ error) (Just Msg.CloseErrorBanner)
-
-                    _ ->
                         E.none
                 , activePage
                 ]
@@ -343,11 +347,10 @@ document model activePage activeDialog =
     }
 
 
-errorBanner : String -> Maybe Msg -> E.Element Msg
-errorBanner error maybeCloseMsg =
+warningBanner : String -> E.Element Msg
+warningBanner txt =
     E.row [ E.width E.fill, E.padding 6, Background.color Color.warning60 ]
-        [ E.el [ E.width (E.px 32) ] E.none
-        , E.el [ E.width E.fill ] E.none
+        [ E.el [ E.width E.fill ] E.none
         , Ui.errorIcon
         , E.el
             [ Font.color Color.white
@@ -355,30 +358,9 @@ errorBanner error maybeCloseMsg =
             , E.centerX
             , E.padding 3
             ]
-            (E.text error)
+            (E.text txt)
         , Ui.errorIcon
         , E.el [ E.width E.fill ] E.none
-        , case maybeCloseMsg of
-            Just closeMsg ->
-                Input.button
-                    [ Background.color Color.transparent
-                    , Ui.normalFont
-                    , Font.color Color.white
-                    , Font.center
-                    , E.padding 3
-                    , E.width (E.px 32)
-                    , E.height (E.px 32)
-                    , Border.rounded 32
-                    , E.mouseDown [ Background.color Color.warning50 ]
-                    , E.mouseOver [ Background.color Color.warning70 ]
-                    , E.alignTop
-                    ]
-                    { onPress = Just closeMsg
-                    , label = Ui.closeIcon
-                    }
-
-            Nothing ->
-                E.el [ E.width (E.px 32) ] E.none
         ]
 
 
@@ -471,53 +453,87 @@ navigationBar model =
             , Background.color Color.primary90
             , Ui.smallerShadow
             ]
-            (case model.page of
-                Model.LoadingPage ->
-                    [ E.el [ E.paddingXY 12 6, Font.color Color.primary40, E.centerX ] (E.text "Chargement...") ]
+            [ navigationButton
+                { targetPage = Model.MainPage
+                , label = E.text "Pactole"
+                }
+            , if model.settings.summaryEnabled then
+                navigationButton
+                    { targetPage = Model.StatsPage
+                    , label = E.text "Bilan"
+                    }
 
-                Model.InstallationPage _ ->
-                    [ E.el [ E.paddingXY 12 6, Font.bold, Font.color Color.primary40, E.centerX ] (E.text "Pactole") ]
+              else
+                E.none
+            , if model.settings.reconciliationEnabled then
+                navigationButton
+                    { targetPage = Model.ReconcilePage
+                    , label = E.text "Pointer"
+                    }
+
+              else
+                E.none
+            , E.el
+                [ E.width E.fill
+                , E.height E.fill
+                ]
+                E.none
+            , case model.errors of
+                [] ->
+                    E.none
 
                 _ ->
-                    [ navigationButton
-                        { targetPage = Model.MainPage
-                        , label = E.text "Pactole"
+                    navigationButton
+                        { targetPage = Model.DiagnosticsPage
+                        , label = E.el [ Font.color Color.warning60, Ui.iconFont ] (E.text "\u{F071}")
                         }
-                    , if model.settings.summaryEnabled then
-                        navigationButton
-                            { targetPage = Model.StatsPage
-                            , label = E.text "Bilan"
-                            }
+            , if model.settings.settingsLocked then
+                E.none
 
-                      else
-                        E.none
-                    , if model.settings.reconciliationEnabled then
-                        navigationButton
-                            { targetPage = Model.ReconcilePage
-                            , label = E.text "Pointer"
-                            }
-
-                      else
-                        E.none
-                    , E.el
-                        [ E.width E.fill
-                        , E.height E.fill
-                        ]
-                        E.none
-                    , if model.settings.settingsLocked then
-                        E.none
-
-                      else
-                        navigationButton
-                            { targetPage = Model.SettingsPage
-                            , label =
-                                E.el [ Ui.iconFont, Ui.bigFont, E.centerX, E.paddingXY 0 0 ] (E.text "\u{F013}")
-                            }
-                    , navigationButton
-                        { targetPage = Model.HelpPage
-                        , label =
-                            E.el [ Ui.iconFont, Ui.bigFont, E.centerX, E.paddingXY 0 0 ] (E.text "\u{F059}")
-                        }
-                    ]
-            )
+              else
+                navigationButton
+                    { targetPage = Model.SettingsPage
+                    , label =
+                        E.el [ Ui.iconFont, Ui.bigFont, E.centerX, E.paddingXY 0 0 ] (E.text "\u{F013}")
+                    }
+            , navigationButton
+                { targetPage = Model.HelpPage
+                , label =
+                    E.el [ Ui.iconFont, Ui.bigFont, E.centerX, E.paddingXY 0 0 ] (E.text "\u{F059}")
+                }
+            ]
         )
+
+
+logoPanel : Model -> E.Element Msg
+logoPanel model =
+    E.column [ E.width E.fill, E.height E.fill ]
+        [ E.el [ Ui.smallFont ] (E.text " ")
+        , E.row [ E.width E.fill, E.height E.shrink ]
+            [ E.el [ E.width E.fill, E.height E.fill ] E.none
+            , E.image [ E.width (E.fillPortion 2) ]
+                { src = "images/icon-512x512.png"
+                , description = "Pactole Logo"
+                }
+            , E.el [ E.width E.fill, E.height E.fill ] E.none
+            ]
+        , E.el
+            [ Ui.smallFont
+            , E.centerX
+            , Font.color Color.neutral50
+            , E.paddingEach { left = 0, top = 12, bottom = 0, right = 0 }
+            ]
+            (E.text ("version " ++ model.serviceVersion))
+        , Input.button
+            [ E.centerX
+            , E.alignBottom
+            , Ui.smallerFont
+            , Font.color Color.neutral70
+            , E.padding 12
+            , E.mouseOver [ Font.color Color.neutral50 ]
+            , E.mouseDown [ Font.color Color.neutral20 ]
+            ]
+            { label = E.text "system diagnostics"
+            , onPress = Just (Msg.ChangePage Model.DiagnosticsPage)
+            }
+        ]
