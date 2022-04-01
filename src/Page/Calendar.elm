@@ -23,11 +23,7 @@ import Ui.Color as Color
 
 viewPanel : Model -> E.Element Msg
 viewPanel model =
-    if model.topBar then
-        dayView model
-
-    else
-        Ui.twoPartsSidePanel { top = Summary.view model, bottom = dayView model }
+    Ui.twoPartsSidePanel { top = Summary.view model, bottom = dayView model }
 
 
 

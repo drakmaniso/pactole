@@ -39,7 +39,6 @@ type alias Model =
     , serviceVersion : String
     , device : Ui.Device
     , error : Maybe String
-    , topBar : Bool
 
     -- Persistent Data
     , settings : Settings

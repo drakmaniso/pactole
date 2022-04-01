@@ -15,7 +15,6 @@ import Element.Input as Input
 import Json.Decode as Decode
 import Ledger
 import Model exposing (Model)
-import Money
 import Msg exposing (Msg)
 import Page.Calendar as Calendar
 import Page.Dialog as Dialog
@@ -121,7 +120,6 @@ init flags _ _ =
       , serviceVersion = "unknown"
       , device = Ui.device width height
       , error = Nothing
-      , topBar = False
       }
     , Cmd.none
     )
@@ -170,9 +168,6 @@ update msg model =
 
         Msg.ForSettingsDialog m ->
             Settings.update m model
-
-        Msg.ChangeLayout l ->
-            ( { model | topBar = l }, Cmd.none )
 
         Msg.NoOp ->
             ( model, Cmd.none )
@@ -271,11 +266,7 @@ view model =
             document model activePage activeDialog
 
         _ ->
-            if model.topBar then
-                document model activePageContent activeDialog
-
-            else
-                document model activePage activeDialog
+            document model activePage activeDialog
 
 
 document : Model -> E.Element Msg -> Maybe (E.Element Msg) -> Browser.Document Msg
@@ -341,11 +332,6 @@ document model activePage activeDialog =
 
                     _ ->
                         E.none
-                , if model.topBar then
-                    navigationBar model
-
-                  else
-                    E.none
                 , activePage
                 ]
             )
@@ -406,11 +392,7 @@ pageWithSidePanel model { panel, page } =
             [ E.width (E.fillPortion 1)
             , E.height E.fill
             ]
-            [ if not model.topBar then
-                navigationBar model
-
-              else
-                E.none
+            [ navigationBar model
             , panel
             ]
         , E.el
@@ -426,11 +408,7 @@ navigationBar : Model -> E.Element Msg
 navigationBar model =
     let
         roundedBorders =
-            if model.topBar then
-                Border.rounded 0
-
-            else
-                Border.roundEach { topLeft = 32, bottomLeft = 32, topRight = 32, bottomRight = 32 }
+            Border.roundEach { topLeft = 32, bottomLeft = 32, topRight = 32, bottomRight = 32 }
 
         navigationButton { targetPage, label } =
             Input.button
@@ -479,11 +457,7 @@ navigationBar model =
     in
     E.el
         [ E.width E.fill
-        , if model.topBar then
-            E.paddingEach { left = 0, right = 0, top = 0, bottom = 6 }
-
-          else
-            E.padding 3
+        , E.padding 3
         , Ui.normalFont
         , Ui.fontFamily
         ]
@@ -521,15 +495,11 @@ navigationBar model =
 
                       else
                         E.none
-                    , if model.topBar then
-                        viewBalance model
-
-                      else
-                        E.el
-                            [ E.width E.fill
-                            , E.height E.fill
-                            ]
-                            E.none
+                    , E.el
+                        [ E.width E.fill
+                        , E.height E.fill
+                        ]
+                        E.none
                     , if model.settings.settingsLocked then
                         E.none
 
@@ -547,64 +517,3 @@ navigationBar model =
                     ]
             )
         )
-
-
-viewBalance : Model -> E.Element msg
-viewBalance model =
-    let
-        balance =
-            Ledger.getBalance model.ledger model.account model.today
-
-        parts =
-            Money.toStrings balance
-
-        sign =
-            if parts.sign == "+" then
-                ""
-
-            else
-                "-"
-
-        color =
-            if Money.isGreaterThan balance 0 then
-                Color.neutral30
-
-            else
-                Color.warning60
-    in
-    E.paragraph
-        [ Font.center, Ui.bigFont, Font.color color, Ui.notSelectable ]
-        [ E.el [ Font.bold ] (E.text (Model.accountName model.account model))
-        , E.text ": "
-        , if Money.isGreaterThan balance model.settings.balanceWarning then
-            E.none
-
-          else
-            Ui.warningIcon
-        , E.el
-            [ Ui.bigFont
-            , Font.bold
-            , E.centerX
-            ]
-            (E.text (sign ++ parts.units))
-        , E.el
-            [ Ui.normalFont
-            , Font.bold
-            , E.alignBottom
-            , E.paddingEach { top = 0, bottom = 2, left = 0, right = 0 }
-            , E.centerX
-            ]
-            (E.text ("," ++ parts.cents))
-        , E.el
-            [ Ui.normalFont
-            , E.alignTop
-            , E.paddingEach { top = 2, bottom = 0, left = 4, right = 0 }
-            , E.centerX
-            ]
-            (E.text "€")
-        , if Money.isGreaterThan balance model.settings.balanceWarning then
-            E.none
-
-          else
-            Ui.warningIcon
-        ]

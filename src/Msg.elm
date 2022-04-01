@@ -17,7 +17,6 @@ type Msg
     | ForDatabase DatabaseMsg
     | ForDialog DialogMsg
     | ForSettingsDialog SettingsDialogMsg
-    | ChangeLayout Bool
     | NoOp
 
 

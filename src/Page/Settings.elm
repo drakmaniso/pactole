@@ -319,8 +319,7 @@ viewContent model =
                 ]
                 [ Ui.pageTitle (E.text "Configuration")
                 , Ui.textColumn
-                    [ configLayout model
-                    , Ui.verticalSpacer
+                    [ Ui.verticalSpacer
                     , configBackup model
                     , Ui.title "Configuration des comptes"
                     , configWarning model
@@ -675,23 +674,6 @@ configLocked model =
             """
         , Ui.verticalSpacer
         ]
-
-
-configLayout : Model -> E.Element Msg
-configLayout model =
-    E.el
-        [ E.centerX, E.spacing 6, Ui.smallerFont ]
-        (Ui.configRadio
-            { onChange =
-                \v -> Msg.ChangeLayout v
-            , label = "Navigation Bar:"
-            , options =
-                [ Ui.radioRowOption False (E.text "Mini")
-                , Ui.radioRowOption True (E.text "Top")
-                ]
-            , selected = Just model.topBar
-            }
-        )
 
 
 
