@@ -1,6 +1,8 @@
 Urgent:
 - When changing month, deselect day
 - Color-blind modes
+- Improve calendar layout
+- Use wrappedRow for account selector, categories...
 - Unify dialogs
 
 Long-term:

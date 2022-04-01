@@ -108,6 +108,18 @@ viewInstallation model installation =
                 destinée aux personnes pour qui les applications traditionnelles sont trop
                 complexes.
                 """
+            , Ui.paragraph
+                """
+                Elle vous permet de saisir des opérations bancaires, et les affiche sous forme
+                de calendrier. 
+                """
+            , Ui.paragraph
+                """
+                Par défaut son interface est réduite à l'essentiel: saisie d'entrées 
+                d'argent et de dépenses, affichage du solde actuel. 
+                Des fonctionnalités optionnelles peuvent être activées dans les réglages: bilan du
+                mois, pointage, catégories pour les dépenses, dépenses mensuelles récurrentes.
+                """
             , Ui.verticalSpacer
             , Ui.title "Installation"
             , Ui.paragraph
@@ -116,17 +128,20 @@ viewInstallation model installation =
                 Ce n'est pas un site web: la page reste accessible même sans connexion internet.
                 """
             , Ui.paragraphParts
-                [ Ui.text
-                    """Afin que le navigateur sache que vous voulez conserver les données de l'application, """
-                , Ui.boldText
+                [ Ui.boldText
                     """
-                    il est nécessaire d'ajouter cette page à vos marque-pages. 
+                    Il est nécessaire d'ajouter cette page à vos favoris
+                    """
+                , Ui.text
+                    """
+                    (parfois appelés marque-pages ou signets),
+                    afin que le navigateur sache que vous voulez conserver les données de l'application.
                     """
                 ]
             , Ui.paragraph
                 """
                 Si vous utilisez Firefox, le navigateur vous demandera l'autorisation de "conserver les
-                données dans le stockage persistant": répondre par l'affirmative    .
+                données dans le stockage persistant": donnez cette autorisation.
                 """
             , Ui.paragraph
                 """
@@ -152,7 +167,7 @@ viewInstallation model installation =
                     du navigateur."""
                     , Ui.text
                         """
-                    Cela effacerait tout les opérations que vous avez entré dans Pactole.
+                    Cela effacerait tout les opérations que vous avez entrées dans Pactole.
                     """
                     ]
                 ]

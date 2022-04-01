@@ -351,7 +351,6 @@ warningBanner : String -> E.Element Msg
 warningBanner txt =
     E.row [ E.width E.fill, E.padding 6, Background.color Color.warning60 ]
         [ E.el [ E.width E.fill ] E.none
-        , Ui.errorIcon
         , E.el
             [ Font.color Color.white
             , Ui.normalFont
@@ -359,7 +358,6 @@ warningBanner txt =
             , E.padding 3
             ]
             (E.text txt)
-        , Ui.errorIcon
         , E.el [ E.width E.fill ] E.none
         ]
 

@@ -161,6 +161,7 @@ viewContent _ =
                         }
                     , Ui.text "."
                     ]
+                , Ui.verticalSpacer
                 ]
             ]
         ]
