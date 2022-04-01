@@ -151,7 +151,7 @@ proceedWithInstallation model data =
                     { categoriesEnabled = False
                     , reconciliationEnabled = False
                     , summaryEnabled = False
-                    , balanceWarning = 10000
+                    , balanceWarning = 100
                     , settingsLocked = model.settings.settingsLocked
                     }
               )

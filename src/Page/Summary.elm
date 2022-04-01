@@ -41,25 +41,17 @@ view model =
                             (E.text singleAccount)
 
                     _ ->
-                        accountsRow model
+                        viewAccounts model
                 , E.el [ E.width E.fill ] E.none
                 ]
-            , E.el
-                [ Ui.smallFont
-                , E.width E.fill
-                , Font.center
-                , Font.color Color.neutral50
-                , Ui.notSelectable
-                ]
-                (E.text "Solde actuel:")
-            , balanceRow model
+            , viewBalance model
             , E.row [ E.height E.fill ] [ E.none ]
             ]
         )
 
 
-accountsRow : Model -> E.Element Msg
-accountsRow model =
+viewAccounts : Model -> E.Element Msg
+viewAccounts model =
     Input.radioRow
         [ E.width E.shrink
         , Border.width 4
@@ -79,8 +71,8 @@ accountsRow model =
         }
 
 
-balanceRow : Model -> E.Element msg
-balanceRow model =
+viewBalance : Model -> E.Element msg
+viewBalance model =
     let
         balance =
             Ledger.getBalance model.ledger model.account model.today
@@ -96,42 +88,49 @@ balanceRow model =
                 "-"
 
         color =
-            if Money.isGreaterThan balance 0 then
+            if Money.isGreaterOrEqualThan balance 0 then
                 Color.neutral30
 
             else
                 Color.warning60
     in
-    E.row
-        [ E.width E.fill, Font.color color, Ui.notSelectable ]
-        [ E.el [ E.width E.fill ] E.none
-        , if Money.isGreaterThan balance model.settings.balanceWarning then
-            E.none
+    E.column
+        [ E.centerX
+        , E.paddingXY 24 6
+        , Border.rounded 6
+        , if Money.isGreaterOrEqualThan balance model.settings.balanceWarning then
+            Border.color Color.transparent
 
           else
-            Ui.warningIcon
-        , E.el
-            [ Ui.biggestFont
-            , Font.bold
+            Border.color Color.warning60
+        , Border.width 2
+        ]
+        [ E.el
+            [ Ui.smallFont
+            , E.centerX
+            , Font.color Color.neutral30
+            , Ui.notSelectable
             ]
-            (E.text (sign ++ parts.units))
-        , E.el
-            [ Ui.bigFont
-            , Font.bold
-            , E.alignBottom
-            , E.paddingEach { top = 0, bottom = 2, left = 0, right = 0 }
+            (E.text "Solde actuel:")
+        , E.row
+            [ E.centerX, Font.color color, Ui.notSelectable ]
+            [ E.el
+                [ Ui.biggestFont
+                , Font.bold
+                ]
+                (E.text (sign ++ parts.units))
+            , E.el
+                [ Ui.bigFont
+                , Font.bold
+                , E.alignBottom
+                , E.paddingEach { top = 0, bottom = 2, left = 0, right = 0 }
+                ]
+                (E.text ("," ++ parts.cents))
+            , E.el
+                [ Ui.bigFont
+                , E.alignTop
+                , E.paddingEach { top = 2, bottom = 0, left = 4, right = 0 }
+                ]
+                (E.text "€")
             ]
-            (E.text ("," ++ parts.cents))
-        , E.el
-            [ Ui.bigFont
-            , E.alignTop
-            , E.paddingEach { top = 2, bottom = 0, left = 4, right = 0 }
-            ]
-            (E.text "€")
-        , if Money.isGreaterThan balance model.settings.balanceWarning then
-            E.none
-
-          else
-            Ui.warningIcon
-        , E.el [ E.width E.fill ] E.none
         ]

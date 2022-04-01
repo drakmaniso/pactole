@@ -5,7 +5,7 @@ module Money exposing
     , encode
     , fromInput
     , isExpense
-    , isGreaterThan
+    , isGreaterOrEqualThan
     , isZero
     , toInput
     , toStrings
@@ -36,9 +36,9 @@ isExpense (Money money) =
     money < 0
 
 
-isGreaterThan : Money -> Int -> Bool
-isGreaterThan (Money money) other =
-    money > other * 100
+isGreaterOrEqualThan : Money -> Int -> Bool
+isGreaterOrEqualThan (Money money) other =
+    money >= other * 100
 
 
 add : Money -> Money -> Money
