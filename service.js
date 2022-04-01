@@ -96,34 +96,6 @@ self.addEventListener('message', event => {
       broadcast('persistent storage granted', { granted: msg.content })
       break
 
-    case 'proceed with installation':
-      try {
-        const {
-          firstAccount, initialBalance, date
-        } = msg.content
-        createAccount(firstAccount)
-          .then(() => getAccounts())
-          .then(accounts => {
-            const { id, name } = accounts[0]
-            const transaction = {
-              account: id,
-              date,
-              amount: initialBalance,
-              description: "Solde initial",
-              category: 0,
-              checked: false,
-            }
-            addTransaction('ledger', transaction)
-          })
-          .then(() => broadcast('start application', null))
-          .catch(err => error(`broadcast import database: ${err}`))
-
-      }
-      catch (err) {
-        error(`broadcast import database: ${err}`)
-      }
-      break
-
     // Settings
 
     case 'store settings':
@@ -428,7 +400,6 @@ function openDB() {
       if (!db.objectStoreNames.contains('settings')) {
         log(`        Creating settings object store...`)
         const os = db.createObjectStore('settings')
-        //os.add({}, 'settings')
       }
 
       // Accounts Store
@@ -441,13 +412,6 @@ function openDB() {
       if (!db.objectStoreNames.contains('categories')) {
         log(`        Creating categories object store...`)
         const os = db.createObjectStore('categories', { keyPath: 'id', autoIncrement: true })
-        os.add({ name: 'Maison', icon: '\u{F015}' })
-        os.add({ name: 'Santé', icon: '\u{F0F1}' })
-        os.add({ name: 'Nourriture', icon: '\u{F2E7}' })
-        os.add({ name: 'Vêtements', icon: '\u{F553}' })
-        os.add({ name: 'Transports', icon: '\u{F5E4}' })
-        os.add({ name: 'Loisirs', icon: '\u{F5CA}' })
-        os.add({ name: 'Banque', icon: '\u{F19C}' })
       }
 
       // Ledger Store

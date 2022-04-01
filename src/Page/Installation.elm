@@ -28,7 +28,7 @@ update msg model =
                     case Money.fromInput False (Tuple.first installation.initialBalance) of
                         Ok initialBalance ->
                             ( { model | page = Model.MainPage }
-                            , Database.proceedWithInstallation
+                            , Database.proceedWithInstallation model
                                 { firstAccount = installation.firstAccount
                                 , initialBalance = initialBalance
                                 , date = model.today
@@ -210,13 +210,3 @@ titleBanner =
             }
         , E.el [ E.alignLeft, Ui.biggestFont, Font.bold ] (E.text "Pactole")
         ]
-
-
-
--- [ E.el [ E.width <| E.px 32 ] E.none
--- , E.el [ E.alignLeft, Ui.biggestFont, Font.bold ] (E.text "Pactole")
--- , E.image [ E.alignRight, E.height <| E.maximum 64 <| E.shrink ]
---     { src = "images/icon-512x512.png"
---     , description = "Pactole Logo"
---     }
--- ]

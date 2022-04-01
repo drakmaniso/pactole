@@ -321,11 +321,15 @@ document model activePage activeDialog =
                 , Ui.normalFont
                 , Font.color Color.neutral30
                 ]
-                [ if not (Dict.isEmpty model.accounts) && not model.isStoragePersisted then
-                    errorBanner "Attention: le stockage n'est pas persistant!" Nothing
+                [ case ( model.page, model.isStoragePersisted ) of
+                    ( Model.InstallationPage _, _ ) ->
+                        E.none
 
-                  else
-                    E.none
+                    ( _, False ) ->
+                        errorBanner "Attention: le stockage n'est pas persistant!" Nothing
+
+                    ( _, True ) ->
+                        E.none
                 , case model.error of
                     Just error ->
                         errorBanner ("Erreur: " ++ error) (Just Msg.CloseErrorBanner)

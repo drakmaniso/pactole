@@ -90,14 +90,71 @@ createAccount name =
     Ports.send ( "create account", Encode.string name )
 
 
-proceedWithInstallation : { firstAccount : String, initialBalance : Money, date : Date } -> Cmd msg
-proceedWithInstallation data =
+proceedWithInstallation : Model -> { firstAccount : String, initialBalance : Money, date : Date } -> Cmd msg
+proceedWithInstallation model data =
     Ports.send
-        ( "proceed with installation"
+        ( "broadcast import database"
         , Encode.object
-            [ ( "firstAccount", Encode.string data.firstAccount )
-            , ( "initialBalance", Money.encode data.initialBalance )
-            , ( "date", Date.encode data.date )
+            [ ( "serviceVersion", Encode.string model.serviceVersion )
+            , ( "accounts"
+              , Encode.list Encode.object
+                    [ [ ( "id", Encode.int 1 ), ( "name", Encode.string data.firstAccount ) ]
+                    ]
+              )
+            , ( "ledger"
+              , Encode.list Ledger.encodeTransaction
+                    [ { id = 1
+                      , account = 1
+                      , date = data.date
+                      , amount = data.initialBalance
+                      , description = "Solde initial"
+                      , category = 0
+                      , checked = False
+                      }
+                    ]
+              )
+            , ( "recurring", Encode.list Encode.object [] )
+            , ( "categories"
+              , Encode.list Encode.object
+                    [ [ ( "id", Encode.int 1 )
+                      , ( "name", Encode.string "Maison" )
+                      , ( "icon", Encode.string "\u{F015}" )
+                      ]
+                    , [ ( "id", Encode.int 2 )
+                      , ( "name", Encode.string "Santé" )
+                      , ( "icon", Encode.string "\u{F0F1}" )
+                      ]
+                    , [ ( "id", Encode.int 3 )
+                      , ( "name", Encode.string "Nourriture" )
+                      , ( "icon", Encode.string "\u{F2E7}" )
+                      ]
+                    , [ ( "id", Encode.int 4 )
+                      , ( "name", Encode.string "Vêtements" )
+                      , ( "icon", Encode.string "\u{F553}" )
+                      ]
+                    , [ ( "id", Encode.int 5 )
+                      , ( "name", Encode.string "Transports" )
+                      , ( "icon", Encode.string "\u{F5E4}" )
+                      ]
+                    , [ ( "id", Encode.int 6 )
+                      , ( "name", Encode.string "Loisirs" )
+                      , ( "icon", Encode.string "\u{F5CA}" )
+                      ]
+                    , [ ( "id", Encode.int 7 )
+                      , ( "name", Encode.string "Banque" )
+                      , ( "icon", Encode.string "\u{F19C}" )
+                      ]
+                    ]
+              )
+            , ( "settings"
+              , Model.encodeSettings
+                    { categoriesEnabled = False
+                    , reconciliationEnabled = False
+                    , summaryEnabled = False
+                    , balanceWarning = 10000
+                    , settingsLocked = model.settings.settingsLocked
+                    }
+              )
             ]
         )
 
