@@ -12,6 +12,7 @@ import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
 import Element.Input as Input
+import Html.Attributes
 import Json.Decode as Decode
 import Ledger
 import Model exposing (Model)
@@ -255,29 +256,24 @@ view model =
 
                 Model.DiagnosticsPage ->
                     logoPanel model
-
-        activePage =
-            pageWithSidePanel model
-                { panel = activePagePanel
-                , page = activePageContent
-                }
     in
     case model.page of
         Model.LoadingPage ->
-            document model activePageContent activeDialog
+            document model activeDialog activePageContent
 
         Model.InstallationPage _ ->
-            document model activePageContent activeDialog
-
-        Model.MainPage ->
-            document model activePage activeDialog
+            document model activeDialog activePageContent
 
         _ ->
-            document model activePage activeDialog
+            document model activeDialog <|
+                pageWithSidePanel model
+                    { panel = activePagePanel
+                    , page = activePageContent
+                    }
 
 
-document : Model -> E.Element Msg -> Maybe (E.Element Msg) -> Browser.Document Msg
-document model activePage activeDialog =
+document : Model -> Maybe (E.Element Msg) -> E.Element Msg -> Browser.Document Msg
+document model activeDialog activePage =
     { title = "Pactole"
     , body =
         [ E.layoutWith
@@ -296,6 +292,7 @@ document model activePage activeDialog =
                             [ E.width E.fill
                             , E.height E.fill
                             , Ui.fontFamily
+                            , Ui.normalFont
                             , Font.color Color.neutral30
                             , E.padding 0
                             , E.scrollbarY
@@ -327,6 +324,7 @@ document model activePage activeDialog =
                 , Ui.fontFamily
                 , Ui.normalFont
                 , Font.color Color.neutral30
+                , Background.color Color.white
                 ]
                 [ case ( model.page, model.isStoragePersisted ) of
                     ( Model.LoadingPage, _ ) ->
@@ -367,14 +365,12 @@ pageWithSidePanel model { panel, page } =
     E.row
         [ E.width E.fill
         , E.height E.fill
-        , Background.color Color.white
-        , Ui.fontFamily
-        , Ui.normalFont
-        , Font.color Color.neutral30
+        , E.spacing 12
         ]
         [ E.column
             [ E.width (E.fillPortion 1)
             , E.height E.fill
+            , E.htmlAttribute <| Html.Attributes.style "box-shadow" "3px 0px 12px #0002, 3px 0px 9px #0002, 2px 0px 6px #0004"
             ]
             [ navigationBar model
             , panel
@@ -391,19 +387,16 @@ pageWithSidePanel model { panel, page } =
 navigationBar : Model -> E.Element Msg
 navigationBar model =
     let
-        roundedBorders =
-            Border.roundEach { topLeft = 32, bottomLeft = 32, topRight = 32, bottomRight = 32 }
-
         navigationButton { targetPage, label } =
             Input.button
-                [ E.paddingXY 6 2
+                [ E.paddingXY 6 6
                 , Border.color Color.transparent
                 , Background.color
                     (if model.page == targetPage then
                         Color.primary40
 
                      else
-                        Color.primary90
+                        Color.primary85
                     )
                 , Font.color
                     (if model.page == targetPage then
@@ -424,14 +417,13 @@ navigationBar model =
                 , E.mouseOver
                     [ Background.color
                         (if model.page == targetPage then
-                            Color.primary50
+                            Color.primary40
 
                          else
-                            Color.primary95
+                            Color.primary90
                         )
                     ]
                 , E.height E.fill
-                , roundedBorders
                 , Border.width 4
                 , Ui.focusVisibleOnly
                 ]
@@ -441,15 +433,12 @@ navigationBar model =
     in
     E.el
         [ E.width E.fill
-        , E.padding 3
         , Ui.normalFont
         , Ui.fontFamily
         ]
         (E.row
             [ E.width E.fill
-            , roundedBorders
-            , Background.color Color.primary90
-            , Ui.smallerShadow
+            , Background.color Color.primary85
             ]
             [ navigationButton
                 { targetPage = Model.MainPage

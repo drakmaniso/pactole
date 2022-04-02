@@ -1,4 +1,4 @@
-module Ui.Color exposing (bgApajh, black, blueApajh, expense30, expense40, expense50, expense80, expense90, expense95, fgApajh, focus85, greenApajh, greenApajh90, income30, income40, income50, income80, income90, income95, neutral10, neutral20, neutral30, neutral40, neutral50, neutral60, neutral70, neutral80, neutral90, neutral93, neutral95, neutral98, primary30, primary40, primary50, primary80, primary90, primary95, redApajh, transactionColor, transparent, warning50, warning60, warning70, white)
+module Ui.Color exposing (bgApajh, black, blueApajh, expense30, expense40, expense50, expense80, expense90, expense95, fgApajh, focus85, greenApajh, greenApajh90, income30, income40, income50, income80, income90, income95, neutral10, neutral20, neutral30, neutral40, neutral50, neutral60, neutral70, neutral90, neutral93, neutral95, neutral98, primary30, primary40, primary50, primary80, primary85, primary90, redApajh, transactionColor, transparent, warning50, warning60, warning70, white)
 
 import Bitwise
 import Element as E
@@ -60,11 +60,6 @@ neutral93 =
 neutral90 : E.Color
 neutral90 =
     hex 0x00E2E2E2
-
-
-neutral80 : E.Color
-neutral80 =
-    hex 0x00C7C7C7
 
 
 neutral70 : E.Color
@@ -176,19 +171,22 @@ income80 =
     hex 0x00B7CFB4
 
 
-primary95 : E.Color
-primary95 =
-    hex 0x00E8F2FC
-
-
 primary90 : E.Color
 primary90 =
-    hex 0x00D2E5FA
+    -- hex 0x00E8F2FC
+    hex 0x00D4E5F7
+
+
+primary85 : E.Color
+primary85 =
+    -- hex 0x00D2E5FA
+    hex 0x00BED8F3
 
 
 primary80 : E.Color
 primary80 =
-    hex 0x00BBD8F6
+    -- hex 0x00BBD8F6
+    hex 0x00A8CBEE
 
 
 primary50 : E.Color

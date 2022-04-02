@@ -320,7 +320,6 @@ twoPartsSidePanel { top, bottom } =
         [ E.el
             [ E.width E.fill, E.height (E.fillPortion 1) ]
             top
-        , ruler
         , E.el
             [ E.width E.fill, E.height (E.fillPortion 2) ]
             bottom
@@ -921,7 +920,7 @@ checkBox { state, onPress } =
         , E.alignRight
         , Background.color (E.rgba 1 1 1 1)
         , Border.width 4
-        , Border.color Color.neutral80
+        , Border.color Color.transparent
         , focusVisibleOnly
         , E.padding 2
         , innerShadow

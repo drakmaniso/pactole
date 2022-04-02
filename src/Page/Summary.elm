@@ -20,7 +20,10 @@ import Ui.Color as Color
 
 view : Model -> E.Element Msg
 view model =
-    Keyed.el [ E.width E.fill, E.height E.fill ]
+    Keyed.el
+        [ E.width E.fill
+        , E.height E.fill
+        ]
         ( "summary"
         , E.column
             [ E.width E.fill

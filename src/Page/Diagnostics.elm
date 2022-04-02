@@ -1,7 +1,6 @@
 module Page.Diagnostics exposing (viewContent)
 
 import Element as E
-import Element.Border as Border
 import Element.Font as Font
 import Model exposing (Model)
 import Msg exposing (Msg)
@@ -26,8 +25,6 @@ viewContent model =
             [ E.width E.fill
             , E.height E.fill
             , E.scrollbarY
-            , Border.widthEach { left = 2, top = 0, bottom = 0, right = 0 }
-            , Border.color Color.neutral90
             ]
             [ Ui.pageTitle (E.text "System Diagnostics")
             , E.textColumn

@@ -1,11 +1,9 @@
 module Page.Help exposing (viewContent)
 
 import Element as E
-import Element.Border as Border
 import Model exposing (Model)
 import Msg exposing (Msg)
 import Ui
-import Ui.Color as Color
 
 
 
@@ -25,8 +23,6 @@ viewContent _ =
             [ E.width E.fill
             , E.height E.fill
             , E.scrollbarY
-            , Border.widthEach { left = 2, top = 0, bottom = 0, right = 0 }
-            , Border.color Color.neutral90
             ]
             [ Ui.pageTitle (E.text "Guide d'utilisation")
             , Ui.textColumn

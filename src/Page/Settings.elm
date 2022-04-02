@@ -299,8 +299,6 @@ viewContent model =
                 , E.height E.fill
                 , E.paddingXY 0 0
                 , E.scrollbarY
-                , Border.widthEach { left = 2, top = 0, bottom = 0, right = 0 }
-                , Border.color Color.neutral90
                 ]
                 [ Ui.pageTitle (E.text "Configuration")
                 , Ui.textColumn
