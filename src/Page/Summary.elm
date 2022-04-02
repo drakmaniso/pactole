@@ -40,7 +40,7 @@ view model =
                     E.none
                 , case Dict.values model.accounts of
                     [ singleAccount ] ->
-                        E.el [ Ui.normalFont, Font.color Color.neutral30, Ui.notSelectable, Font.center ]
+                        E.el [ Ui.notSelectable, Font.center ]
                             (E.text singleAccount)
 
                     _ ->
@@ -109,28 +109,28 @@ viewBalance model =
         , Border.width 2
         ]
         [ E.el
-            [ Ui.smallFont
+            [ Ui.smallFont model.device
             , E.centerX
-            , Font.color Color.neutral30
+            , Font.color Color.neutral50
             , Ui.notSelectable
             ]
             (E.text "Solde actuel:")
         , E.row
             [ E.centerX, Font.color color, Ui.notSelectable ]
             [ E.el
-                [ Ui.biggestFont
+                [ Ui.biggestFont model.device
                 , Font.bold
                 ]
                 (E.text (sign ++ parts.units))
             , E.el
-                [ Ui.bigFont
+                [ Ui.bigFont model.device
                 , Font.bold
                 , E.alignBottom
                 , E.paddingEach { top = 0, bottom = 2, left = 0, right = 0 }
                 ]
                 (E.text ("," ++ parts.cents))
             , E.el
-                [ Ui.bigFont
+                [ Ui.bigFont model.device
                 , E.alignTop
                 , E.paddingEach { top = 2, bottom = 0, left = 4, right = 0 }
                 ]

@@ -120,7 +120,7 @@ init flags _ _ =
       , dialog = Nothing
       , settingsDialog = Nothing
       , serviceVersion = "unknown"
-      , device = Ui.device width height
+      , device = Ui.classifyDevice width height
       , errors = []
       }
     , Cmd.none
@@ -151,7 +151,7 @@ update msg model =
 
         Msg.WindowResize size ->
             ( { model
-                | device = Ui.device size.width size.height
+                | device = Ui.classifyDevice size.width size.height
               }
             , Cmd.none
             )
@@ -292,7 +292,7 @@ document model activeDialog activePage =
                             [ E.width E.fill
                             , E.height E.fill
                             , Ui.fontFamily
-                            , Ui.normalFont
+                            , Ui.defaultFontSize model.device
                             , Font.color Color.neutral30
                             , E.padding 0
                             , E.scrollbarY
@@ -322,7 +322,7 @@ document model activeDialog activePage =
                 [ E.width E.fill
                 , E.height E.fill
                 , Ui.fontFamily
-                , Ui.normalFont
+                , Ui.defaultFontSize model.device
                 , Font.color Color.neutral30
                 , Background.color Color.white
                 ]
@@ -357,7 +357,6 @@ warningBanner txt =
         [ E.el [ E.width E.fill ] E.none
         , E.el
             [ Font.color Color.white
-            , Ui.normalFont
             , E.centerX
             , E.padding 3
             ]
@@ -449,7 +448,6 @@ navigationBar model =
     in
     E.el
         [ E.width E.fill
-        , Ui.normalFont
         , Ui.fontFamily
         ]
         (E.row
@@ -497,12 +495,12 @@ navigationBar model =
                 navigationButton
                     { targetPage = Model.SettingsPage
                     , label =
-                        E.el [ Ui.iconFont, Ui.bigFont, E.centerX, E.paddingXY 0 0 ] (E.text "\u{F013}")
+                        E.el [ Ui.iconFont, Ui.bigFont model.device, E.centerX, E.paddingXY 0 0 ] (E.text "\u{F013}")
                     }
             , navigationButton
                 { targetPage = Model.HelpPage
                 , label =
-                    E.el [ Ui.iconFont, Ui.bigFont, E.centerX, E.paddingXY 0 0 ] (E.text "\u{F059}")
+                    E.el [ Ui.iconFont, Ui.bigFont model.device, E.centerX, E.paddingXY 0 0 ] (E.text "\u{F059}")
                 }
             ]
         )
@@ -525,7 +523,7 @@ logoPanel model =
             (Input.button
                 [ E.centerX
                 , E.alignBottom
-                , Ui.smallerFont
+                , Ui.smallerFont model.device
                 , Font.color Color.neutral70
                 , E.padding 12
                 , E.mouseOver [ Font.color Color.neutral50 ]

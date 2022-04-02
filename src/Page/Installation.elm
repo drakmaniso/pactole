@@ -95,13 +95,9 @@ viewInstallation model installation =
     E.row
         [ E.width E.fill
         , E.height E.fill
-        , Background.color Color.white
-        , Ui.fontFamily
-        , Ui.normalFont
-        , Font.color Color.neutral30
         ]
         [ Ui.textColumn
-            [ titleBanner
+            [ titleBanner model
             , Ui.paragraph
                 """
                 Pactole est une application très simple de gestion de budget personnel. Elle est
@@ -121,7 +117,7 @@ viewInstallation model installation =
                 mois, pointage, catégories pour les dépenses, dépenses mensuelles récurrentes.
                 """
             , Ui.verticalSpacer
-            , Ui.title "Installation"
+            , Ui.title model.device "Installation"
             , Ui.paragraph
                 """
                 Pactole est une application qui fonctionne dans le navigateur. 
@@ -172,14 +168,14 @@ viewInstallation model installation =
                     ]
                 ]
             , Ui.verticalSpacer
-            , Ui.title "Configuration initiale"
+            , Ui.title model.device "Configuration initiale"
             , Ui.textInput
                 { width = 400
                 , label = Ui.labelLeft "Nom du compte:"
                 , text = installation.firstAccount
                 , onChange = \txt -> Msg.InstallChangeName txt |> Msg.ForInstallation
                 }
-            , Ui.moneyInput
+            , Ui.moneyInput model.device
                 { label = Ui.labelLeft "Solde initial:"
                 , color = Color.neutral20
                 , state = installation.initialBalance
@@ -202,8 +198,8 @@ viewInstallation model installation =
         ]
 
 
-titleBanner : E.Element Msg
-titleBanner =
+titleBanner : Model -> E.Element Msg
+titleBanner model =
     E.row
         [ E.width E.fill
         , Background.color Color.greenApajh90
@@ -216,5 +212,5 @@ titleBanner =
             { src = "images/icon-512x512.png"
             , description = "Pactole Logo"
             }
-        , E.el [ E.alignLeft, Ui.biggestFont, Font.bold ] (E.text "Pactole")
+        , E.el [ E.alignLeft, Ui.biggestFont model.device, Font.bold ] (E.text "Pactole")
         ]

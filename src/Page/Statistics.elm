@@ -29,8 +29,9 @@ viewContent model =
     E.column
         [ E.width E.fill
         , E.height E.fill
+        , E.padding 3
         ]
-        [ Ui.dateNavigationBar model Msg.SelectDate
+        [ Ui.dateNavigationBar model.device model Msg.SelectDate
         , viewMonthBalance model
         , viewMonthFutureWarning model
         , Ui.ruler
@@ -40,7 +41,7 @@ viewContent model =
             , E.scrollbarY
             ]
             [ E.el [ E.height E.fill ] E.none
-            , viewItem
+            , viewItem model
                 ""
                 "Entrées d'argent: "
                 (Ledger.getIncomeForMonth model.ledger model.account model.date model.today)
@@ -50,13 +51,13 @@ viewContent model =
               else
                 E.none
             , if model.settings.categoriesEnabled then
-                viewItem
+                viewItem model
                     ""
                     "Sans catégorie: "
                     (Ledger.getCategoryTotalForMonth model.ledger model.account model.date model.today 0)
 
               else
-                viewItem
+                viewItem model
                     ""
                     "Dépenses: "
                     (Ledger.getExpenseForMonth model.ledger model.account model.date model.today)
@@ -67,10 +68,10 @@ viewContent model =
 
 
 viewMonthBalance : Model -> E.Element msg
-viewMonthBalance shared =
+viewMonthBalance model =
     let
         monthBal =
-            Ledger.getTotalForMonth shared.ledger shared.account shared.date shared.today
+            Ledger.getTotalForMonth model.ledger model.account model.date model.today
     in
     E.row
         [ E.width E.fill
@@ -79,9 +80,9 @@ viewMonthBalance shared =
         ]
         [ E.el [ E.width (E.fillPortion 2) ] E.none
         , E.el
-            [ Ui.bigFont, Font.alignRight ]
+            [ Ui.bigFont model.device, Font.alignRight ]
             (E.text "Bilan du mois: ")
-        , Ui.viewSum monthBal
+        , Ui.viewSum model.device monthBal
         , E.el [ E.width (E.fillPortion 2) ] E.none
         ]
 
@@ -95,7 +96,6 @@ viewMonthFutureWarning shared =
         E.row
             [ E.width E.fill
             , E.paddingEach { top = 0, bottom = 24, left = 48, right = 48 }
-            , Ui.normalFont
             , Font.color Color.neutral50
             ]
             [ E.el [ E.width (E.fillPortion 2) ] E.none
@@ -110,24 +110,24 @@ viewMonthFutureWarning shared =
 
 
 viewCategories : Model -> E.Element Msg
-viewCategories shared =
+viewCategories model =
     E.column
         [ E.width E.fill
         , E.paddingXY 0 0
         ]
-        (Dict.toList shared.categories
+        (Dict.toList model.categories
             |> List.map
                 (\( catID, category ) ->
-                    viewItem
+                    viewItem model
                         category.icon
                         (category.name ++ ": ")
-                        (Ledger.getCategoryTotalForMonth shared.ledger shared.account shared.date shared.today catID)
+                        (Ledger.getCategoryTotalForMonth model.ledger model.account model.date model.today catID)
                 )
         )
 
 
-viewItem : String -> String -> Money.Money -> E.Element msg
-viewItem icon description money =
+viewItem : Model -> String -> String -> Money.Money -> E.Element msg
+viewItem model icon description money =
     E.row
         [ E.width E.fill
         , E.paddingXY 48 12
@@ -136,8 +136,8 @@ viewItem icon description money =
         [ E.row [ E.width (E.fillPortion 3), E.spacing 12 ]
             [ E.el [ E.width E.fill ] E.none
             , E.el [ Ui.iconFont, Font.center ] (E.text icon)
-            , E.el [ Ui.normalFont, Font.alignRight ] (E.text description)
+            , E.el [ Font.alignRight ] (E.text description)
             ]
-        , Ui.viewMoney money False
+        , Ui.viewMoney model.device money False
         , E.el [ E.width (E.fillPortion 2) ] E.none
         ]

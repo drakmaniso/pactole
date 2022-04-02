@@ -11,7 +11,7 @@ import Ui
 
 
 viewContent : Model -> E.Element Msg
-viewContent _ =
+viewContent model =
     E.column
         -- This extra column is necessary to circumvent a
         -- scrollbar-related bug in elm-ui
@@ -25,7 +25,7 @@ viewContent _ =
             , E.padding 3
             , E.scrollbarY
             ]
-            [ Ui.pageTitle (E.text "Guide d'utilisation")
+            [ Ui.pageTitle model.device (E.text "Guide d'utilisation")
             , Ui.textColumn
                 [ Ui.verticalSpacer
                 , Ui.paragraph
@@ -43,7 +43,7 @@ viewContent _ =
             le détail du jour sélectionné.
             """
                 , Ui.verticalSpacer
-                , Ui.title "Pour utiliser le calendrier"
+                , Ui.title model.device "Pour utiliser le calendrier"
                 , Ui.paragraph
                     """
             Le calendrier affiche une vue d'ensemble de vos opérations pour le mois courant.
@@ -64,7 +64,7 @@ viewContent _ =
             modifier les opérations.
             """
                 , Ui.verticalSpacer
-                , Ui.title "Pour créer une nouvelle opération"
+                , Ui.title model.device "Pour créer une nouvelle opération"
                 , Ui.helpList
                     [ Ui.paragraph
                         """
@@ -93,7 +93,7 @@ viewContent _ =
                     """
                     ]
                 , Ui.verticalSpacer
-                , Ui.title "Pour supprimer une opération"
+                , Ui.title model.device "Pour supprimer une opération"
                 , Ui.helpList
                     [ Ui.paragraph
                         """
@@ -113,7 +113,7 @@ viewContent _ =
                     """
                     ]
                 , Ui.verticalSpacer
-                , Ui.title "Pour changer le montant ou la description d'une opération"
+                , Ui.title model.device "Pour changer le montant ou la description d'une opération"
                 , Ui.helpList
                     [ Ui.paragraph
                         """
@@ -137,14 +137,14 @@ viewContent _ =
                     """
                     ]
                 , Ui.verticalSpacer
-                , Ui.title "Pour changer la date d'une opération"
+                , Ui.title model.device "Pour changer la date d'une opération"
                 , Ui.paragraph
                     """
                 Pour déplacer une opération à une date différente, il suffit de supprimer
                 l'opération existante et de la recréer à la nouvelle date.
                 """
                 , Ui.verticalSpacer
-                , Ui.title "Pour les fonctions avancées"
+                , Ui.title model.device "Pour les fonctions avancées"
                 , Ui.paragraphParts
                     [ Ui.text
                         """

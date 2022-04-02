@@ -96,11 +96,11 @@ calendarHeader model =
     E.column
         [ E.width E.fill
         ]
-        [ Ui.dateNavigationBar model Msg.SelectDate
+        [ Ui.dateNavigationBar model.device model Msg.SelectDate
         , E.row
             [ E.width E.fill
             , E.alignBottom
-            , Ui.smallFont
+            , Ui.smallFont model.device
             , Ui.notSelectable
             ]
             [ E.el [ E.width E.fill ] (E.el [ E.centerX ] (E.text "Lundi"))
@@ -183,7 +183,7 @@ calendarCell model day =
                         [ E.el
                             [ E.width E.fill
                             , E.paddingEach { top = 0, bottom = 2, left = 0, right = 0 }
-                            , Ui.smallFont
+                            , Ui.smallFont model.device
                             , Font.center
                             , Font.color
                                 (if sel then
@@ -263,7 +263,7 @@ cellContentFor model day =
             E.row
                 [ E.paddingEach { top = 3, bottom = 4, left = 6, right = 8 }
                 , E.paddingEach { top = 1, bottom = 2, left = 4, right = 6 }
-                , Ui.smallFont
+                , Ui.smallFont model.device
                 , Font.color Color.white
                 , Background.color color
                 , Border.rounded 16
@@ -271,9 +271,9 @@ cellContentFor model day =
                 , Border.color color
                 , E.htmlAttribute <| Html.Attributes.style "display" "inline-flex"
                 ]
-                [ E.el [ Ui.smallFont ] (E.text (parts.sign ++ parts.units))
+                [ E.el [ Ui.smallFont model.device ] (E.text (parts.sign ++ parts.units))
                 , E.el
-                    [ Ui.smallerFont
+                    [ Ui.smallerFont model.device
                     , E.alignBottom
                     , E.paddingXY 0 1
                     ]
@@ -308,10 +308,9 @@ dayView model =
             , E.spacing 8
             , Font.color Color.neutral30
             , Font.center
-            , Ui.bigFont
             , Ui.notSelectable
             ]
-            [ E.el [ E.width E.fill, Ui.normalFont, Font.color Color.neutral50 ]
+            [ E.el [ E.width E.fill, Font.color Color.neutral50, Ui.smallFont model.device ]
                 (E.text <|
                     if model.date == model.today then
                         "— Aujourd'hui —"
@@ -331,7 +330,7 @@ dayView model =
                     else
                         ""
                 )
-            , Ui.viewDate model.date
+            , Ui.viewDate model.device model.date
             ]
         , E.column
             [ E.width E.fill
@@ -426,14 +425,13 @@ dayContentFor model day =
                                 ]
                                 (E.column
                                     [ E.width E.fill ]
-                                    [ Ui.viewMoney transaction.amount future
+                                    [ Ui.viewMoney model.device transaction.amount future
                                     , E.el [ E.height E.fill ] E.none
                                     ]
                                 )
                             , E.el
                                 [ E.width (E.fillPortion 6)
                                 , E.alignTop
-                                , Ui.normalFont
                                 , Font.color Color.neutral30
                                 ]
                                 (E.paragraph [] [ E.text (Ledger.getTransactionDescription transaction) ])
@@ -460,7 +458,6 @@ dayContentFor model day =
                 [ E.width E.fill
                 , Font.center
                 , Font.color Color.neutral50
-                , Ui.normalFont
                 , E.paddingXY 8 32
                 ]
                 [ E.text "(Aucune opération)" ]

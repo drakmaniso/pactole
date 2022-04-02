@@ -300,23 +300,23 @@ viewContent model =
                 , E.padding 3
                 , E.scrollbarY
                 ]
-                [ Ui.pageTitle (E.text "Configuration")
+                [ Ui.pageTitle model.device (E.text "Configuration")
                 , Ui.textColumn
                     [ Ui.verticalSpacer
                     , configBackup model
-                    , Ui.title "Configuration des comptes"
+                    , Ui.title model.device "Configuration des comptes"
                     , configWarning model
                     , configAccounts model
                     , Ui.verticalSpacer
-                    , Ui.title "Fonctions optionnelles"
+                    , Ui.title model.device "Fonctions optionnelles"
                     , configSummary model
                     , configReconciliation model
                     , Ui.verticalSpacer
-                    , Ui.title "Catégories de dépenses"
+                    , Ui.title model.device "Catégories de dépenses"
                     , configCategoriesEnabled model
                     , configCategories model
                     , Ui.verticalSpacer
-                    , Ui.title "Opération mensuelles"
+                    , Ui.title model.device "Opération mensuelles"
                     , configRecurring model
                     , Ui.verticalSpacer
                     , configLocked model
@@ -327,12 +327,12 @@ viewContent model =
 
 
 configBackup : Model -> E.Element Msg
-configBackup _ =
+configBackup model =
     E.column
         [ E.width E.fill
         , E.spacing 24
         ]
-        [ Ui.title "Données de l'application"
+        [ Ui.title model.device "Données de l'application"
         , Ui.paragraph
             """
             Les données de Pactole ne sont pas enregistrées en ligne.
@@ -425,9 +425,9 @@ configWarning model =
                 , onPress =
                     Just (Msg.ForDatabase <| Msg.DbStoreSettings { settings | balanceWarning = settings.balanceWarning - 10 })
                 }
-            , E.el [ Ui.bigFont ]
+            , E.el [ Ui.bigFont model.device ]
                 (E.text (String.fromInt model.settings.balanceWarning))
-            , E.el [ Ui.normalFont ]
+            , E.el []
                 (E.text "€")
             , Ui.iconButton
                 { icon = Ui.plusIcon
@@ -555,7 +555,7 @@ configRecurring : Model -> E.Element Msg
 configRecurring model =
     let
         headerTxt txt =
-            E.el [ Font.center, Ui.smallFont, Font.color Color.neutral70 ] (E.text txt)
+            E.el [ Font.center, Ui.smallFont model.device, Font.color Color.neutral70 ] (E.text txt)
     in
     E.column [ E.spacing 24 ]
         [ E.table [ E.spacingXY 12 6 ]
@@ -628,7 +628,7 @@ configLocked model =
     in
     E.column
         [ E.width E.fill, E.spacing 24 ]
-        [ Ui.title "Accès aux réglages"
+        [ Ui.title model.device "Accès aux réglages"
         , Ui.paragraph
             """
             Si l'utilisateur principal de l'application n'est pas à l'aise avec
@@ -685,7 +685,7 @@ viewDialog model =
                     [ E.paddingEach { top = 24, bottom = 24, right = 48, left = 48 } ]
                     (Input.text
                         [ Ui.onEnter (Msg.ForSettingsDialog <| Msg.SettingsConfirm)
-                        , Ui.bigFont
+                        , Ui.bigFont model.device
                         , E.focused
                             [ Border.shadow
                                 { offset = ( 0, 0 )
@@ -699,7 +699,6 @@ viewDialog model =
                             Input.labelAbove
                                 [ E.width E.shrink
                                 , Font.color Color.primary40
-                                , Ui.normalFont
                                 , Font.bold
                                 , E.paddingEach { top = 12, bottom = 0, left = 12, right = 0 }
                                 , E.pointer
@@ -741,7 +740,7 @@ viewDialog model =
                 ]
                 [ E.el
                     [ E.paddingEach { top = 24, bottom = 24, right = 48, left = 48 }
-                    , Ui.bigFont
+                    , Ui.bigFont model.device
                     , Font.bold
                     ]
                     (E.text ("Supprimer la catégorie \"" ++ submodel.name ++ "\" ?"))
@@ -783,13 +782,12 @@ viewDialog model =
                     [ E.paddingEach { top = 24, bottom = 24, right = 48, left = 48 } ]
                     (Input.text
                         [ Ui.onEnter (Msg.ForSettingsDialog <| Msg.SettingsConfirm)
-                        , Ui.bigFont
+                        , Ui.bigFont model.device
                         ]
                         { label =
                             Input.labelAbove
                                 [ E.width E.shrink
                                 , Font.color Color.primary40
-                                , Ui.normalFont
                                 , Font.bold
                                 , E.paddingEach { top = 12, bottom = 0, left = 12, right = 0 }
                                 , E.pointer
@@ -851,7 +849,7 @@ viewDialog model =
                 ]
                 [ E.el
                     [ E.paddingEach { top = 24, bottom = 24, right = 48, left = 48 }
-                    , Ui.bigFont
+                    , Ui.bigFont model.device
                     ]
                     (E.text ("Supprimer le compte \"" ++ submodel.name ++ "\" ?"))
                 , E.el [ E.paddingEach { left = 64, right = 48, top = 12, bottom = 24 } ]
@@ -893,7 +891,7 @@ viewDialog model =
                     [ E.paddingEach { top = 24, bottom = 24, right = 48, left = 48 } ]
                     (Input.text
                         [ Ui.onEnter (Msg.ForSettingsDialog <| Msg.SettingsConfirm)
-                        , Ui.bigFont
+                        , Ui.bigFont model.device
                         , E.width (E.shrink |> E.minimum 120)
                         , E.focused
                             [ Border.shadow
@@ -908,7 +906,6 @@ viewDialog model =
                             Input.labelLeft
                                 [ E.width E.shrink
                                 , Font.color Color.primary40
-                                , Ui.normalFont
                                 , Font.bold
                                 , E.paddingEach { right = 24, top = 0, left = 12, bottom = 0 }
                                 , E.pointer
@@ -925,7 +922,6 @@ viewDialog model =
                         (E.el
                             [ E.width E.fill
                             , Font.color Color.primary40
-                            , Ui.normalFont
                             , E.paddingEach { right = 24, top = 0, left = 12, bottom = 0 }
                             , Font.bold
                             ]
@@ -947,9 +943,7 @@ viewDialog model =
                     , E.spacingXY 24 0
                     ]
                     [ E.el
-                        [ Font.color Color.primary40
-                        , Ui.normalFont
-                        , E.paddingEach { right = 24, top = 0, left = 12, bottom = 0 }
+                        [ E.paddingEach { right = 24, top = 0, left = 12, bottom = 0 }
                         , Font.bold
                         ]
                         (E.el [ Font.bold ] (E.text "Type: "))
@@ -973,15 +967,13 @@ viewDialog model =
                     , E.spacingXY 24 0
                     ]
                     [ E.el
-                        [ Font.color Color.primary40
-                        , Ui.normalFont
-                        , E.paddingEach { right = 24, top = 0, left = 12, bottom = 0 }
+                        [ E.paddingEach { right = 24, top = 0, left = 12, bottom = 0 }
                         , Font.bold
                         ]
                         (E.el [ Font.bold ] (E.text "Montant: "))
                     , Input.text
                         [ Ui.onEnter (Msg.ForSettingsDialog <| Msg.SettingsConfirm)
-                        , Ui.bigFont
+                        , Ui.bigFont model.device
                         , E.width (E.shrink |> E.minimum 220)
                         , E.focused
                             [ Border.shadow
@@ -1003,7 +995,7 @@ viewDialog model =
                     [ E.paddingEach { top = 24, bottom = 24, right = 48, left = 48 } ]
                     (Input.text
                         [ Ui.onEnter (Msg.ForSettingsDialog <| Msg.SettingsConfirm)
-                        , Ui.bigFont
+                        , Ui.bigFont model.device
                         , E.focused
                             [ Border.shadow
                                 { offset = ( 0, 0 )
@@ -1016,8 +1008,6 @@ viewDialog model =
                         { label =
                             Input.labelAbove
                                 [ E.width E.shrink
-                                , Font.color Color.primary40
-                                , Ui.normalFont
                                 , Font.bold
                                 , E.paddingEach { top = 12, bottom = 0, left = 12, right = 0 }
                                 , E.pointer
@@ -1059,7 +1049,7 @@ viewDialog model =
                 ]
                 [ E.el
                     [ E.paddingEach { top = 24, bottom = 24, right = 48, left = 48 }
-                    , Ui.bigFont
+                    , Ui.bigFont model.device
                     , Font.bold
                     ]
                     (E.text "Remplacer toutes les données?")
@@ -1101,19 +1091,18 @@ viewDialog model =
                 ]
                 [ E.el
                     [ E.paddingEach { top = 24, bottom = 24, right = 48, left = 48 }
-                    , Ui.bigFont
+                    , Ui.bigFont model.device
                     , Font.bold
                     ]
                     (E.text "Sauvegarder les données?")
                 , E.paragraph
                     [ E.paddingEach { top = 24, bottom = 6, right = 48, left = 48 }
-                    , Ui.normalFont
                     ]
                     [ E.text "Toutes les données de Pactole vont être enregistrées dans le dans le fichier suivant:"
                     ]
                 , E.row
                     [ E.paddingEach { top = 12, bottom = 12, right = 48, left = 48 }
-                    , Ui.bigFont
+                    , Ui.bigFont model.device
                     , E.width E.fill
                     ]
                     [ E.el [ E.width E.fill ] E.none
@@ -1122,7 +1111,6 @@ viewDialog model =
                     ]
                 , E.paragraph
                     [ E.paddingEach { top = 6, bottom = 24, right = 48, left = 48 }
-                    , Ui.normalFont
                     ]
                     [ E.text "Il sera placé dans le dossier des téléchargements."
                     ]
@@ -1157,7 +1145,7 @@ viewDialog model =
                 ]
                 [ E.el
                     [ E.paddingEach { top = 24, bottom = 24, right = 48, left = 48 }
-                    , Ui.bigFont
+                    , Ui.bigFont model.device
                     , Font.bold
                     ]
                     (E.text "Erreur")
