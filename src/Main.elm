@@ -395,8 +395,6 @@ pageWithSidePanel model { panel, page } =
             [ E.width (E.fillPortion 3)
             , E.height E.fill
             , E.clipY
-
-            -- , E.htmlAttribute <| Html.Attributes.style "pointer-events" "auto !important"
             ]
             page
         ]
@@ -513,32 +511,28 @@ navigationBar model =
 logoPanel : Model -> E.Element Msg
 logoPanel model =
     E.column [ E.width E.fill, E.height E.fill ]
-        [ E.el [ Ui.smallFont ] (E.text " ")
-        , E.row [ E.width E.fill, E.height E.shrink ]
-            [ E.el [ E.width E.fill, E.height E.fill ] E.none
-            , E.image [ E.width (E.fillPortion 2) ]
-                { src = "images/icon-512x512.png"
-                , description = "Pactole Logo"
+        [ E.el [ E.width E.fill, E.height <| E.fillPortion 1 ]
+            (E.row [ E.width E.fill, E.centerY ]
+                [ E.el [ E.width E.fill, E.height E.fill ] E.none
+                , E.image [ E.width (E.fillPortion 2) ]
+                    { src = "images/icon-512x512.png"
+                    , description = "Pactole Logo"
+                    }
+                , E.el [ E.width E.fill, E.height E.fill ] E.none
+                ]
+            )
+        , E.el [ E.width E.fill, E.height <| E.fillPortion 2 ]
+            (Input.button
+                [ E.centerX
+                , E.alignBottom
+                , Ui.smallerFont
+                , Font.color Color.neutral70
+                , E.padding 12
+                , E.mouseOver [ Font.color Color.neutral50 ]
+                , E.mouseDown [ Font.color Color.neutral20 ]
+                ]
+                { label = E.text ("version " ++ model.serviceVersion)
+                , onPress = Just (Msg.ChangePage Model.DiagnosticsPage)
                 }
-            , E.el [ E.width E.fill, E.height E.fill ] E.none
-            ]
-        , E.el
-            [ Ui.smallFont
-            , E.centerX
-            , Font.color Color.neutral50
-            , E.paddingEach { left = 0, top = 12, bottom = 0, right = 0 }
-            ]
-            (E.text ("version " ++ model.serviceVersion))
-        , Input.button
-            [ E.centerX
-            , E.alignBottom
-            , Ui.smallerFont
-            , Font.color Color.neutral70
-            , E.padding 12
-            , E.mouseOver [ Font.color Color.neutral50 ]
-            , E.mouseDown [ Font.color Color.neutral20 ]
-            ]
-            { label = E.text "system diagnostics"
-            , onPress = Just (Msg.ChangePage Model.DiagnosticsPage)
-            }
+            )
         ]
