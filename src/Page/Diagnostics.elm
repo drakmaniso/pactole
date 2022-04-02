@@ -27,9 +27,9 @@ viewContent model =
             , E.padding 3
             , E.scrollbarY
             ]
-            [ Ui.pageTitle (E.text "System Diagnostics")
+            [ Ui.pageTitle model.device (E.text "System Diagnostics")
             , E.textColumn
-                [ Ui.smallFont
+                [ Ui.smallFont model.device
                 , Font.family [ Font.monospace ]
                 , E.padding 24
                 , E.spacing 12

@@ -227,7 +227,7 @@ view model =
 viewDate : Model -> Model.Dialog -> E.Element Msg
 viewDate model _ =
     E.el [ E.width E.fill, E.paddingEach { left = 0, right = 0, top = 0, bottom = 12 } ]
-        (E.el [ E.centerX ] (Ui.viewDate model.date))
+        (E.el [ E.centerX ] (Ui.viewDate model.device model.date))
 
 
 viewAmount : Model -> Model.Dialog -> E.Element Msg
@@ -267,7 +267,7 @@ viewAmount model dialog =
         Ui.dialogSectionRow Color.neutral30
             titleText
             (E.el
-                [ Ui.bigFont
+                [ Ui.bigFont model.device
                 , Font.bold
                 , E.width (E.shrink |> E.minimum 220)
                 , E.alignLeft
@@ -292,7 +292,7 @@ viewAmount model dialog =
     else
         Ui.dialogSectionRow Color.neutral30
             titleText
-            (E.row [ E.width E.fill, E.padding 0, Font.color titleColor, Ui.normalFont, Font.bold ]
+            (E.row [ E.width E.fill, E.padding 0, Font.color titleColor, Font.bold ]
                 [ E.el
                     [ E.paddingEach { top = 12, bottom = 12, left = 0, right = 0 }
                     , E.width E.shrink
@@ -309,7 +309,7 @@ viewAmount model dialog =
                             E.text "+"
                         )
                     )
-                , Ui.moneyInput
+                , Ui.moneyInput model.device
                     { label = Input.labelHidden "Somme"
                     , color = titleColor
                     , state = dialog.amount
@@ -329,12 +329,12 @@ viewAmount model dialog =
 
 
 viewDescription : Model -> Model.Dialog -> E.Element Msg
-viewDescription _ dialog =
+viewDescription model dialog =
     if dialog.isRecurring then
         Ui.dialogSectionRow Color.neutral30
             "Description:"
             (E.el
-                [ Ui.bigFont
+                [ Ui.bigFont model.device
                 , Border.width 1
                 , Border.color Color.transparent
                 , Font.color Color.neutral40
@@ -346,8 +346,7 @@ viewDescription _ dialog =
         Ui.dialogSectionRow Color.neutral30
             "Description:"
             (Input.multiline
-                [ Ui.normalFont
-                , Border.width 4
+                [ Border.width 4
                 , Border.color Color.white
                 , Background.color Color.neutral98
                 , Ui.innerShadow

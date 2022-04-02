@@ -31,29 +31,30 @@ viewContent model =
         [ E.width E.fill
         , E.height E.fill
         , E.clipY
+        , E.padding 3
         ]
-        [ Ui.dateNavigationBar model Msg.SelectDate
+        [ Ui.dateNavigationBar model.device model Msg.SelectDate
         , viewReconciled model
         , viewTransactions model
         ]
 
 
 viewReconciled : Model -> E.Element msg
-viewReconciled shared =
+viewReconciled model =
     let
         prevMonth =
-            Date.getMonthName (Date.decrementMonth shared.date)
+            Date.getMonthName (Date.decrementMonth model.date)
     in
     E.column
         [ E.width E.fill, E.paddingXY 48 24, E.spacing 24, Font.color Color.neutral30 ]
         [ E.row
             [ E.width E.fill ]
             [ E.el [ E.width E.fill ] E.none
-            , E.el [ Ui.bigFont ] (E.text "Solde bancaire: ")
-            , Ui.viewSum (Ledger.getReconciled shared.ledger shared.account)
+            , E.el [ Ui.bigFont model.device ] (E.text "Solde bancaire: ")
+            , Ui.viewSum model.device (Ledger.getReconciled model.ledger model.account)
             , E.el [ E.width E.fill ] E.none
             ]
-        , if Ledger.getNotReconciledBeforeMonth shared.ledger shared.account shared.date then
+        , if Ledger.getNotReconciledBeforeMonth model.ledger model.account model.date then
             E.el
                 [ E.width E.fill, Font.center ]
                 (E.paragraph []
@@ -68,7 +69,7 @@ viewReconciled shared =
 
 
 viewTransactions : Model -> E.Element Msg
-viewTransactions shared =
+viewTransactions model =
     E.column
         [ E.padding 0
         , E.spacing 0
@@ -90,11 +91,11 @@ viewTransactions shared =
                     ]
                     [ colDate transaction
                     , colReconciled transaction
-                    , colAmount transaction shared.today
+                    , colAmount model transaction model.today
                     , colDescription transaction
                     ]
             )
-            (Ledger.getTransactionsForMonth shared.ledger shared.account shared.date shared.today)
+            (Ledger.getTransactionsForMonth model.ledger model.account model.date model.today)
         )
 
 
@@ -116,15 +117,15 @@ colDate transaction =
         (E.text (Date.toShortString transaction.date))
 
 
-colAmount : { a | date : Date, amount : Money.Money } -> Date -> E.Element msg
-colAmount transaction today =
+colAmount : Model -> { a | date : Date, amount : Money.Money } -> Date -> E.Element msg
+colAmount model transaction today =
     let
         future =
             Date.compare transaction.date today == GT
     in
     E.el
         [ E.width (E.fillPortion 2) ]
-        (Ui.viewMoney transaction.amount future)
+        (Ui.viewMoney model.device transaction.amount future)
 
 
 colDescription : { a | description : String } -> E.Element msg

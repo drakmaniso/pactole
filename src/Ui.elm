@@ -8,14 +8,15 @@ module Ui exposing
     , borderWidth
     , checkBox
     , checkIcon
+    , classifyDevice
     , closeIcon
     , configCustom
     , configRadio
     , dangerButton
     , dateNavigationBar
+    , defaultFontSize
     , defaultShadow
     , deleteIcon
-    , device
     , dialogSection
     , dialogSectionRow
     , editIcon
@@ -39,7 +40,6 @@ module Ui exposing
     , mainButton
     , minusIcon
     , moneyInput
-    , normalFont
     , notSelectable
     , onEnter
     , pageTitle
@@ -94,8 +94,8 @@ type alias Device =
     }
 
 
-device : Int -> Int -> Device
-device width height =
+classifyDevice : Int -> Int -> Device
+classifyDevice width height =
     { width = width, height = height, class = E.classifyDevice { width = width, height = height } }
 
 
@@ -179,29 +179,53 @@ fontFamily =
         ]
 
 
-biggestFont : E.Attr decorative msg
-biggestFont =
-    Font.size 48
+firstBreakPoint =
+    1280
 
 
-bigFont : E.Attr decorative msg
-bigFont =
-    Font.size 32
+biggestFont : Device -> E.Attr decorative msg
+biggestFont device =
+    if device.width > firstBreakPoint then
+        Font.size 48
+
+    else
+        Font.size 32
 
 
-normalFont : E.Attr decorative msg
-normalFont =
-    Font.size 26
+bigFont : Device -> E.Attr decorative msg
+bigFont device =
+    if device.width > firstBreakPoint then
+        Font.size 32
+
+    else
+        Font.size 26
 
 
-smallFont : E.Attr decorative msg
-smallFont =
-    Font.size 20
+defaultFontSize : Device -> E.Attr decorative msg
+defaultFontSize device =
+    if device.width > firstBreakPoint then
+        Font.size 26
+
+    else
+        Font.size 22
 
 
-smallerFont : E.Attr decorative msg
-smallerFont =
-    Font.size 14
+smallFont : Device -> E.Attr decorative msg
+smallFont device =
+    if device.width > firstBreakPoint then
+        Font.size 20
+
+    else
+        Font.size 16
+
+
+smallerFont : Device -> E.Attr decorative msg
+smallerFont device =
+    if device.width > firstBreakPoint then
+        Font.size 14
+
+    else
+        Font.size 12
 
 
 iconFont : E.Attribute msg
@@ -215,55 +239,55 @@ iconFont =
 
 closeIcon : E.Element msg
 closeIcon =
-    E.el [ iconFont, normalFont, E.centerX ]
+    E.el [ iconFont, E.centerX ]
         (E.text "\u{F00D}")
 
 
 backIcon : E.Element msg
 backIcon =
-    E.el [ iconFont, normalFont ]
+    E.el [ iconFont ]
         (E.text "\u{F30A}")
 
 
 editIcon : E.Element msg
 editIcon =
-    E.el [ iconFont, normalFont, E.centerX ]
+    E.el [ iconFont, E.centerX ]
         (E.text "\u{F044}")
 
 
 deleteIcon : E.Element msg
 deleteIcon =
-    E.el [ iconFont, normalFont, E.centerX ]
+    E.el [ iconFont, E.centerX ]
         (E.text "\u{F2ED}")
 
 
 minusIcon : E.Element msg
 minusIcon =
-    E.el [ iconFont, normalFont, E.centerX ]
+    E.el [ iconFont, E.centerX ]
         (E.text "\u{F068}")
 
 
 plusIcon : E.Element msg
 plusIcon =
-    E.el [ iconFont, normalFont, E.centerX ]
+    E.el [ iconFont, E.centerX ]
         (E.text "\u{F067}")
 
 
 checkIcon : E.Element msg
 checkIcon =
-    E.el [ iconFont, normalFont, E.centerX ]
+    E.el [ iconFont, E.centerX ]
         (E.text "\u{F00C}")
 
 
 warningIcon : E.Element msg
 warningIcon =
-    E.el [ iconFont, bigFont, E.centerX, E.paddingXY 24 0, Font.color Color.warning60 ]
+    E.el [ iconFont, E.centerX, E.paddingXY 24 0, Font.color Color.warning60 ]
         (E.text "\u{F071}")
 
 
 errorIcon : E.Element msg
 errorIcon =
-    E.el [ iconFont, normalFont, E.centerX, E.paddingXY 24 0, Font.color Color.white ]
+    E.el [ iconFont, E.centerX, E.paddingXY 24 0, Font.color Color.white ]
         (E.text "\u{F071}")
 
 
@@ -276,25 +300,25 @@ bigWarningIcon =
 
 incomeIcon : E.Element msg
 incomeIcon =
-    E.el [ iconFont, normalFont, E.centerX, Font.color Color.income40 ]
+    E.el [ iconFont, E.centerX, Font.color Color.income40 ]
         (E.text "\u{F067}")
 
 
 expenseIcon : E.Element msg
 expenseIcon =
-    E.el [ iconFont, normalFont, E.centerX, Font.color Color.expense40 ]
+    E.el [ iconFont, E.centerX, Font.color Color.expense40 ]
         (E.text "\u{F068}")
 
 
 saveIcon : E.Element msg
 saveIcon =
-    E.el [ iconFont, normalFont, E.centerX ]
+    E.el [ iconFont, E.centerX ]
         (E.text "\u{F0C7}")
 
 
 loadIcon : E.Element msg
 loadIcon =
-    E.el [ iconFont, normalFont, E.centerX ]
+    E.el [ iconFont, E.centerX ]
         (E.text "\u{F2EA}")
 
 
@@ -401,8 +425,8 @@ configCustom { label, content } =
 -- ELEMENTS
 
 
-pageTitle : E.Element msg -> E.Element msg
-pageTitle element =
+pageTitle : Device -> E.Element msg -> E.Element msg
+pageTitle device element =
     E.row
         [ E.width <| E.maximum pageTitleWidth <| E.fill
         , E.centerX
@@ -410,7 +434,7 @@ pageTitle element =
         ]
         [ E.el [ E.width (E.fill |> E.maximum 64) ] E.none
         , E.el
-            [ bigFont
+            [ bigFont device
             , Font.center
             , Font.bold
             , E.paddingEach { top = 4, bottom = 8, left = 12, right = 12 }
@@ -432,7 +456,6 @@ dialogSectionRow titleColor titleText content =
     E.row [ E.width E.fill, E.spacing 24 ]
         [ E.el
             [ Font.color titleColor
-            , normalFont
             , Font.bold
             , E.padding 0
             , notSelectable
@@ -448,7 +471,6 @@ dialogSection titleColor titleText content =
         [ E.el
             [ E.width E.fill
             , Font.color titleColor
-            , normalFont
             , Font.bold
             , E.padding 0
             , notSelectable
@@ -471,8 +493,7 @@ ruler =
 warningParagraph : List (E.Element msg) -> E.Element msg
 warningParagraph elements =
     E.row
-        [ normalFont
-        , Font.color Color.neutral20
+        [ Font.color Color.neutral20
         , E.centerY
         , E.spacing 12
         , E.width E.fill
@@ -483,8 +504,8 @@ warningParagraph elements =
         ]
 
 
-warningPopup : List (E.Element msg) -> E.Element msg
-warningPopup elements =
+warningPopup : Device -> List (E.Element msg) -> E.Element msg
+warningPopup device elements =
     E.el
         [ E.padding 18
         , E.centerX
@@ -508,7 +529,7 @@ warningPopup elements =
                     [ E.centerX
                     , E.alignBottom
                     , iconFont
-                    , biggestFont
+                    , biggestFont device
                     , Font.color Color.focus85
                     , notSelectable
                     , E.htmlAttribute <| Html.Attributes.style "transform" "translate(0, 18px)"
@@ -517,15 +538,14 @@ warningPopup elements =
                     E.text "\u{F0D8}"
             , E.width <| E.px 380
             , Font.center
-            , normalFont
             , Font.regular
             , notSelectable
             ]
             elements
 
 
-dateNavigationBar : { a | date : Date, today : Date } -> (Date -> msg) -> E.Element msg
-dateNavigationBar model changeMsg =
+dateNavigationBar : Device -> { a | date : Date, today : Date } -> (Date -> msg) -> E.Element msg
+dateNavigationBar device model changeMsg =
     E.row
         [ E.width E.fill
         , E.paddingEach { top = 3, bottom = 8, left = 8, right = 8 }
@@ -560,9 +580,9 @@ dateNavigationBar model changeMsg =
                         { label =
                             E.row
                                 [ E.width E.fill ]
-                                [ E.el [ normalFont, E.centerX ]
+                                [ E.el [ E.centerX ]
                                     (E.text (Date.getMonthName (Date.decrementMonth model.date)))
-                                , E.el [ E.centerX, iconFont, normalFont ] (E.text "  \u{F060}  ")
+                                , E.el [ E.centerX, iconFont ] (E.text "  \u{F060}  ")
                                 ]
                         , onPress = Just (changeMsg (Date.decrementMonthUI model.date model.today))
                         }
@@ -577,7 +597,7 @@ dateNavigationBar model changeMsg =
                     (E.el
                         [ E.centerX
                         , Font.bold
-                        , bigFont
+                        , bigFont device
                         , Font.color Color.neutral30
                         , E.padding 6
                         ]
@@ -606,8 +626,8 @@ dateNavigationBar model changeMsg =
                         { label =
                             E.row
                                 [ E.width E.fill ]
-                                [ E.el [ E.centerX, iconFont, normalFont ] (E.text "  \u{F061}  ")
-                                , E.el [ normalFont, E.centerX ]
+                                [ E.el [ E.centerX, iconFont ] (E.text "  \u{F061}  ")
+                                , E.el [ E.centerX ]
                                     (E.text (Date.getMonthName (Date.incrementMonth model.date)))
                                 ]
                         , onPress = Just (changeMsg (Date.incrementMonthUI model.date model.today))
@@ -619,12 +639,12 @@ dateNavigationBar model changeMsg =
         ]
 
 
-viewDate : Date -> E.Element msg
-viewDate date =
+viewDate : Device -> Date -> E.Element msg
+viewDate device date =
     E.paragraph
         [ E.width E.fill
         , Font.bold
-        , bigFont
+        , bigFont device
         , E.paddingEach { top = 0, bottom = 12, right = 0, left = 0 }
         , Font.color Color.neutral30
         , Font.center
@@ -639,8 +659,8 @@ viewDate date =
         ]
 
 
-viewMoney : Money.Money -> Bool -> E.Element msg
-viewMoney money future =
+viewMoney : Device -> Money.Money -> Bool -> E.Element msg
+viewMoney device money future =
     let
         openpar =
             if future then
@@ -685,14 +705,14 @@ viewMoney money future =
                 Font.color Color.income40
             ]
             (if isZero then
-                [ E.el [ E.width (E.fillPortion 75), normalFont, Font.alignRight ] (E.text "—")
+                [ E.el [ E.width (E.fillPortion 75), defaultFontSize device, Font.alignRight ] (E.text "—")
                 , E.el [ E.width (E.fillPortion 25) ] E.none
                 ]
 
              else
                 [ E.el
                     [ E.width (E.fillPortion 75)
-                    , normalFont
+                    , defaultFontSize device
                     , Font.bold
                     , Font.alignRight
                     ]
@@ -701,12 +721,12 @@ viewMoney money future =
                     [ E.width (E.fillPortion 25) ]
                     [ E.el
                         [ Font.bold
-                        , smallFont
+                        , smallFont device
                         , Font.alignLeft
                         ]
                         (E.text ("" ++ parts.cents))
                     , E.el
-                        [ normalFont
+                        [ defaultFontSize device
                         , Font.bold
                         , Font.alignRight
                         ]
@@ -717,8 +737,8 @@ viewMoney money future =
         ]
 
 
-viewSum : Money.Money -> E.Element msg
-viewSum money =
+viewSum : Device -> Money.Money -> E.Element msg
+viewSum device money =
     let
         parts =
             Money.toStrings money
@@ -730,14 +750,14 @@ viewSum money =
         ]
         [ E.el
             [ E.width (E.fillPortion 75)
-            , bigFont
+            , bigFont device
             , Font.alignRight
             , Font.bold
             ]
             (E.text (parts.sign ++ parts.units))
         , E.el
             [ E.width (E.fillPortion 25)
-            , normalFont
+            , defaultFontSize device
             , Font.alignLeft
             , E.alignBottom
             , E.paddingXY 0 1
@@ -757,7 +777,6 @@ simpleButton :
 simpleButton { onPress, label } =
     Input.button
         [ Background.color Color.neutral95
-        , normalFont
         , Font.color Color.neutral30
         , Font.center
         , roundCorners
@@ -782,7 +801,6 @@ mainButton :
 mainButton { onPress, label } =
     Input.button
         [ Background.color Color.primary40
-        , normalFont
         , Font.color Color.white
         , Font.center
         , roundCorners
@@ -806,7 +824,6 @@ dangerButton :
 dangerButton { onPress, label } =
     Input.button
         [ Background.color Color.warning60
-        , normalFont
         , Font.color Color.white
         , Font.center
         , roundCorners
@@ -831,7 +848,6 @@ incomeButton { onPress, label } =
     Input.button
         [ E.width (E.fillPortion 2)
         , Background.color Color.income90
-        , normalFont
         , Font.center
         , roundCorners
         , Border.width 4
@@ -856,7 +872,6 @@ expenseButton { onPress, label } =
     Input.button
         [ E.width (E.fillPortion 2)
         , Background.color Color.expense90
-        , normalFont
         , Font.center
         , roundCorners
         , Border.width 4
@@ -880,7 +895,6 @@ iconButton :
 iconButton { onPress, icon } =
     Input.button
         [ Background.color Color.white
-        , normalFont
         , Font.color Color.primary40
         , Font.center
         , roundCorners
@@ -903,8 +917,7 @@ checkBox :
     -> E.Element msg
 checkBox { state, onPress } =
     Input.button
-        [ normalFont
-        , Font.color Color.primary40
+        [ Font.color Color.primary40
         , Font.center
         , E.width (E.px 48)
         , E.height (E.px 48)
@@ -932,8 +945,7 @@ checkBox { state, onPress } =
 radioButton : { a | onPress : Maybe msg, icon : String, label : String, active : Bool } -> E.Element msg
 radioButton { onPress, icon, label, active } =
     Input.button
-        ([ normalFont
-         , Border.rounded 4
+        ([ Border.rounded 4
          , E.paddingXY 20 4
          , Border.width 4
          , Border.color Color.transparent
@@ -1001,13 +1013,15 @@ textInput args =
 
 
 moneyInput :
-    { label : Input.Label msg
-    , color : E.Color
-    , state : ( String, Maybe String )
-    , onChange : String -> msg
-    }
+    Device
+    ->
+        { label : Input.Label msg
+        , color : E.Color
+        , state : ( String, Maybe String )
+        , onChange : String -> msg
+        }
     -> E.Element msg
-moneyInput args =
+moneyInput device args =
     Input.text
         [ E.paddingXY 8 12
         , E.width (E.shrink |> E.minimum 220)
@@ -1025,7 +1039,7 @@ moneyInput args =
         , case Tuple.second args.state of
             Just error ->
                 E.below <|
-                    warningPopup
+                    warningPopup device
                         [ E.text error ]
 
             _ ->
@@ -1101,8 +1115,7 @@ helpNumberedList listItems =
 helpListItem : List (E.Element msg) -> E.Element msg
 helpListItem texts =
     E.paragraph
-        [ normalFont
-        , Font.color Color.neutral30
+        [ Font.color Color.neutral30
         , E.padding 0
         ]
         texts
@@ -1162,10 +1175,10 @@ pageTitleWidth =
     1200
 
 
-title : String -> E.Element msg
-title txt =
+title : Device -> String -> E.Element msg
+title device txt =
     E.paragraph
-        [ bigFont
+        [ bigFont device
         , Font.bold
         , Font.color Color.neutral30
         ]
@@ -1188,8 +1201,7 @@ paragraph txt =
 paragraphParts : List (E.Element msg) -> E.Element msg
 paragraphParts parts =
     E.paragraph
-        [ normalFont
-        , Font.color Color.neutral30
+        [ Font.color Color.neutral30
         ]
         parts
 
