@@ -347,7 +347,13 @@ document model activeDialog activePage =
 
 warningBanner : String -> E.Element Msg
 warningBanner txt =
-    E.row [ E.width E.fill, E.padding 6, Background.color Color.warning60 ]
+    E.row
+        [ E.width E.fill
+        , E.padding 6
+        , Background.color Color.warning60
+        , E.htmlAttribute <| Html.Attributes.style "z-index" "3"
+        , Ui.defaultShadow
+        ]
         [ E.el [ E.width E.fill ] E.none
         , E.el
             [ Font.color Color.white
@@ -365,12 +371,22 @@ pageWithSidePanel model { panel, page } =
     E.row
         [ E.width E.fill
         , E.height E.fill
-        , E.spacing 12
+        , E.spacing 3
         ]
         [ E.column
             [ E.width (E.fillPortion 1)
             , E.height E.fill
-            , E.htmlAttribute <| Html.Attributes.style "box-shadow" "3px 0px 12px #0002, 3px 0px 9px #0002, 2px 0px 6px #0004"
+            , E.htmlAttribute <|
+                Html.Attributes.style "box-shadow"
+                    """
+                            0px 0px 32px 64px rgba(0, 0, 0, 0.02),
+                            0px 0px 16px 32px rgba(0, 0, 0, 0.02),
+                            0px 0px 8px 16px rgba(0, 0, 0, 0.02),
+                            0px 0px 4px 8px rgba(0, 0, 0, 0.04),
+                            0px 0px 2px 4px rgba(0, 0, 0, 0.08),
+                            0px 0px 1px 2px rgba(0, 0, 0, 0.08)
+                            """
+            , E.htmlAttribute <| Html.Attributes.style "z-index" "2"
             ]
             [ navigationBar model
             , panel
@@ -379,6 +395,8 @@ pageWithSidePanel model { panel, page } =
             [ E.width (E.fillPortion 3)
             , E.height E.fill
             , E.clipY
+
+            -- , E.htmlAttribute <| Html.Attributes.style "pointer-events" "auto !important"
             ]
             page
         ]

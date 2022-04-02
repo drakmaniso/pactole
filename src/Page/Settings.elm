@@ -297,7 +297,7 @@ viewContent model =
             , E.column
                 [ E.width E.fill
                 , E.height E.fill
-                , E.paddingXY 0 0
+                , E.padding 3
                 , E.scrollbarY
                 ]
                 [ Ui.pageTitle (E.text "Configuration")

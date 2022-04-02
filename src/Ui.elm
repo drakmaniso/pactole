@@ -56,9 +56,7 @@ module Ui exposing
     , saveIcon
     , simpleButton
     , smallFont
-    , smallShadow
     , smallerFont
-    , smallerShadow
     , text
     , textColumn
     , textInput
@@ -137,19 +135,36 @@ transition =
     E.htmlAttribute (Html.Attributes.style "transition" "background 0.1s, color 0.1s, box-shadow 0.1s, border-color 0.1s")
 
 
-defaultShadow : E.Attr decorative msg
+defaultShadow : E.Attribute msg
 defaultShadow =
-    Border.shadow { offset = ( 0, 5 ), size = 0, blur = 8, color = E.rgba 0 0 0 0.5 }
+    -- Border.shadow { offset = ( 0, 5 ), size = 0, blur = 8, color = E.rgba 0 0 0 0.5 }
+    {- E.htmlAttribute <|
+       Html.Attributes.style "box-shadow"
+           """
+           32px 64px 32px 0px rgba(0, 0, 0, 0.01),
+           16px 32px 16px 0px rgba(0, 0, 0, 0.02),
+           8px 16px 8px 0px rgba(0, 0, 0, 0.04),
+           4px 8px 4px 0px rgba(0, 0, 0, 0.08),
+           2px 4px 2px 0px rgba(0, 0, 0, 0.08),
+           1px 2px 1px 0px rgba(0, 0, 0, 0.08),
+           0px 1px 1px 0px rgba(0, 0, 0, 0.16)
+           """
+    -}
+    E.htmlAttribute <| Html.Attributes.class "button-shadow"
 
 
-smallShadow : E.Attr decorative msg
+smallShadow : E.Attribute msg
 smallShadow =
-    Border.shadow { offset = ( 0, 2 ), size = 0, blur = 6, color = E.rgba 0 0 0 0.5 }
-
-
-smallerShadow : E.Attr decorative msg
-smallerShadow =
-    Border.shadow { offset = ( 0, 3 ), size = 0, blur = 3, color = E.rgba 0 0 0 0.3 }
+    -- Border.shadow { offset = ( 0, 2 ), size = 0, blur = 6, color = E.rgba 0 0 0 0.5 }
+    E.htmlAttribute <|
+        Html.Attributes.style "box-shadow"
+            """
+            8px 16px 8px 0px rgba(0, 0, 0, 0.01),
+            4px 8px 4px 0px rgba(0, 0, 0, 0.02),
+            2px 4px 2px 0px rgba(0, 0, 0, 0.04),
+            1px 2px 1px 0px rgba(0, 0, 0, 0.08),
+            0px 1px 1px 0px rgba(0, 0, 0, 0.16)
+            """
 
 
 innerShadow : E.Attr decorative msg
@@ -164,10 +179,12 @@ bigInnerShadow =
 
 mouseDown : List (E.Attr Never Never) -> E.Attribute msg
 mouseDown attr =
-    E.mouseDown
-        (Border.shadow { offset = ( 0, 1 ), size = 0, blur = 3, color = E.rgba 0 0 0 0.4 }
-            :: attr
-        )
+    -- E.mouseDown
+    --     (Border.shadow { offset = ( 0, 1 ), size = 0, blur = 3, color = E.rgba 0 0 0 0.4 }
+    --         :: attr
+    --     )
+    -- E.htmlAttribute <| Html.Attributes.class "mousedown-shadow"
+    E.mouseDown attr
 
 
 mouseOver : List E.Decoration -> E.Attribute msg
@@ -426,9 +443,9 @@ pageTitle element =
             , E.centerY
             , Background.color Color.neutral95
             , Border.roundEach { topLeft = 32, bottomLeft = 32, topRight = 32, bottomRight = 32 }
-            , smallerShadow
             , Font.color Color.neutral40
             , Font.center
+            , smallShadow
             ]
             element
         , E.el [ E.width (E.fill |> E.maximum 64) ] E.none
@@ -510,7 +527,6 @@ warningPopup elements =
             , E.paddingEach { left = 24, right = 24, top = 12, bottom = 12 }
             , E.spacing 6
             , Border.rounded 6
-            , smallerShadow
             , E.spacing 12
             , E.above <|
                 E.el
@@ -546,7 +562,7 @@ dateNavigationBar model changeMsg =
             , E.alignTop
             , Background.color Color.neutral95
             , Border.roundEach { topLeft = 32, bottomLeft = 32, topRight = 32, bottomRight = 32 }
-            , smallerShadow
+            , smallShadow
             ]
             [ ( "previous month button"
               , E.el

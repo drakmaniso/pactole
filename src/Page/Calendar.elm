@@ -84,7 +84,7 @@ viewContent model =
     E.column
         [ E.width E.fill
         , E.height E.fill
-        , E.padding 0
+        , E.padding 3
         ]
         (calendarHeader model
             :: loopThroughMonth (findMonday (findTheFirst model.date))
