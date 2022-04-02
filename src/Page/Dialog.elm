@@ -349,7 +349,7 @@ viewDescription _ dialog =
                 [ Ui.normalFont
                 , Border.width 4
                 , Border.color Color.white
-                , Background.color Color.neutral95
+                , Background.color Color.neutral98
                 , Ui.innerShadow
                 , E.focused
                     [ Border.color Color.focus85

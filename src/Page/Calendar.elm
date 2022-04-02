@@ -311,17 +311,26 @@ dayView model =
             , Ui.bigFont
             , Ui.notSelectable
             ]
-            [ if model.date == model.today then
-                E.el [ E.width E.fill, Ui.normalFont, Font.color Color.neutral50 ] (E.text "— Aujourd'hui —")
+            [ E.el [ E.width E.fill, Ui.normalFont, Font.color Color.neutral50 ]
+                (E.text <|
+                    if model.date == model.today then
+                        "— Aujourd'hui —"
 
-              else if dayDiff == 1 then
-                E.el [ E.width E.fill, Ui.normalFont, Font.color Color.neutral50 ] (E.text "— demain —")
+                    else if dayDiff == 1 then
+                        "— demain —"
 
-              else if dayDiff > 1 then
-                E.el [ E.width E.fill, Ui.normalFont, Font.color Color.neutral50 ] (E.text ("— dans " ++ String.fromInt dayDiff ++ " jours —"))
+                    else if dayDiff == -1 then
+                        "— hier —"
 
-              else
-                E.none
+                    else if dayDiff > 1 then
+                        "— dans " ++ String.fromInt dayDiff ++ " jours —"
+
+                    else if dayDiff < -1 then
+                        "— il y a " ++ String.fromInt -dayDiff ++ " jours —"
+
+                    else
+                        ""
+                )
             , Ui.viewDate model.date
             ]
         , E.column

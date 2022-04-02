@@ -2,7 +2,6 @@ module Ui exposing
     ( Device
     , backIcon
     , bigFont
-    , bigInnerShadow
     , bigWarningIcon
     , biggestFont
     , boldText
@@ -40,8 +39,6 @@ module Ui exposing
     , mainButton
     , minusIcon
     , moneyInput
-    , mouseDown
-    , mouseOver
     , normalFont
     , notSelectable
     , onEnter
@@ -137,7 +134,6 @@ transition =
 
 defaultShadow : E.Attribute msg
 defaultShadow =
-    -- Border.shadow { offset = ( 0, 5 ), size = 0, blur = 8, color = E.rgba 0 0 0 0.5 }
     {- E.htmlAttribute <|
        Html.Attributes.style "box-shadow"
            """
@@ -155,7 +151,6 @@ defaultShadow =
 
 smallShadow : E.Attribute msg
 smallShadow =
-    -- Border.shadow { offset = ( 0, 2 ), size = 0, blur = 6, color = E.rgba 0 0 0 0.5 }
     E.htmlAttribute <|
         Html.Attributes.style "box-shadow"
             """
@@ -167,29 +162,9 @@ smallShadow =
             """
 
 
-innerShadow : E.Attr decorative msg
+innerShadow : E.Attribute msg
 innerShadow =
     Border.innerShadow { offset = ( 0, 1 ), size = 0, blur = 4, color = E.rgba 0 0 0 0.5 }
-
-
-bigInnerShadow : E.Attr decorative msg
-bigInnerShadow =
-    Border.innerShadow { offset = ( 0, 1 ), size = 0, blur = 6, color = E.rgba 0 0 0 0.7 }
-
-
-mouseDown : List (E.Attr Never Never) -> E.Attribute msg
-mouseDown attr =
-    -- E.mouseDown
-    --     (Border.shadow { offset = ( 0, 1 ), size = 0, blur = 3, color = E.rgba 0 0 0 0.4 }
-    --         :: attr
-    --     )
-    -- E.htmlAttribute <| Html.Attributes.class "mousedown-shadow"
-    E.mouseDown attr
-
-
-mouseOver : List E.Decoration -> E.Attribute msg
-mouseOver attr =
-    E.mouseOver attr
 
 
 
@@ -394,8 +369,8 @@ radioRowOption value element =
                                 [ Font.color (E.rgb 1 1 1)
                                 , Background.color Color.primary40
                                 , smallShadow
-                                , mouseDown [ Background.color Color.primary30 ]
-                                , mouseOver [ Background.color Color.primary40 ]
+                                , E.mouseDown [ Background.color Color.primary30 ]
+                                , E.mouseOver [ Background.color Color.primary40 ]
                                 ]
                        )
                 )
@@ -792,8 +767,8 @@ simpleButton { onPress, label } =
         , defaultShadow
         , transition
         , E.paddingXY 20 4
-        , mouseDown [ Background.color Color.neutral90 ]
-        , mouseOver [ Background.color Color.white ]
+        , E.mouseDown [ Background.color Color.neutral90 ]
+        , E.mouseOver [ Background.color Color.white ]
         , E.htmlAttribute <| Html.Attributes.class "focus-visible-only"
         ]
         { onPress = onPress
@@ -817,8 +792,8 @@ mainButton { onPress, label } =
         , defaultShadow
         , transition
         , E.paddingXY 20 4
-        , mouseDown [ Background.color Color.primary30, Border.color Color.primary30 ]
-        , mouseOver [ Background.color Color.primary50, Border.color Color.primary50 ]
+        , E.mouseDown [ Background.color Color.primary30, Border.color Color.primary30 ]
+        , E.mouseOver [ Background.color Color.primary50, Border.color Color.primary50 ]
         ]
         { onPress = onPress
         , label = label
@@ -841,8 +816,8 @@ dangerButton { onPress, label } =
         , defaultShadow
         , transition
         , E.paddingXY 20 4
-        , mouseDown [ Background.color Color.warning50, Border.color Color.warning50 ]
-        , mouseOver [ Background.color Color.warning70, Border.color Color.warning70 ]
+        , E.mouseDown [ Background.color Color.warning50, Border.color Color.warning50 ]
+        , E.mouseOver [ Background.color Color.warning70, Border.color Color.warning70 ]
         ]
         { onPress = onPress
         , label = label
@@ -865,8 +840,8 @@ incomeButton { onPress, label } =
         , defaultShadow
         , transition
         , E.paddingXY 20 4
-        , mouseDown [ Background.color Color.income80, Border.color Color.income80 ]
-        , mouseOver [ Background.color Color.income95, Border.color Color.income95 ]
+        , E.mouseDown [ Background.color Color.income80, Border.color Color.income80 ]
+        , E.mouseOver [ Background.color Color.income95, Border.color Color.income95 ]
         , E.htmlAttribute <| Html.Attributes.class "focus-visible-only"
         ]
         { onPress = onPress
@@ -890,8 +865,8 @@ expenseButton { onPress, label } =
         , defaultShadow
         , transition
         , E.paddingXY 20 4
-        , mouseDown [ Background.color Color.expense80, Border.color Color.expense80 ]
-        , mouseOver [ Background.color Color.expense95, Border.color Color.expense95 ]
+        , E.mouseDown [ Background.color Color.expense80, Border.color Color.expense80 ]
+        , E.mouseOver [ Background.color Color.expense95, Border.color Color.expense95 ]
         , focusVisibleOnly
         ]
         { onPress = onPress
@@ -942,7 +917,7 @@ checkBox { state, onPress } =
         , innerShadow
         , transition
         , E.mouseDown [ Background.color Color.neutral90 ]
-        , E.mouseOver [ bigInnerShadow ]
+        , E.mouseOver []
         ]
         { onPress = onPress
         , label =
@@ -969,8 +944,8 @@ radioButton { onPress, icon, label, active } =
                     [ Font.color Color.white
                     , Background.color Color.primary40
                     , smallShadow
-                    , mouseDown [ Background.color Color.primary30 ]
-                    , mouseOver [ Background.color Color.primary40 ]
+                    , E.mouseDown [ Background.color Color.primary30 ]
+                    , E.mouseOver [ Background.color Color.primary40 ]
                     ]
 
                 else
@@ -1010,7 +985,7 @@ textInput args =
         [ E.width <| E.fill
         , Border.width 4
         , Border.color Color.white
-        , Background.color Color.neutral95
+        , Background.color Color.neutral98
         , innerShadow
         , E.focused
             [ Border.color Color.focus85
@@ -1039,7 +1014,7 @@ moneyInput args =
         , E.alignLeft
         , Border.width 4
         , Border.color Color.white
-        , Background.color Color.neutral95
+        , Background.color Color.neutral98
         , innerShadow
         , E.focused
             [ Border.color Color.focus85
