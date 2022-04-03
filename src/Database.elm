@@ -92,6 +92,10 @@ createAccount name =
 
 proceedWithInstallation : Model -> { firstAccount : String, initialBalance : Money, date : Date } -> Cmd msg
 proceedWithInstallation model data =
+    let
+        defaultSettings =
+            Model.defaultSettings
+    in
     Ports.send
         ( "broadcast import database"
         , Encode.object
@@ -147,13 +151,7 @@ proceedWithInstallation model data =
                     ]
               )
             , ( "settings"
-              , Model.encodeSettings
-                    { categoriesEnabled = False
-                    , reconciliationEnabled = False
-                    , summaryEnabled = False
-                    , balanceWarning = 100
-                    , settingsLocked = model.settings.settingsLocked
-                    }
+              , Model.encodeSettings { defaultSettings | settingsLocked = model.settings.settingsLocked }
               )
             ]
         )

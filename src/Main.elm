@@ -101,13 +101,7 @@ init flags _ _ =
         isStoragePersisted =
             Decode.decodeValue (Decode.at [ "isStoragePersisted" ] Decode.bool) flags |> Result.withDefault False
     in
-    ( { settings =
-            { categoriesEnabled = False
-            , reconciliationEnabled = False
-            , summaryEnabled = False
-            , balanceWarning = 100
-            , settingsLocked = False
-            }
+    ( { settings = Model.defaultSettings
       , today = today
       , isStoragePersisted = isStoragePersisted
       , date = today
@@ -291,7 +285,7 @@ document model activeDialog activePage =
                         (E.el
                             [ E.width E.fill
                             , E.height E.fill
-                            , Ui.fontFamily
+                            , Ui.fontFamily model.settings.font
                             , Ui.defaultFontSize model.device
                             , Font.color Color.neutral30
                             , E.padding 0
@@ -321,7 +315,7 @@ document model activeDialog activePage =
             (E.column
                 [ E.width E.fill
                 , E.height E.fill
-                , Ui.fontFamily
+                , Ui.fontFamily model.settings.font
                 , Ui.defaultFontSize model.device
                 , Font.color Color.neutral30
                 , Background.color Color.white
@@ -448,7 +442,7 @@ navigationBar model =
     in
     E.el
         [ E.width E.fill
-        , Ui.fontFamily
+        , Ui.fontFamily model.settings.font
         ]
         (E.row
             [ E.width E.fill

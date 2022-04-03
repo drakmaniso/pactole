@@ -320,6 +320,7 @@ viewContent model =
                     , configRecurring model
                     , Ui.verticalSpacer
                     , configLocked model
+                    , configFont model
                     ]
                 ]
             )
@@ -656,6 +657,30 @@ configLocked model =
             le lien présent dans la page d'aide de l'application.
             """
         , Ui.verticalSpacer
+        ]
+
+
+configFont : Model -> E.Element Msg
+configFont model =
+    E.column
+        [ E.width E.fill, E.spacing 24 ]
+        [ Ui.title model.device "Police"
+        , Ui.configRadio
+            { onChange =
+                \newFont ->
+                    let
+                        settings =
+                            model.settings
+                    in
+                    Msg.ForDatabase <| Msg.DbStoreSettings { settings | font = newFont }
+            , label = "Police de caractères:"
+            , options =
+                [ Ui.radioRowOption "Work Sans" (E.text "Work Sans")
+                , Ui.radioRowOption "System UI" (E.text "Système")
+                , Ui.radioRowOption "OpenDyslexic3" (E.text "OpenDyslexic3")
+                ]
+            , selected = Just model.settings.font
+            }
         ]
 
 

@@ -171,10 +171,12 @@ innerShadow =
 -- FONTS
 
 
-fontFamily : E.Attribute msg
-fontFamily =
+fontFamily : String -> E.Attribute msg
+fontFamily font =
     Font.family
-        [ Font.typeface "Work Sans"
+        [ Font.typeface font
+        , Font.typeface "Work Sans"
+        , Font.typeface "System UI"
         , Font.sansSerif
         ]
 

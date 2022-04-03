@@ -11,6 +11,7 @@ module Model exposing
     , decodeAccount
     , decodeCategory
     , decodeSettings
+    , defaultSettings
     , encodeAccounts
     , encodeCategories
     , encodeSettings
@@ -144,6 +145,18 @@ type alias Settings =
     , summaryEnabled : Bool
     , balanceWarning : Int
     , settingsLocked : Bool
+    , font : String
+    }
+
+
+defaultSettings : Settings
+defaultSettings =
+    { categoriesEnabled = False
+    , reconciliationEnabled = False
+    , summaryEnabled = False
+    , balanceWarning = 100
+    , settingsLocked = False
+    , font = "Work Sans"
     }
 
 
@@ -155,18 +168,20 @@ encodeSettings settings =
         , ( "summaryEnabled", Encode.bool settings.summaryEnabled )
         , ( "balanceWarning", Encode.int settings.balanceWarning )
         , ( "settingsLocked", Encode.bool settings.settingsLocked )
+        , ( "font", Encode.string settings.font )
         ]
 
 
 decodeSettings : Decode.Decoder Settings
 decodeSettings =
-    Decode.map5
-        (\cat rec summ balwarn setlock ->
+    Decode.map6
+        (\cat rec summ balwarn setlock font ->
             { categoriesEnabled = cat
             , reconciliationEnabled = rec
             , summaryEnabled = summ
             , balanceWarning = balwarn
             , settingsLocked = setlock
+            , font = font
             }
         )
         (Decode.oneOf [ Decode.field "categoriesEnabled" Decode.bool, Decode.succeed False ])
@@ -174,6 +189,7 @@ decodeSettings =
         (Decode.oneOf [ Decode.field "summaryEnabled" Decode.bool, Decode.succeed False ])
         (Decode.oneOf [ Decode.field "balanceWarning" Decode.int, Decode.succeed 100 ])
         (Decode.oneOf [ Decode.field "settingsLocked" Decode.bool, Decode.succeed False ])
+        (Decode.oneOf [ Decode.field "font" Decode.string, Decode.succeed "Work Sans" ])
 
 
 
