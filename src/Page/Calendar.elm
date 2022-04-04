@@ -216,9 +216,12 @@ calendarCell model day =
                         , E.paragraph
                             [ E.width E.fill
                             , E.height E.fill
-                            , E.paddingXY 2 2
-                            , E.spacing 12
+                            , E.paddingEach { left = 0, right = 0, top = 6, bottom = 0 }
+                            , E.spacing 8
                             , E.scrollbarY
+                            , Ui.smallFont model.device
+                            , Font.center
+                            , E.centerY
                             , Background.color
                                 (if sel then
                                     Color.white
@@ -260,30 +263,24 @@ cellContentFor model day =
                 parts =
                     Money.toStrings transaction.amount
             in
-            E.row
-                [ E.paddingEach { top = 3, bottom = 4, left = 6, right = 8 }
-                , E.paddingEach { top = 1, bottom = 2, left = 4, right = 6 }
-                , Ui.smallFont model.device
-                , Font.color Color.white
+            E.el
+                [ Font.color Color.white
                 , Background.color color
-                , Border.rounded 16
-                , Border.width 2
-                , Border.color color
+                , Border.rounded 1000
                 , E.htmlAttribute <| Html.Attributes.style "display" "inline-flex"
+                , E.paddingEach { left = 6, right = 6, top = 0, bottom = 0 }
                 ]
-                [ E.el [ Ui.smallFont model.device ] (E.text (parts.sign ++ parts.units))
-                , E.el
-                    [ Ui.smallerFont model.device
-                    , E.alignBottom
-                    , E.paddingXY 0 1
+                (E.paragraph
+                    []
+                    [ E.el [ Ui.smallFont model.device ] (E.text (parts.sign ++ parts.units))
+                    , E.el [ Ui.smallerFont model.device ] (E.text ("," ++ parts.cents))
                     ]
-                    (E.text ("," ++ parts.cents))
-                ]
+                )
     in
     (List.map render (Ledger.getTransactionsForDate model.ledger model.account day)
         ++ List.map render (Ledger.getRecurringTransactionsForDate model.recurring model.account day)
     )
-        |> List.intersperse (E.text " ")
+        |> List.intersperse (E.el [ Ui.smallFont model.device ] (E.text " "))
 
 
 
