@@ -428,7 +428,7 @@ configCustom { label, content } =
 pageTitle : Device -> E.Element msg -> E.Element msg
 pageTitle device element =
     E.row
-        [ E.width <| E.maximum pageTitleWidth <| E.fill
+        [ E.width <| E.maximum (pageTitleWidth device) <| E.fill
         , E.centerX
         , E.paddingEach { top = 3, bottom = 8, left = 8, right = 8 }
         ]
@@ -552,7 +552,7 @@ dateNavigationBar device model changeMsg =
         ]
         [ E.el [ E.width (E.fill |> E.maximum 64) ] E.none
         , Keyed.row
-            [ E.width <| E.maximum pageTitleWidth <| E.fill
+            [ E.width <| E.maximum (pageTitleWidth device) <| E.fill
             , E.centerX
             , E.alignTop
             , Background.color Color.neutral95
@@ -1022,9 +1022,17 @@ moneyInput :
         }
     -> E.Element msg
 moneyInput device args =
+    let
+        minWidth =
+            if device.width > firstBreakPoint then
+                220
+
+            else
+                200
+    in
     Input.text
         [ E.paddingXY 8 12
-        , E.width (E.shrink |> E.minimum 220)
+        , E.width (E.shrink |> E.minimum minWidth)
         , E.alignLeft
         , Border.width 4
         , Border.color Color.white
@@ -1149,15 +1157,24 @@ helpMiniButton { label, onPress } =
 -- TEXT
 
 
-textColumn : List (E.Element msg) -> E.Element msg
-textColumn elements =
-    E.column [ E.width E.fill, E.spacing 24 ]
+textColumn : Device -> List (E.Element msg) -> E.Element msg
+textColumn device elements =
+    E.column
+        [ E.width E.fill
+        , E.spacing
+            (if device.width > firstBreakPoint then
+                24
+
+             else
+                16
+            )
+        ]
         (elements
             |> List.map
                 (\el ->
                     E.el
                         [ E.centerX
-                        , E.width <| E.maximum paragraphWidth <| E.fill
+                        , E.width <| E.maximum (paragraphWidth device) <| E.fill
                         , E.padding 6
                         ]
                         el
@@ -1165,14 +1182,22 @@ textColumn elements =
         )
 
 
-paragraphWidth : Int
-paragraphWidth =
-    860
+paragraphWidth : Device -> Int
+paragraphWidth device =
+    if device.width > firstBreakPoint then
+        860
+
+    else
+        720
 
 
-pageTitleWidth : Int
-pageTitleWidth =
-    1200
+pageTitleWidth : Device -> Int
+pageTitleWidth device =
+    if device.width > firstBreakPoint then
+        1200
+
+    else
+        1000
 
 
 title : Device -> String -> E.Element msg

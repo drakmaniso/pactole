@@ -26,7 +26,7 @@ viewContent model =
             , E.scrollbarY
             ]
             [ Ui.pageTitle model.device (E.text "Guide d'utilisation")
-            , Ui.textColumn
+            , Ui.textColumn model.device
                 [ Ui.verticalSpacer
                 , Ui.paragraph
                     """

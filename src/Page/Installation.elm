@@ -96,7 +96,7 @@ viewInstallation model installation =
         [ E.width E.fill
         , E.height E.fill
         ]
-        [ Ui.textColumn
+        [ Ui.textColumn model.device
             [ titleBanner model
             , Ui.paragraph
                 """

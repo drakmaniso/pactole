@@ -18,7 +18,7 @@ viewPanel _ =
 
 
 viewContent : Model -> E.Element Msg
-viewContent _ =
+viewContent model =
     E.column
         -- This extra column is necessary to circumvent a
         -- scrollbar-related bug in elm-ui
@@ -38,7 +38,7 @@ viewContent _ =
                 , E.height E.fill
                 , E.paddingXY 24 24
                 ]
-                [ Ui.textColumn
+                [ Ui.textColumn model.device
                     [ Ui.paragraph "Chargement de Pactole..."
                     ]
                 ]

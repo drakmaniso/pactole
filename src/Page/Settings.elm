@@ -301,7 +301,7 @@ viewContent model =
                 , E.scrollbarY
                 ]
                 [ Ui.pageTitle model.device (E.text "Configuration")
-                , Ui.textColumn
+                , Ui.textColumn model.device
                     [ Ui.verticalSpacer
                     , configBackup model
                     , Ui.title model.device "Configuration des comptes"
