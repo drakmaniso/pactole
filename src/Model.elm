@@ -156,7 +156,7 @@ defaultSettings =
     , summaryEnabled = False
     , balanceWarning = 100
     , settingsLocked = False
-    , font = "Work Sans"
+    , font = "Andika New Basic"
     }
 
 
@@ -189,7 +189,7 @@ decodeSettings =
         (Decode.oneOf [ Decode.field "summaryEnabled" Decode.bool, Decode.succeed False ])
         (Decode.oneOf [ Decode.field "balanceWarning" Decode.int, Decode.succeed 100 ])
         (Decode.oneOf [ Decode.field "settingsLocked" Decode.bool, Decode.succeed False ])
-        (Decode.oneOf [ Decode.field "font" Decode.string, Decode.succeed "Work Sans" ])
+        (Decode.oneOf [ Decode.field "font" Decode.string, Decode.succeed "Andika New Basic" ])
 
 
 

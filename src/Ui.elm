@@ -703,6 +703,8 @@ viewMoney device money future =
 
               else
                 Font.color Color.income40
+            , Font.variant Font.tabularNumbers
+            , Font.alignRight
             ]
             (if isZero then
                 [ E.el [ E.width (E.fillPortion 75), defaultFontSize device, Font.alignRight ] (E.text "—")

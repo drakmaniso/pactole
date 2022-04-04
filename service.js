@@ -10,6 +10,8 @@ const files = [
   'manifest.webmanifest',
   'elm.js',
   'fonts/fa-solid-900.woff2',
+  'fonts/andika-new-basic-v15-latin-regular.woff2',
+  'fonts/andika-new-basic-v15-latin-700.woff2',
   'fonts/work-sans-v7-latin-regular.woff2',
   'fonts/work-sans-v7-latin-700.woff2',
   'images/icon-512x512.png',

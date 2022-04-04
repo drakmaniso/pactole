@@ -675,16 +675,16 @@ configFont model =
                     Msg.ForDatabase <| Msg.DbStoreSettings { settings | font = newFont }
             , label = "Police de caractères:"
             , options =
-                [ Ui.radioRowOption "System UI" (E.text "Système")
+                [ Ui.radioRowOption "Andika New Basic" (E.text "Andika New Basic")
+                , Ui.radioRowOption "System UI" (E.text "Système")
                 , Ui.radioRowOption "sans-serif" (E.text "Sans Serif")
-                , Ui.radioRowOption "serif" (E.text "Serif")
                 , Ui.radioRowOption "Work Sans" (E.text "Work Sans")
-                , Ui.radioRowOption "Arial" (E.text "Arial")
                 , Ui.radioRowOption "Verdana" (E.text "Verdana")
+                , Ui.radioRowOption "Georgia" (E.text "Georgia")
                 , Ui.radioRowOption "Comic Sans MS" (E.text "Comic Sans MS")
                 , Ui.radioRowOption "OpenDyslexic" (E.text "OpenDyslexic")
-                , Ui.radioRowOption "OpenDyslexic3" (E.text "OpenDyslexic3")
-                , Ui.radioRowOption "Times New Roman" (E.text "Times New Roman")
+                , Ui.radioRowOption "Lucida Sans" (E.text "Lucida Sans")
+                , Ui.radioRowOption "Lucida Grande" (E.text "Lucida Grande")
                 ]
             , selected = Just model.settings.font
             }
