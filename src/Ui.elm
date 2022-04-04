@@ -175,8 +175,6 @@ fontFamily : String -> E.Attribute msg
 fontFamily font =
     Font.family
         [ Font.typeface font
-        , Font.typeface "Work Sans"
-        , Font.typeface "System UI"
         , Font.sansSerif
         ]
 

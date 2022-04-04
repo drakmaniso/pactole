@@ -675,9 +675,16 @@ configFont model =
                     Msg.ForDatabase <| Msg.DbStoreSettings { settings | font = newFont }
             , label = "Police de caractères:"
             , options =
-                [ Ui.radioRowOption "Work Sans" (E.text "Work Sans")
-                , Ui.radioRowOption "System UI" (E.text "Système")
+                [ Ui.radioRowOption "System UI" (E.text "Système")
+                , Ui.radioRowOption "sans-serif" (E.text "Sans Serif")
+                , Ui.radioRowOption "serif" (E.text "Serif")
+                , Ui.radioRowOption "Work Sans" (E.text "Work Sans")
+                , Ui.radioRowOption "Arial" (E.text "Arial")
+                , Ui.radioRowOption "Verdana" (E.text "Verdana")
+                , Ui.radioRowOption "Comic Sans MS" (E.text "Comic Sans MS")
+                , Ui.radioRowOption "OpenDyslexic" (E.text "OpenDyslexic")
                 , Ui.radioRowOption "OpenDyslexic3" (E.text "OpenDyslexic3")
+                , Ui.radioRowOption "Times New Roman" (E.text "Times New Roman")
                 ]
             , selected = Just model.settings.font
             }
