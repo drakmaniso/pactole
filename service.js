@@ -24,39 +24,31 @@ const version = 2
 const staticCacheName = "pactole-cache-2"
 
 // Used to force an update on client-side
-const serviceVersion = "1.3.3"
+const serviceVersion = "1.4.0b2"
 
 
 self.addEventListener('install', event => {
   log('Installing service worker...')
   event.waitUntil(self.skipWaiting())
-  event.waitUntil(precache())
-  log('...service worker installed.')
-  //   caches
-  //     .open(staticCacheName)
-  //     .then(cache => {
-  //       log('    Installing cache')
-  //       return cache.addAll(
-  //         files.map(f => {
-  //           return new Request(f, { cache: 'no-store' })
-  //         })
-  //       )
-  //     })
-  //     .then(() => {
-  //       log('...service worker installed.')
-  //     })
-  //     .catch(err => {
-  //       error(err)
-  //     })
-  // )
+  // event.waitUntil(precache())
+  // log('...service worker installed.')
+  caches
+    .open(staticCacheName)
+    .then(cache => {
+      log('    Installing cache')
+      return cache.addAll(
+        files.map(f => {
+          return new Request(f, { cache: 'no-store' })
+        })
+      )
+    })
+    .then(() => {
+      log('...service worker installed.')
+    })
+    .catch(err => {
+      error(err)
+    })
 })
-
-
-function precache() {
-  return caches.open(staticCacheName).then(cache => {
-    return cache.addAll(files)
-  })
-}
 
 
 self.addEventListener('activate', event => {
@@ -77,14 +69,10 @@ self.addEventListener('activate', event => {
 
 
 self.addEventListener('fetch', event => {
-  //log(`fetch: ${event.request.url}...`)
-  //TODO: handle favicon?
-  //log(`FETCH REQUEST CACHE = ${event.request.cache}`)
   event.respondWith(
     caches.match(event.request)
   )
 })
-
 
 self.addEventListener('message', event => {
   const msg = event.data
