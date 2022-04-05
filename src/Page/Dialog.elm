@@ -17,6 +17,7 @@ import Log
 import Model exposing (Model)
 import Money
 import Msg exposing (Msg)
+import Ports
 import Task
 import Ui
 import Ui.Color as Color
@@ -42,7 +43,10 @@ update msg model =
                         , category = 0
                         }
               }
-            , Task.attempt (\_ -> Msg.NoOp) (Dom.focus "dialog-amount")
+            , Cmd.batch
+                [ Ports.openDialog ()
+                , Task.attempt (\_ -> Msg.NoOp) (Dom.focus "dialog-amount")
+                ]
             )
 
         Msg.DialogEditTransaction id ->
@@ -63,7 +67,7 @@ update msg model =
                                 , category = t.category
                                 }
                       }
-                    , Cmd.none
+                    , Ports.openDialog ()
                     )
 
         Msg.DialogShowRecurring id ->
@@ -84,7 +88,7 @@ update msg model =
                                 , category = t.category
                                 }
                       }
-                    , Cmd.none
+                    , Ports.openDialog ()
                     )
 
         Msg.DialogChangeAmount amount ->
@@ -140,27 +144,33 @@ update msg model =
                     of
                         ( Just id, Ok amount ) ->
                             ( { model | dialog = Nothing }
-                            , Database.replaceTransaction
-                                { id = id
-                                , account = model.account
-                                , date = dialog.date
-                                , amount = amount
-                                , description = dialog.description
-                                , category = dialog.category
-                                , checked = False
-                                }
+                            , Cmd.batch
+                                [ Database.replaceTransaction
+                                    { id = id
+                                    , account = model.account
+                                    , date = dialog.date
+                                    , amount = amount
+                                    , description = dialog.description
+                                    , category = dialog.category
+                                    , checked = False
+                                    }
+                                , Ports.closeDialog ()
+                                ]
                             )
 
                         ( Nothing, Ok amount ) ->
                             ( { model | dialog = Nothing }
-                            , Database.createTransaction
-                                { account = model.account
-                                , date = dialog.date
-                                , amount = amount
-                                , description = dialog.description
-                                , category = dialog.category
-                                , checked = False
-                                }
+                            , Cmd.batch
+                                [ Database.createTransaction
+                                    { account = model.account
+                                    , date = dialog.date
+                                    , amount = amount
+                                    , description = dialog.description
+                                    , category = dialog.category
+                                    , checked = False
+                                    }
+                                , Ports.closeDialog ()
+                                ]
                             )
 
                         ( _, Err amountError ) ->
@@ -183,7 +193,7 @@ update msg model =
                     case dialog.id of
                         Just id ->
                             ( { model | dialog = Nothing }
-                            , Database.deleteTransaction id
+                            , Cmd.batch [ Database.deleteTransaction id, Ports.closeDialog () ]
                             )
 
                         Nothing ->
@@ -203,15 +213,9 @@ view model =
         Just dialog ->
             E.column
                 [ Ui.onEnter (Msg.ForDialog <| Msg.DialogConfirm)
-                , E.centerX
-                , E.centerY
-                , E.width <| E.minimum 600 <| E.maximum 920 <| E.fill
-                , E.scrollbarY
-                , E.paddingXY 48 24
+                , E.width E.fill
+                , E.height E.fill
                 , E.spacing 36
-                , Background.color Color.white
-                , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 32, color = E.rgba 0 0 0 0.75 }
-                , Border.rounded 6
                 ]
                 [ viewDate model dialog
                 , viewAmount model dialog

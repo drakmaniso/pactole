@@ -4,6 +4,7 @@ Urgent:
 - Improve calendar layout
 - Use wrappedRow for account selector, categories...
 - Unify dialogs
+- Remove "Work Sans" font
 
 Long-term:
 - Use <dialog> for dialogs

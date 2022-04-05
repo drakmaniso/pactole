@@ -12,6 +12,7 @@ import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
 import Element.Input as Input
+import Html
 import Html.Attributes
 import Json.Decode as Decode
 import Ledger
@@ -26,6 +27,7 @@ import Page.Loading as Loading
 import Page.Reconcile as Reconcile
 import Page.Settings as Settings
 import Page.Statistics as Statistics
+import Ports
 import Task
 import Ui
 import Ui.Color as Color
@@ -134,7 +136,7 @@ update msg model =
             )
 
         Msg.Close ->
-            ( { model | dialog = Nothing, settingsDialog = Nothing }, Cmd.none )
+            ( { model | dialog = Nothing, settingsDialog = Nothing }, Ports.closeDialog () )
 
         Msg.SelectDate date ->
             ( { model | date = date }, Cmd.none )
@@ -268,73 +270,79 @@ view model =
 
 document : Model -> Maybe (E.Element Msg) -> E.Element Msg -> Browser.Document Msg
 document model activeDialog activePage =
+    let
+        contentHtml =
+            E.layoutWith
+                { options =
+                    [ E.focusStyle
+                        { borderColor = Nothing
+                        , backgroundColor = Nothing
+                        , shadow = Nothing
+                        }
+                    ]
+                }
+                []
+                (E.column
+                    [ E.width E.fill
+                    , E.height E.fill
+                    , Ui.fontFamily model.settings.font
+                    , Ui.defaultFontSize model.device
+                    , Font.color Color.neutral30
+                    , Background.color Color.white
+                    ]
+                    [ case ( model.page, model.isStoragePersisted ) of
+                        ( Model.LoadingPage, _ ) ->
+                            E.none
+
+                        ( Model.InstallationPage _, _ ) ->
+                            E.none
+
+                        ( _, False ) ->
+                            warningBanner "Attention: le stockage n'est pas persistant!"
+
+                        ( _, True ) ->
+                            E.none
+                    , activePage
+                    ]
+                )
+    in
     { title = "Pactole"
     , body =
-        [ E.layoutWith
-            { options =
-                [ E.focusStyle
-                    { borderColor = Nothing
-                    , backgroundColor = Nothing
-                    , shadow = Nothing
-                    }
-                ]
-            }
-            (case activeDialog of
-                Just d ->
-                    [ E.inFront
-                        (E.el
-                            [ E.width E.fill
-                            , E.height E.fill
-                            , Ui.fontFamily model.settings.font
-                            , Ui.defaultFontSize model.device
-                            , Font.color Color.neutral30
-                            , E.padding 0
-                            , E.scrollbarY
-                            , E.behindContent
-                                (Input.button
-                                    [ E.width E.fill
-                                    , E.height E.fill
-                                    , Background.color (E.rgba 0 0 0 0.6)
-                                    ]
-                                    { label = E.none
-                                    , onPress = Just Msg.Close
-                                    }
-                                )
-                            ]
+        [ contentHtml
+        , Html.node "dialog"
+            [ Html.Attributes.id "dialog"
+            , Html.Attributes.class "dialog"
+            ]
+            [ E.layoutWith
+                { options =
+                    [ E.noStaticStyleSheet
+                    , E.focusStyle
+                        { borderColor = Nothing
+                        , backgroundColor = Nothing
+                        , shadow = Nothing
+                        }
+                    ]
+                }
+                []
+                (E.el
+                    [ E.width <| E.minimum 600 <| E.maximum 920 <| E.fill
+                    , E.height <| E.minimum 200 <| E.fill
+                    , Ui.fontFamily model.settings.font
+                    , Ui.defaultFontSize model.device
+                    , Background.color Color.white
+                    , Font.color Color.neutral30
+                    , E.paddingXY 48 24
+                    , E.scrollbarY
+                    ]
+                 <|
+                    case activeDialog of
+                        Just d ->
                             d
-                        )
-                    ]
 
-                Nothing ->
-                    [ E.inFront
-                        (E.column []
-                            []
-                        )
-                    ]
-            )
-            (E.column
-                [ E.width E.fill
-                , E.height E.fill
-                , Ui.fontFamily model.settings.font
-                , Ui.defaultFontSize model.device
-                , Font.color Color.neutral30
-                , Background.color Color.white
-                ]
-                [ case ( model.page, model.isStoragePersisted ) of
-                    ( Model.LoadingPage, _ ) ->
-                        E.none
-
-                    ( Model.InstallationPage _, _ ) ->
-                        E.none
-
-                    ( _, False ) ->
-                        warningBanner "Attention: le stockage n'est pas persistant!"
-
-                    ( _, True ) ->
-                        E.none
-                , activePage
-                ]
-            )
+                        Nothing ->
+                            E.none
+                )
+            ]
         ]
     }
 

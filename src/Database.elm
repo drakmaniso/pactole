@@ -77,17 +77,17 @@ update msg model =
 
 requestWholeDatabase : Cmd msg
 requestWholeDatabase =
-    Ports.send ( "request whole database", Encode.null )
+    Ports.sendToSW ( "request whole database", Encode.null )
 
 
 storeSettings : Model.Settings -> Cmd msg
 storeSettings settings =
-    Ports.send ( "store settings", Model.encodeSettings settings )
+    Ports.sendToSW ( "store settings", Model.encodeSettings settings )
 
 
 createAccount : String -> Cmd msg
 createAccount name =
-    Ports.send ( "create account", Encode.string name )
+    Ports.sendToSW ( "create account", Encode.string name )
 
 
 proceedWithInstallation : Model -> { firstAccount : String, initialBalance : Money, date : Date } -> Cmd msg
@@ -96,7 +96,7 @@ proceedWithInstallation model data =
         defaultSettings =
             Model.defaultSettings
     in
-    Ports.send
+    Ports.sendToSW
         ( "broadcast import database"
         , Encode.object
             [ ( "serviceVersion", Encode.string model.serviceVersion )
@@ -159,7 +159,7 @@ proceedWithInstallation model data =
 
 renameAccount : Int -> String -> Cmd msg
 renameAccount account newName =
-    Ports.send
+    Ports.sendToSW
         ( "rename account"
         , Encode.object
             [ ( "id", Encode.int account )
@@ -170,7 +170,7 @@ renameAccount account newName =
 
 deleteAccount : Int -> Cmd msg
 deleteAccount account =
-    Ports.send
+    Ports.sendToSW
         ( "delete account"
         , Encode.int account
         )
@@ -178,7 +178,7 @@ deleteAccount account =
 
 createCategory : String -> String -> Cmd msg
 createCategory name icon =
-    Ports.send
+    Ports.sendToSW
         ( "create category"
         , Encode.object
             [ ( "name", Encode.string name )
@@ -189,7 +189,7 @@ createCategory name icon =
 
 renameCategory : Int -> String -> String -> Cmd msg
 renameCategory id name icon =
-    Ports.send
+    Ports.sendToSW
         ( "rename category"
         , Encode.object
             [ ( "id", Encode.int id )
@@ -201,7 +201,7 @@ renameCategory id name icon =
 
 deleteCategory : Int -> Cmd msg
 deleteCategory id =
-    Ports.send
+    Ports.sendToSW
         ( "delete category"
         , Encode.int id
         )
@@ -209,7 +209,7 @@ deleteCategory id =
 
 createTransaction : Ledger.NewTransaction -> Cmd msg
 createTransaction transaction =
-    Ports.send
+    Ports.sendToSW
         ( "create transaction"
         , Ledger.encodeNewTransaction transaction
         )
@@ -217,7 +217,7 @@ createTransaction transaction =
 
 replaceTransaction : Ledger.Transaction -> Cmd msg
 replaceTransaction transaction =
-    Ports.send
+    Ports.sendToSW
         ( "replace transaction"
         , Ledger.encodeTransaction transaction
         )
@@ -225,7 +225,7 @@ replaceTransaction transaction =
 
 deleteTransaction : Int -> Cmd msg
 deleteTransaction id =
-    Ports.send
+    Ports.sendToSW
         ( "delete transaction"
         , Encode.object
             [ ( "id", Encode.int id )
@@ -235,7 +235,7 @@ deleteTransaction id =
 
 createRecurringTransaction : Ledger.NewTransaction -> Cmd msg
 createRecurringTransaction transaction =
-    Ports.send
+    Ports.sendToSW
         ( "create recurring transaction"
         , Ledger.encodeNewTransaction transaction
         )
@@ -243,7 +243,7 @@ createRecurringTransaction transaction =
 
 replaceRecurringTransaction : Ledger.Transaction -> Cmd msg
 replaceRecurringTransaction transaction =
-    Ports.send
+    Ports.sendToSW
         ( "replace recurring transaction"
         , Ledger.encodeTransaction transaction
         )
@@ -251,7 +251,7 @@ replaceRecurringTransaction transaction =
 
 deleteRecurringTransaction : Int -> Cmd msg
 deleteRecurringTransaction id =
-    Ports.send
+    Ports.sendToSW
         ( "delete recurring transaction"
         , Encode.object
             [ ( "id", Encode.int id )
@@ -279,9 +279,8 @@ exportFileName model =
 
 exportDatabase : Model -> Cmd msg
 exportDatabase model =
-    Ports.send
-        ( "export database"
-        , Encode.object
+    Ports.exportDatabase <|
+        Encode.object
             [ ( "filename", Encode.string <| exportFileName model )
             , ( "settings", Model.encodeSettings model.settings )
             , ( "recurring", Ledger.encode model.recurring )
@@ -290,15 +289,11 @@ exportDatabase model =
             , ( "ledger", Ledger.encode model.ledger )
             , ( "serviceVersion", Encode.string model.serviceVersion )
             ]
-        )
 
 
 importDatabase : Cmd msg
 importDatabase =
-    Ports.send
-        ( "select import"
-        , Encode.object []
-        )
+    Ports.selectImport ()
 
 
 
@@ -320,7 +315,7 @@ msgFromService ( title, content ) model =
     in
     case title of
         "start application" ->
-            ( model, Ports.send ( "request whole database", Encode.null ) )
+            ( model, Ports.sendToSW ( "request whole database", Encode.null ) )
 
         "persistent storage granted" ->
             case Decode.decodeValue (Decode.at [ "granted" ] Decode.bool) content of
@@ -362,7 +357,7 @@ msgFromService ( title, content ) model =
                                 Model.MainPage
                       }
                     , if not (List.isEmpty db.accounts) then
-                        Ports.send ( "request storage persistence", Encode.null )
+                        Ports.requestStoragePersistence ()
 
                       else
                         Cmd.none
@@ -436,7 +431,7 @@ msgFromService ( title, content ) model =
         "user error" ->
             case Decode.decodeValue Decode.string content of
                 Ok msg ->
-                    ( { model | settingsDialog = Just (Model.UserError msg) }, Cmd.none )
+                    ( { model | settingsDialog = Just (Model.UserError msg) }, Ports.openDialog () )
 
                 _ ->
                     ( { model | errors = model.errors ++ [ "ERROR: undecodable javascript in \"user error\" message" ] }, Cmd.none )

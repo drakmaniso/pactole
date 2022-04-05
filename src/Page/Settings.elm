@@ -19,6 +19,7 @@ import Log
 import Model exposing (Model)
 import Money
 import Msg exposing (Msg)
+import Ports
 import String
 import Ui
 import Ui.Color as Color
@@ -38,7 +39,7 @@ update msg model =
                         (Dict.get id model.accounts)
             in
             ( { model | settingsDialog = Just (Model.RenameAccount { id = id, name = name }) }
-            , Cmd.none
+            , Ports.openDialog ()
             )
 
         Msg.SettingsDeleteAccount id ->
@@ -48,7 +49,7 @@ update msg model =
                         (Dict.get id model.accounts)
             in
             ( { model | settingsDialog = Just (Model.DeleteAccount { id = id, name = name }) }
-            , Cmd.none
+            , Ports.openDialog ()
             )
 
         Msg.SettingsRenameCategory id ->
@@ -58,7 +59,7 @@ update msg model =
                         (Dict.get id model.categories)
             in
             ( { model | settingsDialog = Just (Model.RenameCategory { id = id, name = name, icon = icon }) }
-            , Cmd.none
+            , Ports.openDialog ()
             )
 
         Msg.SettingsDeleteCategory id ->
@@ -68,7 +69,7 @@ update msg model =
                         (Dict.get id model.categories)
             in
             ( { model | settingsDialog = Just (Model.DeleteCategory { id = id, name = name, icon = icon }) }
-            , Cmd.none
+            , Ports.openDialog ()
             )
 
         Msg.SettingsNewRecurring ->
@@ -98,7 +99,7 @@ update msg model =
                             }
                         )
               }
-            , Cmd.none
+            , Ports.openDialog ()
             )
 
         Msg.SettingsDeleteRecurring idx ->
@@ -212,27 +213,35 @@ update msg model =
 
         Msg.SettingsAskImportConfirmation ->
             ( { model | settingsDialog = Just Model.AskImportConfirmation }
-            , Cmd.none
+            , Ports.openDialog ()
             )
 
         Msg.SettingsAskExportConfirmation ->
             ( { model | settingsDialog = Just Model.AskExportConfirmation }
-            , Cmd.none
+            , Ports.openDialog ()
             )
 
         Msg.SettingsConfirm ->
             case model.settingsDialog of
                 Just (Model.RenameAccount submodel) ->
-                    ( { model | settingsDialog = Nothing }, Database.renameAccount submodel.id submodel.name )
+                    ( { model | settingsDialog = Nothing }
+                    , Cmd.batch [ Database.renameAccount submodel.id submodel.name, Ports.closeDialog () ]
+                    )
 
                 Just (Model.DeleteAccount submodel) ->
-                    ( { model | settingsDialog = Nothing }, Database.deleteAccount submodel.id )
+                    ( { model | settingsDialog = Nothing }
+                    , Cmd.batch [ Database.deleteAccount submodel.id, Ports.closeDialog () ]
+                    )
 
                 Just (Model.RenameCategory submodel) ->
-                    ( { model | settingsDialog = Nothing }, Database.renameCategory submodel.id submodel.name submodel.icon )
+                    ( { model | settingsDialog = Nothing }
+                    , Cmd.batch [ Database.renameCategory submodel.id submodel.name submodel.icon, Ports.closeDialog () ]
+                    )
 
                 Just (Model.DeleteCategory submodel) ->
-                    ( { model | settingsDialog = Nothing }, Database.deleteCategory submodel.id )
+                    ( { model | settingsDialog = Nothing }
+                    , Cmd.batch [ Database.deleteCategory submodel.id, Ports.closeDialog () ]
+                    )
 
                 Just (Model.EditRecurring submodel) ->
                     let
@@ -253,30 +262,41 @@ update msg model =
                             Date.findNextDayOfMonth day model.today
                     in
                     ( { model | settingsDialog = Nothing }
-                    , Database.replaceRecurringTransaction
-                        { id = submodel.idx
-                        , account = submodel.account
-                        , amount =
-                            Result.withDefault Money.zero
-                                (Money.fromInput submodel.isExpense submodel.amount)
-                        , description = submodel.description
-                        , category = submodel.category
-                        , date = dueDate
-                        , checked = False
-                        }
+                    , Cmd.batch
+                        [ Database.replaceRecurringTransaction
+                            { id = submodel.idx
+                            , account = submodel.account
+                            , amount =
+                                Result.withDefault Money.zero
+                                    (Money.fromInput submodel.isExpense submodel.amount)
+                            , description = submodel.description
+                            , category = submodel.category
+                            , date = dueDate
+                            , checked = False
+                            }
+                        , Ports.closeDialog ()
+                        ]
                     )
 
                 Just Model.AskImportConfirmation ->
-                    ( { model | settingsDialog = Nothing }, Database.importDatabase )
+                    ( { model | settingsDialog = Nothing }
+                    , Cmd.batch [ Database.importDatabase, Ports.closeDialog () ]
+                    )
 
                 Just Model.AskExportConfirmation ->
-                    ( { model | settingsDialog = Nothing }, Database.exportDatabase model )
+                    ( { model | settingsDialog = Nothing }
+                    , Cmd.batch [ Database.exportDatabase model, Ports.closeDialog () ]
+                    )
 
                 Just (Model.UserError _) ->
-                    ( { model | settingsDialog = Nothing }, Cmd.none )
+                    ( { model | settingsDialog = Nothing }
+                    , Ports.closeDialog ()
+                    )
 
                 Nothing ->
-                    ( { model | settingsDialog = Nothing }, Cmd.none )
+                    ( { model | settingsDialog = Nothing }
+                    , Ports.closeDialog ()
+                    )
 
 
 
@@ -703,18 +723,13 @@ viewDialog model =
 
         Just (Model.RenameAccount submodel) ->
             E.column
-                [ E.centerX
-                , E.centerY
-                , E.width (E.px 800)
-                , E.height E.shrink
-                , E.paddingXY 0 0
-                , E.spacing 0
-                , E.scrollbarY
-                , Background.color Color.white
-                , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 32, color = E.rgba 0 0 0 0.75 }
+                [ Ui.onEnter (Msg.ForDialog <| Msg.DialogConfirm)
+                , E.width E.fill
+                , E.height E.fill
+                , E.spacing 36
                 ]
                 [ E.el
-                    [ E.paddingEach { top = 24, bottom = 24, right = 48, left = 48 } ]
+                    []
                     (Input.text
                         [ Ui.onEnter (Msg.ForSettingsDialog <| Msg.SettingsConfirm)
                         , Ui.bigFont model.device
@@ -744,7 +759,6 @@ viewDialog model =
                 , E.row
                     [ E.width E.fill
                     , E.spacing 24
-                    , E.paddingEach { top = 64, bottom = 24, right = 48, left = 48 }
                     ]
                     [ E.el [ E.width E.fill ] E.none
                     , Ui.simpleButton
@@ -760,19 +774,13 @@ viewDialog model =
 
         Just (Model.DeleteCategory submodel) ->
             E.column
-                [ E.centerX
-                , E.centerY
-                , E.width (E.px 800)
-                , E.height E.shrink
-                , E.paddingXY 0 0
-                , E.spacing 0
-                , E.scrollbarY
-                , Background.color Color.white
-                , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 32, color = E.rgba 0 0 0 0.75 }
+                [ Ui.onEnter (Msg.ForDialog <| Msg.DialogConfirm)
+                , E.width E.fill
+                , E.height E.fill
+                , E.spacing 36
                 ]
                 [ E.el
-                    [ E.paddingEach { top = 24, bottom = 24, right = 48, left = 48 }
-                    , Ui.bigFont model.device
+                    [ Ui.bigFont model.device
                     , Font.bold
                     ]
                     (E.text ("Supprimer la catégorie \"" ++ submodel.name ++ "\" ?"))
@@ -784,7 +792,6 @@ viewDialog model =
                 , E.row
                     [ E.width E.fill
                     , E.spacing 24
-                    , E.paddingEach { top = 64, bottom = 24, right = 48, left = 48 }
                     ]
                     [ E.el [ E.width E.fill ] E.none
                     , Ui.simpleButton
@@ -800,18 +807,12 @@ viewDialog model =
 
         Just (Model.RenameCategory submodel) ->
             E.column
-                [ E.centerX
-                , E.centerY
-                , E.width (E.px 800)
+                [ Ui.onEnter (Msg.ForDialog <| Msg.DialogConfirm)
+                , E.width E.fill
                 , E.height E.fill
-                , E.paddingXY 0 0
-                , E.spacing 0
-                , E.clip
-                , Background.color Color.white
-                , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 32, color = E.rgba 0 0 0 0.75 }
+                , E.spacing 36
                 ]
-                [ E.el
-                    [ E.paddingEach { top = 24, bottom = 24, right = 48, left = 48 } ]
+                [ E.el []
                     (Input.text
                         [ Ui.onEnter (Msg.ForSettingsDialog <| Msg.SettingsConfirm)
                         , Ui.bigFont model.device
@@ -821,7 +822,6 @@ viewDialog model =
                                 [ E.width E.shrink
                                 , Font.color Color.primary40
                                 , Font.bold
-                                , E.paddingEach { top = 12, bottom = 0, left = 12, right = 0 }
                                 , E.pointer
                                 ]
                                 (E.text ("Renommer la catégorie \"" ++ submodel.name ++ "\":"))
@@ -831,13 +831,11 @@ viewDialog model =
                         }
                     )
                 , E.el
-                    [ E.height (E.fill |> E.minimum 200)
-                    , E.scrollbarY
+                    [--E.height (E.fill |> E.minimum 200)
+                     -- , E.scrollbarY
                     ]
                     (E.wrappedRow
-                        [ E.paddingEach { top = 24, bottom = 24, right = 48, left = 48 }
-                        , E.spacing 6
-                        ]
+                        [ E.spacing 6 ]
                         (List.map
                             (\icon ->
                                 Ui.radioButton
@@ -853,7 +851,6 @@ viewDialog model =
                 , E.row
                     [ E.width E.fill
                     , E.spacing 24
-                    , E.paddingEach { top = 64, bottom = 24, right = 48, left = 48 }
                     ]
                     [ E.el [ E.width E.fill ] E.none
                     , Ui.simpleButton
@@ -869,22 +866,16 @@ viewDialog model =
 
         Just (Model.DeleteAccount submodel) ->
             E.column
-                [ E.centerX
-                , E.centerY
-                , E.width (E.px 800)
-                , E.height E.shrink
-                , E.paddingXY 0 0
-                , E.spacing 0
-                , E.scrollbarY
-                , Background.color Color.white
-                , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 32, color = E.rgba 0 0 0 0.75 }
+                [ Ui.onEnter (Msg.ForDialog <| Msg.DialogConfirm)
+                , E.width E.fill
+                , E.height E.fill
+                , E.spacing 36
                 ]
                 [ E.el
-                    [ E.paddingEach { top = 24, bottom = 24, right = 48, left = 48 }
-                    , Ui.bigFont model.device
+                    [ Ui.bigFont model.device
                     ]
                     (E.text ("Supprimer le compte \"" ++ submodel.name ++ "\" ?"))
-                , E.el [ E.paddingEach { left = 64, right = 48, top = 12, bottom = 24 } ]
+                , E.el []
                     (Ui.warningParagraph
                         [ E.el [ Font.bold ] (E.text " Toutes les opérations de ce compte ")
                         , E.el [ Font.bold ] (E.text "vont être définitivement supprimées!")
@@ -893,7 +884,6 @@ viewDialog model =
                 , E.row
                     [ E.width E.fill
                     , E.spacing 24
-                    , E.paddingEach { top = 64, bottom = 24, right = 48, left = 48 }
                     ]
                     [ E.el [ E.width E.fill ] E.none
                     , Ui.simpleButton
@@ -909,18 +899,13 @@ viewDialog model =
 
         Just (Model.EditRecurring submodel) ->
             E.column
-                [ E.centerX
-                , E.centerY
-                , E.width (E.px 800)
-                , E.height E.shrink
-                , E.paddingXY 0 0
-                , E.spacing 0
-                , E.scrollbarY
-                , Background.color Color.white
-                , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 32, color = E.rgba 0 0 0 0.75 }
+                [ Ui.onEnter (Msg.ForDialog <| Msg.DialogConfirm)
+                , E.width E.fill
+                , E.height E.fill
+                , E.spacing 36
                 ]
                 [ E.el
-                    [ E.paddingEach { top = 24, bottom = 24, right = 48, left = 48 } ]
+                    []
                     (Input.text
                         [ Ui.onEnter (Msg.ForSettingsDialog <| Msg.SettingsConfirm)
                         , Ui.bigFont model.device
@@ -939,7 +924,6 @@ viewDialog model =
                                 [ E.width E.shrink
                                 , Font.color Color.primary40
                                 , Font.bold
-                                , E.paddingEach { right = 24, top = 0, left = 12, bottom = 0 }
                                 , E.pointer
                                 ]
                                 (E.text "Jour du mois: ")
@@ -949,12 +933,11 @@ viewDialog model =
                         }
                     )
                 , E.el
-                    [ E.paddingEach { top = 24, bottom = 24, right = 48, left = 48 } ]
+                    []
                     (E.row [ E.spacingXY 24 0 ]
                         (E.el
                             [ E.width E.fill
                             , Font.color Color.primary40
-                            , E.paddingEach { right = 24, top = 0, left = 12, bottom = 0 }
                             , Font.bold
                             ]
                             (E.el [ Font.bold ] (E.text "Compte: "))
@@ -971,12 +954,10 @@ viewDialog model =
                         )
                     )
                 , E.row
-                    [ E.paddingEach { top = 24, bottom = 24, right = 48, left = 48 }
-                    , E.spacingXY 24 0
+                    [ E.spacingXY 24 0
                     ]
                     [ E.el
-                        [ E.paddingEach { right = 24, top = 0, left = 12, bottom = 0 }
-                        , Font.bold
+                        [ Font.bold
                         ]
                         (E.el [ Font.bold ] (E.text "Type: "))
                     , E.row [ E.alignBottom ]
@@ -995,12 +976,10 @@ viewDialog model =
                         ]
                     ]
                 , E.row
-                    [ E.paddingEach { top = 24, bottom = 24, right = 48, left = 48 }
-                    , E.spacingXY 24 0
+                    [ E.spacingXY 24 0
                     ]
                     [ E.el
-                        [ E.paddingEach { right = 24, top = 0, left = 12, bottom = 0 }
-                        , Font.bold
+                        [ Font.bold
                         ]
                         (E.el [ Font.bold ] (E.text "Montant: "))
                     , Input.text
@@ -1024,7 +1003,7 @@ viewDialog model =
                         }
                     ]
                 , E.el
-                    [ E.paddingEach { top = 24, bottom = 24, right = 48, left = 48 } ]
+                    []
                     (Input.text
                         [ Ui.onEnter (Msg.ForSettingsDialog <| Msg.SettingsConfirm)
                         , Ui.bigFont model.device
@@ -1041,7 +1020,6 @@ viewDialog model =
                             Input.labelAbove
                                 [ E.width E.shrink
                                 , Font.bold
-                                , E.paddingEach { top = 12, bottom = 0, left = 12, right = 0 }
                                 , E.pointer
                                 ]
                                 (E.text "Description:")
@@ -1053,7 +1031,6 @@ viewDialog model =
                 , E.row
                     [ E.width E.fill
                     , E.spacing 24
-                    , E.paddingEach { top = 64, bottom = 24, right = 48, left = 48 }
                     ]
                     [ E.el [ E.width E.fill ] E.none
                     , Ui.simpleButton
@@ -1069,23 +1046,17 @@ viewDialog model =
 
         Just Model.AskImportConfirmation ->
             E.column
-                [ E.centerX
-                , E.centerY
-                , E.width (E.px 800)
-                , E.height E.shrink
-                , E.paddingXY 0 0
-                , E.spacing 0
-                , E.scrollbarY
-                , Background.color Color.white
-                , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 32, color = E.rgba 0 0 0 0.75 }
+                [ Ui.onEnter (Msg.ForDialog <| Msg.DialogConfirm)
+                , E.width E.fill
+                , E.height E.fill
+                , E.spacing 36
                 ]
                 [ E.el
-                    [ E.paddingEach { top = 24, bottom = 24, right = 48, left = 48 }
-                    , Ui.bigFont model.device
+                    [ Ui.bigFont model.device
                     , Font.bold
                     ]
                     (E.text "Remplacer toutes les données?")
-                , E.el [ E.paddingEach { left = 64, right = 48, top = 12, bottom = 24 } ]
+                , E.el []
                     (Ui.warningParagraph
                         [ E.el [ Font.bold ] (E.text "Toutes les opérations et les réglages vont être ")
                         , E.el [ Font.bold ] (E.text "définitivement supprimés!")
@@ -1095,7 +1066,6 @@ viewDialog model =
                 , E.row
                     [ E.width E.fill
                     , E.spacing 24
-                    , E.paddingEach { top = 64, bottom = 24, right = 48, left = 48 }
                     ]
                     [ E.el [ E.width E.fill ] E.none
                     , Ui.simpleButton
@@ -1111,30 +1081,22 @@ viewDialog model =
 
         Just Model.AskExportConfirmation ->
             E.column
-                [ E.centerX
-                , E.centerY
-                , E.width (E.px 800)
-                , E.height E.shrink
-                , E.paddingXY 0 0
-                , E.spacing 0
-                , E.scrollbarY
-                , Background.color Color.white
-                , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 32, color = E.rgba 0 0 0 0.75 }
+                [ Ui.onEnter (Msg.ForDialog <| Msg.DialogConfirm)
+                , E.width E.fill
+                , E.height E.fill
+                , E.spacing 36
                 ]
                 [ E.el
-                    [ E.paddingEach { top = 24, bottom = 24, right = 48, left = 48 }
-                    , Ui.bigFont model.device
+                    [ Ui.bigFont model.device
                     , Font.bold
                     ]
                     (E.text "Sauvegarder les données?")
                 , E.paragraph
-                    [ E.paddingEach { top = 24, bottom = 6, right = 48, left = 48 }
-                    ]
+                    []
                     [ E.text "Toutes les données de Pactole vont être enregistrées dans le dans le fichier suivant:"
                     ]
                 , E.row
-                    [ E.paddingEach { top = 12, bottom = 12, right = 48, left = 48 }
-                    , Ui.bigFont model.device
+                    [ Ui.bigFont model.device
                     , E.width E.fill
                     ]
                     [ E.el [ E.width E.fill ] E.none
@@ -1142,14 +1104,12 @@ viewDialog model =
                     , E.el [ E.width E.fill ] E.none
                     ]
                 , E.paragraph
-                    [ E.paddingEach { top = 6, bottom = 24, right = 48, left = 48 }
-                    ]
+                    []
                     [ E.text "Il sera placé dans le dossier des téléchargements."
                     ]
                 , E.row
                     [ E.width E.fill
                     , E.spacing 24
-                    , E.paddingEach { top = 64, bottom = 24, right = 48, left = 48 }
                     ]
                     [ E.el [ E.width E.fill ] E.none
                     , Ui.simpleButton
@@ -1165,23 +1125,17 @@ viewDialog model =
 
         Just (Model.UserError error) ->
             E.column
-                [ E.centerX
-                , E.centerY
-                , E.width (E.px 800)
-                , E.height E.shrink
-                , E.paddingXY 0 0
-                , E.spacing 0
-                , E.scrollbarY
-                , Background.color Color.white
-                , Border.shadow { offset = ( 0, 0 ), size = 4, blur = 32, color = E.rgba 0 0 0 0.75 }
+                [ Ui.onEnter (Msg.ForDialog <| Msg.DialogConfirm)
+                , E.width E.fill
+                , E.height E.fill
+                , E.spacing 36
                 ]
                 [ E.el
-                    [ E.paddingEach { top = 24, bottom = 24, right = 48, left = 48 }
-                    , Ui.bigFont model.device
+                    [ Ui.bigFont model.device
                     , Font.bold
                     ]
                     (E.text "Erreur")
-                , E.el [ E.paddingEach { left = 64, right = 48, top = 12, bottom = 24 } ]
+                , E.el []
                     (Ui.warningParagraph
                         [ E.text error
                         ]
@@ -1189,7 +1143,6 @@ viewDialog model =
                 , E.row
                     [ E.width E.fill
                     , E.spacing 24
-                    , E.paddingEach { top = 64, bottom = 24, right = 48, left = 48 }
                     ]
                     [ E.el [ E.width E.fill ] E.none
                     , Ui.mainButton
