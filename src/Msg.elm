@@ -46,7 +46,7 @@ type DialogMsg
 
 
 type SettingsDialogMsg
-    = SettingsRenameAccount Int
+    = SettingsEditAccount (Maybe Int)
     | SettingsDeleteAccount Int
     | SettingsRenameCategory Int
     | SettingsDeleteCategory Int
@@ -62,3 +62,4 @@ type SettingsDialogMsg
     | SettingsDeleteRecurring Int
     | SettingsAskImportConfirmation
     | SettingsAskExportConfirmation
+    | SettingsEditFont

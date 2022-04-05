@@ -208,7 +208,7 @@ type alias Dialog =
 
 
 type SettingsDialog
-    = RenameAccount { id : Int, name : String }
+    = EditAccount { id : Maybe Int, name : String }
     | DeleteAccount { id : Int, name : String }
     | RenameCategory { id : Int, name : String, icon : String }
     | DeleteCategory { id : Int, name : String, icon : String }
@@ -223,4 +223,5 @@ type SettingsDialog
         }
     | AskImportConfirmation
     | AskExportConfirmation
+    | EditFont String
     | UserError String

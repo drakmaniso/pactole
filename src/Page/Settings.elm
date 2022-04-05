@@ -32,13 +32,18 @@ import Ui.Color as Color
 update : Msg.SettingsDialogMsg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        Msg.SettingsRenameAccount id ->
+        Msg.SettingsEditAccount (Just id) ->
             let
                 name =
                     Maybe.withDefault "ERROR"
                         (Dict.get id model.accounts)
             in
-            ( { model | settingsDialog = Just (Model.RenameAccount { id = id, name = name }) }
+            ( { model | settingsDialog = Just (Model.EditAccount { id = Just id, name = name }) }
+            , Ports.openDialog ()
+            )
+
+        Msg.SettingsEditAccount Nothing ->
+            ( { model | settingsDialog = Just (Model.EditAccount { id = Nothing, name = "" }) }
             , Ports.openDialog ()
             )
 
@@ -107,8 +112,8 @@ update msg model =
 
         Msg.SettingsChangeName name ->
             case model.settingsDialog of
-                Just (Model.RenameAccount submodel) ->
-                    ( { model | settingsDialog = Just (Model.RenameAccount { submodel | name = name }) }
+                Just (Model.EditAccount submodel) ->
+                    ( { model | settingsDialog = Just (Model.EditAccount { submodel | name = name }) }
                     , Cmd.none
                     )
 
@@ -119,6 +124,11 @@ update msg model =
 
                 Just (Model.EditRecurring submodel) ->
                     ( { model | settingsDialog = Just (Model.EditRecurring { submodel | description = name }) }
+                    , Cmd.none
+                    )
+
+                Just (Model.EditFont _) ->
+                    ( { model | settingsDialog = Just (Model.EditFont name) }
                     , Cmd.none
                     )
 
@@ -221,12 +231,22 @@ update msg model =
             , Ports.openDialog ()
             )
 
+        Msg.SettingsEditFont ->
+            ( { model | settingsDialog = Just <| Model.EditFont model.settings.font }, Ports.openDialog () )
+
         Msg.SettingsConfirm ->
             case model.settingsDialog of
-                Just (Model.RenameAccount submodel) ->
-                    ( { model | settingsDialog = Nothing }
-                    , Cmd.batch [ Database.renameAccount submodel.id submodel.name, Ports.closeDialog () ]
-                    )
+                Just (Model.EditAccount submodel) ->
+                    case submodel.id of
+                        Just accountId ->
+                            ( { model | settingsDialog = Nothing }
+                            , Cmd.batch [ Database.renameAccount accountId submodel.name, Ports.closeDialog () ]
+                            )
+
+                        Nothing ->
+                            ( { model | settingsDialog = Nothing }
+                            , Cmd.batch [ Database.createAccount submodel.name, Ports.closeDialog () ]
+                            )
 
                 Just (Model.DeleteAccount submodel) ->
                     ( { model | settingsDialog = Nothing }
@@ -293,6 +313,18 @@ update msg model =
                     , Ports.closeDialog ()
                     )
 
+                Just (Model.EditFont fontName) ->
+                    let
+                        settings =
+                            model.settings
+                    in
+                    ( model
+                    , Cmd.batch
+                        [ Database.storeSettings { settings | font = fontName }
+                        , Ports.closeDialog ()
+                        ]
+                    )
+
                 Nothing ->
                     ( { model | settingsDialog = Nothing }
                     , Ports.closeDialog ()
@@ -325,8 +357,8 @@ viewContent model =
                     [ Ui.verticalSpacer
                     , configBackup model
                     , Ui.title model.device "Configuration des comptes"
-                    , configWarning model
                     , configAccounts model
+                    , configWarning model
                     , Ui.verticalSpacer
                     , Ui.title model.device "Fonctions optionnelles"
                     , configSummary model
@@ -398,35 +430,19 @@ configAccounts : Model -> E.Element Msg
 configAccounts model =
     E.column [ E.spacing 12 ]
         [ Ui.paragraph "Liste des comptes:"
-        , E.table [ E.spacing 6 ]
-            { data = Dict.toList model.accounts
-            , columns =
-                [ { header = E.none
-                  , width = E.fill
-                  , view = \a -> E.el [ E.centerY ] (E.text (Tuple.second a))
-                  }
-                , { header = E.none
-                  , width = E.shrink
-                  , view =
-                        \a ->
-                            Ui.iconButton
-                                { icon = Ui.editIcon
-                                , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsRenameAccount (Tuple.first a))
-                                }
-                  }
-                , { header = E.none
-                  , width = E.shrink
-                  , view =
-                        \a ->
-                            Ui.iconButton
-                                { icon = Ui.deleteIcon
-                                , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsDeleteAccount (Tuple.first a))
-                                }
-                  }
-                ]
-            }
+        , E.column [ E.spacing 6, E.width <| E.minimum 300 <| E.fill, Ui.innerShadow, E.padding 12 ]
+            (model.accounts
+                |> Dict.toList
+                |> List.map
+                    (\( id, name ) ->
+                        Ui.flatButton
+                            { label = E.text name
+                            , onPress = Just <| Msg.ForSettingsDialog <| Msg.SettingsEditAccount (Just id)
+                            }
+                    )
+            )
         , Ui.simpleButton
-            { onPress = Just (Msg.ForDatabase <| Msg.DbCreateAccount (newAccountName (Dict.values model.accounts) 1))
+            { onPress = Just <| Msg.ForSettingsDialog <| Msg.SettingsEditAccount Nothing
             , label = E.row [] [ Ui.plusIcon, E.text "  Nouveau compte" ]
             }
         ]
@@ -441,17 +457,17 @@ configWarning model =
     E.column [ E.spacing 12 ]
         [ Ui.paragraph "Avertissement lorsque le solde passe en dessous de:"
         , E.row [ E.spacing 12 ]
-            [ Ui.iconButton
-                { icon = Ui.minusIcon
+            [ Ui.simpleButton
+                { label = Ui.minusIcon
                 , onPress =
                     Just (Msg.ForDatabase <| Msg.DbStoreSettings { settings | balanceWarning = settings.balanceWarning - 10 })
                 }
-            , E.el [ Ui.bigFont model.device ]
+            , E.el []
                 (E.text (String.fromInt model.settings.balanceWarning))
             , E.el []
                 (E.text "€")
-            , Ui.iconButton
-                { icon = Ui.plusIcon
+            , Ui.simpleButton
+                { label = Ui.plusIcon
                 , onPress =
                     Just (Msg.ForDatabase <| Msg.DbStoreSettings { settings | balanceWarning = settings.balanceWarning + 10 })
                 }
@@ -685,6 +701,10 @@ configFont model =
     E.column
         [ E.width E.fill, E.spacing 24 ]
         [ Ui.title model.device "Police"
+        , Ui.simpleButton
+            { label = E.text "Changer la police de caractères"
+            , onPress = Just <| Msg.ForSettingsDialog <| Msg.SettingsEditFont
+            }
         , Ui.configRadio
             { onChange =
                 \newFont ->
@@ -718,39 +738,20 @@ viewDialog model =
         Nothing ->
             E.none
 
-        Just (Model.RenameAccount submodel) ->
+        Just (Model.EditAccount submodel) ->
             E.column
-                [ Ui.onEnter (Msg.ForDialog <| Msg.DialogConfirm)
+                [ Ui.onEnter (Msg.ForSettingsDialog <| Msg.SettingsConfirm)
                 , E.width E.fill
                 , E.height E.fill
                 , E.spacing 36
                 ]
                 [ E.el
-                    []
-                    (Input.text
-                        [ Ui.onEnter (Msg.ForSettingsDialog <| Msg.SettingsConfirm)
-                        , Ui.bigFont model.device
-                        , E.focused
-                            [ Border.shadow
-                                { offset = ( 0, 0 )
-                                , size = 4
-                                , blur = 0
-                                , color = Color.focus85
-                                }
-                            ]
-                        ]
-                        { label =
-                            Input.labelAbove
-                                [ E.width E.shrink
-                                , Font.color Color.primary40
-                                , Font.bold
-                                , E.paddingEach { top = 12, bottom = 0, left = 12, right = 0 }
-                                , E.pointer
-                                ]
-                                (E.text ("Renommer le compte \"" ++ submodel.name ++ "\":"))
+                    [ Ui.onEnter (Msg.ForSettingsDialog <| Msg.SettingsConfirm) ]
+                    (Ui.textInput
+                        { label = Ui.labelLeft "Nom du compte:"
                         , text = submodel.name
                         , onChange = \n -> Msg.ForSettingsDialog <| Msg.SettingsChangeName n
-                        , placeholder = Nothing
+                        , width = 400
                         }
                     )
                 , E.row
@@ -762,8 +763,17 @@ viewDialog model =
                         { label = E.text "Annuler"
                         , onPress = Just Msg.Close
                         }
+                    , case submodel.id of
+                        Just accountId ->
+                            Ui.dangerButton
+                                { label = E.text "Supprimer"
+                                , onPress = Just <| Msg.ForSettingsDialog <| Msg.SettingsDeleteAccount accountId
+                                }
+
+                        Nothing ->
+                            E.none
                     , Ui.mainButton
-                        { label = E.text "Confirmer"
+                        { label = E.text "OK"
                         , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsConfirm)
                         }
                     ]
@@ -771,7 +781,7 @@ viewDialog model =
 
         Just (Model.DeleteCategory submodel) ->
             E.column
-                [ Ui.onEnter (Msg.ForDialog <| Msg.DialogConfirm)
+                [ Ui.onEnter (Msg.ForSettingsDialog <| Msg.SettingsConfirm)
                 , E.width E.fill
                 , E.height E.fill
                 , E.spacing 36
@@ -804,27 +814,17 @@ viewDialog model =
 
         Just (Model.RenameCategory submodel) ->
             E.column
-                [ Ui.onEnter (Msg.ForDialog <| Msg.DialogConfirm)
+                [ Ui.onEnter (Msg.ForSettingsDialog <| Msg.SettingsConfirm)
                 , E.width E.fill
                 , E.height E.fill
                 , E.spacing 36
                 ]
-                [ E.el []
-                    (Input.text
-                        [ Ui.onEnter (Msg.ForSettingsDialog <| Msg.SettingsConfirm)
-                        , Ui.bigFont model.device
-                        ]
-                        { label =
-                            Input.labelAbove
-                                [ E.width E.shrink
-                                , Font.color Color.primary40
-                                , Font.bold
-                                , E.pointer
-                                ]
-                                (E.text ("Renommer la catégorie \"" ++ submodel.name ++ "\":"))
+                [ E.el [ Ui.onEnter (Msg.ForSettingsDialog <| Msg.SettingsConfirm) ]
+                    (Ui.textInput
+                        { label = Ui.labelLeft "Catégorie:"
                         , text = submodel.name
                         , onChange = \n -> Msg.ForSettingsDialog <| Msg.SettingsChangeName n
-                        , placeholder = Nothing
+                        , width = 200
                         }
                     )
                 , E.el
@@ -863,7 +863,7 @@ viewDialog model =
 
         Just (Model.DeleteAccount submodel) ->
             E.column
-                [ Ui.onEnter (Msg.ForDialog <| Msg.DialogConfirm)
+                [ Ui.onEnter (Msg.ForSettingsDialog <| Msg.SettingsConfirm)
                 , E.width E.fill
                 , E.height E.fill
                 , E.spacing 36
@@ -896,7 +896,7 @@ viewDialog model =
 
         Just (Model.EditRecurring submodel) ->
             E.column
-                [ Ui.onEnter (Msg.ForDialog <| Msg.DialogConfirm)
+                [ Ui.onEnter (Msg.ForSettingsDialog <| Msg.SettingsConfirm)
                 , E.width E.fill
                 , E.height E.fill
                 , E.spacing 36
@@ -1043,7 +1043,7 @@ viewDialog model =
 
         Just Model.AskImportConfirmation ->
             E.column
-                [ Ui.onEnter (Msg.ForDialog <| Msg.DialogConfirm)
+                [ Ui.onEnter (Msg.ForSettingsDialog <| Msg.SettingsConfirm)
                 , E.width E.fill
                 , E.height E.fill
                 , E.spacing 36
@@ -1078,7 +1078,7 @@ viewDialog model =
 
         Just Model.AskExportConfirmation ->
             E.column
-                [ Ui.onEnter (Msg.ForDialog <| Msg.DialogConfirm)
+                [ Ui.onEnter (Msg.ForSettingsDialog <| Msg.SettingsConfirm)
                 , E.width E.fill
                 , E.height E.fill
                 , E.spacing 36
@@ -1120,9 +1120,64 @@ viewDialog model =
                     ]
                 ]
 
+        Just (Model.EditFont submodel) ->
+            E.column
+                [ Ui.onEnter (Msg.ForSettingsDialog <| Msg.SettingsConfirm)
+                , E.width E.fill
+                , E.height E.fill
+                , E.spacing 36
+                ]
+                [ E.el
+                    [ Ui.onEnter (Msg.ForSettingsDialog <| Msg.SettingsConfirm) ]
+                    (Ui.textInput
+                        { label = Ui.labelLeft "Police de caractère:"
+                        , text = submodel
+                        , onChange = \n -> Msg.ForSettingsDialog <| Msg.SettingsChangeName n
+                        , width = 400
+                        }
+                    )
+                , Ui.paragraph "Quelques exemples: "
+                , E.wrappedRow [ E.spacing 6 ]
+                    [ Ui.simpleButton
+                        { label = Ui.text "police par défaut"
+                        , onPress = Just <| Msg.ForSettingsDialog <| Msg.SettingsChangeName "Andika New Basic"
+                        }
+                    , Ui.simpleButton
+                        { label = Ui.text "police du navigateur"
+                        , onPress = Just <| Msg.ForSettingsDialog <| Msg.SettingsChangeName "sans-serif"
+                        }
+                    , Ui.simpleButton
+                        { label = Ui.text "Verdana"
+                        , onPress = Just <| Msg.ForSettingsDialog <| Msg.SettingsChangeName "Verdana"
+                        }
+                    , Ui.simpleButton
+                        { label = Ui.text "Open Dyslexic"
+                        , onPress = Just <| Msg.ForSettingsDialog <| Msg.SettingsChangeName "OpenDyslexic"
+                        }
+                    , Ui.simpleButton
+                        { label = Ui.text "Comic Sans"
+                        , onPress = Just <| Msg.ForSettingsDialog <| Msg.SettingsChangeName "Comic Sans"
+                        }
+                    ]
+                , E.row
+                    [ E.width E.fill
+                    , E.spacing 24
+                    ]
+                    [ E.el [ E.width E.fill ] E.none
+                    , Ui.simpleButton
+                        { label = E.text "Annuler"
+                        , onPress = Just Msg.Close
+                        }
+                    , Ui.mainButton
+                        { label = E.text "OK"
+                        , onPress = Just (Msg.ForSettingsDialog <| Msg.SettingsConfirm)
+                        }
+                    ]
+                ]
+
         Just (Model.UserError error) ->
             E.column
-                [ Ui.onEnter (Msg.ForDialog <| Msg.DialogConfirm)
+                [ Ui.onEnter (Msg.ForSettingsDialog <| Msg.SettingsConfirm)
                 , E.width E.fill
                 , E.height E.fill
                 , E.spacing 36
@@ -1148,23 +1203,6 @@ viewDialog model =
                         }
                     ]
                 ]
-
-
-
--- UTILS
-
-
-newAccountName : List String -> Int -> String
-newAccountName accounts number =
-    let
-        name =
-            "Compte " ++ String.fromInt number
-    in
-    if List.member name accounts then
-        newAccountName accounts (number + 1)
-
-    else
-        name
 
 
 

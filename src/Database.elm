@@ -87,7 +87,15 @@ storeSettings settings =
 
 createAccount : String -> Cmd msg
 createAccount name =
-    Ports.sendToSW ( "create account", Encode.string name )
+    let
+        safeName =
+            if name == "" then
+                "?"
+
+            else
+                name
+    in
+    Ports.sendToSW ( "create account", Encode.string safeName )
 
 
 proceedWithInstallation : Model -> { firstAccount : String, initialBalance : Money, date : Date } -> Cmd msg

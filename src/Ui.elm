@@ -23,6 +23,7 @@ module Ui exposing
     , errorIcon
     , expenseButton
     , expenseIcon
+    , flatButton
     , focusVisibleOnly
     , fontFamily
     , helpImage
@@ -175,7 +176,8 @@ fontFamily : String -> E.Attribute msg
 fontFamily font =
     Font.family
         [ Font.typeface font
-        , Font.sansSerif
+
+        -- , Font.sansSerif
         ]
 
 
@@ -789,7 +791,7 @@ simpleButton { onPress, label } =
         , transition
         , E.paddingXY 20 4
         , E.mouseDown [ Background.color Color.neutral90 ]
-        , E.mouseOver [ Background.color Color.white ]
+        , E.mouseOver [ Background.color Color.neutral98 ]
         , E.htmlAttribute <| Html.Attributes.class "focus-visible-only"
         ]
         { onPress = onPress
@@ -885,6 +887,27 @@ expenseButton { onPress, label } =
         , E.mouseDown [ Background.color Color.expense80, Border.color Color.expense80 ]
         , E.mouseOver [ Background.color Color.expense95, Border.color Color.expense95 ]
         , focusVisibleOnly
+        ]
+        { onPress = onPress
+        , label = label
+        }
+
+
+flatButton :
+    { onPress : Maybe msg, label : E.Element msg }
+    -> E.Element msg
+flatButton { onPress, label } =
+    Input.button
+        [ E.width E.fill
+        , Background.color Color.transparent
+        , Border.width 4
+        , Border.color Color.transparent
+        , focusVisibleOnly
+        , transition
+        , E.paddingXY 20 4
+        , E.mouseDown [ Background.color Color.neutral90 ]
+        , E.mouseOver [ Background.color Color.neutral98 ]
+        , E.htmlAttribute <| Html.Attributes.class "focus-visible-only"
         ]
         { onPress = onPress
         , label = label

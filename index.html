@@ -214,14 +214,15 @@
             _ => {
               const dialog = document.getElementById("dialog")
               if (dialog) {
-                log("open dialog")
-                dialog.showModal()
-                const focusedField = document.getElementById("dialog-amount")
-                if (focusedField) {
-                  focusedField.focus()
+                if (!dialog.open) {
+                  dialog.showModal()
                 }
               } else {
                 error(`unable to open dialog`)
+              }
+              const focusedField = document.getElementById("dialog-amount")
+              if (focusedField) {
+                focusedField.focus()
               }
             }
           )
