@@ -698,13 +698,10 @@ configFont model =
                 [ Ui.radioRowOption "Andika New Basic" (E.text "Andika New Basic")
                 , Ui.radioRowOption "System UI" (E.text "Système")
                 , Ui.radioRowOption "sans-serif" (E.text "Sans Serif")
-                , Ui.radioRowOption "Work Sans" (E.text "Work Sans")
                 , Ui.radioRowOption "Verdana" (E.text "Verdana")
                 , Ui.radioRowOption "Georgia" (E.text "Georgia")
                 , Ui.radioRowOption "Comic Sans MS" (E.text "Comic Sans MS")
                 , Ui.radioRowOption "OpenDyslexic" (E.text "OpenDyslexic")
-                , Ui.radioRowOption "Lucida Sans" (E.text "Lucida Sans")
-                , Ui.radioRowOption "Lucida Grande" (E.text "Lucida Grande")
                 ]
             , selected = Just model.settings.font
             }

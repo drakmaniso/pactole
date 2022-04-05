@@ -12,8 +12,6 @@ const files = [
   'fonts/fa-solid-900.woff2',
   'fonts/andika-new-basic-v15-latin-regular.woff2',
   'fonts/andika-new-basic-v15-latin-700.woff2',
-  'fonts/work-sans-v7-latin-regular.woff2',
-  'fonts/work-sans-v7-latin-700.woff2',
   'images/icon-512x512.png',
   'images/general-presentation-FR.png',
 ]
@@ -23,34 +21,42 @@ const files = [
 // - version 1 had recurring transactions stored inside settings
 const version = 2
 
-const staticCacheName = "pactole-cache-1"
+const staticCacheName = "pactole-cache-2"
 
 // Used to force an update on client-side
 const serviceVersion = "1.3.3"
 
 
 self.addEventListener('install', event => {
-  log('Installing service worker...!')
+  log('Installing service worker...')
   event.waitUntil(self.skipWaiting())
-  event.waitUntil(
-    caches
-      .open(staticCacheName)
-      .then(cache => {
-        log('    Installing cache')
-        return cache.addAll(
-          files.map(f => {
-            return new Request(f, { cache: 'no-store' })
-          })
-        )
-      })
-      .then(() => {
-        log('...service worker installed.')
-      })
-      .catch(err => {
-        error(err)
-      })
-  )
+  event.waitUntil(precache())
+  log('...service worker installed.')
+  //   caches
+  //     .open(staticCacheName)
+  //     .then(cache => {
+  //       log('    Installing cache')
+  //       return cache.addAll(
+  //         files.map(f => {
+  //           return new Request(f, { cache: 'no-store' })
+  //         })
+  //       )
+  //     })
+  //     .then(() => {
+  //       log('...service worker installed.')
+  //     })
+  //     .catch(err => {
+  //       error(err)
+  //     })
+  // )
 })
+
+
+function precache() {
+  return caches.open(staticCacheName).then(cache => {
+    return cache.addAll(files)
+  })
+}
 
 
 self.addEventListener('activate', event => {
