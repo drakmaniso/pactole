@@ -210,10 +210,10 @@ type alias Dialog =
 type SettingsDialog
     = EditAccount { id : Maybe Int, name : String }
     | DeleteAccount { id : Int, name : String }
-    | RenameCategory { id : Int, name : String, icon : String }
+    | EditCategory { id : Maybe Int, name : String, icon : String }
     | DeleteCategory { id : Int, name : String, icon : String }
     | EditRecurring
-        { idx : Int
+        { id : Maybe Int
         , account : Int
         , isExpense : Bool
         , amount : String

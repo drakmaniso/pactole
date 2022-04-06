@@ -48,7 +48,7 @@ type DialogMsg
 type SettingsDialogMsg
     = SettingsEditAccount (Maybe Int)
     | SettingsDeleteAccount Int
-    | SettingsRenameCategory Int
+    | SettingsEditCategory (Maybe Int)
     | SettingsDeleteCategory Int
     | SettingsChangeName String
     | SettingsChangeAccount Int
@@ -58,7 +58,7 @@ type SettingsDialogMsg
     | SettingsChangeIcon String
     | SettingsConfirm
     | SettingsNewRecurring
-    | SettingsEditRecurring Int Int Ledger.Transaction
+    | SettingsEditRecurring (Maybe Int)
     | SettingsDeleteRecurring Int
     | SettingsAskImportConfirmation
     | SettingsAskExportConfirmation

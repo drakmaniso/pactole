@@ -220,10 +220,6 @@
               } else {
                 error(`unable to open dialog`)
               }
-              const focusedField = document.getElementById("dialog-amount")
-              if (focusedField) {
-                focusedField.focus()
-              }
             }
           )
           app.ports.closeDialog.subscribe(

@@ -45,7 +45,7 @@ update msg model =
               }
             , Cmd.batch
                 [ Ports.openDialog ()
-                , Task.attempt (\_ -> Msg.NoOp) (Dom.focus "dialog-amount")
+                , Task.attempt (\_ -> Msg.NoOp) (Dom.focus "dialog-focus")
                 ]
             )
 

@@ -63,6 +63,7 @@ module Ui exposing
     , twoPartsSidePanel
     , verticalSpacer
     , viewDate
+    , viewIcon
     , viewMoney
     , viewSum
     , warningIcon
@@ -542,6 +543,7 @@ warningPopup device elements =
             , Font.center
             , Font.regular
             , notSelectable
+            , smallShadow
             ]
             elements
 
@@ -639,6 +641,12 @@ dateNavigationBar device model changeMsg =
             ]
         , E.el [ E.width (E.fill |> E.maximum 64) ] E.none
         ]
+
+
+viewIcon : String -> E.Element msg
+viewIcon txt =
+    E.el [ E.width (E.shrink |> E.minimum 48), iconFont, Font.center ]
+        (E.text txt)
 
 
 viewDate : Device -> Date -> E.Element msg
@@ -898,15 +906,15 @@ flatButton :
     -> E.Element msg
 flatButton { onPress, label } =
     Input.button
-        [ E.width E.fill
-        , Background.color Color.transparent
+        [ Background.color Color.transparent
         , Border.width 4
         , Border.color Color.transparent
         , focusVisibleOnly
         , transition
         , E.paddingXY 20 4
-        , E.mouseDown [ Background.color Color.neutral90 ]
-        , E.mouseOver [ Background.color Color.neutral98 ]
+        , Font.color Color.primary40
+        , E.mouseDown [ Font.color Color.primary30 ]
+        , E.mouseOver [ Font.color Color.primary50 ]
         , E.htmlAttribute <| Html.Attributes.class "focus-visible-only"
         ]
         { onPress = onPress
@@ -1066,7 +1074,7 @@ moneyInput device args =
         , E.focused
             [ Border.color Color.focus85
             ]
-        , E.htmlAttribute <| Html.Attributes.id "dialog-amount"
+        , E.htmlAttribute <| Html.Attributes.id "dialog-focus"
         , E.htmlAttribute <| Html.Attributes.autocomplete False
         , Font.color args.color
         , case Tuple.second args.state of
