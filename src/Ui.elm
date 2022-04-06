@@ -93,12 +93,25 @@ type alias Device =
     { width : Int
     , height : Int
     , class : E.Device
+    , fontSize : Int
     }
 
 
-classifyDevice : Int -> Int -> Device
-classifyDevice width height =
-    { width = width, height = height, class = E.classifyDevice { width = width, height = height } }
+classifyDevice : { width : Int, height : Int, fontSize : Int } -> Device
+classifyDevice { width, height, fontSize } =
+    { width = width
+    , height = height
+    , class = E.classifyDevice { width = width, height = height }
+    , fontSize =
+        if fontSize >= 6 && fontSize <= 128 then
+            fontSize
+
+        else if width > firstBreakPoint then
+            26
+
+        else
+            22
+    }
 
 
 
@@ -187,49 +200,34 @@ firstBreakPoint =
     1280
 
 
+fontScale : Device -> Int -> Int
+fontScale device n =
+    E.modular (device.fontSize |> toFloat) 1.4 n |> round
+
+
 biggestFont : Device -> E.Attr decorative msg
 biggestFont device =
-    if device.width > firstBreakPoint then
-        Font.size 48
-
-    else
-        Font.size 36
+    Font.size <| fontScale device 3
 
 
 bigFont : Device -> E.Attr decorative msg
 bigFont device =
-    if device.width > firstBreakPoint then
-        Font.size 32
-
-    else
-        Font.size 26
+    Font.size <| fontScale device 2
 
 
 defaultFontSize : Device -> E.Attr decorative msg
 defaultFontSize device =
-    if device.width > firstBreakPoint then
-        Font.size 26
-
-    else
-        Font.size 22
+    Font.size <| fontScale device 1
 
 
 smallFont : Device -> E.Attr decorative msg
 smallFont device =
-    if device.width > firstBreakPoint then
-        Font.size 20
-
-    else
-        Font.size 16
+    Font.size <| fontScale device -1
 
 
 smallerFont : Device -> E.Attr decorative msg
 smallerFont device =
-    if device.width > firstBreakPoint then
-        Font.size 14
-
-    else
-        Font.size 12
+    Font.size <| fontScale device -2
 
 
 iconFont : E.Attribute msg
@@ -1218,11 +1216,15 @@ textColumn device elements =
 
 paragraphWidth : Device -> Int
 paragraphWidth device =
-    if device.width > firstBreakPoint then
-        860
+    let
+        w =
+            32 * device.fontSize
+    in
+    if w > 940 then
+        940
 
     else
-        720
+        w
 
 
 pageTitleWidth : Device -> Int

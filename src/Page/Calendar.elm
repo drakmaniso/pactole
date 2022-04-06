@@ -102,6 +102,7 @@ calendarHeader model =
             , E.alignBottom
             , Ui.smallFont model.device
             , Ui.notSelectable
+            , Font.color Color.neutral40
             ]
             [ E.el [ E.width E.fill ] (E.el [ E.centerX ] (E.text "Lundi"))
             , E.el [ E.width E.fill ] (E.el [ E.centerX ] (E.text "Mardi"))
@@ -307,7 +308,7 @@ dayView model =
             , Font.center
             , Ui.notSelectable
             ]
-            [ E.el [ E.width E.fill, Font.color Color.neutral50, Ui.smallFont model.device ]
+            [ E.el [ E.width E.fill, Font.color Color.neutral40, Ui.smallFont model.device ]
                 (E.text <|
                     if model.date == model.today then
                         "— Aujourd'hui —"
@@ -454,7 +455,7 @@ dayContentFor model day =
             [ E.paragraph
                 [ E.width E.fill
                 , Font.center
-                , Font.color Color.neutral50
+                , Font.color Color.neutral40
                 , E.paddingXY 8 32
                 ]
                 [ E.text "(Aucune opération)" ]

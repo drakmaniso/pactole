@@ -36,6 +36,7 @@ import Model exposing (Model)
 import Money exposing (Money)
 import Msg exposing (Msg)
 import Ports
+import Ui
 
 
 
@@ -349,6 +350,12 @@ msgFromService ( title, content ) model =
 
                             else
                                 Model.MainPage
+                        , device =
+                            Ui.classifyDevice
+                                { width = model.device.width
+                                , height = model.device.height
+                                , fontSize = db.settings.fontSize
+                                }
                       }
                     , if not (List.isEmpty db.accounts) then
                         Ports.requestStoragePersistence ()
@@ -365,7 +372,16 @@ msgFromService ( title, content ) model =
         "update settings" ->
             case Decode.decodeValue Model.decodeSettings content of
                 Ok settings ->
-                    ( { model | settings = settings }, Cmd.none )
+                    let
+                        device =
+                            model.device
+                    in
+                    ( { model
+                        | settings = settings
+                        , device = Ui.classifyDevice { width = device.width, height = device.height, fontSize = settings.fontSize }
+                      }
+                    , Cmd.none
+                    )
 
                 Err e ->
                     Log.error ("decoding settings: " ++ Decode.errorToString e) ( model, Cmd.none )

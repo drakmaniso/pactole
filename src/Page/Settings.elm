@@ -681,9 +681,48 @@ configLocked model =
 
 configFont : Model -> E.Element Msg
 configFont model =
+    let
+        settings =
+            model.settings
+
+        fontSize =
+            model.device.fontSize
+
+        sanitize size =
+            if size < 6 then
+                6
+
+            else if size > 128 then
+                128
+
+            else
+                size
+    in
     E.column
         [ E.width E.fill, E.spacing 24 ]
         [ Ui.title model.device "Apparence"
+        , E.column [ E.spacing 12 ]
+            [ Ui.paragraph "Taille du texte:"
+            , E.row [ E.spacing 12 ]
+                [ Ui.simpleButton
+                    { label = Ui.minusIcon
+                    , onPress =
+                        Just (Msg.ForDatabase <| Msg.DbStoreSettings { settings | fontSize = sanitize <| fontSize - 1 })
+                    }
+                , E.el []
+                    (E.text (String.fromInt fontSize))
+                , Ui.simpleButton
+                    { label = Ui.plusIcon
+                    , onPress =
+                        Just (Msg.ForDatabase <| Msg.DbStoreSettings { settings | fontSize = sanitize <| fontSize + 1 })
+                    }
+                , Ui.simpleButton
+                    { label = E.text "Taille par défaut"
+                    , onPress =
+                        Just <| Msg.ForDatabase <| Msg.DbStoreSettings { settings | fontSize = 0 }
+                    }
+                ]
+            ]
         , Ui.simpleButton
             { label = E.text "Changer la police de caractères"
             , onPress = Just <| Msg.ForSettingsDialog <| Msg.SettingsEditFont
@@ -1034,22 +1073,29 @@ viewDialog model =
                 , E.width E.fill
                 , E.height E.fill
                 , E.spacing 36
+                , Ui.onEnter (Msg.ForSettingsDialog <| Msg.SettingsConfirm)
                 ]
-                [ E.column []
-                    [ E.el
-                        [ Ui.onEnter (Msg.ForSettingsDialog <| Msg.SettingsConfirm) ]
-                        (Ui.textInput
-                            { label = Ui.labelLeft "Police de caractère:"
-                            , text = submodel
-                            , onChange = \n -> Msg.ForSettingsDialog <| Msg.SettingsChangeName n
-                            , width = 400
-                            }
-                        )
+                [ E.wrappedRow [ E.spacing 12 ]
+                    [ Ui.textInput
+                        { label = Ui.labelLeft "Police de caractère:"
+                        , text = submodel
+                        , onChange = \n -> Msg.ForSettingsDialog <| Msg.SettingsChangeName n
+                        , width = 400
+                        }
                     , Ui.simpleButton
-                        { label = Ui.text "réinitialiser"
+                        { label = Ui.text "Réinitialiser"
                         , onPress = Just <| Msg.ForSettingsDialog <| Msg.SettingsChangeName "Andika New Basic"
                         }
                     ]
+                , Ui.paragraph
+                    """
+                    Exemple de polices faciles à lire: "Verdana", "Comic Sans MS", "Andika", "OpenDyslexic".
+                    """
+                , Ui.paragraph
+                    """
+                    Notez que la police doit d'abord être installée sur l'appareil avant de
+                    pouvoir être utilisée dans l'application.
+                    """
                 , E.row
                     [ E.width E.fill
                     , E.spacing 24

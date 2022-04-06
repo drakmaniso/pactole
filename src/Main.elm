@@ -116,7 +116,7 @@ init flags _ _ =
       , dialog = Nothing
       , settingsDialog = Nothing
       , serviceVersion = "unknown"
-      , device = Ui.classifyDevice width height
+      , device = Ui.classifyDevice { width = width, height = height, fontSize = 0 }
       , errors = []
       }
     , Cmd.none
@@ -147,7 +147,7 @@ update msg model =
 
         Msg.WindowResize size ->
             ( { model
-                | device = Ui.classifyDevice size.width size.height
+                | device = Ui.classifyDevice { width = size.width, height = size.height, fontSize = model.settings.fontSize }
               }
             , Cmd.none
             )

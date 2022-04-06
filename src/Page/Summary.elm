@@ -111,7 +111,7 @@ viewBalance model =
         [ E.el
             [ Ui.smallFont model.device
             , E.centerX
-            , Font.color Color.neutral50
+            , Font.color Color.neutral40
             , Ui.notSelectable
             ]
             (E.text "Solde actuel:")
