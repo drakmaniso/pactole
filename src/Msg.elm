@@ -28,8 +28,6 @@ type InstallMsg
 
 type DatabaseMsg
     = DbFromService ( String, Decode.Value )
-    | DbCreateAccount String
-    | DbCreateCategory String String
     | DbStoreSettings Model.Settings
     | DbCheckTransaction Ledger.Transaction Bool
 
@@ -57,7 +55,6 @@ type SettingsDialogMsg
     | SettingsChangeIsExpense Bool
     | SettingsChangeIcon String
     | SettingsConfirm
-    | SettingsNewRecurring
     | SettingsEditRecurring (Maybe Int)
     | SettingsDeleteRecurring Int
     | SettingsAskImportConfirmation

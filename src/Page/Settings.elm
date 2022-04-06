@@ -80,18 +80,6 @@ update msg model =
             , Ports.openDialog ()
             )
 
-        Msg.SettingsNewRecurring ->
-            ( model
-            , Database.createRecurringTransaction
-                { date = Date.findNextDayOfMonth 1 model.today
-                , account = model.account
-                , amount = Money.zero
-                , description = "(opération mensuelle)"
-                , category = 0
-                , checked = False
-                }
-            )
-
         Msg.SettingsEditRecurring (Just idx) ->
             case Ledger.getTransaction idx model.recurring of
                 Nothing ->

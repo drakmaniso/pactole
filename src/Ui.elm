@@ -182,6 +182,7 @@ fontFamily font =
         ]
 
 
+firstBreakPoint : Int
 firstBreakPoint =
     1280
 

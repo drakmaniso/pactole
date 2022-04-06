@@ -48,12 +48,6 @@ update msg model =
         Msg.DbFromService ( title, json ) ->
             msgFromService ( title, json ) model
 
-        Msg.DbCreateAccount name ->
-            ( model, createAccount name )
-
-        Msg.DbCreateCategory name icon ->
-            ( model, createCategory name icon )
-
         Msg.DbStoreSettings settings ->
             ( model, storeSettings settings )
 
