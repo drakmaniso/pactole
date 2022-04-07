@@ -1,4 +1,4 @@
-module Main exposing (init, keyDecoder, main, subscriptions, update, view)
+module Main exposing (init, keyDecoder, main, subscriptions, update, viewPage)
 
 import Browser
 import Browser.Dom as Dom
@@ -196,75 +196,64 @@ keyDecoder msg =
 view : Model -> Browser.Document Msg
 view model =
     let
+        activePage =
+            viewPage model
+
         activeDialog =
-            model.dialog
-                |> Maybe.map (viewDialog model)
-
-        activePageContent =
-            case model.page of
-                Model.LoadingPage ->
-                    Loading.view model
-
-                Model.InstallationPage installation ->
-                    Installation.view model installation
-
-                Model.HelpPage ->
-                    Help.view model
-
-                Model.SettingsPage ->
-                    Settings.view model
-
-                Model.StatisticsPage ->
-                    Statistics.viewContent model
-
-                Model.ReconcilePage ->
-                    Reconcile.viewContent model
-
-                Model.CalendarPage ->
-                    Calendar.viewContent model
-
-                Model.DiagnosticsPage ->
-                    Diagnostics.view model
-
-        activePagePanel =
-            case model.page of
-                Model.LoadingPage ->
-                    E.none
-
-                Model.InstallationPage _ ->
-                    E.none
-
-                Model.HelpPage ->
-                    logoPanel model
-
-                Model.SettingsPage ->
-                    logoPanel model
-
-                Model.StatisticsPage ->
-                    Statistics.viewPanel model
-
-                Model.ReconcilePage ->
-                    Reconcile.viewPanel model
-
-                Model.CalendarPage ->
-                    Calendar.viewPanel model
-
-                Model.DiagnosticsPage ->
-                    logoPanel model
+            model.dialog |> Maybe.map (viewDialog model)
     in
+    { title = "Pactole"
+    , body =
+        [ pageHtml model activePage
+        , dialogHtml model activeDialog
+        ]
+    }
+
+
+viewPage : Model -> E.Element Msg
+viewPage model =
     case model.page of
         Model.LoadingPage ->
-            document model activeDialog activePageContent
+            Loading.view model
 
-        Model.InstallationPage _ ->
-            document model activeDialog activePageContent
+        Model.InstallationPage data ->
+            Installation.view model data
 
-        _ ->
-            document model activeDialog <|
-                pageWithSidePanel model
-                    { panel = activePagePanel
-                    , page = activePageContent
-                    }
+        Model.HelpPage ->
+            pageWithSidePanel model
+                { panel = logoPanel model
+                , page = Help.view model
+                }
+
+        Model.SettingsPage ->
+            pageWithSidePanel model
+                { panel = logoPanel model
+                , page = Settings.view model
+                }
+
+        Model.StatisticsPage ->
+            pageWithSidePanel model
+                { panel = Statistics.viewPanel model
+                , page = Statistics.viewContent model
+                }
+
+        Model.ReconcilePage ->
+            pageWithSidePanel model
+                { panel = Reconcile.viewPanel model
+                , page = Reconcile.viewContent model
+                }
+
+        Model.CalendarPage ->
+            pageWithSidePanel model
+                { panel = Calendar.viewPanel model
+                , page = Calendar.viewContent model
+                }
+
+        Model.DiagnosticsPage ->
+            pageWithSidePanel model
+                { panel = logoPanel model
+                , page = Diagnostics.view model
+                }
 
 
 viewDialog : Model -> Model.Dialog -> E.Element Msg
@@ -305,83 +294,79 @@ viewDialog model dialog =
 -- VIEW PARTS
 
 
-document : Model -> Maybe (E.Element Msg) -> E.Element Msg -> Browser.Document Msg
-document model activeDialog activePage =
-    let
-        contentHtml =
-            E.layoutWith
-                { options =
-                    [ E.focusStyle
-                        { borderColor = Nothing
-                        , backgroundColor = Nothing
-                        , shadow = Nothing
-                        }
-                    ]
+pageHtml : Model -> E.Element Msg -> Html.Html Msg
+pageHtml model element =
+    E.layoutWith
+        { options =
+            [ E.focusStyle
+                { borderColor = Nothing
+                , backgroundColor = Nothing
+                , shadow = Nothing
                 }
-                []
-                (E.column
-                    [ E.width E.fill
-                    , E.height E.fill
-                    , Ui.fontFamily model.settings.font
-                    , Ui.defaultFontSize model.device
-                    , Font.color Color.neutral30
-                    , Background.color Color.white
-                    ]
-                    [ case ( model.page, model.isStoragePersisted ) of
-                        ( Model.LoadingPage, _ ) ->
-                            E.none
-
-                        ( Model.InstallationPage _, _ ) ->
-                            E.none
-
-                        ( _, False ) ->
-                            warningBanner "Attention: le stockage n'est pas persistant!"
-
-                        ( _, True ) ->
-                            E.none
-                    , activePage
-                    ]
-                )
-    in
-    { title = "Pactole"
-    , body =
-        [ contentHtml
-        , Html.node "dialog"
-            [ Html.Attributes.id "dialog"
-            , Html.Attributes.class "dialog"
             ]
-            [ E.layoutWith
-                { options =
-                    [ E.noStaticStyleSheet
-                    , E.focusStyle
-                        { borderColor = Nothing
-                        , backgroundColor = Nothing
-                        , shadow = Nothing
-                        }
-                    ]
-                }
-                []
-                (E.el
-                    [ E.width <| E.minimum 600 <| E.maximum 920 <| E.fill
-                    , E.height <| E.minimum 200 <| E.fill
-                    , Ui.fontFamily model.settings.font
-                    , Ui.defaultFontSize model.device
-                    , Background.color Color.white
-                    , Font.color Color.neutral30
-                    , E.paddingXY 48 24
-                    , E.scrollbarY
-                    ]
-                 <|
-                    case activeDialog of
-                        Just d ->
-                            d
-
-                        Nothing ->
-                            E.none
-                )
+        }
+        []
+        (E.column
+            [ E.width E.fill
+            , E.height E.fill
+            , Ui.fontFamily model.settings.font
+            , Ui.defaultFontSize model.device
+            , Font.color Color.neutral30
+            , Background.color Color.white
             ]
+            [ case ( model.page, model.isStoragePersisted ) of
+                ( Model.LoadingPage, _ ) ->
+                    E.none
+
+                ( Model.InstallationPage _, _ ) ->
+                    E.none
+
+                ( _, False ) ->
+                    warningBanner "Attention: le stockage n'est pas persistant!"
+
+                ( _, True ) ->
+                    E.none
+            , element
+            ]
+        )
+
+
+dialogHtml : Model -> Maybe (E.Element Msg) -> Html.Html Msg
+dialogHtml model maybeElement =
+    Html.node "dialog"
+        [ Html.Attributes.id "dialog"
+        , Html.Attributes.class "dialog"
         ]
-    }
+        [ E.layoutWith
+            { options =
+                [ E.noStaticStyleSheet
+                , E.focusStyle
+                    { borderColor = Nothing
+                    , backgroundColor = Nothing
+                    , shadow = Nothing
+                    }
+                ]
+            }
+            []
+            (E.el
+                [ E.width <| E.minimum 600 <| E.maximum 920 <| E.fill
+                , E.height <| E.minimum 200 <| E.fill
+                , Ui.fontFamily model.settings.font
+                , Ui.defaultFontSize model.device
+                , Background.color Color.white
+                , Font.color Color.neutral30
+                , E.paddingXY 48 24
+                , E.scrollbarY
+                ]
+             <|
+                case maybeElement of
+                    Just e ->
+                        e
+
+                    Nothing ->
+                        E.none
+            )
+        ]
 
 
 warningBanner : String -> E.Element Msg
