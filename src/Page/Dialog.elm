@@ -33,15 +33,16 @@ update msg model =
         Msg.DialogNewTransaction isExpense date ->
             ( { model
                 | dialog =
-                    Just
-                        { id = Nothing
-                        , isExpense = isExpense
-                        , isRecurring = False
-                        , date = date
-                        , amount = ( "", Nothing )
-                        , description = ""
-                        , category = 0
-                        }
+                    Just <|
+                        Model.EditTransaction
+                            { id = Nothing
+                            , isExpense = isExpense
+                            , isRecurring = False
+                            , date = date
+                            , amount = ( "", Nothing )
+                            , description = ""
+                            , category = 0
+                            }
               }
             , Cmd.batch
                 [ Ports.openDialog ()
@@ -57,15 +58,16 @@ update msg model =
                 Just t ->
                     ( { model
                         | dialog =
-                            Just
-                                { id = Just t.id
-                                , isExpense = Money.isExpense t.amount
-                                , isRecurring = False
-                                , date = t.date
-                                , amount = ( Money.toInput t.amount, Nothing )
-                                , description = t.description
-                                , category = t.category
-                                }
+                            Just <|
+                                Model.EditTransaction
+                                    { id = Just t.id
+                                    , isExpense = Money.isExpense t.amount
+                                    , isRecurring = False
+                                    , date = t.date
+                                    , amount = ( Money.toInput t.amount, Nothing )
+                                    , description = t.description
+                                    , category = t.category
+                                    }
                       }
                     , Ports.openDialog ()
                     )
@@ -78,65 +80,68 @@ update msg model =
                 Just t ->
                     ( { model
                         | dialog =
-                            Just
-                                { id = Just t.id
-                                , isExpense = Money.isExpense t.amount
-                                , isRecurring = True
-                                , date = t.date
-                                , amount = ( Money.toInput t.amount, Nothing )
-                                , description = t.description
-                                , category = t.category
-                                }
+                            Just <|
+                                Model.EditTransaction
+                                    { id = Just t.id
+                                    , isExpense = Money.isExpense t.amount
+                                    , isRecurring = True
+                                    , date = t.date
+                                    , amount = ( Money.toInput t.amount, Nothing )
+                                    , description = t.description
+                                    , category = t.category
+                                    }
                       }
                     , Ports.openDialog ()
                     )
 
         Msg.DialogChangeAmount amount ->
             case model.dialog of
-                Just dialog ->
+                Just (Model.EditTransaction dialog) ->
                     ( { model
-                        | dialog = Just { dialog | amount = ( amount, Nothing ) }
+                        | dialog = Just <| Model.EditTransaction { dialog | amount = ( amount, Nothing ) }
                       }
                     , Cmd.none
                     )
 
-                Nothing ->
-                    ( model, Cmd.none )
+                _ ->
+                    ( model, Cmd.none ) |> Log.error "unexpected DialogChangeAmount message"
 
         Msg.DialogChangeDescription string ->
             case model.dialog of
-                Just dialog ->
+                Just (Model.EditTransaction dialog) ->
                     ( { model
                         | dialog =
-                            Just
-                                { dialog
-                                    | description =
-                                        String.filter (\c -> c /= Char.fromCode 13 && c /= Char.fromCode 10) string
-                                }
+                            Just <|
+                                Model.EditTransaction
+                                    { dialog
+                                        | description =
+                                            String.filter (\c -> c /= Char.fromCode 13 && c /= Char.fromCode 10) string
+                                    }
                       }
                     , Cmd.none
                     )
 
-                Nothing ->
-                    ( model, Cmd.none )
+                _ ->
+                    ( model, Cmd.none ) |> Log.error "unexpected DialogChangeDescription message"
 
         Msg.DialogChangeCategory id ->
             case model.dialog of
-                Just dialog ->
+                Just (Model.EditTransaction dialog) ->
                     ( { model
                         | dialog =
-                            Just
-                                { dialog | category = id }
+                            Just <|
+                                Model.EditTransaction
+                                    { dialog | category = id }
                       }
                     , Cmd.none
                     )
 
-                Nothing ->
-                    ( model, Cmd.none )
+                _ ->
+                    ( model, Cmd.none ) |> Log.error "unexpected DialogChangeCategory message"
 
         Msg.DialogConfirm ->
             case model.dialog of
-                Just dialog ->
+                Just (Model.EditTransaction dialog) ->
                     case
                         ( dialog.id
                         , Money.fromInput dialog.isExpense (Tuple.first dialog.amount)
@@ -179,17 +184,17 @@ update msg model =
                                     { dialog | amount = ( Tuple.first dialog.amount, Just amountError ) }
                             in
                             ( { model
-                                | dialog = Just newDialog
+                                | dialog = Just <| Model.EditTransaction newDialog
                               }
                             , Cmd.none
                             )
 
                 _ ->
-                    Log.error "impossible Confirm message" ( model, Cmd.none )
+                    ( model, Cmd.none ) |> Log.error "unexpected DialogConfirm message"
 
         Msg.DialogDelete ->
             case model.dialog of
-                Just dialog ->
+                Just (Model.EditTransaction dialog) ->
                     case dialog.id of
                         Just id ->
                             ( { model | dialog = Nothing }
@@ -199,8 +204,8 @@ update msg model =
                         Nothing ->
                             Log.error "impossible Delete message" ( model, Cmd.none )
 
-                Nothing ->
-                    Log.error "impossible Delete message" ( model, Cmd.none )
+                _ ->
+                    ( model, Cmd.none ) |> Log.error "unexpected Delete message"
 
 
 
@@ -210,7 +215,7 @@ update msg model =
 view : Model -> E.Element Msg
 view model =
     case model.dialog of
-        Just dialog ->
+        Just (Model.EditTransaction dialog) ->
             E.column
                 [ Ui.onEnter (Msg.ForDialog <| Msg.DialogConfirm)
                 , E.width E.fill
@@ -224,17 +229,17 @@ view model =
                 , viewButtons dialog
                 ]
 
-        Nothing ->
+        _ ->
             E.none
 
 
-viewDate : Model -> Model.Dialog -> E.Element Msg
+viewDate : Model -> Model.EditTransactionData -> E.Element Msg
 viewDate model _ =
     E.el [ E.width E.fill, E.paddingEach { left = 0, right = 0, top = 0, bottom = 12 } ]
         (E.el [ E.centerX ] (Ui.viewDate model.device model.date))
 
 
-viewAmount : Model -> Model.Dialog -> E.Element Msg
+viewAmount : Model -> Model.EditTransactionData -> E.Element Msg
 viewAmount model dialog =
     let
         isFuture =
@@ -332,7 +337,7 @@ viewAmount model dialog =
             )
 
 
-viewDescription : Model -> Model.Dialog -> E.Element Msg
+viewDescription : Model -> Model.EditTransactionData -> E.Element Msg
 viewDescription model dialog =
     if dialog.isRecurring then
         Ui.dialogSectionRow Color.neutral30
@@ -369,7 +374,7 @@ viewDescription model dialog =
             )
 
 
-viewCategories : Model -> Model.Dialog -> E.Element Msg
+viewCategories : Model -> Model.EditTransactionData -> E.Element Msg
 viewCategories model dialog =
     if dialog.isRecurring || not dialog.isExpense || not model.settings.categoriesEnabled then
         E.none
@@ -460,7 +465,7 @@ viewCategories model dialog =
             )
 
 
-viewButtons : Model.Dialog -> E.Element Msg
+viewButtons : Model.EditTransactionData -> E.Element Msg
 viewButtons dialog =
     if dialog.isRecurring then
         E.row

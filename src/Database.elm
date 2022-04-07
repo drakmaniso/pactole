@@ -349,7 +349,7 @@ msgFromService ( title, content ) model =
                                 Model.InstallationPage defaultInstallationData
 
                             else
-                                Model.MainPage
+                                Model.CalendarPage
                         , device =
                             Ui.classifyDevice
                                 { width = model.device.width
@@ -441,7 +441,7 @@ msgFromService ( title, content ) model =
         "user error" ->
             case Decode.decodeValue Decode.string content of
                 Ok msg ->
-                    ( { model | settingsDialog = Just (Model.UserError msg) }, Ports.openDialog () )
+                    ( { model | dialog = Just (Model.UserError msg) }, Ports.openDialog () )
 
                 _ ->
                     ( { model | errors = model.errors ++ [ "ERROR: undecodable javascript in \"user error\" message" ] }, Cmd.none )

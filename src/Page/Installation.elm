@@ -27,7 +27,7 @@ update msg model =
                 Msg.InstallProceed ->
                     case Money.fromInput False (Tuple.first installation.initialBalance) of
                         Ok initialBalance ->
-                            ( { model | page = Model.MainPage }
+                            ( { model | page = Model.CalendarPage }
                             , Database.proceedWithInstallation model
                                 { firstAccount = installation.firstAccount
                                 , initialBalance = initialBalance

@@ -1,11 +1,11 @@
 module Model exposing
     ( Category
-    , Dialog
+    , Dialog(..)
+    , EditTransactionData
     , InstallationData
     , Model
     , Page(..)
     , Settings
-    , SettingsDialog(..)
     , accountName
     , category
     , decodeAccount
@@ -36,7 +36,6 @@ type alias Model =
     , account : Int
     , page : Page
     , dialog : Maybe Dialog
-    , settingsDialog : Maybe SettingsDialog
     , serviceVersion : String
     , device : Ui.Device
     , errors : List String
@@ -53,8 +52,8 @@ type alias Model =
 type Page
     = LoadingPage
     | InstallationPage InstallationData
-    | MainPage
-    | StatsPage
+    | CalendarPage
+    | StatisticsPage
     | ReconcilePage
     | HelpPage
     | SettingsPage
@@ -201,19 +200,9 @@ decodeSettings =
 -- DIALOGS
 
 
-type alias Dialog =
-    { id : Maybe Int
-    , isExpense : Bool
-    , isRecurring : Bool
-    , date : Date
-    , amount : ( String, Maybe String )
-    , description : String
-    , category : Int
-    }
-
-
-type SettingsDialog
-    = EditAccount { id : Maybe Int, name : String }
+type Dialog
+    = EditTransaction EditTransactionData
+    | EditAccount { id : Maybe Int, name : String }
     | DeleteAccount { id : Int, name : String }
     | EditCategory { id : Maybe Int, name : String, icon : String }
     | DeleteCategory { id : Int, name : String, icon : String }
@@ -230,3 +219,14 @@ type SettingsDialog
     | AskExportConfirmation
     | EditFont String
     | UserError String
+
+
+type alias EditTransactionData =
+    { id : Maybe Int
+    , isExpense : Bool
+    , isRecurring : Bool
+    , date : Date
+    , amount : ( String, Maybe String )
+    , description : String
+    , category : Int
+    }

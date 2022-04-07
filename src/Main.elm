@@ -114,7 +114,6 @@ init flags _ _ =
       , categories = Dict.empty
       , page = Model.LoadingPage
       , dialog = Nothing
-      , settingsDialog = Nothing
       , serviceVersion = "unknown"
       , device = Ui.classifyDevice { width = width, height = height, fontSize = 0 }
       , errors = []
@@ -136,7 +135,7 @@ update msg model =
             )
 
         Msg.Close ->
-            ( { model | dialog = Nothing, settingsDialog = Nothing }, Ports.closeDialog () )
+            ( { model | dialog = Nothing }, Ports.closeDialog () )
 
         Msg.SelectDate date ->
             ( { model | date = date }, Cmd.none )
@@ -194,12 +193,16 @@ view : Model -> Browser.Document Msg
 view model =
     let
         activeDialog =
-            case model.dialog of
-                Just _ ->
-                    Just (Dialog.view model)
+            model.dialog
+                |> Maybe.map
+                    (\d ->
+                        case d of
+                            Model.EditTransaction _ ->
+                                Dialog.view model
 
-                Nothing ->
-                    model.settingsDialog |> Maybe.map (\_ -> Settings.viewDialog model)
+                            _ ->
+                                Settings.viewDialog model
+                    )
 
         activePageContent =
             case model.page of
@@ -215,13 +218,13 @@ view model =
                 Model.SettingsPage ->
                     Settings.viewContent model
 
-                Model.StatsPage ->
+                Model.StatisticsPage ->
                     Statistics.viewContent model
 
                 Model.ReconcilePage ->
                     Reconcile.viewContent model
 
-                Model.MainPage ->
+                Model.CalendarPage ->
                     Calendar.viewContent model
 
                 Model.DiagnosticsPage ->
@@ -241,13 +244,13 @@ view model =
                 Model.SettingsPage ->
                     logoPanel model
 
-                Model.StatsPage ->
+                Model.StatisticsPage ->
                     Statistics.viewPanel model
 
                 Model.ReconcilePage ->
                     Reconcile.viewPanel model
 
-                Model.MainPage ->
+                Model.CalendarPage ->
                     Calendar.viewPanel model
 
                 Model.DiagnosticsPage ->
@@ -457,12 +460,12 @@ navigationBar model =
             , Background.color Color.primary85
             ]
             [ navigationButton
-                { targetPage = Model.MainPage
+                { targetPage = Model.CalendarPage
                 , label = E.text "Pactole"
                 }
             , if model.settings.summaryEnabled then
                 navigationButton
-                    { targetPage = Model.StatsPage
+                    { targetPage = Model.StatisticsPage
                     , label = E.text "Bilan"
                     }
 
