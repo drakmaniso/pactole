@@ -1,4 +1,4 @@
-module Update.Installation exposing (..)
+module Update.Installation exposing (update)
 
 import Database
 import Log

@@ -31,12 +31,7 @@ update msg model =
             )
 
         Msg.DeleteAccount id ->
-            let
-                name =
-                    Maybe.withDefault "ERROR"
-                        (Dict.get id model.accounts)
-            in
-            ( { model | dialog = Just (Model.DeleteAccountDialog { id = id, name = name }) }
+            ( { model | dialog = Just (Model.DeleteAccountDialog id) }
             , Ports.openDialog ()
             )
 
@@ -56,12 +51,7 @@ update msg model =
             )
 
         Msg.DeleteCategory id ->
-            let
-                { name, icon } =
-                    Maybe.withDefault { name = "ERROR", icon = "" }
-                        (Dict.get id model.categories)
-            in
-            ( { model | dialog = Just (Model.DeleteCategoryDialog { id = id, name = name, icon = icon }) }
+            ( { model | dialog = Just (Model.DeleteCategoryDialog id) }
             , Ports.openDialog ()
             )
 
@@ -223,10 +213,10 @@ update msg model =
                                 ]
                             )
 
-                Just (Model.DeleteAccountDialog submodel) ->
+                Just (Model.DeleteAccountDialog id) ->
                     ( { model | dialog = Nothing }
                     , Cmd.batch
-                        [ Database.deleteAccount submodel.id
+                        [ Database.deleteAccount id
                         , Ports.closeDialog ()
                         ]
                     )
@@ -249,10 +239,10 @@ update msg model =
                                 ]
                             )
 
-                Just (Model.DeleteCategoryDialog submodel) ->
+                Just (Model.DeleteCategoryDialog id) ->
                     ( { model | dialog = Nothing }
                     , Cmd.batch
-                        [ Database.deleteCategory submodel.id
+                        [ Database.deleteCategory id
                         , Ports.closeDialog ()
                         ]
                     )

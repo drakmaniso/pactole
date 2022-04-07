@@ -1,11 +1,14 @@
 module Model exposing
-    ( Category
+    ( AccountData
+    , Category
+    , CategoryData
     , Dialog(..)
-    , TransactionData
     , InstallationData
     , Model
     , Page(..)
+    , RecurringData
     , Settings
+    , TransactionData
     , accountName
     , category
     , decodeAccount
@@ -202,19 +205,11 @@ decodeSettings =
 
 type Dialog
     = TransactionDialog TransactionData
-    | AccountDialog { id : Maybe Int, name : String }
-    | DeleteAccountDialog { id : Int, name : String }
-    | CategoryDialog { id : Maybe Int, name : String, icon : String }
-    | DeleteCategoryDialog { id : Int, name : String, icon : String }
-    | RecurringDialog
-        { id : Maybe Int
-        , account : Int
-        , isExpense : Bool
-        , amount : String
-        , description : String
-        , category : Int
-        , dueDate : String
-        }
+    | AccountDialog AccountData
+    | DeleteAccountDialog Int
+    | CategoryDialog CategoryData
+    | DeleteCategoryDialog Int
+    | RecurringDialog RecurringData
     | ImportDialog
     | ExportDialog
     | FontDialog String
@@ -229,4 +224,28 @@ type alias TransactionData =
     , amount : ( String, Maybe String )
     , description : String
     , category : Int
+    }
+
+
+type alias AccountData =
+    { id : Maybe Int
+    , name : String
+    }
+
+
+type alias CategoryData =
+    { id : Maybe Int
+    , name : String
+    , icon : String
+    }
+
+
+type alias RecurringData =
+    { id : Maybe Int
+    , account : Int
+    , isExpense : Bool
+    , amount : String
+    , description : String
+    , category : Int
+    , dueDate : String
     }

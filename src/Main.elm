@@ -267,37 +267,38 @@ view model =
                     }
 
 
+viewDialog : Model -> Model.Dialog -> E.Element Msg
 viewDialog model dialog =
     case dialog of
         Model.TransactionDialog _ ->
             EditTransaction.view model
 
         Model.AccountDialog data ->
-            Dialog.Settings.view model
+            Dialog.Settings.viewAccountDialog model data
 
         Model.DeleteAccountDialog data ->
-            Dialog.Settings.view model
+            Dialog.Settings.viewDeleteAccountDialog model data
 
         Model.CategoryDialog data ->
-            Dialog.Settings.view model
+            Dialog.Settings.viewCategoryDialog model data
 
         Model.DeleteCategoryDialog data ->
-            Dialog.Settings.view model
+            Dialog.Settings.viewDeleteCategoryDialog model data
 
         Model.RecurringDialog data ->
-            Dialog.Settings.view model
+            Dialog.Settings.viewRecurringDialog model data
 
         Model.ImportDialog ->
-            Dialog.Settings.view model
+            Dialog.Settings.viewImportDialog model
 
         Model.ExportDialog ->
-            Dialog.Settings.view model
+            Dialog.Settings.viewExportDialog model
 
         Model.FontDialog data ->
-            Dialog.Settings.view model
+            Dialog.Settings.viewFontDialog model data
 
         Model.UserErrorDialog data ->
-            Dialog.Settings.view model
+            Dialog.Settings.viewUserErrorDialog model data
 
 
 

@@ -1,4 +1,4 @@
-module Update.Transaction exposing (..)
+module Update.Transaction exposing (update)
 
 import Browser.Dom as Dom
 import Database
