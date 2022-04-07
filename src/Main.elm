@@ -1,4 +1,4 @@
-module Main exposing (init, keyDecoder, main, subscriptions, update, viewPage)
+module Main exposing (init, keyDecoder, main, subscriptions, update, viewDesktopPage)
 
 import Browser
 import Browser.Dom as Dom
@@ -28,6 +28,7 @@ import Page.Loading as Loading
 import Page.Reconcile as Reconcile
 import Page.Settings as Settings
 import Page.Statistics as Statistics
+import Page.Summary as Summary
 import Ports
 import Task
 import Ui
@@ -195,9 +196,23 @@ keyDecoder msg =
 
 view : Model -> Browser.Document Msg
 view model =
+    case model.device.class.orientation of
+        E.Landscape ->
+            viewDesktop model
+
+        E.Portrait ->
+            viewMobile model
+
+
+
+-- DESKTOP VIEW
+
+
+viewDesktop : Model -> Browser.Document Msg
+viewDesktop model =
     let
         activePage =
-            viewPage model
+            viewDesktopPage model
 
         activeDialog =
             model.dialog |> Maybe.map (viewDialog model)
@@ -210,8 +225,8 @@ view model =
     }
 
 
-viewPage : Model -> E.Element Msg
-viewPage model =
+viewDesktopPage : Model -> E.Element Msg
+viewDesktopPage model =
     case model.page of
         Model.LoadingPage ->
             Loading.view model
@@ -233,19 +248,19 @@ viewPage model =
 
         Model.StatisticsPage ->
             pageWithSidePanel model
-                { panel = Statistics.viewPanel model
+                { panel = panelWithTwoParts { top = Summary.viewDesktop model, bottom = E.none }
                 , page = Statistics.viewContent model
                 }
 
         Model.ReconcilePage ->
             pageWithSidePanel model
-                { panel = Reconcile.viewPanel model
+                { panel = panelWithTwoParts { top = Summary.viewDesktop model, bottom = E.none }
                 , page = Reconcile.viewContent model
                 }
 
         Model.CalendarPage ->
             pageWithSidePanel model
-                { panel = Calendar.viewPanel model
+                { panel = panelWithTwoParts { top = Summary.viewDesktop model, bottom = Calendar.dayView model }
                 , page = Calendar.viewContent model
                 }
 
@@ -288,6 +303,70 @@ viewDialog model dialog =
 
         Model.UserErrorDialog data ->
             Dialog.Settings.viewUserErrorDialog model data
+
+
+
+-- MOBILE VIEW
+
+
+viewMobile : Model -> Browser.Document Msg
+viewMobile model =
+    case model.dialog of
+        Nothing ->
+            { title = "Pactole"
+            , body = [ pageHtml model <| viewMobilePage model ]
+            }
+
+        Just dialog ->
+            { title = "Pactole"
+            , body =
+                [ pageHtml model <|
+                    E.column [ E.width E.fill, E.height E.fill ]
+                        [ mobileDialogNavigationBar model
+                        , viewDialog model dialog
+                        ]
+                ]
+            }
+
+
+viewMobilePage : Model -> E.Element Msg
+viewMobilePage model =
+    case model.page of
+        Model.LoadingPage ->
+            E.column [ E.width E.fill, E.height E.fill ]
+                [ Loading.view model ]
+
+        Model.InstallationPage data ->
+            E.column [ E.width E.fill, E.height E.fill ]
+                [ Installation.view model data ]
+
+        Model.HelpPage ->
+            pageWithTopNavBar model [ Help.view model ]
+
+        Model.SettingsPage ->
+            pageWithTopNavBar model [ Settings.view model ]
+
+        Model.StatisticsPage ->
+            pageWithTopNavBar model
+                [ Summary.viewMobile model
+                , Statistics.viewContent model
+                ]
+
+        Model.ReconcilePage ->
+            pageWithTopNavBar model
+                [ Summary.viewMobile model
+                , Reconcile.viewContent model
+                ]
+
+        Model.CalendarPage ->
+            pageWithTopNavBar model
+                [ Summary.viewMobile model
+                , Calendar.viewContent model
+                , Calendar.dayView model
+                ]
+
+        Model.DiagnosticsPage ->
+            pageWithTopNavBar model [ Diagnostics.view model ]
 
 
 
@@ -423,6 +502,33 @@ pageWithSidePanel model { panel, page } =
         ]
 
 
+panelWithTwoParts : { top : E.Element msg, bottom : E.Element msg } -> E.Element msg
+panelWithTwoParts { top, bottom } =
+    E.column
+        [ E.width E.fill
+        , E.height E.fill
+        , E.clipY
+        ]
+        [ E.el
+            [ E.width E.fill, E.height (E.fillPortion 1) ]
+            top
+        , E.el
+            [ E.width E.fill, E.height (E.fillPortion 2) ]
+            bottom
+        ]
+
+
+pageWithTopNavBar : Model -> List (E.Element Msg) -> E.Element Msg
+pageWithTopNavBar model elements =
+    E.column
+        [ E.width E.fill
+        , E.height E.fill
+        ]
+        (navigationBar model
+            :: elements
+        )
+
+
 navigationBar : Model -> E.Element Msg
 navigationBar model =
     let
@@ -470,64 +576,84 @@ navigationBar model =
                 , label = label
                 }
     in
-    E.el
+    E.row
         [ E.width E.fill
+        , Background.color Color.primary85
         , Ui.fontFamily model.settings.font
         ]
-        (E.row
+        [ navigationButton
+            { targetPage = Model.CalendarPage
+            , label = E.text "Pactole"
+            }
+        , if model.settings.summaryEnabled then
+            navigationButton
+                { targetPage = Model.StatisticsPage
+                , label = E.text "Bilan"
+                }
+
+          else
+            E.none
+        , if model.settings.reconciliationEnabled then
+            navigationButton
+                { targetPage = Model.ReconcilePage
+                , label = E.text "Pointer"
+                }
+
+          else
+            E.none
+        , E.el
             [ E.width E.fill
-            , Background.color Color.primary85
+            , E.height E.fill
             ]
-            [ navigationButton
-                { targetPage = Model.CalendarPage
-                , label = E.text "Pactole"
-                }
-            , if model.settings.summaryEnabled then
+            E.none
+        , case model.errors of
+            [] ->
+                E.none
+
+            _ ->
                 navigationButton
-                    { targetPage = Model.StatisticsPage
-                    , label = E.text "Bilan"
+                    { targetPage = Model.DiagnosticsPage
+                    , label = E.el [ Font.color Color.warning60, Ui.iconFont ] (E.text "\u{F071}")
                     }
+        , if model.settings.settingsLocked then
+            E.none
 
-              else
-                E.none
-            , if model.settings.reconciliationEnabled then
-                navigationButton
-                    { targetPage = Model.ReconcilePage
-                    , label = E.text "Pointer"
-                    }
-
-              else
-                E.none
-            , E.el
-                [ E.width E.fill
-                , E.height E.fill
-                ]
-                E.none
-            , case model.errors of
-                [] ->
-                    E.none
-
-                _ ->
-                    navigationButton
-                        { targetPage = Model.DiagnosticsPage
-                        , label = E.el [ Font.color Color.warning60, Ui.iconFont ] (E.text "\u{F071}")
-                        }
-            , if model.settings.settingsLocked then
-                E.none
-
-              else
-                navigationButton
-                    { targetPage = Model.SettingsPage
-                    , label =
-                        E.el [ Ui.iconFont, Ui.bigFont model.device, E.centerX, E.paddingXY 0 0 ] (E.text "\u{F013}")
-                    }
-            , navigationButton
-                { targetPage = Model.HelpPage
+          else
+            navigationButton
+                { targetPage = Model.SettingsPage
                 , label =
-                    E.el [ Ui.iconFont, Ui.bigFont model.device, E.centerX, E.paddingXY 0 0 ] (E.text "\u{F059}")
+                    E.el [ Ui.iconFont, Ui.bigFont model.device, E.centerX, E.paddingXY 0 0 ] (E.text "\u{F013}")
                 }
+        , navigationButton
+            { targetPage = Model.HelpPage
+            , label =
+                E.el [ Ui.iconFont, Ui.bigFont model.device, E.centerX, E.paddingXY 0 0 ] (E.text "\u{F059}")
+            }
+        ]
+
+
+mobileDialogNavigationBar : Model -> E.Element Msg
+mobileDialogNavigationBar model =
+    E.row
+        [ E.width E.fill
+        , Background.color Color.primary85
+        , Ui.fontFamily model.settings.font
+        ]
+        [ Input.button
+            [ E.paddingXY 6 6
+            , Border.color Color.transparent
+            , Background.color Color.primary85
+            , Font.color Color.primary40
+            , E.mouseDown [ Background.color Color.primary80 ]
+            , E.mouseOver [ Background.color Color.primary90 ]
+            , E.height E.fill
+            , Border.width 4
+            , Ui.focusVisibleOnly
             ]
-        )
+            { onPress = Just Msg.CloseDialog
+            , label = E.row [] [ E.el [ Ui.bigFont model.device ] Ui.backIcon, E.text "  Retour" ]
+            }
+        ]
 
 
 logoPanel : Model -> E.Element Msg

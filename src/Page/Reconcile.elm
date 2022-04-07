@@ -1,4 +1,4 @@
-module Page.Reconcile exposing (viewContent, viewPanel)
+module Page.Reconcile exposing (viewContent)
 
 import Date exposing (Date)
 import Element as E
@@ -8,17 +8,8 @@ import Ledger
 import Model exposing (Model)
 import Money
 import Msg exposing (Msg)
-import Page.Summary as Summary
 import Ui
 import Ui.Color as Color
-
-
-viewPanel : Model -> E.Element Msg
-viewPanel model =
-    Ui.twoPartsSidePanel
-        { top = Summary.view model
-        , bottom = E.none
-        }
 
 
 viewContent : Model -> E.Element Msg

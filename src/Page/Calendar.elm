@@ -1,4 +1,4 @@
-module Page.Calendar exposing (viewContent, viewPanel)
+module Page.Calendar exposing (dayView, viewContent)
 
 import Date exposing (Date)
 import Element as E
@@ -11,15 +11,9 @@ import Ledger
 import Model exposing (Model)
 import Money
 import Msg exposing (Msg)
-import Page.Summary as Summary
 import Time
 import Ui
 import Ui.Color as Color
-
-
-viewPanel : Model -> E.Element Msg
-viewPanel model =
-    Ui.twoPartsSidePanel { top = Summary.view model, bottom = dayView model }
 
 
 
@@ -89,26 +83,34 @@ viewContent model =
 
 calendarHeader : Model -> E.Element Msg
 calendarHeader model =
-    E.column
-        [ E.width E.fill
-        ]
-        [ Ui.dateNavigationBar model.device model Msg.SelectDate
-        , E.row
-            [ E.width E.fill
-            , E.alignBottom
-            , Ui.smallFont model.device
-            , Ui.notSelectable
-            , Font.color Color.neutral40
-            ]
-            [ E.el [ E.width E.fill ] (E.el [ E.centerX ] (E.text "Lundi"))
-            , E.el [ E.width E.fill ] (E.el [ E.centerX ] (E.text "Mardi"))
-            , E.el [ E.width E.fill ] (E.el [ E.centerX ] (E.text "Mercredi"))
-            , E.el [ E.width E.fill ] (E.el [ E.centerX ] (E.text "Jeudi"))
-            , E.el [ E.width E.fill ] (E.el [ E.centerX ] (E.text "Vendredi"))
-            , E.el [ E.width E.fill ] (E.el [ E.centerX ] (E.text "Samedi"))
-            , E.el [ E.width E.fill ] (E.el [ E.centerX ] (E.text "Dimanche"))
-            ]
-        ]
+    case model.device.class.orientation of
+        E.Landscape ->
+            E.column
+                [ E.width E.fill
+                ]
+                [ Ui.dateNavigationBar model.device model Msg.SelectDate
+                , E.row
+                    [ E.width E.fill
+                    , E.alignBottom
+                    , Ui.smallFont model.device
+                    , Ui.notSelectable
+                    , Font.color Color.neutral40
+                    ]
+                    [ E.el [ E.width E.fill ] (E.el [ E.centerX ] (E.text "Lundi"))
+                    , E.el [ E.width E.fill ] (E.el [ E.centerX ] (E.text "Mardi"))
+                    , E.el [ E.width E.fill ] (E.el [ E.centerX ] (E.text "Mercredi"))
+                    , E.el [ E.width E.fill ] (E.el [ E.centerX ] (E.text "Jeudi"))
+                    , E.el [ E.width E.fill ] (E.el [ E.centerX ] (E.text "Vendredi"))
+                    , E.el [ E.width E.fill ] (E.el [ E.centerX ] (E.text "Samedi"))
+                    , E.el [ E.width E.fill ] (E.el [ E.centerX ] (E.text "Dimanche"))
+                    ]
+                ]
+
+        E.Portrait ->
+            E.column
+                [ E.width E.fill
+                ]
+                [ Ui.dateNavigationBar model.device model Msg.SelectDate ]
 
 
 calendarCell : Model -> Date -> E.Element Msg
@@ -289,22 +291,9 @@ dayView model =
     let
         dayDiff =
             Date.getDayDiff model.today model.date
-    in
-    E.column
-        [ E.width E.fill
-        , E.height E.fill
-        , E.clip
-        ]
-        [ E.column
-            [ E.width E.fill
-            , E.height E.shrink
-            , E.paddingXY 0 12
-            , E.spacing 8
-            , Font.color Color.neutral30
-            , Font.center
-            , Ui.notSelectable
-            ]
-            [ E.el [ E.width E.fill, Font.color Color.neutral40, Ui.smallFont model.device ]
+
+        dateDesc =
+            E.el [ E.width E.fill, Font.color Color.neutral40, Ui.smallFont model.device ]
                 (E.text <|
                     if model.date == model.today then
                         "— Aujourd'hui —"
@@ -324,6 +313,27 @@ dayView model =
                     else
                         ""
                 )
+    in
+    E.column
+        [ E.width E.fill
+        , E.height E.fill
+        , E.clip
+        ]
+        [ E.column
+            [ E.width E.fill
+            , E.height E.shrink
+            , E.paddingXY 0 12
+            , E.spacing 8
+            , Font.color Color.neutral30
+            , Font.center
+            , Ui.notSelectable
+            ]
+            [ case model.device.class.orientation of
+                E.Landscape ->
+                    dateDesc
+
+                E.Portrait ->
+                    E.none
             , Ui.viewDate model.device model.date
             ]
         , E.column

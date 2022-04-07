@@ -1,4 +1,4 @@
-module Page.Statistics exposing (viewContent, viewPanel)
+module Page.Statistics exposing (viewContent)
 
 import Dict
 import Element as E
@@ -7,17 +7,8 @@ import Ledger
 import Model exposing (Model)
 import Money
 import Msg exposing (Msg)
-import Page.Summary as Summary
 import Ui
 import Ui.Color as Color
-
-
-viewPanel : Model -> E.Element Msg
-viewPanel model =
-    Ui.twoPartsSidePanel
-        { top = Summary.view model
-        , bottom = E.none
-        }
 
 
 viewContent : Model -> E.Element Msg

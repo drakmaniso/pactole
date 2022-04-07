@@ -60,7 +60,6 @@ module Ui exposing
     , textInput
     , title
     , transition
-    , twoPartsSidePanel
     , verticalSpacer
     , viewDate
     , viewIcon
@@ -326,22 +325,6 @@ loadIcon =
 
 
 -- CONTAINERS
-
-
-twoPartsSidePanel : { top : E.Element msg, bottom : E.Element msg } -> E.Element msg
-twoPartsSidePanel { top, bottom } =
-    E.column
-        [ E.width E.fill
-        , E.height E.fill
-        , E.clipY
-        ]
-        [ E.el
-            [ E.width E.fill, E.height (E.fillPortion 1) ]
-            top
-        , E.el
-            [ E.width E.fill, E.height (E.fillPortion 2) ]
-            bottom
-        ]
 
 
 configRadio :
