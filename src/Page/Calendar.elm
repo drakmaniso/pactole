@@ -17,10 +17,6 @@ import Ui
 import Ui.Color as Color
 
 
-
--- VIEW
-
-
 viewPanel : Model -> E.Element Msg
 viewPanel model =
     Ui.twoPartsSidePanel { top = Summary.view model, bottom = dayView model }
@@ -344,11 +340,11 @@ dayView model =
             ]
             [ Ui.incomeButton
                 { label = Ui.incomeIcon
-                , onPress = Just (Msg.ForDialog <| Msg.DialogNewTransaction False model.date)
+                , onPress = Just (Msg.ForTransaction <| Msg.NewTransaction False model.date)
                 }
             , Ui.expenseButton
                 { label = Ui.expenseIcon
-                , onPress = Just (Msg.ForDialog <| Msg.DialogNewTransaction True model.date)
+                , onPress = Just (Msg.ForTransaction <| Msg.NewTransaction True model.date)
                 }
             ]
         ]
@@ -408,10 +404,10 @@ dayContentFor model day =
                     { onPress =
                         Just
                             (if transaction.isRecurring then
-                                (Msg.ForDialog << Msg.DialogShowRecurring) transaction.id
+                                (Msg.ForTransaction << Msg.ShowRecurring) transaction.id
 
                              else
-                                (Msg.ForDialog << Msg.DialogEditTransaction) transaction.id
+                                (Msg.ForTransaction << Msg.EditTransaction) transaction.id
                             )
                     , label =
                         E.row

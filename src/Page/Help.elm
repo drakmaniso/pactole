@@ -1,4 +1,4 @@
-module Page.Help exposing (viewContent)
+module Page.Help exposing (view)
 
 import Element as E
 import Model exposing (Model)
@@ -6,12 +6,8 @@ import Msg exposing (Msg)
 import Ui
 
 
-
--- VIEW
-
-
-viewContent : Model -> E.Element Msg
-viewContent model =
+view : Model -> E.Element Msg
+view model =
     E.column
         -- This extra column is necessary to circumvent a
         -- scrollbar-related bug in elm-ui

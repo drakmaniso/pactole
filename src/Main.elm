@@ -6,6 +6,8 @@ import Browser.Events
 import Browser.Navigation as Navigation
 import Database
 import Date
+import Dialog.Settings
+import Dialog.Transaction as EditTransaction
 import Dict
 import Element as E
 import Element.Background as Background
@@ -20,7 +22,6 @@ import Model exposing (Model)
 import Msg exposing (Msg)
 import Page.Calendar as Calendar
 import Page.Diagnostics as Diagnostics
-import Page.Dialog as Dialog
 import Page.Help as Help
 import Page.Installation as Installation
 import Page.Loading as Loading
@@ -31,6 +32,9 @@ import Ports
 import Task
 import Ui
 import Ui.Color as Color
+import Update.Installation
+import Update.Settings
+import Update.Transaction
 import Url
 
 
@@ -134,7 +138,7 @@ update msg model =
             , Task.attempt (\_ -> Msg.NoOp) (Dom.blur "unfocus-on-page-change")
             )
 
-        Msg.Close ->
+        Msg.CloseDialog ->
             ( { model | dialog = Nothing }, Ports.closeDialog () )
 
         Msg.SelectDate date ->
@@ -152,16 +156,16 @@ update msg model =
             )
 
         Msg.ForInstallation m ->
-            Installation.update m model
+            Update.Installation.update m model
 
         Msg.ForDatabase m ->
             Database.update m model
 
-        Msg.ForDialog m ->
-            Dialog.update m model
+        Msg.ForTransaction m ->
+            Update.Transaction.update m model
 
-        Msg.ForSettingsDialog m ->
-            Settings.update m model
+        Msg.ForSettings m ->
+            Update.Settings.update m model
 
         Msg.NoOp ->
             ( model, Cmd.none )
@@ -194,29 +198,21 @@ view model =
     let
         activeDialog =
             model.dialog
-                |> Maybe.map
-                    (\d ->
-                        case d of
-                            Model.EditTransaction _ ->
-                                Dialog.view model
-
-                            _ ->
-                                Settings.viewDialog model
-                    )
+                |> Maybe.map (viewDialog model)
 
         activePageContent =
             case model.page of
                 Model.LoadingPage ->
-                    Loading.viewContent model
+                    Loading.view model
 
                 Model.InstallationPage installation ->
-                    Installation.viewContent model installation
+                    Installation.view model installation
 
                 Model.HelpPage ->
-                    Help.viewContent model
+                    Help.view model
 
                 Model.SettingsPage ->
-                    Settings.viewContent model
+                    Settings.view model
 
                 Model.StatisticsPage ->
                     Statistics.viewContent model
@@ -228,7 +224,7 @@ view model =
                     Calendar.viewContent model
 
                 Model.DiagnosticsPage ->
-                    Diagnostics.viewContent model
+                    Diagnostics.view model
 
         activePagePanel =
             case model.page of
@@ -269,6 +265,43 @@ view model =
                     { panel = activePagePanel
                     , page = activePageContent
                     }
+
+
+viewDialog model dialog =
+    case dialog of
+        Model.TransactionDialog _ ->
+            EditTransaction.view model
+
+        Model.AccountDialog data ->
+            Dialog.Settings.view model
+
+        Model.DeleteAccountDialog data ->
+            Dialog.Settings.view model
+
+        Model.CategoryDialog data ->
+            Dialog.Settings.view model
+
+        Model.DeleteCategoryDialog data ->
+            Dialog.Settings.view model
+
+        Model.RecurringDialog data ->
+            Dialog.Settings.view model
+
+        Model.ImportDialog ->
+            Dialog.Settings.view model
+
+        Model.ExportDialog ->
+            Dialog.Settings.view model
+
+        Model.FontDialog data ->
+            Dialog.Settings.view model
+
+        Model.UserErrorDialog data ->
+            Dialog.Settings.view model
+
+
+
+-- VIEW PARTS
 
 
 document : Model -> Maybe (E.Element Msg) -> E.Element Msg -> Browser.Document Msg

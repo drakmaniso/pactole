@@ -14,10 +14,6 @@ import Ui
 import Ui.Color as Color
 
 
-
--- SUMMARY VIEW
-
-
 view : Model -> E.Element Msg
 view model =
     Keyed.el

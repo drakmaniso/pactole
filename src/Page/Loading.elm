@@ -1,4 +1,4 @@
-module Page.Loading exposing (viewContent, viewPanel)
+module Page.Loading exposing (view)
 
 import Element as E
 import Element.Border as Border
@@ -8,17 +8,8 @@ import Ui
 import Ui.Color as Color
 
 
-
--- VIEW
-
-
-viewPanel : Model -> E.Element Msg
-viewPanel _ =
-    E.none
-
-
-viewContent : Model -> E.Element Msg
-viewContent model =
+view : Model -> E.Element Msg
+view model =
     E.column
         -- This extra column is necessary to circumvent a
         -- scrollbar-related bug in elm-ui

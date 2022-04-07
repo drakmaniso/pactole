@@ -1,7 +1,7 @@
 module Model exposing
     ( Category
     , Dialog(..)
-    , EditTransactionData
+    , TransactionData
     , InstallationData
     , Model
     , Page(..)
@@ -201,12 +201,12 @@ decodeSettings =
 
 
 type Dialog
-    = EditTransaction EditTransactionData
-    | EditAccount { id : Maybe Int, name : String }
-    | DeleteAccount { id : Int, name : String }
-    | EditCategory { id : Maybe Int, name : String, icon : String }
-    | DeleteCategory { id : Int, name : String, icon : String }
-    | EditRecurring
+    = TransactionDialog TransactionData
+    | AccountDialog { id : Maybe Int, name : String }
+    | DeleteAccountDialog { id : Int, name : String }
+    | CategoryDialog { id : Maybe Int, name : String, icon : String }
+    | DeleteCategoryDialog { id : Int, name : String, icon : String }
+    | RecurringDialog
         { id : Maybe Int
         , account : Int
         , isExpense : Bool
@@ -215,13 +215,13 @@ type Dialog
         , category : Int
         , dueDate : String
         }
-    | AskImportConfirmation
-    | AskExportConfirmation
-    | EditFont String
-    | UserError String
+    | ImportDialog
+    | ExportDialog
+    | FontDialog String
+    | UserErrorDialog String
 
 
-type alias EditTransactionData =
+type alias TransactionData =
     { id : Maybe Int
     , isExpense : Bool
     , isRecurring : Bool

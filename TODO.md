@@ -1,15 +1,10 @@
 Urgent:
 - When changing month, deselect day
-- Color-blind modes
-- Improve calendar layout
 - Use wrappedRow for account selector, categories...
-- Unify dialogs
-- Remove "Work Sans" font
+- Unify dialogs: use single OpenDialog message
 
 Long-term:
-- Use <dialog> for dialogs
+- Color-blind modes
 - Mobile layout
-- Better settings page
-- In settings: single dialog for add/edit/delete
 - Add internationalisation mechanism
 

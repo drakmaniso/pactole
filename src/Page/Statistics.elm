@@ -12,10 +12,6 @@ import Ui
 import Ui.Color as Color
 
 
-
--- VIEW
-
-
 viewPanel : Model -> E.Element Msg
 viewPanel model =
     Ui.twoPartsSidePanel

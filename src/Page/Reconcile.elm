@@ -13,10 +13,6 @@ import Ui
 import Ui.Color as Color
 
 
-
--- VIEW
-
-
 viewPanel : Model -> E.Element Msg
 viewPanel model =
     Ui.twoPartsSidePanel
@@ -105,7 +101,7 @@ colReconciled transaction =
         [ E.width (E.fillPortion 1) ]
         (Ui.checkBox
             { state = transaction.checked
-            , onPress = Just (Msg.ForDatabase <| Msg.DbCheckTransaction transaction (not transaction.checked))
+            , onPress = Just (Msg.ForDatabase <| Msg.CheckTransaction transaction (not transaction.checked))
             }
         )
 

@@ -1,4 +1,4 @@
-module Page.Diagnostics exposing (viewContent)
+module Page.Diagnostics exposing (view)
 
 import Element as E
 import Element.Font as Font
@@ -8,12 +8,8 @@ import Ui
 import Ui.Color as Color
 
 
-
--- VIEW
-
-
-viewContent : Model -> E.Element Msg
-viewContent model =
+view : Model -> E.Element Msg
+view model =
     E.column
         -- This extra column is necessary to circumvent a
         -- scrollbar-related bug in elm-ui

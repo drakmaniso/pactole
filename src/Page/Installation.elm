@@ -1,75 +1,19 @@
-module Page.Installation exposing (update, viewContent)
+module Page.Installation exposing (view)
 
-import Database
 import Element as E
 import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
 import Element.Keyed as Keyed
-import Log
 import Model exposing (Model)
-import Money
 import Msg exposing (Msg)
 import Page.Settings as Settings
 import Ui
 import Ui.Color as Color
 
 
-
--- UPDATE
-
-
-update : Msg.InstallMsg -> Model -> ( Model, Cmd Msg )
-update msg model =
-    case model.page of
-        Model.InstallationPage installation ->
-            case msg of
-                Msg.InstallProceed ->
-                    case Money.fromInput False (Tuple.first installation.initialBalance) of
-                        Ok initialBalance ->
-                            ( { model | page = Model.CalendarPage }
-                            , Database.proceedWithInstallation model
-                                { firstAccount = installation.firstAccount
-                                , initialBalance = initialBalance
-                                , date = model.today
-                                }
-                            )
-
-                        Err error ->
-                            ( { model
-                                | page =
-                                    Model.InstallationPage
-                                        { installation
-                                            | initialBalance = ( Tuple.first installation.initialBalance, Just error )
-                                        }
-                              }
-                            , Cmd.none
-                            )
-
-                Msg.InstallChangeName newName ->
-                    ( { model | page = Model.InstallationPage { installation | firstAccount = newName } }
-                    , Cmd.none
-                    )
-
-                Msg.InstallChangeBalance newBalance ->
-                    ( { model | page = Model.InstallationPage { installation | initialBalance = ( newBalance, Nothing ) } }
-                    , Cmd.none
-                    )
-
-                Msg.InstallImport ->
-                    ( model, Database.importDatabase )
-
-        _ ->
-            ( model, Cmd.none )
-                |> Log.error "what?"
-
-
-
--- VIEW
-
-
-viewContent : Model -> Model.InstallationData -> E.Element Msg
-viewContent model installation =
+view : Model -> Model.InstallationData -> E.Element Msg
+view model installation =
     Keyed.el [ E.width E.fill, E.height E.fill, E.scrollbarY ]
         ( "Installation"
         , E.column
@@ -173,24 +117,24 @@ viewInstallation model installation =
                 { width = 400
                 , label = Ui.labelLeft "Nom du compte:"
                 , text = installation.firstAccount
-                , onChange = \txt -> Msg.InstallChangeName txt |> Msg.ForInstallation
+                , onChange = \txt -> Msg.ChangeInstallName txt |> Msg.ForInstallation
                 }
             , Ui.moneyInput model.device
                 { label = Ui.labelLeft "Solde initial:"
                 , color = Color.neutral20
                 , state = installation.initialBalance
-                , onChange = Msg.ForInstallation << Msg.InstallChangeBalance
+                , onChange = Msg.ForInstallation << Msg.ChangeInstallBalance
                 }
             , Ui.verticalSpacer
             , Settings.configLocked model
             , E.wrappedRow [ E.spacing 36 ]
                 [ Ui.mainButton
                     { label = E.text "Installer Pactole"
-                    , onPress = Just (Msg.InstallProceed |> Msg.ForInstallation)
+                    , onPress = Just (Msg.ProceedWithInstall |> Msg.ForInstallation)
                     }
                 , Ui.simpleButton
                     { label = E.text "Récupérer une sauvegarde"
-                    , onPress = Just (Msg.InstallImport |> Msg.ForInstallation)
+                    , onPress = Just (Msg.ImportInstall |> Msg.ForInstallation)
                     }
                 ]
             , Ui.verticalSpacer

@@ -1,4 +1,4 @@
-module Msg exposing (DatabaseMsg(..), DialogMsg(..), InstallMsg(..), Msg(..), SettingsDialogMsg(..))
+module Msg exposing (DatabaseMsg(..), InstallMsg(..), Msg(..), SettingsMsg(..), TransactionMsg(..))
 
 import Date exposing (Date)
 import Json.Decode as Decode
@@ -8,55 +8,55 @@ import Model
 
 type Msg
     = ChangePage Model.Page
-    | Close
+    | CloseDialog
     | SelectDate Date
     | SelectAccount Int
     | WindowResize { width : Int, height : Int }
     | ForInstallation InstallMsg
     | ForDatabase DatabaseMsg
-    | ForDialog DialogMsg
-    | ForSettingsDialog SettingsDialogMsg
+    | ForTransaction TransactionMsg
+    | ForSettings SettingsMsg
     | NoOp
 
 
 type InstallMsg
-    = InstallChangeName String
-    | InstallChangeBalance String
-    | InstallProceed
-    | InstallImport
+    = ChangeInstallName String
+    | ChangeInstallBalance String
+    | ProceedWithInstall
+    | ImportInstall
 
 
 type DatabaseMsg
-    = DbFromService ( String, Decode.Value )
-    | DbStoreSettings Model.Settings
-    | DbCheckTransaction Ledger.Transaction Bool
+    = FromServiceWorker ( String, Decode.Value )
+    | StoreSettings Model.Settings
+    | CheckTransaction Ledger.Transaction Bool
 
 
-type DialogMsg
-    = DialogNewTransaction Bool Date -- isExpense date
-    | DialogEditTransaction Int
-    | DialogShowRecurring Int
-    | DialogChangeAmount String
-    | DialogChangeDescription String
-    | DialogChangeCategory Int
-    | DialogDelete
-    | DialogConfirm
+type TransactionMsg
+    = NewTransaction Bool Date -- isExpense date
+    | EditTransaction Int
+    | ShowRecurring Int
+    | ChangeTransactionAmount String
+    | ChangeTransactionDescription String
+    | ChangeTransactionCategory Int
+    | DeleteTransaction
+    | ConfirmTransaction
 
 
-type SettingsDialogMsg
-    = SettingsEditAccount (Maybe Int)
-    | SettingsDeleteAccount Int
-    | SettingsEditCategory (Maybe Int)
-    | SettingsDeleteCategory Int
-    | SettingsChangeName String
-    | SettingsChangeAccount Int
-    | SettingsChangeAmount String
-    | SettingsChangeDueDate String
-    | SettingsChangeIsExpense Bool
-    | SettingsChangeIcon String
-    | SettingsConfirm
-    | SettingsEditRecurring (Maybe Int)
-    | SettingsDeleteRecurring Int
-    | SettingsAskImportConfirmation
-    | SettingsAskExportConfirmation
-    | SettingsEditFont
+type SettingsMsg
+    = EditAccount (Maybe Int)
+    | DeleteAccount Int
+    | EditCategory (Maybe Int)
+    | EditRecurring (Maybe Int)
+    | Import
+    | Export
+    | EditFont
+    | ChangeSettingsName String
+    | ChangeSettingsAccount Int
+    | ChangeSettingsAmount String
+    | ChangeSettingsDueDate String
+    | ChangeSettingsIsExpense Bool
+    | ChangeSettingsIcon String
+    | DeleteCategory Int
+    | DeleteRecurring Int
+    | ConfirmSettings

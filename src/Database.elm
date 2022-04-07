@@ -46,13 +46,13 @@ import Ui
 update : Msg.DatabaseMsg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        Msg.DbFromService ( title, json ) ->
+        Msg.FromServiceWorker ( title, json ) ->
             msgFromService ( title, json ) model
 
-        Msg.DbStoreSettings settings ->
+        Msg.StoreSettings settings ->
             ( model, storeSettings settings )
 
-        Msg.DbCheckTransaction transaction checked ->
+        Msg.CheckTransaction transaction checked ->
             ( model
             , replaceTransaction
                 { id = transaction.id
@@ -297,7 +297,7 @@ importDatabase =
 
 receive : Sub Msg
 receive =
-    Ports.receive (Msg.ForDatabase << Msg.DbFromService)
+    Ports.receive (Msg.ForDatabase << Msg.FromServiceWorker)
 
 
 msgFromService : ( String, Decode.Value ) -> Model -> ( Model, Cmd Msg )
@@ -441,7 +441,7 @@ msgFromService ( title, content ) model =
         "user error" ->
             case Decode.decodeValue Decode.string content of
                 Ok msg ->
-                    ( { model | dialog = Just (Model.UserError msg) }, Ports.openDialog () )
+                    ( { model | dialog = Just (Model.UserErrorDialog msg) }, Ports.openDialog () )
 
                 _ ->
                     ( { model | errors = model.errors ++ [ "ERROR: undecodable javascript in \"user error\" message" ] }, Cmd.none )
