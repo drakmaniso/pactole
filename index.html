@@ -2,18 +2,13 @@
 <html>
 
 <head>
-  <meta charset="utf-8">
+  <meta charset="UTF-8">
   <title>Pactole</title>
-
-  <!-- meta http-equiv="Content-Security-Policy" content="style-src 'self'; script-src 'self'; default-src 'self'"-->
-
   <link rel="manifest" href="manifest.webmanifest">
   <meta name="application-name" content="Pactole">
   <meta name="theme-color" content="#ffffff">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" sizes="512x512" href="images/icon-512x512.png">
-
-  <!--link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;700&display=swap" rel="stylesheet"-->
 
   <style>
     @font-face {
@@ -109,6 +104,8 @@
 </head>
 
 <body>
+  <noscript>This application requires javascript.</noscript>
+  <p style="color: #aaa;">Chargement de l'application Pactole...</p>
   <script>
 
     // PROGRESSIVE WEB APP ////////////////////////////////////////////////////
@@ -177,77 +174,79 @@
     navigator.serviceWorker.ready
       .then(_ => {
         // Check persistent storage status
-        navigator.storage.persisted().then(isPersisted => {
-          log(`Storage is persisted: ${isPersisted}`)
+        navigator.storage.persisted()
+          .then(isPersisted => {
+            log(`Storage is persisted: ${isPersisted}`)
 
-          const today = new Date()
-          const flags = {
-            today: {
-              year: today.getFullYear(),
-              month: today.getMonth(),
-              day: today.getDate()
-            },
-            width: window.innerWidth,
-            height: window.innerHeight,
-            isStoragePersisted: isPersisted
-          }
-          const app = Elm.Main.init({ flags: flags })
+            const today = new Date()
+            const flags = {
+              today: {
+                year: today.getFullYear(),
+                month: today.getMonth(),
+                day: today.getDate()
+              },
+              width: window.innerWidth,
+              height: window.innerHeight,
+              isStoragePersisted: isPersisted
+            }
+            const app = Elm.Main.init({ flags: flags })
 
-          navigator.serviceWorker.onmessage = event => {
-            log(`Received "${event.data.title}".`)
-            app.ports.receive.send([event.data.title, event.data.content])
-          }
+            navigator.serviceWorker.onmessage = event => {
+              log(`Received "${event.data.title}".`)
+              app.ports.receive.send([event.data.title, event.data.content])
+            }
 
-          app.ports.error.subscribe(
-            msg => console.error(`[ELM] ${msg}`)
-          )
-          app.ports.exportDatabase.subscribe(
-            db => exportDatabase(db)
-          )
-          app.ports.selectImport.subscribe(
-            _ => selectImport()
-          )
-          app.ports.requestStoragePersistence.subscribe(
-            _ => requestStoragePersistence()
-          )
-          app.ports.openDialog.subscribe(
-            _ => {
-              const dialog = document.getElementById("dialog")
-              if (dialog) {
-                if (!dialog.open) {
-                  dialog.showModal()
+            app.ports.error.subscribe(
+              msg => console.error(`[ELM] ${msg}`)
+            )
+            app.ports.exportDatabase.subscribe(
+              db => exportDatabase(db)
+            )
+            app.ports.selectImport.subscribe(
+              _ => selectImport()
+            )
+            app.ports.requestStoragePersistence.subscribe(
+              _ => requestStoragePersistence()
+            )
+            app.ports.openDialog.subscribe(
+              _ => {
+                const dialog = document.getElementById("dialog")
+                if (dialog) {
+                  if (!dialog.open) {
+                    dialog.showModal()
+                  }
+                } else {
+                  error(`unable to open dialog`)
                 }
-              } else {
-                error(`unable to open dialog`)
               }
-            }
-          )
-          app.ports.closeDialog.subscribe(
-            _ => {
-              const dialog = document.getElementById("dialog")
-              if (dialog) {
-                dialog.close()
-              } else {
-                error(`unable to close dialog`)
+            )
+            app.ports.closeDialog.subscribe(
+              _ => {
+                const dialog = document.getElementById("dialog")
+                if (dialog) {
+                  dialog.close()
+                } else {
+                  error(`unable to close dialog`)
+                }
               }
-            }
-          )
-          app.ports.sendToSW.subscribe(function (args) {
-            try {
-              [title, content] = args
-              sendToServiceWorker(title, content)
-            }
-            catch (err) {
-              error(`forwarding service worker message: ${err}`)
-            }
-          })
+            )
+            app.ports.sendToSW.subscribe(function (args) {
+              try {
+                [title, content] = args
+                sendToServiceWorker(title, content)
+              }
+              catch (err) {
+                error(`forwarding service worker message: ${err}`)
+              }
+            })
 
-          log(`Starting Elm application.`)
-          app.ports.receive.send(["start application", null])
-        })
+            log(`Starting Elm application.`)
+            app.ports.receive.send(["start application", null])
+          })
+          .catch(err => fatalError(`no response from navigator.storage.persisted()`))
 
       })
-      .catch(err => error(`Service worker not ready: ${err}`))
+      .catch(err => fatalError(`service worker not ready: ${err}`))
 
 
 
@@ -270,7 +269,6 @@
         if (granted) {
           log("Persistent storage has been granted.")
         } else {
-          //TODO: fatalError instead?
           error('persistent storage has not been granted')
         }
         navigator.serviceWorker.ready
@@ -345,18 +343,13 @@
 
     function fatalError(msg) {
       document.body.innerHTML =
-        `< div > <h1>Le navigateur utilisé n'est pas compatible avec cette application (raison: "${msg}").</h1>` + document.body.innerHTML
+        `<p>Le navigateur utilisé n'est pas compatible avec cette application:</p><pre>${msg}</pre>`
       throw new Error(msg)
     }
 
 
   </script>
 
-  <div style="width: 100%; height: 100%;">
-    <h1
-      style="width: 100%; position: absolute; top: 30%; text-align: center; font-family: 'Work Sans'; font-size: 4em; color: #ddd;">
-      Pactole</h1>
-  </div>
 </body>
 
 </html>
