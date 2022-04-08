@@ -4,6 +4,7 @@ import Date
 import Dict
 import Element as E
 import Element.Background as Background
+import Element.Border as Border
 import Element.Font as Font
 import Element.Keyed as Keyed
 import Ledger
@@ -123,7 +124,7 @@ configAccounts model =
         , Ui.verticalSpacer
         , Ui.paragraph "Avertissement lorsque le solde passe en dessous de:"
         , E.row [ E.spacing 12 ]
-            [ Ui.simpleButton
+            [ Ui.flatButton
                 { label = Ui.minusIcon
                 , onPress =
                     Just (Msg.ForDatabase <| Msg.StoreSettings { settings | balanceWarning = settings.balanceWarning - 10 })
@@ -132,7 +133,7 @@ configAccounts model =
                 (E.text (String.fromInt model.settings.balanceWarning))
             , E.el []
                 (E.text "€")
-            , Ui.simpleButton
+            , Ui.flatButton
                 { label = Ui.plusIcon
                 , onPress =
                     Just (Msg.ForDatabase <| Msg.StoreSettings { settings | balanceWarning = settings.balanceWarning + 10 })
@@ -304,27 +305,56 @@ configFont model =
     E.column
         [ E.width E.fill, E.spacing 24 ]
         [ Ui.title model.device "Apparence"
-        , E.column [ E.spacing 12 ]
-            [ Ui.paragraph "Taille du texte:"
-            , E.row [ E.spacing 12 ]
-                [ Ui.simpleButton
+        , Ui.toggleSwitch model.device
+            { label = "Zoom automatique:"
+            , checked = settings.fontSize == 0
+            , onChange =
+                \v ->
+                    if v then
+                        Msg.ForDatabase <| Msg.StoreSettings { settings | fontSize = 0 }
+
+                    else
+                        Msg.ForDatabase <| Msg.StoreSettings { settings | fontSize = model.device.em }
+            }
+        , E.row [ E.spacing 12 ]
+            [ if model.settings.fontSize == 0 then
+                Ui.paragraph "Taille de police calculée:"
+
+              else
+                Ui.paragraph "Taille de police personalisée:"
+            , if model.settings.fontSize == 0 then
+                E.el
+                    [ E.paddingXY 20 4
+                    , Border.width 4
+                    , Border.color Color.transparent
+                    ]
+                    (E.text " ")
+
+              else
+                Ui.flatButton
                     { label = Ui.minusIcon
                     , onPress =
                         Just (Msg.ForDatabase <| Msg.StoreSettings { settings | fontSize = sanitize <| fontSize - 1 })
                     }
-                , E.el []
-                    (E.text (String.fromInt fontSize))
-                , Ui.simpleButton
+            , E.el []
+                (E.text (String.fromInt fontSize))
+            , E.el []
+                (E.text "px")
+            , if model.settings.fontSize == 0 then
+                E.none
+
+              else
+                Ui.flatButton
                     { label = Ui.plusIcon
                     , onPress =
                         Just (Msg.ForDatabase <| Msg.StoreSettings { settings | fontSize = sanitize <| fontSize + 1 })
                     }
-                , Ui.simpleButton
-                    { label = E.text "Taille par défaut"
-                    , onPress =
-                        Just <| Msg.ForDatabase <| Msg.StoreSettings { settings | fontSize = 0 }
-                    }
-                ]
+
+            -- , Ui.simpleButton
+            --     { label = E.text "Taille par défaut"
+            --     , onPress =
+            --         Just <| Msg.ForDatabase <| Msg.StoreSettings { settings | fontSize = 0 }
+            --     }
             ]
         , Ui.simpleButton
             { label = E.text "Changer la police de caractères"
