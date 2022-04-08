@@ -25,7 +25,6 @@ module Ui exposing
     , flatButton
     , focusVisibleOnly
     , fontFamily
-    , fontScale
     , helpImage
     , helpList
     , helpListItem
@@ -53,6 +52,7 @@ module Ui exposing
     , roundCorners
     , ruler
     , saveIcon
+    , scale
     , simpleButton
     , smallFont
     , smallerFont
@@ -94,7 +94,9 @@ type alias Device =
     { width : Int
     , height : Int
     , class : E.Device
+    , bigEm : Int
     , em : Int
+    , smallEm : Int
     }
 
 
@@ -106,23 +108,32 @@ classifyDevice { width, height, fontSize } =
 
         w =
             contentWidth eDevice.orientation width
+
+        em =
+            if fontSize >= 6 && fontSize <= 128 then
+                fontSize
+
+            else if w >= 960 then
+                26
+
+            else if w <= 360 then
+                18
+
+            else
+                round <| 18 + (toFloat w - 360) / 75
     in
     { width = width
     , height = height
     , class = eDevice
-    , em =
-        if fontSize >= 6 && fontSize <= 128 then
-            fontSize
-
-        else if w >= 960 then
-            26
-
-        else if w <= 360 then
-            16
-
-        else
-            round <| 16 + (toFloat w - 360) / 60
+    , bigEm = scale { em = em } 2
+    , em = em
+    , smallEm = scale { em = em } -1
     }
+
+
+scale : { a | em : Int } -> Int -> Int
+scale { em } n =
+    round <| E.modular (toFloat em) 1.25 n
 
 
 contentWidth : E.Orientation -> Int -> Int
@@ -216,34 +227,29 @@ fontFamily font =
         ]
 
 
-fontScale : Device -> Int -> Int
-fontScale device n =
-    E.modular (device.em |> toFloat) 1.4 n |> round
-
-
 biggestFont : Device -> E.Attr decorative msg
 biggestFont device =
-    Font.size <| fontScale device 3
+    Font.size <| scale device 3
 
 
 bigFont : Device -> E.Attr decorative msg
 bigFont device =
-    Font.size <| fontScale device 2
+    Font.size <| scale device 2
 
 
 defaultFontSize : Device -> E.Attr decorative msg
 defaultFontSize device =
-    Font.size <| fontScale device 1
+    Font.size <| device.em
 
 
 smallFont : Device -> E.Attr decorative msg
 smallFont device =
-    Font.size <| fontScale device -1
+    Font.size <| scale device -1
 
 
 smallerFont : Device -> E.Attr decorative msg
 smallerFont device =
-    Font.size <| fontScale device -2
+    Font.size <| scale device -2
 
 
 iconFont : E.Attribute msg
@@ -649,8 +655,12 @@ dateNavigationBar device model changeMsg =
                         { label =
                             E.row
                                 [ E.width E.fill ]
-                                [ E.el [ E.centerX ]
-                                    (E.text (Date.getMonthName (Date.decrementMonth model.date)))
+                                [ if device.class.orientation == E.Landscape then
+                                    E.el [ E.centerX ]
+                                        (E.text (Date.getMonthName (Date.decrementMonth model.date)))
+
+                                  else
+                                    E.none
                                 , E.el [ E.centerX, iconFont ] (E.text "  \u{F060}  ")
                                 ]
                         , onPress = Just (changeMsg (Date.decrementMonthUI model.date model.today))
@@ -696,8 +706,12 @@ dateNavigationBar device model changeMsg =
                             E.row
                                 [ E.width E.fill ]
                                 [ E.el [ E.centerX, iconFont ] (E.text "  \u{F061}  ")
-                                , E.el [ E.centerX ]
-                                    (E.text (Date.getMonthName (Date.incrementMonth model.date)))
+                                , if device.class.orientation == E.Landscape then
+                                    E.el [ E.centerX ]
+                                        (E.text (Date.getMonthName (Date.incrementMonth model.date)))
+
+                                  else
+                                    E.none
                                 ]
                         , onPress = Just (changeMsg (Date.incrementMonthUI model.date model.today))
                         }

@@ -116,6 +116,9 @@ calendarHeader model =
 calendarCell : Model -> Date -> E.Element Msg
 calendarCell model day =
     let
+        smallEm =
+            model.device.smallEm
+
         sel =
             day == model.date
     in
@@ -216,8 +219,8 @@ calendarCell model day =
                             [ E.width E.fill
                             , E.height E.fill
                             , E.scrollbarY
-                            , E.paddingEach { left = 0, right = 0, top = 6, bottom = 0 }
-                            , E.spacing 8
+                            , E.paddingEach { left = 0, right = 0, top = smallEm // 4, bottom = 0 }
+                            , E.spacing (smallEm // 2)
                             , Ui.smallFont model.device
                             , Font.center
                             , E.centerY
@@ -247,6 +250,9 @@ calendarCell model day =
 cellContentFor : Model -> Date -> List (E.Element Msg)
 cellContentFor model day =
     let
+        em =
+            model.device.em
+
         render transaction =
             let
                 future =
@@ -268,7 +274,7 @@ cellContentFor model day =
                     , Background.color color
                     , Border.rounded 1000
                     , E.htmlAttribute <| Html.Attributes.style "display" "inline-flex"
-                    , E.paddingEach { left = 6, right = 6, top = 0, bottom = 0 }
+                    , E.paddingEach { left = em // 4, right = em // 4, top = 0, bottom = 0 }
                     ]
                     (E.paragraph
                         []
@@ -279,8 +285,8 @@ cellContentFor model day =
 
             else
                 E.el
-                    [ E.width <| E.px <| Ui.fontScale model.device -1
-                    , E.height <| E.px <| Ui.fontScale model.device -1
+                    [ E.width <| E.px <| model.device.smallEm
+                    , E.height <| E.px <| model.device.smallEm
                     , Background.color color
                     , Border.rounded 1000
                     , E.htmlAttribute <| Html.Attributes.style "display" "inline-flex"
@@ -300,6 +306,9 @@ cellContentFor model day =
 dayView : Model -> E.Element Msg
 dayView model =
     let
+        em =
+            model.device.em
+
         dayDiff =
             Date.getDayDiff model.today model.date
 
@@ -332,12 +341,14 @@ dayView model =
         ]
         [ E.column
             [ E.width E.fill
-            , E.height E.shrink
-            , E.paddingXY 0 12
-            , E.spacing 8
+            , E.height E.fill
+            , E.paddingXY 0 (em // 2)
+            , E.spacing (em // 4)
             , Font.color Color.neutral30
             , Font.center
             , Ui.notSelectable
+            , E.height <| E.minimum (em * 5) <| E.fill
+            , E.scrollbarY
             ]
             [ case model.device.class.orientation of
                 E.Landscape ->
@@ -346,18 +357,16 @@ dayView model =
                 E.Portrait ->
                     E.none
             , Ui.viewDate model.device model.date
+            , E.column
+                [ E.width E.fill
+                ]
+                (dayContentFor model model.date)
             ]
-        , E.column
-            [ E.width E.fill
-            , E.height <| E.minimum 80 <| E.fill
-            , E.scrollbarY
-            ]
-            (dayContentFor model model.date)
         , E.row
             [ E.width E.fill
             , E.height E.shrink
-            , E.spacing 24
-            , E.paddingXY 24 12
+            , E.spacing em
+            , E.paddingXY em (em // 2)
             ]
             [ Ui.incomeButton
                 { label = Ui.incomeIcon
@@ -374,6 +383,9 @@ dayView model =
 dayContentFor : Model -> Date -> List (E.Element Msg)
 dayContentFor model day =
     let
+        em =
+            model.device.em
+
         future =
             Date.compare day model.today == GT
 
@@ -414,7 +426,7 @@ dayContentFor model day =
                 ]
                 (Input.button
                     [ E.width E.fill
-                    , E.paddingEach { top = 8, bottom = 8, left = 12, right = 12 }
+                    , E.paddingEach { top = em // 4, bottom = em // 4, left = em // 2, right = em // 2 }
                     , Border.width 4
                     , Border.color Color.transparent
                     , Ui.focusVisibleOnly

@@ -412,6 +412,10 @@ pageHtml model element =
 
 dialogHtml : Model -> Maybe (E.Element Msg) -> Html.Html Msg
 dialogHtml model maybeElement =
+    let
+        em =
+            model.device.em
+    in
     Html.node "dialog"
         [ Html.Attributes.id "dialog"
         , Html.Attributes.class "dialog"
@@ -429,12 +433,12 @@ dialogHtml model maybeElement =
             []
             (E.el
                 [ E.width <| E.minimum 600 <| E.maximum 920 <| E.fill
-                , E.height <| E.minimum 200 <| E.fill
+                , E.height <| E.minimum 128 <| E.fill
                 , Ui.fontFamily model.settings.font
                 , Ui.defaultFontSize model.device
                 , Background.color Color.white
                 , Font.color Color.neutral30
-                , E.paddingXY 48 24
+                , E.paddingXY (2 * em) em
                 , E.scrollbarY
                 ]
              <|
@@ -534,7 +538,7 @@ navigationBar model =
     let
         navigationButton { targetPage, label } =
             Input.button
-                [ E.paddingXY 6 6
+                [ E.padding <| model.device.em // 4
                 , Ui.transition
                 , Border.color Color.transparent
                 , Background.color

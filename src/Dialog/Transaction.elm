@@ -21,7 +21,7 @@ view model =
                 [ Ui.onEnter (Msg.ForTransaction <| Msg.ConfirmTransaction)
                 , E.width E.fill
                 , E.height E.fill
-                , E.spacing 36
+                , E.spacing <| model.device.em
                 ]
                 [ viewDate model dialog
                 , viewAmount model dialog
@@ -36,13 +36,16 @@ view model =
 
 viewDate : Model -> Model.TransactionData -> E.Element Msg
 viewDate model _ =
-    E.el [ E.width E.fill, E.paddingEach { left = 0, right = 0, top = 0, bottom = 12 } ]
+    E.el [ E.width E.fill, E.paddingEach { left = 0, right = 0, top = 0, bottom = 0 // 2 } ]
         (E.el [ E.centerX ] (Ui.viewDate model.device model.date))
 
 
 viewAmount : Model -> Model.TransactionData -> E.Element Msg
 viewAmount model dialog =
     let
+        em =
+            model.device.em
+
         isFuture =
             Date.compare dialog.date model.today == GT
 
@@ -79,7 +82,7 @@ viewAmount model dialog =
             (E.el
                 [ Ui.bigFont model.device
                 , Font.bold
-                , E.width (E.shrink |> E.minimum 220)
+                , E.width (E.shrink |> E.minimum (6 * em))
                 , E.alignLeft
                 , Border.width 1
                 , Border.color Color.transparent
@@ -104,8 +107,7 @@ viewAmount model dialog =
             titleText
             (E.row [ E.width E.fill, E.padding 0, Font.color titleColor, Font.bold ]
                 [ E.el
-                    [ E.paddingEach { top = 12, bottom = 12, left = 0, right = 0 }
-                    , E.width E.shrink
+                    [ E.width E.shrink
                     , E.alignLeft
                     , Border.width 1
                     , Border.color (E.rgba 0 0 0 0)
@@ -126,8 +128,7 @@ viewAmount model dialog =
                     , onChange = Msg.ForTransaction << Msg.ChangeTransactionAmount
                     }
                 , E.el
-                    [ E.paddingEach { top = 12, bottom = 12, left = 6, right = 24 }
-                    , E.width E.shrink
+                    [ E.width E.shrink
                     , E.alignLeft
                     , Border.width 1
                     , Border.color (E.rgba 0 0 0 0)
@@ -205,12 +206,7 @@ viewCategories model dialog =
         in
         Ui.dialogSection Color.neutral30
             "Catégorie:"
-            (E.table
-                [ E.width E.fill
-                , E.spacing 6
-
-                --BUGGY: , scrollbarY
-                ]
+            (E.table [ E.width E.fill ]
                 { data = categories
                 , columns =
                     [ { header = E.none

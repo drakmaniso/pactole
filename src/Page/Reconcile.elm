@@ -57,10 +57,12 @@ viewReconciled model =
 
 viewTransactions : Model -> E.Element Msg
 viewTransactions model =
+    let
+        em =
+            model.device.em
+    in
     E.column
-        [ E.padding 0
-        , E.spacing 0
-        , E.width E.fill
+        [ E.width E.fill
         , E.height E.fill
         , E.scrollbarY
         , Font.color Color.neutral30
@@ -77,7 +79,7 @@ viewTransactions model =
                 in
                 E.row
                     [ E.width E.fill
-                    , E.paddingXY 12 18
+                    , E.paddingXY (em // 2) (em // 2)
                     , Background.color bg
                     ]
                     [ colDate transaction

@@ -24,20 +24,9 @@ viewDesktop model =
         , E.column
             [ E.width E.fill
             , E.height E.fill
-            , E.centerX
-            , E.paddingXY 0 24
             ]
-            [ E.el [ E.height E.fill ] E.none
-            , E.row
-                [ E.width E.fill
-                , E.paddingEach { left = 0, top = 0, bottom = 12, right = 0 }
-                ]
-                [ E.el [ E.width E.fill ] E.none
-                , viewAccounts model
-                , E.el [ E.width E.fill ] E.none
-                ]
+            [ viewAccounts model
             , viewBalance model
-            , E.el [ E.height E.fill ] E.none
             ]
         )
 
@@ -47,7 +36,7 @@ viewMobile model =
     Keyed.el
         [ E.width E.fill ]
         ( "summary"
-        , E.row [ E.width E.fill, E.spacing 6, E.padding 6 ]
+        , E.row [ E.width E.fill, E.spacing <| model.device.em // 4 ]
             [ E.el [ E.width E.fill ] E.none
             , viewAccounts model
             , viewMobileBalance model
@@ -60,7 +49,7 @@ viewAccounts : Model -> E.Element Msg
 viewAccounts model =
     case Dict.keys model.accounts of
         [ singleAccount ] ->
-            E.el [ Ui.notSelectable, Font.center ]
+            E.el [ Ui.notSelectable, Font.center, E.centerX, E.centerY ]
                 (E.text <| Model.accountName singleAccount model)
 
         accounts ->
@@ -69,6 +58,8 @@ viewAccounts model =
                 , Border.width 4
                 , Border.color Color.transparent
                 , Ui.focusVisibleOnly
+                , E.centerX
+                , E.centerY
                 ]
                 { onChange = Msg.SelectAccount
                 , selected = Just model.account
@@ -108,8 +99,9 @@ viewBalance model =
     in
     E.column
         [ E.centerX
-        , E.paddingXY 24 6
-        , Border.rounded 6
+        , E.centerY
+        , E.paddingXY model.device.em (model.device.em // 4)
+        , Border.rounded (model.device.em // 4)
         , if Money.isGreaterOrEqualThan balance model.settings.balanceWarning then
             Border.color Color.transparent
 
@@ -173,8 +165,9 @@ viewMobileBalance model =
     in
     E.el
         [ E.centerX
-        , E.paddingXY 24 6
-        , Border.rounded 6
+        , E.centerY
+        , E.paddingXY model.device.em (model.device.em // 4)
+        , Border.rounded (model.device.em // 4)
         , if Money.isGreaterOrEqualThan balance model.settings.balanceWarning then
             Border.color Color.transparent
 
@@ -184,7 +177,7 @@ viewMobileBalance model =
         , Font.color color
         , Ui.notSelectable
         ]
-        (E.row
+        (E.paragraph
             [ E.centerX, Font.color color, Ui.notSelectable ]
             [ E.el
                 [ Ui.defaultFontSize model.device
