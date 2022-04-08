@@ -92,24 +92,39 @@ type alias Device =
     { width : Int
     , height : Int
     , class : E.Device
-    , fontSize : Int
+    , em : Int
     }
 
 
 classifyDevice : { width : Int, height : Int, fontSize : Int } -> Device
 classifyDevice { width, height, fontSize } =
+    let
+        eDevice =
+            E.classifyDevice { width = width, height = height }
+
+        contentWidth =
+            case eDevice.orientation of
+                E.Portrait ->
+                    width
+
+                E.Landscape ->
+                    round <| 2 * toFloat width / 3
+    in
     { width = width
     , height = height
-    , class = E.classifyDevice { width = width, height = height }
-    , fontSize =
+    , class = eDevice
+    , em =
         if fontSize >= 6 && fontSize <= 128 then
             fontSize
 
-        else if width > firstBreakPoint then
+        else if contentWidth >= 960 then
             26
 
+        else if contentWidth <= 360 then
+            16
+
         else
-            22
+            round <| 16 + (toFloat contentWidth - 360) / 60
     }
 
 
@@ -194,14 +209,9 @@ fontFamily font =
         ]
 
 
-firstBreakPoint : Int
-firstBreakPoint =
-    1280
-
-
 fontScale : Device -> Int -> Int
 fontScale device n =
-    E.modular (device.fontSize |> toFloat) 1.4 n |> round
+    E.modular (device.em |> toFloat) 1.4 n |> round
 
 
 biggestFont : Device -> E.Attr decorative msg
@@ -413,12 +423,11 @@ configCustom { label, content } =
 pageTitle : Device -> E.Element msg -> E.Element msg
 pageTitle device element =
     E.row
-        [ E.width <| E.maximum (pageTitleWidth device) <| E.fill
-        , E.centerX
-        , E.paddingEach { top = 3, bottom = 8, left = 8, right = 8 }
+        [ E.centerX
+        , E.width E.fill
+        , E.paddingEach { top = 3, bottom = 8, left = 2 * device.em, right = 2 * device.em }
         ]
-        [ E.el [ E.width (E.fill |> E.maximum 64) ] E.none
-        , E.el
+        [ E.el
             [ bigFont device
             , Font.center
             , Font.bold
@@ -432,7 +441,6 @@ pageTitle device element =
             , smallShadow
             ]
             element
-        , E.el [ E.width (E.fill |> E.maximum 64) ] E.none
         ]
 
 
@@ -534,11 +542,10 @@ dateNavigationBar : Device -> { a | date : Date, today : Date } -> (Date -> msg)
 dateNavigationBar device model changeMsg =
     E.row
         [ E.width E.fill
-        , E.paddingEach { top = 3, bottom = 8, left = 8, right = 8 }
+        , E.paddingEach { top = 3, bottom = 8, left = 2 * device.em, right = 2 * device.em }
         ]
-        [ E.el [ E.width (E.fill |> E.maximum 64) ] E.none
-        , Keyed.row
-            [ E.width <| E.maximum (pageTitleWidth device) <| E.fill
+        [ Keyed.row
+            [ E.width <| E.fill
             , E.centerX
             , E.alignTop
             , Background.color Color.neutral95
@@ -621,7 +628,6 @@ dateNavigationBar device model changeMsg =
                     )
               )
             ]
-        , E.el [ E.width (E.fill |> E.maximum 64) ] E.none
         ]
 
 
@@ -1039,11 +1045,7 @@ moneyInput :
 moneyInput device args =
     let
         minWidth =
-            if device.width > firstBreakPoint then
-                220
-
-            else
-                200
+            6 * device.em
     in
     Input.text
         [ E.paddingXY 8 12
@@ -1177,13 +1179,7 @@ textColumn : Device -> List (E.Element msg) -> E.Element msg
 textColumn device elements =
     E.column
         [ E.width E.fill
-        , E.spacing
-            (if device.width > firstBreakPoint then
-                24
-
-             else
-                16
-            )
+        , E.spacing device.em
         ]
         (elements
             |> List.map
@@ -1202,22 +1198,13 @@ paragraphWidth : Device -> Int
 paragraphWidth device =
     let
         w =
-            32 * device.fontSize
+            32 * device.em
     in
     if w > 940 then
         940
 
     else
         w
-
-
-pageTitleWidth : Device -> Int
-pageTitleWidth device =
-    if device.width > firstBreakPoint then
-        1200
-
-    else
-        1000
 
 
 title : Device -> String -> E.Element msg

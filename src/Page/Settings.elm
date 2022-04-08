@@ -305,7 +305,7 @@ configFont model =
             model.settings
 
         fontSize =
-            model.device.fontSize
+            model.device.em
 
         sanitize size =
             if size < 6 then
