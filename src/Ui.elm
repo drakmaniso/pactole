@@ -10,6 +10,7 @@ module Ui exposing
     , classifyDevice
     , closeIcon
     , configCustom
+    , contentWidth
     , dangerButton
     , dateNavigationBar
     , defaultFontSize
@@ -24,6 +25,7 @@ module Ui exposing
     , flatButton
     , focusVisibleOnly
     , fontFamily
+    , fontScale
     , helpImage
     , helpList
     , helpListItem
@@ -102,13 +104,8 @@ classifyDevice { width, height, fontSize } =
         eDevice =
             E.classifyDevice { width = width, height = height }
 
-        contentWidth =
-            case eDevice.orientation of
-                E.Portrait ->
-                    width
-
-                E.Landscape ->
-                    round <| 2 * toFloat width / 3
+        w =
+            contentWidth eDevice.orientation width
     in
     { width = width
     , height = height
@@ -117,15 +114,25 @@ classifyDevice { width, height, fontSize } =
         if fontSize >= 6 && fontSize <= 128 then
             fontSize
 
-        else if contentWidth >= 960 then
+        else if w >= 960 then
             26
 
-        else if contentWidth <= 360 then
+        else if w <= 360 then
             16
 
         else
-            round <| 16 + (toFloat contentWidth - 360) / 60
+            round <| 16 + (toFloat w - 360) / 60
     }
+
+
+contentWidth : E.Orientation -> Int -> Int
+contentWidth orientation width =
+    case orientation of
+        E.Portrait ->
+            width
+
+        E.Landscape ->
+            round <| 2 * toFloat width / 3
 
 
 

@@ -129,7 +129,7 @@ calendarCell model day =
             (Input.button
                 [ E.width E.fill
                 , E.height E.fill
-                , E.scrollbarY
+                , E.clipY
                 , Border.width 3
                 , Ui.transition
                 , Border.rounded
@@ -177,7 +177,7 @@ calendarCell model day =
                     E.column
                         [ E.width E.fill
                         , E.height E.fill
-                        , E.scrollbarY
+                        , E.clipY
                         ]
                         [ E.el
                             [ E.width E.fill
@@ -215,9 +215,9 @@ calendarCell model day =
                         , E.paragraph
                             [ E.width E.fill
                             , E.height E.fill
+                            , E.scrollbarY
                             , E.paddingEach { left = 0, right = 0, top = 6, bottom = 0 }
                             , E.spacing 8
-                            , E.scrollbarY
                             , Ui.smallFont model.device
                             , Font.center
                             , E.centerY
@@ -262,19 +262,30 @@ cellContentFor model day =
                 parts =
                     Money.toStrings transaction.amount
             in
-            E.el
-                [ Font.color Color.white
-                , Background.color color
-                , Border.rounded 1000
-                , E.htmlAttribute <| Html.Attributes.style "display" "inline-flex"
-                , E.paddingEach { left = 6, right = 6, top = 0, bottom = 0 }
-                ]
-                (E.paragraph
-                    []
-                    [ E.el [ Ui.smallFont model.device ] (E.text (parts.sign ++ parts.units))
-                    , E.el [ Ui.smallerFont model.device ] (E.text ("," ++ parts.cents))
+            if Ui.contentWidth model.device.class.orientation model.device.width > 26 * model.device.em then
+                E.el
+                    [ Font.color Color.white
+                    , Background.color color
+                    , Border.rounded 1000
+                    , E.htmlAttribute <| Html.Attributes.style "display" "inline-flex"
+                    , E.paddingEach { left = 6, right = 6, top = 0, bottom = 0 }
                     ]
-                )
+                    (E.paragraph
+                        []
+                        [ E.el [ Ui.smallFont model.device ] (E.text (parts.sign ++ parts.units))
+                        , E.el [ Ui.smallerFont model.device ] (E.text ("," ++ parts.cents))
+                        ]
+                    )
+
+            else
+                E.el
+                    [ E.width <| E.px <| Ui.fontScale model.device -1
+                    , E.height <| E.px <| Ui.fontScale model.device -1
+                    , Background.color color
+                    , Border.rounded 1000
+                    , E.htmlAttribute <| Html.Attributes.style "display" "inline-flex"
+                    ]
+                    E.none
     in
     (List.map render (Ledger.getTransactionsForDate model.ledger model.account day)
         ++ List.map render (Ledger.getRecurringTransactionsForDate model.recurring model.account day)
