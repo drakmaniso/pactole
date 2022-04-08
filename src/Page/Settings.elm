@@ -150,7 +150,7 @@ configOptional model =
     in
     E.column [ E.spacing 24 ]
         [ Ui.title model.device "Fonctions optionnelles"
-        , Ui.configRadio
+        , Ui.toggleSwitch model.device
             { onChange =
                 \o ->
                     if o then
@@ -159,13 +159,9 @@ configOptional model =
                     else
                         Msg.ForDatabase <| Msg.StoreSettings { settings | summaryEnabled = False }
             , label = "Page de bilan:"
-            , options =
-                [ Ui.radioRowOption False (E.text "Désactivée")
-                , Ui.radioRowOption True (E.text "Activée")
-                ]
-            , selected = Just model.settings.summaryEnabled
+            , checked = model.settings.summaryEnabled
             }
-        , Ui.configRadio
+        , Ui.toggleSwitch model.device
             { onChange =
                 \o ->
                     if o then
@@ -174,13 +170,9 @@ configOptional model =
                     else
                         Msg.ForDatabase <| Msg.StoreSettings { settings | reconciliationEnabled = False }
             , label = "Page de pointage:"
-            , options =
-                [ Ui.radioRowOption False (E.text "Désactivée")
-                , Ui.radioRowOption True (E.text "Activée")
-                ]
-            , selected = Just model.settings.reconciliationEnabled
+            , checked = model.settings.reconciliationEnabled
             }
-        , Ui.configRadio
+        , Ui.toggleSwitch model.device
             { onChange =
                 \o ->
                     if o then
@@ -189,11 +181,7 @@ configOptional model =
                     else
                         Msg.ForDatabase <| Msg.StoreSettings { settings | categoriesEnabled = False }
             , label = "Catégories de dépense:"
-            , options =
-                [ Ui.radioRowOption False (E.text "Désactivées")
-                , Ui.radioRowOption True (E.text "Activées")
-                ]
-            , selected = Just model.settings.categoriesEnabled
+            , checked = model.settings.categoriesEnabled
             }
         , Ui.paragraph "Liste des catégories:"
         , E.column [ E.padding 6, E.spacing 6, E.width <| E.minimum 100 <| E.fill ]
@@ -274,20 +262,16 @@ configLocked model =
             toutes les fonctionnalités, vous pouvez cacher l'accès aux réglages
             afin de prévenir toute fausse manipulation.
             """
-        , Ui.configRadio
+        , Ui.toggleSwitch model.device
             { onChange =
                 \o ->
-                    if o then
+                    if not o then
                         Msg.ForDatabase <| Msg.StoreSettings { settings | settingsLocked = True }
 
                     else
                         Msg.ForDatabase <| Msg.StoreSettings { settings | settingsLocked = False }
             , label = "Accès aux réglages:"
-            , options =
-                [ Ui.radioRowOption False (E.text "Visible")
-                , Ui.radioRowOption True (E.text "Caché")
-                ]
-            , selected = Just model.settings.settingsLocked
+            , checked = not model.settings.settingsLocked
             }
         , Ui.paragraph
             """

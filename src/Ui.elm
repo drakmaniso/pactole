@@ -10,7 +10,6 @@ module Ui exposing
     , classifyDevice
     , closeIcon
     , configCustom
-    , configRadio
     , dangerButton
     , dateNavigationBar
     , defaultFontSize
@@ -59,6 +58,7 @@ module Ui exposing
     , textColumn
     , textInput
     , title
+    , toggleSwitch
     , transition
     , verticalSpacer
     , viewDate
@@ -337,15 +337,16 @@ loadIcon =
 -- CONTAINERS
 
 
-configRadio :
-    { label : String
-    , options : List (Input.Option option msg)
-    , selected : Maybe option
-    , onChange : option -> msg
-    }
+toggleSwitch :
+    Device
+    ->
+        { label : String
+        , checked : Bool
+        , onChange : Bool -> msg
+        }
     -> E.Element msg
-configRadio { label, options, selected, onChange } =
-    Input.radioRow
+toggleSwitch device { label, checked, onChange } =
+    Input.checkbox
         [ E.width E.fill
         , Border.width 4
         , Border.color Color.transparent
@@ -353,11 +354,79 @@ configRadio { label, options, selected, onChange } =
         ]
         { label =
             Input.labelLeft
-                [ E.paddingEach { bottom = 0, top = 0, left = 0, right = 24 } ]
+                [ E.paddingEach { bottom = 0, top = 0, left = 0, right = device.em } ]
                 (E.el [] (E.text label))
-        , options = options
-        , selected = selected
+        , checked = checked
         , onChange = onChange
+        , icon =
+            \v ->
+                if v then
+                    E.el
+                        [ E.width <| E.px <| 2 * device.em
+                        , E.height <| E.px <| device.em
+                        , E.htmlAttribute <| Html.Attributes.style "transform" "translate(0px,2px)"
+                        , E.behindContent <|
+                            E.el
+                                [ E.centerY
+                                , E.width <| E.px <| 2 * device.em
+                                , E.height <| E.px <| device.em
+                                , Border.rounded device.em
+                                , Background.color Color.primary85
+                                , innerShadow
+                                , transition
+                                ]
+                                E.none
+                        , E.inFront <|
+                            E.el
+                                [ E.alignRight
+                                , E.centerY
+                                , E.width <| E.px <| device.em + 4
+                                , E.height <| E.px <| device.em + 4
+                                , E.htmlAttribute <| Html.Attributes.style "transform" "translate(+2px,-2px)"
+                                , Border.rounded device.em
+                                , Background.color Color.primary40
+                                , smallShadow
+                                , transition
+                                , E.mouseOver [ Background.color Color.primary50 ]
+                                , E.mouseDown [ Background.color Color.primary30 ]
+                                ]
+                                E.none
+                        ]
+                        E.none
+
+                else
+                    E.el
+                        [ E.width <| E.px <| 2 * device.em
+                        , E.height <| E.px <| device.em
+                        , E.htmlAttribute <| Html.Attributes.style "transform" "translate(0px,2px)"
+                        , E.behindContent <|
+                            E.el
+                                [ E.centerY
+                                , E.width <| E.px <| 2 * device.em
+                                , E.height <| E.px <| device.em
+                                , Border.rounded device.em
+                                , Background.color Color.neutral95
+                                , innerShadow
+                                , transition
+                                ]
+                                E.none
+                        , E.inFront <|
+                            E.el
+                                [ E.alignLeft
+                                , E.centerY
+                                , E.width <| E.px <| device.em + 4
+                                , E.height <| E.px <| device.em + 4
+                                , E.htmlAttribute <| Html.Attributes.style "transform" "translate(-2px,-2px)"
+                                , Border.rounded device.em
+                                , Background.color Color.neutral70
+                                , smallShadow
+                                , transition
+                                , E.mouseOver [ Background.color Color.neutral80 ]
+                                , E.mouseDown [ Background.color Color.neutral60 ]
+                                ]
+                                E.none
+                        ]
+                        E.none
         }
 
 
