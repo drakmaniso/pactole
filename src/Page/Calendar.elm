@@ -125,13 +125,13 @@ calendarCell model day =
             [ E.width E.fill
             , E.height E.fill
             , E.clipY
-            , Ui.transition
             ]
             (Input.button
                 [ E.width E.fill
                 , E.height E.fill
                 , E.scrollbarY
                 , Border.width 3
+                , Ui.transition
                 , Border.rounded
                     (if sel then
                         12

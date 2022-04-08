@@ -67,17 +67,21 @@ viewTransactions model =
         ]
         (List.indexedMap
             (\idx transaction ->
+                let
+                    bg =
+                        if Basics.remainderBy 2 idx == 0 then
+                            Color.neutral95
+
+                        else
+                            Color.neutral90
+                in
                 E.row
                     [ E.width E.fill
                     , E.paddingXY 12 18
-                    , if Basics.remainderBy 2 idx == 0 then
-                        Background.color Color.neutral95
-
-                      else
-                        Background.color Color.neutral90
+                    , Background.color bg
                     ]
                     [ colDate transaction
-                    , colReconciled transaction
+                    , colReconciled transaction bg
                     , colAmount model transaction model.today
                     , colDescription transaction
                     ]
@@ -86,12 +90,13 @@ viewTransactions model =
         )
 
 
-colReconciled : Ledger.Transaction -> E.Element Msg
-colReconciled transaction =
+colReconciled : Ledger.Transaction -> E.Color -> E.Element Msg
+colReconciled transaction bg =
     E.el
         [ E.width (E.fillPortion 1) ]
-        (Ui.checkBox
-            { state = transaction.checked
+        (Ui.reconcileCheckBox
+            { background = bg
+            , state = transaction.checked
             , onPress = Just (Msg.ForDatabase <| Msg.CheckTransaction transaction (not transaction.checked))
             }
         )

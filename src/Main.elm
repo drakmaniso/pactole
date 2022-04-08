@@ -535,6 +535,7 @@ navigationBar model =
         navigationButton { targetPage, label } =
             Input.button
                 [ E.paddingXY 6 6
+                , Ui.transition
                 , Border.color Color.transparent
                 , Background.color
                     (if model.page == targetPage then

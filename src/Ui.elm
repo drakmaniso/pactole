@@ -6,7 +6,6 @@ module Ui exposing
     , biggestFont
     , boldText
     , borderWidth
-    , checkBox
     , checkIcon
     , classifyDevice
     , closeIcon
@@ -49,6 +48,7 @@ module Ui exposing
     , plusIcon
     , radioButton
     , radioRowOption
+    , reconcileCheckBox
     , roundCorners
     , ruler
     , saveIcon
@@ -143,7 +143,7 @@ focusVisibleOnly =
 
 transition : E.Attribute msg
 transition =
-    E.htmlAttribute (Html.Attributes.style "transition" "background 0.1s, color 0.1s, box-shadow 0.1s, border-color 0.1s")
+    E.htmlAttribute <| Html.Attributes.class "button-transition"
 
 
 defaultShadow : E.Attribute msg
@@ -927,10 +927,10 @@ iconButton { onPress, icon } =
         }
 
 
-checkBox :
-    { state : Bool, onPress : Maybe msg }
+reconcileCheckBox :
+    { state : Bool, onPress : Maybe msg, background : E.Color }
     -> E.Element msg
-checkBox { state, onPress } =
+reconcileCheckBox { state, onPress, background } =
     Input.button
         [ Font.color Color.primary40
         , Font.center
@@ -939,7 +939,7 @@ checkBox { state, onPress } =
         , E.alignRight
         , Background.color (E.rgba 1 1 1 1)
         , Border.width 4
-        , Border.color Color.transparent
+        , Border.color background
         , focusVisibleOnly
         , E.padding 2
         , innerShadow
@@ -1162,6 +1162,7 @@ helpMiniButton { label, onPress } =
         , focusVisibleOnly
         , E.mouseDown [ Font.color Color.primary30 ]
         , E.mouseOver [ Font.color Color.primary50 ]
+        , transition
         ]
         { label = label
         , onPress = Just onPress
