@@ -6,6 +6,7 @@ import Element as E
 import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
+import Element.Input as Input
 import Element.Keyed as Keyed
 import Ledger
 import Model exposing (Model)
@@ -44,6 +45,7 @@ view model =
                     , configLocked model
                     , Ui.verticalSpacer
                     , Ui.verticalSpacer
+                    , secretDiagnosticsButton model
                     ]
                 ]
             )
@@ -362,3 +364,19 @@ configFont model =
             }
         , Ui.verticalSpacer
         ]
+
+
+secretDiagnosticsButton : Model -> E.Element Msg
+secretDiagnosticsButton model =
+    Input.button
+        [ E.centerX
+        , E.alignBottom
+        , Ui.smallerFont model.context
+        , Font.color Color.neutral70
+        , E.padding 12
+        , E.mouseOver [ Font.color Color.neutral50 ]
+        , E.mouseDown [ Font.color Color.neutral20 ]
+        ]
+        { label = E.text ("version " ++ model.serviceVersion)
+        , onPress = Just (Msg.ChangePage Model.DiagnosticsPage)
+        }

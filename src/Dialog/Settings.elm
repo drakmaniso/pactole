@@ -33,7 +33,6 @@ viewAccountDialog _ data =
                 { label = Ui.labelLeft "Nom du compte:"
                 , text = data.name
                 , onChange = \n -> Msg.ForSettings <| Msg.ChangeSettingsName n
-                , width = 400
                 }
             )
         , E.row
@@ -113,7 +112,6 @@ viewCategoryDialog _ submodel =
                 { label = Ui.labelLeft "Catégorie:"
                 , text = submodel.name
                 , onChange = \n -> Msg.ForSettings <| Msg.ChangeSettingsName n
-                , width = 200
                 }
             )
         , E.el []
@@ -212,7 +210,6 @@ viewRecurringDialog model submodel =
             { label = Ui.labelLeft "Jour du mois: "
             , text = submodel.dueDate
             , onChange = \n -> Msg.ForSettings <| Msg.ChangeSettingsDueDate n
-            , width = 400
             }
         , E.row [ E.spacingXY 24 0 ]
             (E.el [] (E.text "Compte: ")
@@ -250,13 +247,11 @@ viewRecurringDialog model submodel =
             { label = Ui.labelLeft "Montant:"
             , text = submodel.amount
             , onChange = \n -> Msg.ForSettings <| Msg.ChangeSettingsAmount n
-            , width = 400
             }
         , Ui.textInput
             { label = Ui.labelLeft "Description:"
             , text = submodel.description
             , onChange = \n -> Msg.ForSettings <| Msg.ChangeSettingsName n
-            , width = 400
             }
         , E.row
             [ E.width E.fill
@@ -381,7 +376,6 @@ viewFontDialog _ fontName =
                 { label = Ui.labelLeft "Police de caractère:"
                 , text = fontName
                 , onChange = \n -> Msg.ForSettings <| Msg.ChangeSettingsName n
-                , width = 400
                 }
             , Ui.simpleButton
                 { label = Ui.text "Réinitialiser"

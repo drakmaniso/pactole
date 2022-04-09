@@ -25,22 +25,72 @@ view model =
             ]
             [ Ui.pageTitle model.context (E.text "System Diagnostics")
             , E.textColumn
-                [ Ui.smallFont model.context
+                [ E.width E.fill
+                , Ui.smallFont model.context
                 , Font.family [ Font.monospace ]
-                , E.padding 24
-                , E.spacing 12
+                , E.padding <| model.context.em
+                , E.spacing <| model.context.em // 2
                 ]
-                ([ E.paragraph [] [ E.text "System info:" ]
-                 , if model.isStoragePersisted then
+                [ E.paragraph [] [ E.text "System info:" ]
+                , if model.isStoragePersisted then
                     E.paragraph [] [ E.text "- storage is persisted" ]
 
-                   else
+                  else
                     E.paragraph [ Font.color Color.warning60 ] [ E.text "Storage is NOT persisted!" ]
-                 , E.paragraph [] [ E.text <| "- width = " ++ String.fromInt model.context.width ++ ", height = " ++ String.fromInt model.context.height ]
-                 , Ui.verticalSpacer
-                 , E.paragraph [] [ E.text "Error log:" ]
-                 ]
-                    ++ (model.errors |> List.map (\err -> E.paragraph [] [ E.text err ]))
-                )
+                , E.paragraph [] [ E.text <| "- width = " ++ String.fromInt model.context.width ++ ", height = " ++ String.fromInt model.context.height ]
+                , E.paragraph []
+                    [ E.text <|
+                        "- orientation = "
+                            ++ (case model.context.device.orientation of
+                                    E.Landscape ->
+                                        "landscape"
+
+                                    E.Portrait ->
+                                        "portrait"
+                               )
+                    ]
+                , E.paragraph []
+                    [ E.text <|
+                        "- device class = "
+                            ++ (case model.context.device.class of
+                                    E.Phone ->
+                                        "phone"
+
+                                    E.Tablet ->
+                                        "tablet"
+
+                                    E.Desktop ->
+                                        "desktop"
+
+                                    E.BigDesktop ->
+                                        "big desktop"
+                               )
+                    ]
+                , E.paragraph []
+                    [ E.text <|
+                        "- font sizes = "
+                            ++ String.fromInt model.context.smallEm
+                            ++ ", "
+                            ++ String.fromInt model.context.em
+                            ++ ", "
+                            ++ String.fromInt model.context.bigEm
+                    ]
+                , Ui.verticalSpacer
+                , Ui.textInput
+                    { label = Ui.labelLeft "test input:", text = "", onChange = \_ -> Msg.NoOp }
+                , errorLog model
+                ]
             ]
         ]
+
+
+errorLog : { a | errors : List String } -> E.Element msg
+errorLog model =
+    if List.isEmpty model.errors then
+        Ui.paragraph "No errors."
+
+    else
+        E.column []
+            (Ui.paragraph "Error log:"
+                :: (model.errors |> List.map (\err -> E.paragraph [ Font.color Color.warning60 ] [ E.text err ]))
+            )

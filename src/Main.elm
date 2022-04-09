@@ -464,10 +464,6 @@ dialogHtml model maybeElement =
 
 mobileDialogHtml : Model -> Maybe (E.Element Msg) -> Html.Html Msg
 mobileDialogHtml model maybeElement =
-    let
-        em =
-            model.context.em
-    in
     Html.node "dialog"
         [ Html.Attributes.id "dialog"
         , Html.Attributes.class "mobile-dialog"
@@ -490,9 +486,7 @@ mobileDialogHtml model maybeElement =
                 , Ui.defaultFontSize model.context
                 , Background.color Color.white
                 , Font.color Color.neutral30
-                , E.paddingXY (2 * em) em
-                , E.scrollbarY
-                , E.scrollbarX
+                , E.clip
                 ]
              <|
                 case maybeElement of

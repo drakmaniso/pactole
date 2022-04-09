@@ -1102,7 +1102,7 @@ labelLeft txt =
     Input.labelLeft [ E.paddingEach { left = 0, right = 12, top = 0, bottom = 0 } ] (E.text txt)
 
 
-textInput : { width : Int, label : Input.Label msg, text : String, onChange : String -> msg } -> E.Element msg
+textInput : { label : Input.Label msg, text : String, onChange : String -> msg } -> E.Element msg
 textInput args =
     Input.text
         [ E.width <| E.fill

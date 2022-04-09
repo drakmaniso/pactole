@@ -113,8 +113,7 @@ viewInstallation model installation =
             , Ui.verticalSpacer
             , Ui.title model.context "Configuration initiale"
             , Ui.textInput
-                { width = 400
-                , label = Ui.labelLeft "Nom du compte:"
+                { label = Ui.labelLeft "Nom du compte:"
                 , text = installation.firstAccount
                 , onChange = \txt -> Msg.ChangeInstallName txt |> Msg.ForInstallation
                 }
