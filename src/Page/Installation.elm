@@ -7,7 +7,6 @@ import Element.Font as Font
 import Element.Keyed as Keyed
 import Model exposing (Model)
 import Msg exposing (Msg)
-import Page.Settings as Settings
 import Ui
 import Ui.Color as Color
 
@@ -126,7 +125,6 @@ viewInstallation model installation =
                 , onChange = Msg.ForInstallation << Msg.ChangeInstallBalance
                 }
             , Ui.verticalSpacer
-            , Settings.configLocked model
             , E.wrappedRow [ E.spacing 36 ]
                 [ Ui.mainButton
                     { label = E.text "Installer Pactole"
