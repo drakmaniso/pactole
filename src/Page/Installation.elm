@@ -40,7 +40,7 @@ viewInstallation model installation =
         [ E.width E.fill
         , E.height E.fill
         ]
-        [ Ui.textColumn model.device
+        [ Ui.textColumn model.context
             [ titleBanner model
             , Ui.paragraph
                 """
@@ -61,7 +61,7 @@ viewInstallation model installation =
                 mois, pointage, catégories pour les dépenses, dépenses mensuelles récurrentes.
                 """
             , Ui.verticalSpacer
-            , Ui.title model.device "Installation"
+            , Ui.title model.context "Installation"
             , Ui.paragraph
                 """
                 Pactole est une application qui fonctionne dans le navigateur. 
@@ -112,14 +112,14 @@ viewInstallation model installation =
                     ]
                 ]
             , Ui.verticalSpacer
-            , Ui.title model.device "Configuration initiale"
+            , Ui.title model.context "Configuration initiale"
             , Ui.textInput
                 { width = 400
                 , label = Ui.labelLeft "Nom du compte:"
                 , text = installation.firstAccount
                 , onChange = \txt -> Msg.ChangeInstallName txt |> Msg.ForInstallation
                 }
-            , Ui.moneyInput model.device
+            , Ui.moneyInput model.context
                 { label = Ui.labelLeft "Solde initial:"
                 , color = Color.neutral20
                 , state = installation.initialBalance
@@ -156,5 +156,5 @@ titleBanner model =
             { src = "images/icon-512x512.png"
             , description = "Pactole Logo"
             }
-        , E.el [ E.alignLeft, Ui.biggestFont model.device, Font.bold ] (E.text "Pactole")
+        , E.el [ E.alignLeft, Ui.biggestFont model.context, Font.bold ] (E.text "Pactole")
         ]

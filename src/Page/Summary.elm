@@ -36,7 +36,7 @@ viewMobile model =
     Keyed.el
         [ E.width E.fill ]
         ( "summary"
-        , E.row [ E.width E.fill, E.spacing <| model.device.em // 4 ]
+        , E.row [ E.width E.fill, E.spacing <| model.context.em // 4 ]
             [ E.el [ E.width E.fill ] E.none
             , viewAccounts model
             , viewMobileBalance model
@@ -100,8 +100,8 @@ viewBalance model =
     E.column
         [ E.centerX
         , E.centerY
-        , E.paddingXY model.device.em (model.device.em // 4)
-        , Border.rounded (model.device.em // 4)
+        , E.paddingXY model.context.em (model.context.em // 4)
+        , Border.rounded (model.context.em // 4)
         , if Money.isGreaterOrEqualThan balance model.settings.balanceWarning then
             Border.color Color.transparent
 
@@ -110,7 +110,7 @@ viewBalance model =
         , Border.width 2
         ]
         [ E.el
-            [ Ui.smallFont model.device
+            [ Ui.smallFont model.context
             , E.centerX
             , Font.color Color.neutral40
             , Ui.notSelectable
@@ -119,19 +119,19 @@ viewBalance model =
         , E.row
             [ E.centerX, Font.color color, Ui.notSelectable ]
             [ E.el
-                [ Ui.biggestFont model.device
+                [ Ui.biggestFont model.context
                 , Font.bold
                 ]
                 (E.text (sign ++ parts.units))
             , E.el
-                [ Ui.bigFont model.device
+                [ Ui.bigFont model.context
                 , Font.bold
                 , E.alignBottom
                 , E.paddingEach { top = 0, bottom = 2, left = 0, right = 0 }
                 ]
                 (E.text ("," ++ parts.cents))
             , E.el
-                [ Ui.bigFont model.device
+                [ Ui.bigFont model.context
                 , E.alignTop
                 , E.paddingEach { top = 2, bottom = 0, left = 4, right = 0 }
                 ]
@@ -166,8 +166,8 @@ viewMobileBalance model =
     E.el
         [ E.centerX
         , E.centerY
-        , E.paddingXY model.device.em (model.device.em // 4)
-        , Border.rounded (model.device.em // 4)
+        , E.paddingXY model.context.em (model.context.em // 4)
+        , Border.rounded (model.context.em // 4)
         , if Money.isGreaterOrEqualThan balance model.settings.balanceWarning then
             Border.color Color.transparent
 
@@ -180,19 +180,19 @@ viewMobileBalance model =
         (E.paragraph
             [ E.centerX, Font.color color, Ui.notSelectable ]
             [ E.el
-                [ Ui.defaultFontSize model.device
+                [ Ui.defaultFontSize model.context
                 , Font.bold
                 ]
                 (E.text (sign ++ parts.units))
             , E.el
-                [ Ui.smallFont model.device
+                [ Ui.smallFont model.context
                 , Font.bold
                 , E.alignBottom
                 , E.paddingEach { top = 0, bottom = 2, left = 0, right = 0 }
                 ]
                 (E.text ("," ++ parts.cents))
             , E.el
-                [ Ui.smallFont model.device
+                [ Ui.smallFont model.context
                 , E.alignTop
                 , E.paddingEach { top = 2, bottom = 0, left = 4, right = 0 }
                 ]

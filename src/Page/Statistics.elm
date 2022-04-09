@@ -18,7 +18,7 @@ viewContent model =
         , E.height E.fill
         , E.padding 3
         ]
-        [ Ui.dateNavigationBar model.device model Msg.SelectDate
+        [ Ui.dateNavigationBar model.context model Msg.SelectDate
         , viewMonthBalance model
         , viewMonthFutureWarning model
         , Ui.ruler
@@ -67,9 +67,9 @@ viewMonthBalance model =
         ]
         [ E.el [ E.width (E.fillPortion 2) ] E.none
         , E.el
-            [ Ui.bigFont model.device, Font.alignRight ]
+            [ Ui.bigFont model.context, Font.alignRight ]
             (E.text "Bilan du mois: ")
-        , Ui.viewSum model.device monthBal
+        , Ui.viewSum model.context monthBal
         , E.el [ E.width (E.fillPortion 2) ] E.none
         ]
 
@@ -125,6 +125,6 @@ viewItem model icon description money =
             , E.el [ Ui.iconFont, Font.center ] (E.text icon)
             , E.el [ Font.alignRight ] (E.text description)
             ]
-        , Ui.viewMoney model.device money False
+        , Ui.viewMoney model.context money False
         , E.el [ E.width (E.fillPortion 2) ] E.none
         ]

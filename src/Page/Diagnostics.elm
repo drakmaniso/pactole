@@ -23,9 +23,9 @@ view model =
             , E.padding 3
             , E.scrollbarY
             ]
-            [ Ui.pageTitle model.device (E.text "System Diagnostics")
+            [ Ui.pageTitle model.context (E.text "System Diagnostics")
             , E.textColumn
-                [ Ui.smallFont model.device
+                [ Ui.smallFont model.context
                 , Font.family [ Font.monospace ]
                 , E.padding 24
                 , E.spacing 12
@@ -36,7 +36,7 @@ view model =
 
                    else
                     E.paragraph [ Font.color Color.warning60 ] [ E.text "Storage is NOT persisted!" ]
-                 , E.paragraph [] [ E.text <| "- width = " ++ String.fromInt model.device.width ++ ", height = " ++ String.fromInt model.device.height ]
+                 , E.paragraph [] [ E.text <| "- width = " ++ String.fromInt model.context.width ++ ", height = " ++ String.fromInt model.context.height ]
                  , Ui.verticalSpacer
                  , E.paragraph [] [ E.text "Error log:" ]
                  ]

@@ -120,7 +120,7 @@ init flags _ _ =
       , page = Model.LoadingPage
       , dialog = Nothing
       , serviceVersion = "unknown"
-      , device = Ui.classifyDevice { width = width, height = height, fontSize = 0 }
+      , context = Ui.classifyContext { width = width, height = height, fontSize = 0 }
       , errors = []
       }
     , Cmd.none
@@ -150,11 +150,19 @@ update msg model =
             ( { model | account = accountID }, Cmd.none )
 
         Msg.WindowResize size ->
-            ( { model
-                | device = Ui.classifyDevice { width = size.width, height = size.height, fontSize = model.settings.fontSize }
-              }
-            , Cmd.none
-            )
+            let
+                heightChange =
+                    toFloat (model.context.height - size.height) / toFloat model.context.height
+
+                newContext =
+                    Ui.classifyContext { width = size.width, height = size.height, fontSize = model.settings.fontSize }
+            in
+            if size.width == model.context.width && heightChange > 0.1 then
+                -- This is probably triggered by opening the on-screen keyboard
+                ( model, Cmd.none )
+
+            else
+                ( { model | context = newContext }, Cmd.none )
 
         Msg.ForInstallation m ->
             Update.Installation.update m model
@@ -177,28 +185,11 @@ update msg model =
 
 
 subscriptions : Model -> Sub Msg
-subscriptions model =
+subscriptions _ =
     Sub.batch
         [ Database.receive
-        , Browser.Events.onResize (onWindowResized model)
+        , Browser.Events.onResize (\width height -> Msg.WindowResize { width = width, height = height })
         ]
-
-
-onWindowResized : Model -> Int -> Int -> Msg
-onWindowResized model w h =
-    let
-        class =
-            model.device.class.class
-
-        heightChange =
-            toFloat (abs (h - model.device.height)) / toFloat h
-    in
-    if (class == E.Phone || class == E.Tablet) && w == model.device.width && heightChange > 0.1 then
-        -- This is probably triggered by opening the on-screen keyboard
-        Msg.NoOp
-
-    else
-        Msg.WindowResize { width = w, height = h }
 
 
 keyDecoder : (String -> Msg) -> Decode.Decoder Msg
@@ -213,7 +204,7 @@ keyDecoder msg =
 
 view : Model -> Browser.Document Msg
 view model =
-    case model.device.class.orientation of
+    case model.context.device.orientation of
         E.Landscape ->
             viewDesktop model
 
@@ -331,17 +322,19 @@ viewMobile model =
     case model.dialog of
         Nothing ->
             { title = "Pactole"
-            , body = [ pageHtml model <| viewMobilePage model ]
+            , body = [ pageHtml model <| viewMobilePage model, mobileDialogHtml model Nothing ]
             }
 
         Just dialog ->
             { title = "Pactole"
             , body =
-                [ pageHtml model <|
-                    E.column [ E.width E.fill, E.height E.fill ]
-                        [ mobileDialogNavigationBar model
-                        , viewDialog model dialog
-                        ]
+                [ pageHtml model <| E.none
+                , mobileDialogHtml model <|
+                    Just <|
+                        E.column [ E.width E.fill, E.height E.fill ]
+                            [ mobileDialogNavigationBar model
+                            , viewDialog model dialog
+                            ]
                 ]
             }
 
@@ -406,7 +399,7 @@ pageHtml model element =
             [ E.width E.fill
             , E.height E.fill
             , Ui.fontFamily model.settings.font
-            , Ui.defaultFontSize model.device
+            , Ui.defaultFontSize model.context
             , Font.color Color.neutral30
             , Background.color Color.white
             ]
@@ -431,7 +424,7 @@ dialogHtml : Model -> Maybe (E.Element Msg) -> Html.Html Msg
 dialogHtml model maybeElement =
     let
         em =
-            model.device.em
+            model.context.em
     in
     Html.node "dialog"
         [ Html.Attributes.id "dialog"
@@ -452,11 +445,54 @@ dialogHtml model maybeElement =
                 [ E.width <| E.minimum 600 <| E.maximum 920 <| E.fill
                 , E.height <| E.minimum 128 <| E.fill
                 , Ui.fontFamily model.settings.font
-                , Ui.defaultFontSize model.device
+                , Ui.defaultFontSize model.context
                 , Background.color Color.white
                 , Font.color Color.neutral30
                 , E.paddingXY (2 * em) em
                 , E.scrollbarY
+                ]
+             <|
+                case maybeElement of
+                    Just e ->
+                        e
+
+                    Nothing ->
+                        E.none
+            )
+        ]
+
+
+mobileDialogHtml : Model -> Maybe (E.Element Msg) -> Html.Html Msg
+mobileDialogHtml model maybeElement =
+    let
+        em =
+            model.context.em
+    in
+    Html.node "dialog"
+        [ Html.Attributes.id "dialog"
+        , Html.Attributes.class "mobile-dialog"
+        ]
+        [ E.layoutWith
+            { options =
+                [ E.noStaticStyleSheet
+                , E.focusStyle
+                    { borderColor = Nothing
+                    , backgroundColor = Nothing
+                    , shadow = Nothing
+                    }
+                ]
+            }
+            []
+            (E.el
+                [ E.width <| E.fill
+                , E.height <| E.fill
+                , Ui.fontFamily model.settings.font
+                , Ui.defaultFontSize model.context
+                , Background.color Color.white
+                , Font.color Color.neutral30
+                , E.paddingXY (2 * em) em
+                , E.scrollbarY
+                , E.scrollbarX
                 ]
              <|
                 case maybeElement of
@@ -554,17 +590,17 @@ navigationBar : Model -> E.Element Msg
 navigationBar model =
     let
         em =
-            model.device.em
+            model.context.em
 
         mini =
             let
                 width =
-                    case model.device.class.orientation of
+                    case model.context.device.orientation of
                         E.Landscape ->
-                            model.device.width // 3
+                            model.context.width // 3
 
                         E.Portrait ->
-                            model.device.width
+                            model.context.width
 
                 optional flag s =
                     if flag then
@@ -583,7 +619,7 @@ navigationBar model =
 
         navigationButton { targetPage, label } =
             Input.button
-                [ E.padding <| model.device.em // 4
+                [ E.padding <| model.context.em // 4
                 , Ui.transition
                 , Border.color Color.transparent
                 , Background.color
@@ -640,7 +676,7 @@ navigationBar model =
                 { targetPage = Model.StatisticsPage
                 , label =
                     if mini then
-                        E.el [ Ui.iconFont, Ui.bigFont model.device ] (E.text "\u{F200}")
+                        E.el [ Ui.iconFont, Ui.bigFont model.context ] (E.text "\u{F200}")
                         -- F200, E0E3
 
                     else
@@ -654,7 +690,7 @@ navigationBar model =
                 { targetPage = Model.ReconcilePage
                 , label =
                     if mini then
-                        E.el [ Ui.iconFont, Ui.bigFont model.device ] (E.text "\u{F0AE}")
+                        E.el [ Ui.iconFont, Ui.bigFont model.context ] (E.text "\u{F0AE}")
                         -- F0AE
 
                     else
@@ -675,7 +711,7 @@ navigationBar model =
             _ ->
                 navigationButton
                     { targetPage = Model.DiagnosticsPage
-                    , label = E.el [ Font.color Color.warning60, Ui.iconFont, Ui.bigFont model.device ] (E.text "\u{F071}")
+                    , label = E.el [ Font.color Color.warning60, Ui.iconFont, Ui.bigFont model.context ] (E.text "\u{F071}")
                     }
         , if model.settings.settingsLocked then
             E.none
@@ -684,12 +720,12 @@ navigationBar model =
             navigationButton
                 { targetPage = Model.SettingsPage
                 , label =
-                    E.el [ Ui.iconFont, Ui.bigFont model.device, E.centerX, E.paddingXY 0 0 ] (E.text "\u{F013}")
+                    E.el [ Ui.iconFont, Ui.bigFont model.context, E.centerX, E.paddingXY 0 0 ] (E.text "\u{F013}")
                 }
         , navigationButton
             { targetPage = Model.HelpPage
             , label =
-                E.el [ Ui.iconFont, Ui.bigFont model.device, E.centerX, E.paddingXY 0 0 ] (E.text "\u{F059}")
+                E.el [ Ui.iconFont, Ui.bigFont model.context, E.centerX, E.paddingXY 0 0 ] (E.text "\u{F059}")
             }
         ]
 
@@ -713,7 +749,7 @@ mobileDialogNavigationBar model =
             , Ui.focusVisibleOnly
             ]
             { onPress = Just Msg.CloseDialog
-            , label = E.row [] [ E.el [ Ui.bigFont model.device ] Ui.backIcon, E.text "  Retour" ]
+            , label = E.row [] [ E.el [ Ui.bigFont model.context ] Ui.backIcon, E.text "  Retour" ]
             }
         ]
 
@@ -735,7 +771,7 @@ logoPanel model =
             (Input.button
                 [ E.centerX
                 , E.alignBottom
-                , Ui.smallerFont model.device
+                , Ui.smallerFont model.context
                 , Font.color Color.neutral70
                 , E.padding 12
                 , E.mouseOver [ Font.color Color.neutral50 ]

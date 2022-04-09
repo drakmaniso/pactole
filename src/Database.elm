@@ -350,10 +350,10 @@ msgFromService ( title, content ) model =
 
                             else
                                 Model.CalendarPage
-                        , device =
-                            Ui.classifyDevice
-                                { width = model.device.width
-                                , height = model.device.height
+                        , context =
+                            Ui.classifyContext
+                                { width = model.context.width
+                                , height = model.context.height
                                 , fontSize = db.settings.fontSize
                                 }
                       }
@@ -374,11 +374,11 @@ msgFromService ( title, content ) model =
                 Ok settings ->
                     let
                         device =
-                            model.device
+                            model.context
                     in
                     ( { model
                         | settings = settings
-                        , device = Ui.classifyDevice { width = device.width, height = device.height, fontSize = settings.fontSize }
+                        , context = Ui.classifyContext { width = device.width, height = device.height, fontSize = settings.fontSize }
                       }
                     , Cmd.none
                     )

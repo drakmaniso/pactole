@@ -1,5 +1,5 @@
 module Ui exposing
-    ( Device
+    ( Context
     , backIcon
     , bigFont
     , bigWarningIcon
@@ -7,7 +7,7 @@ module Ui exposing
     , boldText
     , borderWidth
     , checkIcon
-    , classifyDevice
+    , classifyContext
     , closeIcon
     , configCustom
     , contentWidth
@@ -90,24 +90,24 @@ import Ui.Color as Color
 -- ENVIRONMENT FOR UI
 
 
-type alias Device =
+type alias Context =
     { width : Int
     , height : Int
-    , class : E.Device
+    , device : E.Device
     , bigEm : Int
     , em : Int
     , smallEm : Int
     }
 
 
-classifyDevice : { width : Int, height : Int, fontSize : Int } -> Device
-classifyDevice { width, height, fontSize } =
+classifyContext : { width : Int, height : Int, fontSize : Int } -> Context
+classifyContext { width, height, fontSize } =
     let
-        eDevice =
+        device =
             E.classifyDevice { width = width, height = height }
 
         w =
-            contentWidth eDevice.orientation width
+            contentWidth device.orientation width
 
         em =
             if fontSize >= 6 && fontSize <= 128 then
@@ -124,7 +124,7 @@ classifyDevice { width, height, fontSize } =
     in
     { width = width
     , height = height
-    , class = eDevice
+    , device = device
     , bigEm = scale { em = em } 2
     , em = em
     , smallEm = scale { em = em } -1
@@ -227,29 +227,29 @@ fontFamily font =
         ]
 
 
-biggestFont : Device -> E.Attr decorative msg
-biggestFont device =
-    Font.size <| scale device 3
+biggestFont : Context -> E.Attr decorative msg
+biggestFont context =
+    Font.size <| scale context 3
 
 
-bigFont : Device -> E.Attr decorative msg
-bigFont device =
-    Font.size <| scale device 2
+bigFont : Context -> E.Attr decorative msg
+bigFont context =
+    Font.size <| scale context 2
 
 
-defaultFontSize : Device -> E.Attr decorative msg
-defaultFontSize device =
-    Font.size <| device.em
+defaultFontSize : Context -> E.Attr decorative msg
+defaultFontSize context =
+    Font.size <| context.em
 
 
-smallFont : Device -> E.Attr decorative msg
-smallFont device =
-    Font.size <| scale device -1
+smallFont : Context -> E.Attr decorative msg
+smallFont context =
+    Font.size <| scale context -1
 
 
-smallerFont : Device -> E.Attr decorative msg
-smallerFont device =
-    Font.size <| scale device -2
+smallerFont : Context -> E.Attr decorative msg
+smallerFont context =
+    Font.size <| scale context -2
 
 
 iconFont : E.Attribute msg
@@ -351,14 +351,14 @@ loadIcon =
 
 
 toggleSwitch :
-    Device
+    Context
     ->
         { label : String
         , checked : Bool
         , onChange : Bool -> msg
         }
     -> E.Element msg
-toggleSwitch device { label, checked, onChange } =
+toggleSwitch context { label, checked, onChange } =
     Input.checkbox
         [ E.width E.fill
         , Border.width 4
@@ -367,7 +367,7 @@ toggleSwitch device { label, checked, onChange } =
         ]
         { label =
             Input.labelLeft
-                [ E.paddingEach { bottom = 0, top = 0, left = 0, right = device.em } ]
+                [ E.paddingEach { bottom = 0, top = 0, left = 0, right = context.em } ]
                 (E.el [] (E.text label))
         , checked = checked
         , onChange = onChange
@@ -375,15 +375,15 @@ toggleSwitch device { label, checked, onChange } =
             \v ->
                 if v then
                     E.el
-                        [ E.width <| E.px <| 2 * device.em
-                        , E.height <| E.px <| device.em
+                        [ E.width <| E.px <| 2 * context.em
+                        , E.height <| E.px <| context.em
                         , E.htmlAttribute <| Html.Attributes.style "transform" "translate(0px,2px)"
                         , E.behindContent <|
                             E.el
                                 [ E.centerY
-                                , E.width <| E.px <| 2 * device.em
-                                , E.height <| E.px <| device.em
-                                , Border.rounded device.em
+                                , E.width <| E.px <| 2 * context.em
+                                , E.height <| E.px <| context.em
+                                , Border.rounded context.em
                                 , Background.color Color.primary85
                                 , innerShadow
                                 , transition
@@ -393,10 +393,10 @@ toggleSwitch device { label, checked, onChange } =
                             E.el
                                 [ E.alignRight
                                 , E.centerY
-                                , E.width <| E.px <| device.em + 4
-                                , E.height <| E.px <| device.em + 4
+                                , E.width <| E.px <| context.em + 4
+                                , E.height <| E.px <| context.em + 4
                                 , E.htmlAttribute <| Html.Attributes.style "transform" "translate(+2px,-2px)"
-                                , Border.rounded device.em
+                                , Border.rounded context.em
                                 , Background.color Color.primary40
                                 , smallShadow
                                 , transition
@@ -409,15 +409,15 @@ toggleSwitch device { label, checked, onChange } =
 
                 else
                     E.el
-                        [ E.width <| E.px <| 2 * device.em
-                        , E.height <| E.px <| device.em
+                        [ E.width <| E.px <| 2 * context.em
+                        , E.height <| E.px <| context.em
                         , E.htmlAttribute <| Html.Attributes.style "transform" "translate(0px,2px)"
                         , E.behindContent <|
                             E.el
                                 [ E.centerY
-                                , E.width <| E.px <| 2 * device.em
-                                , E.height <| E.px <| device.em
-                                , Border.rounded device.em
+                                , E.width <| E.px <| 2 * context.em
+                                , E.height <| E.px <| context.em
+                                , Border.rounded context.em
                                 , Background.color Color.neutral95
                                 , innerShadow
                                 , transition
@@ -427,10 +427,10 @@ toggleSwitch device { label, checked, onChange } =
                             E.el
                                 [ E.alignLeft
                                 , E.centerY
-                                , E.width <| E.px <| device.em + 4
-                                , E.height <| E.px <| device.em + 4
+                                , E.width <| E.px <| context.em + 4
+                                , E.height <| E.px <| context.em + 4
                                 , E.htmlAttribute <| Html.Attributes.style "transform" "translate(-2px,-2px)"
-                                , Border.rounded device.em
+                                , Border.rounded context.em
                                 , Background.color Color.neutral70
                                 , smallShadow
                                 , transition
@@ -502,15 +502,15 @@ configCustom { label, content } =
 -- ELEMENTS
 
 
-pageTitle : Device -> E.Element msg -> E.Element msg
-pageTitle device element =
+pageTitle : Context -> E.Element msg -> E.Element msg
+pageTitle context element =
     E.row
         [ E.centerX
         , E.width E.fill
-        , E.paddingEach { top = 3, bottom = 8, left = 2 * device.em, right = 2 * device.em }
+        , E.paddingEach { top = 3, bottom = 8, left = 2 * context.em, right = 2 * context.em }
         ]
         [ E.el
-            [ bigFont device
+            [ bigFont context
             , Font.center
             , Font.bold
             , E.paddingEach { top = 4, bottom = 8, left = 12, right = 12 }
@@ -579,8 +579,8 @@ warningParagraph elements =
         ]
 
 
-warningPopup : Device -> List (E.Element msg) -> E.Element msg
-warningPopup device elements =
+warningPopup : Context -> List (E.Element msg) -> E.Element msg
+warningPopup context elements =
     E.el
         [ E.padding 18
         , E.centerX
@@ -604,7 +604,7 @@ warningPopup device elements =
                     [ E.centerX
                     , E.alignBottom
                     , iconFont
-                    , biggestFont device
+                    , biggestFont context
                     , Font.color Color.focus85
                     , notSelectable
                     , E.htmlAttribute <| Html.Attributes.style "transform" "translate(0, 18px)"
@@ -620,11 +620,11 @@ warningPopup device elements =
             elements
 
 
-dateNavigationBar : Device -> { a | date : Date, today : Date } -> (Date -> msg) -> E.Element msg
-dateNavigationBar device model changeMsg =
+dateNavigationBar : Context -> { a | date : Date, today : Date } -> (Date -> msg) -> E.Element msg
+dateNavigationBar context model changeMsg =
     E.row
         [ E.width E.fill
-        , E.paddingEach { top = 3, bottom = 8, left = 2 * device.em, right = 2 * device.em }
+        , E.paddingEach { top = 3, bottom = 8, left = 2 * context.em, right = 2 * context.em }
         ]
         [ Keyed.row
             [ E.width <| E.fill
@@ -655,7 +655,7 @@ dateNavigationBar device model changeMsg =
                         { label =
                             E.row
                                 [ E.width E.fill ]
-                                [ if device.class.orientation == E.Landscape then
+                                [ if context.device.orientation == E.Landscape then
                                     E.el [ E.centerX ]
                                         (E.text (Date.getMonthName (Date.decrementMonth model.date)))
 
@@ -676,7 +676,7 @@ dateNavigationBar device model changeMsg =
                     (E.el
                         [ E.centerX
                         , Font.bold
-                        , bigFont device
+                        , bigFont context
                         , Font.color Color.neutral30
                         , E.padding 6
                         ]
@@ -706,7 +706,7 @@ dateNavigationBar device model changeMsg =
                             E.row
                                 [ E.width E.fill ]
                                 [ E.el [ E.centerX, iconFont ] (E.text "  \u{F061}  ")
-                                , if device.class.orientation == E.Landscape then
+                                , if context.device.orientation == E.Landscape then
                                     E.el [ E.centerX ]
                                         (E.text (Date.getMonthName (Date.incrementMonth model.date)))
 
@@ -727,12 +727,12 @@ viewIcon txt =
         (E.text txt)
 
 
-viewDate : Device -> Date -> E.Element msg
-viewDate device date =
+viewDate : Context -> Date -> E.Element msg
+viewDate context date =
     E.paragraph
         [ E.width E.fill
         , Font.bold
-        , bigFont device
+        , bigFont context
         , E.paddingEach { top = 0, bottom = 12, right = 0, left = 0 }
         , Font.color Color.neutral30
         , Font.center
@@ -747,8 +747,8 @@ viewDate device date =
         ]
 
 
-viewMoney : Device -> Money.Money -> Bool -> E.Element msg
-viewMoney device money future =
+viewMoney : Context -> Money.Money -> Bool -> E.Element msg
+viewMoney context money future =
     let
         openpar =
             if future then
@@ -795,14 +795,14 @@ viewMoney device money future =
             , Font.alignRight
             ]
             (if isZero then
-                [ E.el [ E.width (E.fillPortion 75), defaultFontSize device, Font.alignRight ] (E.text "—")
+                [ E.el [ E.width (E.fillPortion 75), defaultFontSize context, Font.alignRight ] (E.text "—")
                 , E.el [ E.width (E.fillPortion 25) ] E.none
                 ]
 
              else
                 [ E.el
                     [ E.width (E.fillPortion 75)
-                    , defaultFontSize device
+                    , defaultFontSize context
                     , Font.bold
                     , Font.alignRight
                     ]
@@ -811,12 +811,12 @@ viewMoney device money future =
                     [ E.width (E.fillPortion 25) ]
                     [ E.el
                         [ Font.bold
-                        , smallFont device
+                        , smallFont context
                         , Font.alignLeft
                         ]
                         (E.text ("" ++ parts.cents))
                     , E.el
-                        [ defaultFontSize device
+                        [ defaultFontSize context
                         , Font.bold
                         , Font.alignRight
                         ]
@@ -827,8 +827,8 @@ viewMoney device money future =
         ]
 
 
-viewSum : Device -> Money.Money -> E.Element msg
-viewSum device money =
+viewSum : Context -> Money.Money -> E.Element msg
+viewSum context money =
     let
         parts =
             Money.toStrings money
@@ -840,14 +840,14 @@ viewSum device money =
         ]
         [ E.el
             [ E.width (E.fillPortion 75)
-            , bigFont device
+            , bigFont context
             , Font.alignRight
             , Font.bold
             ]
             (E.text (parts.sign ++ parts.units))
         , E.el
             [ E.width (E.fillPortion 25)
-            , defaultFontSize device
+            , defaultFontSize context
             , Font.alignLeft
             , E.alignBottom
             , E.paddingXY 0 1
@@ -1124,7 +1124,7 @@ textInput args =
 
 
 moneyInput :
-    Device
+    Context
     ->
         { label : Input.Label msg
         , color : E.Color
@@ -1132,10 +1132,10 @@ moneyInput :
         , onChange : String -> msg
         }
     -> E.Element msg
-moneyInput device args =
+moneyInput context args =
     let
         minWidth =
-            6 * device.em
+            6 * context.em
     in
     Input.text
         [ E.paddingXY 8 12
@@ -1154,7 +1154,7 @@ moneyInput device args =
         , case Tuple.second args.state of
             Just error ->
                 E.below <|
-                    warningPopup device
+                    warningPopup context
                         [ E.text error ]
 
             _ ->
@@ -1265,18 +1265,18 @@ helpMiniButton { label, onPress } =
 -- TEXT
 
 
-textColumn : Device -> List (E.Element msg) -> E.Element msg
-textColumn device elements =
+textColumn : Context -> List (E.Element msg) -> E.Element msg
+textColumn context elements =
     E.column
         [ E.width E.fill
-        , E.spacing device.em
+        , E.spacing context.em
         ]
         (elements
             |> List.map
                 (\el ->
                     E.el
                         [ E.centerX
-                        , E.width <| E.maximum (paragraphWidth device) <| E.fill
+                        , E.width <| E.maximum (paragraphWidth context) <| E.fill
                         , E.padding 6
                         ]
                         el
@@ -1284,11 +1284,11 @@ textColumn device elements =
         )
 
 
-paragraphWidth : Device -> Int
-paragraphWidth device =
+paragraphWidth : Context -> Int
+paragraphWidth context =
     let
         w =
-            32 * device.em
+            32 * context.em
     in
     if w > 940 then
         940
@@ -1297,10 +1297,10 @@ paragraphWidth device =
         w
 
 
-title : Device -> String -> E.Element msg
-title device txt =
+title : Context -> String -> E.Element msg
+title context txt =
     E.paragraph
-        [ bigFont device
+        [ bigFont context
         , Font.bold
         , Font.color Color.neutral30
         ]

@@ -20,7 +20,7 @@ viewContent model =
         , E.clipY
         , E.padding 3
         ]
-        [ Ui.dateNavigationBar model.device model Msg.SelectDate
+        [ Ui.dateNavigationBar model.context model Msg.SelectDate
         , viewReconciled model
         , viewTransactions model
         ]
@@ -37,8 +37,8 @@ viewReconciled model =
         [ E.row
             [ E.width E.fill ]
             [ E.el [ E.width E.fill ] E.none
-            , E.el [ Ui.bigFont model.device ] (E.text "Solde bancaire: ")
-            , Ui.viewSum model.device (Ledger.getReconciled model.ledger model.account)
+            , E.el [ Ui.bigFont model.context ] (E.text "Solde bancaire: ")
+            , Ui.viewSum model.context (Ledger.getReconciled model.ledger model.account)
             , E.el [ E.width E.fill ] E.none
             ]
         , if Ledger.getNotReconciledBeforeMonth model.ledger model.account model.date then
@@ -59,7 +59,7 @@ viewTransactions : Model -> E.Element Msg
 viewTransactions model =
     let
         em =
-            model.device.em
+            model.context.em
     in
     E.column
         [ E.width E.fill
@@ -119,7 +119,7 @@ colAmount model transaction today =
     in
     E.el
         [ E.width (E.fillPortion 2) ]
-        (Ui.viewMoney model.device transaction.amount future)
+        (Ui.viewMoney model.context transaction.amount future)
 
 
 colDescription : { a | description : String } -> E.Element msg

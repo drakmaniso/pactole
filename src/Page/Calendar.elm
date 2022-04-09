@@ -83,16 +83,16 @@ viewContent model =
 
 calendarHeader : Model -> E.Element Msg
 calendarHeader model =
-    case model.device.class.orientation of
+    case model.context.device.orientation of
         E.Landscape ->
             E.column
                 [ E.width E.fill
                 ]
-                [ Ui.dateNavigationBar model.device model Msg.SelectDate
+                [ Ui.dateNavigationBar model.context model Msg.SelectDate
                 , E.row
                     [ E.width E.fill
                     , E.alignBottom
-                    , Ui.smallFont model.device
+                    , Ui.smallFont model.context
                     , Ui.notSelectable
                     , Font.color Color.neutral40
                     ]
@@ -110,14 +110,14 @@ calendarHeader model =
             E.column
                 [ E.width E.fill
                 ]
-                [ Ui.dateNavigationBar model.device model Msg.SelectDate ]
+                [ Ui.dateNavigationBar model.context model Msg.SelectDate ]
 
 
 calendarCell : Model -> Date -> E.Element Msg
 calendarCell model day =
     let
         smallEm =
-            model.device.smallEm
+            model.context.smallEm
 
         sel =
             day == model.date
@@ -185,7 +185,7 @@ calendarCell model day =
                         [ E.el
                             [ E.width E.fill
                             , E.paddingEach { top = 0, bottom = 2, left = 0, right = 0 }
-                            , Ui.smallFont model.device
+                            , Ui.smallFont model.context
                             , Font.center
                             , Font.color
                                 (if sel then
@@ -221,7 +221,7 @@ calendarCell model day =
                             , E.scrollbarY
                             , E.paddingEach { left = 0, right = 0, top = smallEm // 4, bottom = 0 }
                             , E.spacing (smallEm // 2)
-                            , Ui.smallFont model.device
+                            , Ui.smallFont model.context
                             , Font.center
                             , E.centerY
                             , Background.color
@@ -251,7 +251,7 @@ cellContentFor : Model -> Date -> List (E.Element Msg)
 cellContentFor model day =
     let
         em =
-            model.device.em
+            model.context.em
 
         render transaction =
             let
@@ -268,7 +268,7 @@ cellContentFor model day =
                 parts =
                     Money.toStrings transaction.amount
             in
-            if Ui.contentWidth model.device.class.orientation model.device.width > 26 * model.device.em then
+            if Ui.contentWidth model.context.device.orientation model.context.width > 26 * model.context.em then
                 E.el
                     [ Font.color Color.white
                     , Background.color color
@@ -278,15 +278,15 @@ cellContentFor model day =
                     ]
                     (E.paragraph
                         []
-                        [ E.el [ Ui.smallFont model.device ] (E.text (parts.sign ++ parts.units))
-                        , E.el [ Ui.smallerFont model.device ] (E.text ("," ++ parts.cents))
+                        [ E.el [ Ui.smallFont model.context ] (E.text (parts.sign ++ parts.units))
+                        , E.el [ Ui.smallerFont model.context ] (E.text ("," ++ parts.cents))
                         ]
                     )
 
             else
                 E.el
-                    [ E.width <| E.px <| model.device.smallEm
-                    , E.height <| E.px <| model.device.smallEm
+                    [ E.width <| E.px <| model.context.smallEm
+                    , E.height <| E.px <| model.context.smallEm
                     , Background.color color
                     , Border.rounded 1000
                     , E.htmlAttribute <| Html.Attributes.style "display" "inline-flex"
@@ -296,7 +296,7 @@ cellContentFor model day =
     (List.map render (Ledger.getTransactionsForDate model.ledger model.account day)
         ++ List.map render (Ledger.getRecurringTransactionsForDate model.recurring model.account day)
     )
-        |> List.intersperse (E.el [ Ui.smallFont model.device ] (E.text " "))
+        |> List.intersperse (E.el [ Ui.smallFont model.context ] (E.text " "))
 
 
 
@@ -307,13 +307,13 @@ dayView : Model -> E.Element Msg
 dayView model =
     let
         em =
-            model.device.em
+            model.context.em
 
         dayDiff =
             Date.getDayDiff model.today model.date
 
         dateDesc =
-            E.el [ E.width E.fill, Font.color Color.neutral40, Ui.smallFont model.device ]
+            E.el [ E.width E.fill, Font.color Color.neutral40, Ui.smallFont model.context ]
                 (E.text <|
                     if model.date == model.today then
                         "— Aujourd'hui —"
@@ -350,13 +350,13 @@ dayView model =
             , E.height <| E.minimum (em * 5) <| E.fill
             , E.scrollbarY
             ]
-            [ case model.device.class.orientation of
+            [ case model.context.device.orientation of
                 E.Landscape ->
                     dateDesc
 
                 E.Portrait ->
                     E.none
-            , Ui.viewDate model.device model.date
+            , Ui.viewDate model.context model.date
             , E.column
                 [ E.width E.fill
                 ]
@@ -384,7 +384,7 @@ dayContentFor : Model -> Date -> List (E.Element Msg)
 dayContentFor model day =
     let
         em =
-            model.device.em
+            model.context.em
 
         future =
             Date.compare day model.today == GT
@@ -452,7 +452,7 @@ dayContentFor model day =
                                 ]
                                 (E.column
                                     [ E.width E.fill ]
-                                    [ Ui.viewMoney model.device transaction.amount future
+                                    [ Ui.viewMoney model.context transaction.amount future
                                     , E.el [ E.height E.fill ] E.none
                                     ]
                                 )

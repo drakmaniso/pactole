@@ -33,8 +33,8 @@ view model =
                 , E.padding 3
                 , E.scrollbarY
                 ]
-                [ Ui.pageTitle model.device (E.text "Configuration")
-                , Ui.textColumn model.device
+                [ Ui.pageTitle model.context (E.text "Configuration")
+                , Ui.textColumn model.context
                     [ Ui.verticalSpacer
                     , configBackup model
                     , configAccounts model
@@ -56,7 +56,7 @@ configBackup model =
         [ E.width E.fill
         , E.spacing 24
         ]
-        [ Ui.title model.device "Données de l'application"
+        [ Ui.title model.context "Données de l'application"
         , Ui.paragraph
             """
             Les données de Pactole ne sont pas enregistrées en ligne.
@@ -104,7 +104,7 @@ configAccounts model =
             model.settings
     in
     E.column [ E.spacing 24 ]
-        [ Ui.title model.device "Configuration des comptes"
+        [ Ui.title model.context "Configuration des comptes"
         , Ui.paragraph "Liste des comptes:"
         , E.column [ E.padding 6, E.spacing 6, E.width <| E.minimum 100 <| E.fill ]
             (model.accounts
@@ -150,8 +150,8 @@ configOptional model =
             model.settings
     in
     E.column [ E.spacing 24 ]
-        [ Ui.title model.device "Fonctions optionnelles"
-        , Ui.toggleSwitch model.device
+        [ Ui.title model.context "Fonctions optionnelles"
+        , Ui.toggleSwitch model.context
             { onChange =
                 \o ->
                     if o then
@@ -162,7 +162,7 @@ configOptional model =
             , label = "Page de bilan:"
             , checked = model.settings.summaryEnabled
             }
-        , Ui.toggleSwitch model.device
+        , Ui.toggleSwitch model.context
             { onChange =
                 \o ->
                     if o then
@@ -173,7 +173,7 @@ configOptional model =
             , label = "Page de pointage:"
             , checked = model.settings.reconciliationEnabled
             }
-        , Ui.toggleSwitch model.device
+        , Ui.toggleSwitch model.context
             { onChange =
                 \o ->
                     if o then
@@ -211,7 +211,7 @@ configOptional model =
 configRecurring : Model -> E.Element Msg
 configRecurring model =
     E.column [ E.spacing 24 ]
-        [ Ui.title model.device "Opération mensuelles"
+        [ Ui.title model.context "Opération mensuelles"
         , E.column [ E.spacing 6, E.padding 6 ]
             (model.recurring
                 |> Ledger.getAllTransactions
@@ -256,14 +256,14 @@ configLocked model =
     in
     E.column
         [ E.width E.fill, E.spacing 24 ]
-        [ Ui.title model.device "Accès aux réglages"
+        [ Ui.title model.context "Accès aux réglages"
         , Ui.paragraph
             """
             Si l'utilisateur principal de l'application n'est pas à l'aise avec
             toutes les fonctionnalités, vous pouvez cacher l'accès aux réglages
             afin de prévenir toute fausse manipulation.
             """
-        , Ui.toggleSwitch model.device
+        , Ui.toggleSwitch model.context
             { onChange =
                 \o ->
                     if not o then
@@ -290,7 +290,7 @@ configFont model =
             model.settings
 
         fontSize =
-            model.device.em
+            model.context.em
 
         sanitize size =
             if size < 6 then
@@ -304,8 +304,8 @@ configFont model =
     in
     E.column
         [ E.width E.fill, E.spacing 24 ]
-        [ Ui.title model.device "Apparence"
-        , Ui.toggleSwitch model.device
+        [ Ui.title model.context "Apparence"
+        , Ui.toggleSwitch model.context
             { label = "Zoom automatique:"
             , checked = settings.fontSize == 0
             , onChange =
@@ -314,7 +314,7 @@ configFont model =
                         Msg.ForDatabase <| Msg.StoreSettings { settings | fontSize = 0 }
 
                     else
-                        Msg.ForDatabase <| Msg.StoreSettings { settings | fontSize = model.device.em }
+                        Msg.ForDatabase <| Msg.StoreSettings { settings | fontSize = model.context.em }
             }
         , E.row [ E.spacing 12 ]
             [ if model.settings.fontSize == 0 then

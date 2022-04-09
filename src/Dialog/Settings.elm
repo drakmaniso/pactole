@@ -75,7 +75,7 @@ viewDeleteCategoryDialog model id =
         , E.spacing 36
         ]
         [ E.el
-            [ Ui.bigFont model.device
+            [ Ui.bigFont model.context
             , Font.bold
             ]
             (E.text ("Supprimer la catégorie \"" ++ name ++ "\" ?"))
@@ -173,7 +173,7 @@ viewDeleteAccountDialog model id =
         , E.spacing 36
         ]
         [ E.el
-            [ Ui.bigFont model.device
+            [ Ui.bigFont model.context
             ]
             (E.text ("Supprimer le compte \"" ++ name ++ "\" ?"))
         , E.el []
@@ -293,7 +293,7 @@ viewImportDialog model =
         , E.spacing 36
         ]
         [ E.el
-            [ Ui.bigFont model.device
+            [ Ui.bigFont model.context
             , Font.bold
             ]
             (E.text "Remplacer toutes les données?")
@@ -330,7 +330,7 @@ viewExportDialog model =
         , E.spacing 36
         ]
         [ E.el
-            [ Ui.bigFont model.device
+            [ Ui.bigFont model.context
             , Font.bold
             ]
             (E.text "Sauvegarder les données?")
@@ -339,7 +339,7 @@ viewExportDialog model =
             [ E.text "Toutes les données de Pactole vont être enregistrées dans le dans le fichier suivant:"
             ]
         , E.row
-            [ Ui.bigFont model.device
+            [ Ui.bigFont model.context
             , E.width E.fill
             ]
             [ E.el [ E.width E.fill ] E.none
@@ -423,7 +423,7 @@ viewUserErrorDialog model errorMsg =
         , E.spacing 36
         ]
         [ E.el
-            [ Ui.bigFont model.device
+            [ Ui.bigFont model.context
             , Font.bold
             ]
             (E.text "Erreur")

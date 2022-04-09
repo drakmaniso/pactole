@@ -29,7 +29,7 @@ view model =
                 , E.height E.fill
                 , E.paddingXY 24 24
                 ]
-                [ Ui.textColumn model.device
+                [ Ui.textColumn model.context
                     [ Ui.paragraph "Chargement de Pactole..."
                     ]
                 ]

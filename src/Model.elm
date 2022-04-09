@@ -40,7 +40,7 @@ type alias Model =
     , page : Page
     , dialog : Maybe Dialog
     , serviceVersion : String
-    , device : Ui.Device
+    , context : Ui.Context
     , errors : List String
 
     -- Persistent Data

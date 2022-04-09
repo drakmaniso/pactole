@@ -21,8 +21,8 @@ view model =
             , E.padding 3
             , E.scrollbarY
             ]
-            [ Ui.pageTitle model.device (E.text "Guide d'utilisation")
-            , Ui.textColumn model.device
+            [ Ui.pageTitle model.context (E.text "Guide d'utilisation")
+            , Ui.textColumn model.context
                 [ Ui.verticalSpacer
                 , Ui.paragraph
                     """
@@ -39,7 +39,7 @@ view model =
             le détail du jour sélectionné.
             """
                 , Ui.verticalSpacer
-                , Ui.title model.device "Pour utiliser le calendrier"
+                , Ui.title model.context "Pour utiliser le calendrier"
                 , Ui.paragraph
                     """
             Le calendrier affiche une vue d'ensemble de vos opérations pour le mois courant.
@@ -60,7 +60,7 @@ view model =
             modifier les opérations.
             """
                 , Ui.verticalSpacer
-                , Ui.title model.device "Pour créer une nouvelle opération"
+                , Ui.title model.context "Pour créer une nouvelle opération"
                 , Ui.helpList
                     [ Ui.paragraph
                         """
@@ -89,7 +89,7 @@ view model =
                     """
                     ]
                 , Ui.verticalSpacer
-                , Ui.title model.device "Pour supprimer une opération"
+                , Ui.title model.context "Pour supprimer une opération"
                 , Ui.helpList
                     [ Ui.paragraph
                         """
@@ -109,7 +109,7 @@ view model =
                     """
                     ]
                 , Ui.verticalSpacer
-                , Ui.title model.device "Pour changer le montant ou la description d'une opération"
+                , Ui.title model.context "Pour changer le montant ou la description d'une opération"
                 , Ui.helpList
                     [ Ui.paragraph
                         """
@@ -133,14 +133,14 @@ view model =
                     """
                     ]
                 , Ui.verticalSpacer
-                , Ui.title model.device "Pour changer la date d'une opération"
+                , Ui.title model.context "Pour changer la date d'une opération"
                 , Ui.paragraph
                     """
                 Pour déplacer une opération à une date différente, il suffit de supprimer
                 l'opération existante et de la recréer à la nouvelle date.
                 """
                 , Ui.verticalSpacer
-                , Ui.title model.device "Pour les fonctions avancées"
+                , Ui.title model.context "Pour les fonctions avancées"
                 , Ui.paragraphParts
                     [ Ui.text
                         """

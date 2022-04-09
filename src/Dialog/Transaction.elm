@@ -21,7 +21,7 @@ view model =
                 [ Ui.onEnter (Msg.ForTransaction <| Msg.ConfirmTransaction)
                 , E.width E.fill
                 , E.height E.fill
-                , E.spacing <| model.device.em
+                , E.spacing <| model.context.em
                 ]
                 [ viewDate model dialog
                 , viewAmount model dialog
@@ -37,14 +37,14 @@ view model =
 viewDate : Model -> Model.TransactionData -> E.Element Msg
 viewDate model _ =
     E.el [ E.width E.fill, E.paddingEach { left = 0, right = 0, top = 0, bottom = 0 // 2 } ]
-        (E.el [ E.centerX ] (Ui.viewDate model.device model.date))
+        (E.el [ E.centerX ] (Ui.viewDate model.context model.date))
 
 
 viewAmount : Model -> Model.TransactionData -> E.Element Msg
 viewAmount model dialog =
     let
         em =
-            model.device.em
+            model.context.em
 
         isFuture =
             Date.compare dialog.date model.today == GT
@@ -80,7 +80,7 @@ viewAmount model dialog =
         Ui.dialogSectionRow Color.neutral30
             titleText
             (E.el
-                [ Ui.bigFont model.device
+                [ Ui.bigFont model.context
                 , Font.bold
                 , E.width (E.shrink |> E.minimum (6 * em))
                 , E.alignLeft
@@ -121,7 +121,7 @@ viewAmount model dialog =
                             E.text "+"
                         )
                     )
-                , Ui.moneyInput model.device
+                , Ui.moneyInput model.context
                     { label = Input.labelHidden "Somme"
                     , color = titleColor
                     , state = dialog.amount
@@ -145,7 +145,7 @@ viewDescription model dialog =
         Ui.dialogSectionRow Color.neutral30
             "Description:"
             (E.el
-                [ Ui.bigFont model.device
+                [ Ui.bigFont model.context
                 , Border.width 1
                 , Border.color Color.transparent
                 , Font.color Color.neutral40
