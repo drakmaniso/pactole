@@ -536,6 +536,34 @@ pageWithTopNavBar model elements =
 navigationBar : Model -> E.Element Msg
 navigationBar model =
     let
+        em =
+            model.device.em
+
+        mini =
+            let
+                width =
+                    case model.device.class.orientation of
+                        E.Landscape ->
+                            model.device.width // 3
+
+                        E.Portrait ->
+                            model.device.width
+
+                optional flag s =
+                    if flag then
+                        s
+
+                    else
+                        0
+            in
+            width
+                < em
+                * (6
+                    + optional model.settings.summaryEnabled 6
+                    + optional model.settings.reconciliationEnabled 6
+                    + optional (not model.settings.settingsLocked) 2
+                  )
+
         navigationButton { targetPage, label } =
             Input.button
                 [ E.padding <| model.device.em // 4
@@ -593,7 +621,13 @@ navigationBar model =
         , if model.settings.summaryEnabled then
             navigationButton
                 { targetPage = Model.StatisticsPage
-                , label = E.text "Bilan"
+                , label =
+                    if mini then
+                        E.el [ Ui.iconFont, Ui.bigFont model.device ] (E.text "\u{F200}")
+                        -- F200, E0E3
+
+                    else
+                        E.text "Bilan"
                 }
 
           else
@@ -601,7 +635,13 @@ navigationBar model =
         , if model.settings.reconciliationEnabled then
             navigationButton
                 { targetPage = Model.ReconcilePage
-                , label = E.text "Pointer"
+                , label =
+                    if mini then
+                        E.el [ Ui.iconFont, Ui.bigFont model.device ] (E.text "\u{F0AE}")
+                        -- F0AE
+
+                    else
+                        E.text "Pointer"
                 }
 
           else
@@ -618,7 +658,7 @@ navigationBar model =
             _ ->
                 navigationButton
                     { targetPage = Model.DiagnosticsPage
-                    , label = E.el [ Font.color Color.warning60, Ui.iconFont ] (E.text "\u{F071}")
+                    , label = E.el [ Font.color Color.warning60, Ui.iconFont, Ui.bigFont model.device ] (E.text "\u{F071}")
                     }
         , if model.settings.settingsLocked then
             E.none
