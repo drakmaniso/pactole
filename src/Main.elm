@@ -177,11 +177,28 @@ update msg model =
 
 
 subscriptions : Model -> Sub Msg
-subscriptions _ =
+subscriptions model =
     Sub.batch
         [ Database.receive
-        , Browser.Events.onResize (\width height -> Msg.WindowResize { width = width, height = height })
+        , Browser.Events.onResize (onWindowResized model)
         ]
+
+
+onWindowResized : Model -> Int -> Int -> Msg
+onWindowResized model w h =
+    let
+        class =
+            model.device.class.class
+
+        heightChange =
+            toFloat (abs (h - model.device.height)) / toFloat h
+    in
+    if (class == E.Phone || class == E.Tablet) && w == model.device.width && heightChange > 0.1 then
+        -- This is probably triggered by opening the on-screen keyboard
+        Msg.NoOp
+
+    else
+        Msg.WindowResize { width = w, height = h }
 
 
 keyDecoder : (String -> Msg) -> Decode.Decoder Msg
