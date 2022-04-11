@@ -31,20 +31,6 @@ viewDesktop model =
         )
 
 
-viewMobile : Model -> E.Element Msg
-viewMobile model =
-    Keyed.el
-        [ E.width E.fill ]
-        ( "summary"
-        , E.row [ E.width E.fill, E.spacing <| model.context.em // 4 ]
-            [ E.el [ E.width E.fill ] E.none
-            , viewAccounts model
-            , viewMobileBalance model
-            , E.el [ E.width E.fill ] E.none
-            ]
-        )
-
-
 viewAccounts : Model -> E.Element Msg
 viewAccounts model =
     case Dict.keys model.accounts of
@@ -53,25 +39,26 @@ viewAccounts model =
                 (E.text <| Model.accountName singleAccount model)
 
         accounts ->
-            Input.radioRow
-                [ E.width E.shrink
-                , Border.width 4
-                , Border.color Color.transparent
-                , Ui.focusVisibleOnly
-                , E.centerX
-                , E.centerY
-                ]
-                { onChange = Msg.SelectAccount
-                , selected = Just model.account
-                , label = Input.labelHidden "Compte"
-                , options =
-                    List.map
-                        (\account ->
-                            Ui.radioRowOption account
-                                (E.text (Model.accountName account model))
-                        )
-                        accounts
-                }
+            E.el [ Font.center, E.centerX, E.centerY ] <|
+                Input.radioRow
+                    [ E.width E.shrink
+                    , Border.width 4
+                    , Border.color Color.transparent
+                    , Ui.focusVisibleOnly
+                    , E.centerX
+                    , E.centerY
+                    ]
+                    { onChange = Msg.SelectAccount
+                    , selected = Just model.account
+                    , label = Input.labelHidden "Compte"
+                    , options =
+                        List.map
+                            (\account ->
+                                Ui.radioRowOption account
+                                    (E.text (Model.accountName account model))
+                            )
+                            accounts
+                    }
 
 
 viewBalance : Model -> E.Element msg
@@ -140,6 +127,55 @@ viewBalance model =
         ]
 
 
+viewMobile : Model -> E.Element Msg
+viewMobile model =
+    Keyed.el
+        [ E.width E.fill ]
+        ( "summary"
+        , E.row [ E.width E.fill, E.spacing <| model.context.em // 4, E.padding <| model.context.em // 4 ]
+            [ viewMobileAccounts model
+            , viewMobileBalance model
+            ]
+        )
+
+
+viewMobileAccounts : Model -> E.Element Msg
+viewMobileAccounts model =
+    case Dict.keys model.accounts of
+        [ singleAccount ] ->
+            E.el
+                [ Ui.notSelectable
+                , Font.center
+                , E.alignLeft
+                , E.centerY
+                , E.padding (model.context.em // 4)
+                ]
+                (E.text <| Model.accountName singleAccount model)
+
+        accounts ->
+            E.el [ Font.center, E.alignLeft, E.centerY ] <|
+                Input.radioRow
+                    [ E.width E.shrink
+                    , E.padding (model.context.em // 4)
+                    , Border.width 4
+                    , Border.color Color.transparent
+                    , Ui.focusVisibleOnly
+                    , E.alignLeft
+                    , E.centerY
+                    ]
+                    { onChange = Msg.SelectAccount
+                    , selected = Just model.account
+                    , label = Input.labelHidden "Compte"
+                    , options =
+                        List.map
+                            (\account ->
+                                Ui.radioRowOption account
+                                    (E.text (Model.accountName account model))
+                            )
+                            accounts
+                    }
+
+
 viewMobileBalance : Model -> E.Element msg
 viewMobileBalance model =
     let
@@ -164,9 +200,9 @@ viewMobileBalance model =
                 Color.warning60
     in
     E.el
-        [ E.centerX
+        [ E.alignRight
         , E.centerY
-        , E.paddingXY model.context.em (model.context.em // 4)
+        , E.padding (model.context.em // 4)
         , Border.rounded (model.context.em // 4)
         , if Money.isGreaterOrEqualThan balance model.settings.balanceWarning then
             Border.color Color.transparent
@@ -178,24 +214,15 @@ viewMobileBalance model =
         , Ui.notSelectable
         ]
         (E.paragraph
-            [ E.centerX, Font.color color, Ui.notSelectable ]
+            [ Font.alignRight, E.alignRight, Font.color color, Ui.notSelectable ]
             [ E.el
-                [ Ui.defaultFontSize model.context
-                , Font.bold
-                ]
+                [ Ui.bigFont model.context, Font.bold ]
                 (E.text (sign ++ parts.units))
             , E.el
-                [ Ui.smallFont model.context
-                , Font.bold
-                , E.alignBottom
-                , E.paddingEach { top = 0, bottom = 2, left = 0, right = 0 }
-                ]
+                [ Ui.defaultFontSize model.context, Font.bold ]
                 (E.text ("," ++ parts.cents))
             , E.el
-                [ Ui.smallFont model.context
-                , E.alignTop
-                , E.paddingEach { top = 2, bottom = 0, left = 4, right = 0 }
-                ]
+                [ Ui.defaultFontSize model.context, E.alignTop ]
                 (E.text "€")
             ]
         )

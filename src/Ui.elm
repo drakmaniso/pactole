@@ -28,7 +28,6 @@ module Ui exposing
     , helpImage
     , helpList
     , helpListItem
-    , helpMiniButton
     , helpNumberedList
     , iconButton
     , iconFont
@@ -36,6 +35,7 @@ module Ui exposing
     , incomeIcon
     , innerShadow
     , labelLeft
+    , linkButton
     , loadIcon
     , mainButton
     , minusIcon
@@ -181,32 +181,12 @@ transition =
 
 defaultShadow : E.Attribute msg
 defaultShadow =
-    {- E.htmlAttribute <|
-       Html.Attributes.style "box-shadow"
-           """
-           32px 64px 32px 0px rgba(0, 0, 0, 0.01),
-           16px 32px 16px 0px rgba(0, 0, 0, 0.02),
-           8px 16px 8px 0px rgba(0, 0, 0, 0.04),
-           4px 8px 4px 0px rgba(0, 0, 0, 0.08),
-           2px 4px 2px 0px rgba(0, 0, 0, 0.08),
-           1px 2px 1px 0px rgba(0, 0, 0, 0.08),
-           0px 1px 1px 0px rgba(0, 0, 0, 0.16)
-           """
-    -}
     E.htmlAttribute <| Html.Attributes.class "button-shadow"
 
 
 smallShadow : E.Attribute msg
 smallShadow =
-    E.htmlAttribute <|
-        Html.Attributes.style "box-shadow"
-            """
-            8px 16px 8px 0px rgba(0, 0, 0, 0.01),
-            4px 8px 4px 0px rgba(0, 0, 0, 0.02),
-            2px 4px 2px 0px rgba(0, 0, 0, 0.04),
-            1px 2px 1px 0px rgba(0, 0, 0, 0.08),
-            0px 1px 1px 0px rgba(0, 0, 0, 0.16)
-            """
+    E.htmlAttribute <| Html.Attributes.class "small-shadow"
 
 
 innerShadow : E.Attribute msg
@@ -1245,8 +1225,8 @@ helpImage src description =
         { src = src, description = description }
 
 
-helpMiniButton : { label : E.Element msg, onPress : msg } -> E.Element msg
-helpMiniButton { label, onPress } =
+linkButton : { label : E.Element msg, onPress : Maybe msg } -> E.Element msg
+linkButton { label, onPress } =
     Input.button
         [ Font.color Color.primary40
         , Font.underline
@@ -1258,7 +1238,7 @@ helpMiniButton { label, onPress } =
         , transition
         ]
         { label = label
-        , onPress = Just onPress
+        , onPress = onPress
         }
 
 

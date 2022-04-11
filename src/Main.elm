@@ -351,32 +351,32 @@ viewMobilePage model =
                 [ Installation.view model data ]
 
         Model.HelpPage ->
-            pageWithTopNavBar model [ Help.view model ]
+            pageWithTopNavBar model [] [ Help.view model ]
 
         Model.SettingsPage ->
-            pageWithTopNavBar model [ Settings.view model ]
+            pageWithTopNavBar model [] [ Settings.view model ]
 
         Model.StatisticsPage ->
             pageWithTopNavBar model
-                [ Summary.viewMobile model
-                , Statistics.viewContent model
+                [ Summary.viewMobile model ]
+                [ Statistics.viewContent model
                 ]
 
         Model.ReconcilePage ->
             pageWithTopNavBar model
-                [ Summary.viewMobile model
-                , Reconcile.viewContent model
+                [ Summary.viewMobile model ]
+                [ Reconcile.viewContent model
                 ]
 
         Model.CalendarPage ->
             pageWithTopNavBar model
-                [ Summary.viewMobile model
-                , Calendar.viewContent model
+                [ Summary.viewMobile model ]
+                [ Calendar.viewContent model
                 , Calendar.dayView model
                 ]
 
         Model.DiagnosticsPage ->
-            pageWithTopNavBar model [ Diagnostics.view model ]
+            pageWithTopNavBar model [] [ Diagnostics.view model ]
 
 
 
@@ -442,8 +442,8 @@ dialogHtml model maybeElement =
             }
             []
             (E.el
-                [ E.width <| E.minimum 600 <| E.maximum 920 <| E.fill
-                , E.height <| E.minimum 128 <| E.fill
+                [ E.width <| E.minimum (32 * em) <| E.maximum (40 * em) <| E.shrink
+                , E.height <| E.minimum (5 * em) <| E.shrink
                 , Ui.fontFamily model.settings.font
                 , Ui.defaultFontSize model.context
                 , Background.color Color.white
@@ -529,16 +529,7 @@ pageWithSidePanel model { panel, page } =
         [ E.column
             [ E.width (E.fillPortion 1)
             , E.height E.fill
-            , E.htmlAttribute <|
-                Html.Attributes.style "box-shadow"
-                    """
-                            0px 0px 32px 64px rgba(0, 0, 0, 0.02),
-                            0px 0px 16px 32px rgba(0, 0, 0, 0.02),
-                            0px 0px 8px 16px rgba(0, 0, 0, 0.02),
-                            0px 0px 4px 8px rgba(0, 0, 0, 0.04),
-                            0px 0px 2px 4px rgba(0, 0, 0, 0.08),
-                            0px 0px 1px 2px rgba(0, 0, 0, 0.08)
-                            """
+            , E.htmlAttribute <| Html.Attributes.class "panel-shadow"
             , E.htmlAttribute <| Html.Attributes.style "z-index" "2"
             ]
             [ navigationBar model
@@ -569,13 +560,18 @@ panelWithTwoParts { top, bottom } =
         ]
 
 
-pageWithTopNavBar : Model -> List (E.Element Msg) -> E.Element Msg
-pageWithTopNavBar model elements =
+pageWithTopNavBar : Model -> List (E.Element Msg) -> List (E.Element Msg) -> E.Element Msg
+pageWithTopNavBar model topElements elements =
     E.column
         [ E.width E.fill
         , E.height E.fill
+        , E.spacing <| model.context.em // 2
         ]
-        (navigationBar model
+        (E.column
+            [ E.width E.fill
+            , E.htmlAttribute <| Html.Attributes.class "panel-shadow"
+            ]
+            (navigationBar model :: topElements)
             :: elements
         )
 
@@ -749,7 +745,7 @@ mobileDialogNavigationBar model =
 
 
 logoPanel : Model -> E.Element Msg
-logoPanel model =
+logoPanel _ =
     E.column [ E.width E.fill, E.height E.fill ]
         [ E.el [ E.width E.fill, E.height <| E.fillPortion 1 ]
             (E.row [ E.width E.fill, E.centerY ]
@@ -762,17 +758,5 @@ logoPanel model =
                 ]
             )
         , E.el [ E.width E.fill, E.height <| E.fillPortion 2 ]
-            (Input.button
-                [ E.centerX
-                , E.alignBottom
-                , Ui.smallerFont model.context
-                , Font.color Color.neutral70
-                , E.padding 12
-                , E.mouseOver [ Font.color Color.neutral50 ]
-                , E.mouseDown [ Font.color Color.neutral20 ]
-                ]
-                { label = E.text ("version " ++ model.serviceVersion)
-                , onPress = Just (Msg.ChangePage Model.DiagnosticsPage)
-                }
-            )
+            E.none
         ]

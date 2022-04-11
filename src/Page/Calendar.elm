@@ -460,6 +460,7 @@ dayContentFor model day =
                                 [ E.width (E.fillPortion 6)
                                 , E.alignTop
                                 , Font.color Color.neutral30
+                                , Font.alignLeft
                                 ]
                                 (E.paragraph [] [ E.text (Ledger.getTransactionDescription transaction) ])
                             , E.el

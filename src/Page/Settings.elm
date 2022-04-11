@@ -6,7 +6,6 @@ import Element as E
 import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
-import Element.Input as Input
 import Element.Keyed as Keyed
 import Ledger
 import Model exposing (Model)
@@ -268,18 +267,18 @@ configLocked model =
         , Ui.toggleSwitch model.context
             { onChange =
                 \o ->
-                    if not o then
+                    if o then
                         Msg.ForDatabase <| Msg.StoreSettings { settings | settingsLocked = True }
 
                     else
                         Msg.ForDatabase <| Msg.StoreSettings { settings | settingsLocked = False }
-            , label = "accès aux réglages"
-            , checked = not model.settings.settingsLocked
+            , label = "réglages cachés"
+            , checked = model.settings.settingsLocked
             }
         , Ui.paragraph
             """
             Note: dans tous les cas, les réglages restent accessibles en utilisant
-            le lien présent dans la page d'aide de l'application.
+            le lien présent en bas de la page d'aide.
             """
         , Ui.verticalSpacer
         ]
@@ -368,15 +367,10 @@ configFont model =
 
 secretDiagnosticsButton : Model -> E.Element Msg
 secretDiagnosticsButton model =
-    Input.button
-        [ E.centerX
-        , E.alignBottom
-        , Ui.smallerFont model.context
-        , Font.color Color.neutral70
-        , E.padding 12
-        , E.mouseOver [ Font.color Color.neutral50 ]
-        , E.mouseDown [ Font.color Color.neutral20 ]
-        ]
-        { label = E.text ("version " ++ model.serviceVersion)
-        , onPress = Just (Msg.ChangePage Model.DiagnosticsPage)
-        }
+    E.el
+        [ E.centerX, Ui.smallFont model.context ]
+    <|
+        Ui.linkButton
+            { label = E.text ("version " ++ model.serviceVersion)
+            , onPress = Just (Msg.ChangePage Model.DiagnosticsPage)
+            }

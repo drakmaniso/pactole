@@ -36,7 +36,7 @@ view model =
                     E.paragraph [] [ E.text "- storage is persisted" ]
 
                   else
-                    E.paragraph [ Font.color Color.warning60 ] [ E.text "Storage is NOT persisted!" ]
+                    E.paragraph [ Font.color Color.warning60 ] [ E.text "- storage is NOT persisted!" ]
                 , E.paragraph [] [ E.text <| "- width = " ++ String.fromInt model.context.width ++ ", height = " ++ String.fromInt model.context.height ]
                 , E.paragraph []
                     [ E.text <|
@@ -78,19 +78,20 @@ view model =
                 , Ui.verticalSpacer
                 , Ui.textInput
                     { label = Ui.labelLeft "test input:", text = "", onChange = \_ -> Msg.NoOp }
+                , Ui.verticalSpacer
                 , errorLog model
                 ]
             ]
         ]
 
 
-errorLog : { a | errors : List String } -> E.Element msg
+errorLog : Model -> E.Element msg
 errorLog model =
     if List.isEmpty model.errors then
         Ui.paragraph "No errors."
 
     else
-        E.column []
-            (Ui.paragraph "Error log:"
+        E.column [ E.spacing model.context.em ]
+            (Ui.paragraph "Error log:\n"
                 :: (model.errors |> List.map (\err -> E.paragraph [ Font.color Color.warning60 ] [ E.text err ]))
             )

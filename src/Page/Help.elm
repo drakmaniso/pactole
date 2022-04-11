@@ -147,10 +147,10 @@ view model =
                 Certaines fonctionnalités supplémentaires de Pactole sont désactivées par
                 défaut. Si vous voulez les utiliser, vous pouvez les activer 
                 """
-                    , Ui.helpMiniButton
+                    , Ui.linkButton
                         { label =
                             Ui.text "dans les réglages de l'application"
-                        , onPress = Msg.ChangePage Model.SettingsPage
+                        , onPress = Just <| Msg.ChangePage Model.SettingsPage
                         }
                     , Ui.text "."
                     ]
