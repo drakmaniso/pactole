@@ -327,7 +327,7 @@ update msg model =
                         settings =
                             model.settings
                     in
-                    ( model
+                    ( { model | dialog = Nothing }
                     , Cmd.batch
                         [ Database.storeSettings { settings | font = fontName }
                         , Ports.closeDialog ()
