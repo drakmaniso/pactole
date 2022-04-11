@@ -1,6 +1,7 @@
 module Date exposing
     ( Date
     , compare
+    , daysOfWeek
     , decode
     , decrementDay
     , decrementMonth
@@ -9,6 +10,7 @@ module Date exposing
     , encode
     , findNextDayOfMonth
     , firstDayOf
+    , firstDayOfMonth
     , fromParts
     , getDay
     , getDayDiff
@@ -24,8 +26,11 @@ module Date exposing
     , incrementMonthUI
     , incrementWeek
     , lastDayOf
+    , lastDayOfMonth
+    , mondayOfWeek
     , toShortString
     , toString
+    , weeksOfMonth
     )
 
 import Array
@@ -419,3 +424,66 @@ getYear (Date date) =
 getDayDiff : Date -> Date -> Int
 getDayDiff (Date date1) (Date date2) =
     Calendar.getDayDiff date1 date2
+
+
+firstDayOfMonth : Date -> Date
+firstDayOfMonth date =
+    if getDay date == 1 then
+        date
+
+    else
+        firstDayOfMonth (decrementDay date)
+
+
+lastDayOfMonth : Date -> Date
+lastDayOfMonth date =
+    if getDay date == getDay (lastDayOf date) then
+        date
+
+    else
+        lastDayOfMonth (incrementDay date)
+
+
+mondayOfWeek : Date -> Date
+mondayOfWeek date =
+    case getWeekday date of
+        Time.Mon ->
+            date
+
+        _ ->
+            mondayOfWeek (decrementDay date)
+
+
+daysOfWeek : Date -> List Date
+daysOfWeek date =
+    let
+        step d =
+            case getWeekday d of
+                Time.Sun ->
+                    [ d ]
+
+                _ ->
+                    d :: (step <| incrementDay d)
+    in
+    step <| mondayOfWeek date
+
+
+weeksOfMonth : Date -> List (List Date)
+weeksOfMonth date =
+    let
+        firstDay =
+            mondayOfWeek <| firstDayOfMonth date
+
+        lastDay =
+            lastDayOfMonth date
+
+        step d =
+            case ( compare d lastDay, getWeekday d ) of
+                ( GT, Time.Mon ) ->
+                    []
+
+                _ ->
+                    daysOfWeek d
+                        :: (step <| incrementWeek d)
+    in
+    step firstDay

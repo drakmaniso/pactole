@@ -11,7 +11,6 @@ import Ledger
 import Model exposing (Model)
 import Money
 import Msg exposing (Msg)
-import Time
 import Ui
 import Ui.Color as Color
 
@@ -22,62 +21,24 @@ import Ui.Color as Color
 
 viewContent : Model -> E.Element Msg
 viewContent model =
-    let
-        findTheFirst date =
-            if Date.getDay date == 1 then
-                date
-
-            else
-                findTheFirst (Date.decrementDay date)
-
-        findTheLast date =
-            if Date.getDay date == Date.getDay (Date.lastDayOf date) then
-                date
-
-            else
-                findTheLast (Date.incrementDay date)
-
-        findMonday date =
-            case Date.getWeekday date of
-                Time.Mon ->
-                    date
-
-                _ ->
-                    findMonday (Date.decrementDay date)
-
-        loopThroughMonth date =
-            let
-                theLast =
-                    findTheLast model.date
-            in
-            case ( Date.compare date theLast, Date.getWeekday date ) of
-                ( GT, Time.Mon ) ->
-                    []
-
-                _ ->
-                    E.row
-                        [ E.width E.fill
-                        , E.height E.fill
-                        , E.clipY
-                        ]
-                        (loopThroughWeek date)
-                        :: loopThroughMonth (Date.incrementWeek date)
-
-        loopThroughWeek date =
-            case Date.getWeekday date of
-                Time.Sun ->
-                    [ calendarCell model date ]
-
-                _ ->
-                    calendarCell model date :: loopThroughWeek (Date.incrementDay date)
-    in
     E.column
         [ E.width E.fill
         , E.height E.fill
         , E.padding 3
         ]
         (calendarHeader model
-            :: loopThroughMonth (findMonday (findTheFirst model.date))
+            :: (Date.weeksOfMonth model.date
+                    |> List.map
+                        (\week ->
+                            E.row
+                                [ E.width E.fill
+                                , E.height E.fill
+                                , E.clipY
+                                ]
+                            <|
+                                List.map (\day -> calendarCell model day) week
+                        )
+               )
         )
 
 
