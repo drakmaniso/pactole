@@ -6,6 +6,7 @@ module Date exposing
     , decrementDay
     , decrementMonth
     , decrementMonthUI
+    , decrementWeek
     , default
     , encode
     , findNextDayOfMonth
@@ -101,6 +102,20 @@ fromParts { year, month, day } =
 fromPosix : Time.Posix -> Date
 fromPosix time =
     Date (Calendar.fromPosix time)
+
+
+decrementWeek : Date -> Date
+decrementWeek (Date date) =
+    Date
+        (date
+            |> Calendar.decrementDay
+            |> Calendar.decrementDay
+            |> Calendar.decrementDay
+            |> Calendar.decrementDay
+            |> Calendar.decrementDay
+            |> Calendar.decrementDay
+            |> Calendar.decrementDay
+        )
 
 
 incrementWeek : Date -> Date

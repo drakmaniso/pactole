@@ -1,4 +1,4 @@
-module Page.Calendar exposing (dayView, viewContent)
+module Page.Calendar exposing (dayView, viewMonth, viewWeek)
 
 import Date exposing (Date)
 import Element as E
@@ -19,14 +19,14 @@ import Ui.Color as Color
 -- THE CALENDAR
 
 
-viewContent : Model -> E.Element Msg
-viewContent model =
+viewMonth : Model -> E.Element Msg
+viewMonth model =
     E.column
         [ E.width E.fill
         , E.height E.fill
         , E.padding 3
         ]
-        (calendarHeader model
+        (monthHeader model
             :: (Date.weeksOfMonth model.date
                     |> List.map
                         (\week ->
@@ -36,42 +36,81 @@ viewContent model =
                                 , E.clipY
                                 ]
                             <|
-                                List.map (\day -> calendarCell model day) week
+                                List.map
+                                    (\day ->
+                                        if Date.getMonth day == Date.getMonth model.date then
+                                            calendarCell model day
+
+                                        else
+                                            E.el [ E.width E.fill, E.height E.fill ] E.none
+                                    )
+                                    week
                         )
                )
         )
 
 
-calendarHeader : Model -> E.Element Msg
-calendarHeader model =
-    case model.context.device.orientation of
-        E.Landscape ->
-            E.column
-                [ E.width E.fill
-                ]
-                [ Ui.dateNavigationBar model.context model Msg.SelectDate
-                , E.row
-                    [ E.width E.fill
-                    , E.alignBottom
-                    , Ui.smallFont model.context
-                    , Ui.notSelectable
-                    , Font.color Color.neutral40
-                    ]
-                    [ E.el [ E.width E.fill ] (E.el [ E.centerX ] (E.text "Lundi"))
-                    , E.el [ E.width E.fill ] (E.el [ E.centerX ] (E.text "Mardi"))
-                    , E.el [ E.width E.fill ] (E.el [ E.centerX ] (E.text "Mercredi"))
-                    , E.el [ E.width E.fill ] (E.el [ E.centerX ] (E.text "Jeudi"))
-                    , E.el [ E.width E.fill ] (E.el [ E.centerX ] (E.text "Vendredi"))
-                    , E.el [ E.width E.fill ] (E.el [ E.centerX ] (E.text "Samedi"))
-                    , E.el [ E.width E.fill ] (E.el [ E.centerX ] (E.text "Dimanche"))
-                    ]
-                ]
+viewWeek : Model -> E.Element Msg
+viewWeek model =
+    E.column
+        [ E.width E.fill
+        , E.height E.fill
+        , E.spacing <| model.context.em // 4
+        ]
+        [ weekHeader model
+        , E.row [ E.width E.fill, E.height E.fill ]
+            (Date.daysOfWeek model.date
+                |> List.map (\day -> calendarCell model day)
+            )
+        ]
 
-        E.Portrait ->
-            E.column
-                [ E.width E.fill
-                ]
-                [ Ui.dateNavigationBar model.context model Msg.SelectDate ]
+
+monthHeader : Model -> E.Element Msg
+monthHeader model =
+    E.column
+        [ E.width E.fill
+        ]
+        [ Ui.monthNavigationBar model.context model Msg.SelectDate
+        , E.row
+            [ E.width E.fill
+            , E.alignBottom
+            , Ui.smallFont model.context
+            , Ui.notSelectable
+            , Font.color Color.neutral40
+            ]
+            [ E.el [ E.width E.fill ] (E.el [ E.centerX ] (E.text "Lundi"))
+            , E.el [ E.width E.fill ] (E.el [ E.centerX ] (E.text "Mardi"))
+            , E.el [ E.width E.fill ] (E.el [ E.centerX ] (E.text "Mercredi"))
+            , E.el [ E.width E.fill ] (E.el [ E.centerX ] (E.text "Jeudi"))
+            , E.el [ E.width E.fill ] (E.el [ E.centerX ] (E.text "Vendredi"))
+            , E.el [ E.width E.fill ] (E.el [ E.centerX ] (E.text "Samedi"))
+            , E.el [ E.width E.fill ] (E.el [ E.centerX ] (E.text "Dimanche"))
+            ]
+        ]
+
+
+weekHeader : Model -> E.Element Msg
+weekHeader model =
+    E.column
+        [ E.width E.fill
+        ]
+        [ Ui.weekNavigationBar model.context model Msg.SelectDate
+        , E.row
+            [ E.width E.fill
+            , E.alignBottom
+            , Ui.smallFont model.context
+            , Ui.notSelectable
+            , Font.color Color.neutral40
+            ]
+            [ E.el [ E.width E.fill ] (E.el [ E.centerX ] (E.text "L"))
+            , E.el [ E.width E.fill ] (E.el [ E.centerX ] (E.text "M"))
+            , E.el [ E.width E.fill ] (E.el [ E.centerX ] (E.text "M"))
+            , E.el [ E.width E.fill ] (E.el [ E.centerX ] (E.text "J"))
+            , E.el [ E.width E.fill ] (E.el [ E.centerX ] (E.text "V"))
+            , E.el [ E.width E.fill ] (E.el [ E.centerX ] (E.text "S"))
+            , E.el [ E.width E.fill ] (E.el [ E.centerX ] (E.text "D"))
+            ]
+        ]
 
 
 calendarCell : Model -> Date -> E.Element Msg
@@ -83,129 +122,120 @@ calendarCell model day =
         sel =
             day == model.date
     in
-    if Date.getMonth day == Date.getMonth model.date then
-        E.el
-            -- Need to wrap the button in E.el because of elm-ui E.focused bug
+    E.el
+        -- Need to wrap the button in E.el because of elm-ui E.focused bug
+        [ E.width E.fill
+        , E.height E.fill
+        , E.clipY
+        ]
+        (Input.button
             [ E.width E.fill
             , E.height E.fill
             , E.clipY
-            ]
-            (Input.button
-                [ E.width E.fill
-                , E.height E.fill
-                , E.clipY
-                , Border.width 3
-                , Ui.transition
-                , Border.rounded
+            , Border.width 3
+            , Ui.transition
+            , Border.rounded
+                (if sel then
+                    12
+
+                 else
+                    6
+                )
+            , Border.color
+                (if sel then
+                    Color.primary40
+
+                 else
+                    Color.white
+                )
+            , Background.color
+                (if sel then
+                    Color.primary40
+
+                 else
+                    Color.neutral95
+                )
+            , E.mouseDown
+                [ Background.color
                     (if sel then
-                        12
+                        Color.primary30
 
                      else
-                        6
+                        Color.neutral90
                     )
-                , Border.color
-                    (if sel then
-                        Color.primary40
-
-                     else
-                        Color.white
-                    )
-                , Background.color
-                    (if sel then
-                        Color.primary40
-
-                     else
-                        Color.neutral95
-                    )
-                , E.mouseDown
-                    [ Background.color
-                        (if sel then
-                            Color.primary30
-
-                         else
-                            Color.neutral90
-                        )
-                    ]
-                , E.mouseOver
-                    [ Background.color
-                        (if sel then
-                            Color.primary40
-
-                         else
-                            Color.neutral98
-                        )
-                    ]
-                , Ui.focusVisibleOnly
                 ]
-                { label =
-                    E.column
+            , E.mouseOver
+                [ Background.color
+                    (if sel then
+                        Color.primary40
+
+                     else
+                        Color.neutral98
+                    )
+                ]
+            , Ui.focusVisibleOnly
+            ]
+            { label =
+                E.column
+                    [ E.width E.fill
+                    , E.height E.fill
+                    , E.clipY
+                    ]
+                    [ E.el
+                        [ E.width E.fill
+                        , E.paddingEach { top = 0, bottom = 2, left = 0, right = 0 }
+                        , Ui.smallFont model.context
+                        , Font.center
+                        , Font.color
+                            (if sel then
+                                Color.white
+
+                             else
+                                Color.neutral30
+                            )
+                        , Background.color
+                            (if sel then
+                                Color.primary40
+
+                             else
+                                Color.transparent
+                            )
+                        , Font.center
+                        , if day == model.today then
+                            Font.bold
+
+                          else
+                            Font.regular
+                        ]
+                        (E.text <|
+                            if day == model.today then
+                                "· " ++ (String.fromInt <| Date.getDay day) ++ " ·"
+
+                            else
+                                String.fromInt <| Date.getDay day
+                        )
+                    , E.paragraph
                         [ E.width E.fill
                         , E.height E.fill
-                        , E.clipY
-                        ]
-                        [ E.el
-                            [ E.width E.fill
-                            , E.paddingEach { top = 0, bottom = 2, left = 0, right = 0 }
-                            , Ui.smallFont model.context
-                            , Font.center
-                            , Font.color
-                                (if sel then
-                                    Color.white
+                        , E.scrollbarY
+                        , E.paddingEach { left = 0, right = 0, top = smallEm // 4, bottom = 0 }
+                        , E.spacing (smallEm // 2)
+                        , Ui.smallFont model.context
+                        , Font.center
+                        , E.centerY
+                        , Background.color
+                            (if sel then
+                                Color.white
 
-                                 else
-                                    Color.neutral30
-                                )
-                            , Background.color
-                                (if sel then
-                                    Color.primary40
-
-                                 else
-                                    Color.transparent
-                                )
-                            , Font.center
-                            , if day == model.today then
-                                Font.bold
-
-                              else
-                                Font.regular
-                            ]
-                            (E.text <|
-                                if day == model.today then
-                                    "· " ++ (String.fromInt <| Date.getDay day) ++ " ·"
-
-                                else
-                                    String.fromInt <| Date.getDay day
+                             else
+                                Color.transparent
                             )
-                        , E.paragraph
-                            [ E.width E.fill
-                            , E.height E.fill
-                            , E.scrollbarY
-                            , E.paddingEach { left = 0, right = 0, top = smallEm // 4, bottom = 0 }
-                            , E.spacing (smallEm // 2)
-                            , Ui.smallFont model.context
-                            , Font.center
-                            , E.centerY
-                            , Background.color
-                                (if sel then
-                                    Color.white
-
-                                 else
-                                    Color.transparent
-                                )
-                            ]
-                            (cellContentFor model day)
                         ]
-                , onPress = Just (Msg.SelectDate day)
-                }
-            )
-
-    else
-        E.el
-            [ E.width E.fill
-            , E.height E.fill
-            , Border.color (E.rgba 0 0 0 0)
-            ]
-            E.none
+                        (cellContentFor model day)
+                    ]
+            , onPress = Just (Msg.SelectDate day)
+            }
+        )
 
 
 cellContentFor : Model -> Date -> List (E.Element Msg)
@@ -316,7 +346,7 @@ dayView model =
                     dateDesc
 
                 E.Portrait ->
-                    E.none
+                    dateDesc
             , Ui.viewDate model.context model.date
             , E.column
                 [ E.width E.fill

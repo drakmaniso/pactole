@@ -269,7 +269,7 @@ viewDesktopPage model =
         Model.CalendarPage ->
             pageWithSidePanel model
                 { panel = panelWithTwoParts { top = Summary.viewDesktop model, bottom = Calendar.dayView model }
-                , page = Calendar.viewContent model
+                , page = Calendar.viewMonth model
                 }
 
         Model.DiagnosticsPage ->
@@ -371,8 +371,10 @@ viewMobilePage model =
         Model.CalendarPage ->
             pageWithTopNavBar model
                 [ Summary.viewMobile model ]
-                [ Calendar.viewContent model
-                , Calendar.dayView model
+                [ E.el [ E.width E.fill, E.height <| E.fillPortion 1 ] <|
+                    Calendar.viewWeek model
+                , E.el [ E.width E.fill, E.height <| E.fillPortion 2 ] <|
+                    Calendar.dayView model
                 ]
 
         Model.DiagnosticsPage ->

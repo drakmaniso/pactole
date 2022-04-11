@@ -18,7 +18,7 @@ viewContent model =
         , E.height E.fill
         , E.padding 3
         ]
-        [ Ui.dateNavigationBar model.context model Msg.SelectDate
+        [ Ui.monthNavigationBar model.context model Msg.SelectDate
         , viewMonthBalance model
         , viewMonthFutureWarning model
         , Ui.ruler

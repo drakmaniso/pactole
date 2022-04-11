@@ -20,7 +20,7 @@ viewContent model =
         , E.clipY
         , E.padding 3
         ]
-        [ Ui.dateNavigationBar model.context model Msg.SelectDate
+        [ Ui.monthNavigationBar model.context model Msg.SelectDate
         , viewReconciled model
         , viewTransactions model
         ]

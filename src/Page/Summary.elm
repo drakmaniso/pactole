@@ -132,7 +132,11 @@ viewMobile model =
     Keyed.el
         [ E.width E.fill ]
         ( "summary"
-        , E.row [ E.width E.fill, E.spacing <| model.context.em // 4, E.padding <| model.context.em // 4 ]
+        , E.row
+            [ E.width E.fill
+            , E.spacing <| model.context.em // 4
+            , E.paddingXY (model.context.em // 4) (model.context.em // 2)
+            ]
             [ viewMobileAccounts model
             , viewMobileBalance model
             ]

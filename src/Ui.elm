@@ -12,7 +12,6 @@ module Ui exposing
     , configCustom
     , contentWidth
     , dangerButton
-    , dateNavigationBar
     , defaultFontSize
     , defaultShadow
     , deleteIcon
@@ -40,6 +39,7 @@ module Ui exposing
     , mainButton
     , minusIcon
     , moneyInput
+    , monthNavigationBar
     , notSelectable
     , onEnter
     , pageTitle
@@ -70,6 +70,7 @@ module Ui exposing
     , warningIcon
     , warningParagraph
     , warningPopup
+    , weekNavigationBar
     )
 
 import Date exposing (Date)
@@ -117,10 +118,10 @@ classifyContext { width, height, fontSize } =
                 26
 
             else if w <= 360 then
-                18
+                22
 
             else
-                round <| 18 + (toFloat w - 360) / 75
+                round <| 22 + (toFloat w - 360) / ((960 - 360) / (26 - 22))
     in
     { width = width
     , height = height
@@ -601,8 +602,8 @@ warningPopup context elements =
             elements
 
 
-dateNavigationBar : Context -> { a | date : Date, today : Date } -> (Date -> msg) -> E.Element msg
-dateNavigationBar context model changeMsg =
+monthNavigationBar : Context -> { a | date : Date, today : Date } -> (Date -> msg) -> E.Element msg
+monthNavigationBar context model changeMsg =
     E.row
         [ E.width E.fill
         , E.paddingEach { top = 3, bottom = 8, left = 2 * context.em, right = 2 * context.em }
@@ -695,6 +696,102 @@ dateNavigationBar context model changeMsg =
                                     E.none
                                 ]
                         , onPress = Just (changeMsg (Date.incrementMonthUI model.date model.today))
+                        }
+                    )
+              )
+            ]
+        ]
+
+
+weekNavigationBar : Context -> { a | date : Date, today : Date } -> (Date -> msg) -> E.Element msg
+weekNavigationBar context model changeMsg =
+    let
+        em =
+            context.em
+    in
+    E.row
+        [ E.width E.fill
+        , E.paddingEach { top = 3, bottom = 8, left = 3, right = 3 }
+        ]
+        [ Keyed.row
+            [ E.width <| E.fill
+            , E.centerX
+            , E.alignTop
+            , E.spacing <| em
+            ]
+            [ ( "previous week button"
+              , E.el
+                    [ E.height E.fill
+                    , E.width E.fill
+                    ]
+                    (Input.button
+                        [ E.width E.fill
+                        , E.height E.fill
+                        , E.padding 4
+                        , Border.roundEach { topLeft = 32, bottomLeft = 32, topRight = 32, bottomRight = 32 }
+                        , Font.color Color.neutral30
+                        , Background.color Color.neutral95
+                        , smallShadow
+                        , Border.width 4
+                        , Border.color Color.transparent
+                        , focusVisibleOnly
+                        , transition
+                        , E.mouseDown [ Background.color Color.neutral90 ]
+                        , E.mouseOver [ Background.color Color.neutral98 ]
+                        ]
+                        { label =
+                            E.row
+                                [ E.width E.fill ]
+                                [ E.el [ E.centerX, iconFont ] (E.text "  \u{F060}  ")
+                                ]
+                        , onPress = Just (changeMsg (Date.decrementWeek model.date))
+                        }
+                    )
+              )
+
+            -- , ( "current week header"
+            --   , E.el
+            --         [ E.width E.fill
+            --         , E.height E.fill
+            --         , notSelectable
+            --         ]
+            --         (E.el
+            --             [ E.centerX
+            --             , Font.bold
+            --             , bigFont context
+            --             , Font.color Color.neutral30
+            --             , E.padding 6
+            --             ]
+            --             (E.text (Date.getMonthFullName model.today model.date))
+            --         )
+            --   )
+            , ( "next week button"
+              , E.el
+                    -- needed to circumvent focus bug in elm-ui
+                    [ E.height E.fill
+                    , E.width E.fill
+                    ]
+                    (Input.button
+                        [ E.width E.fill
+                        , E.height E.fill
+                        , E.padding 4
+                        , Border.roundEach { topLeft = 32, bottomLeft = 32, topRight = 32, bottomRight = 32 }
+                        , Font.color Color.neutral30
+                        , Background.color Color.neutral95
+                        , smallShadow
+                        , Border.width 4
+                        , Border.color Color.transparent
+                        , focusVisibleOnly
+                        , transition
+                        , E.mouseDown [ Background.color Color.neutral90 ]
+                        , E.mouseOver [ Background.color Color.neutral98 ]
+                        ]
+                        { label =
+                            E.row
+                                [ E.width E.fill ]
+                                [ E.el [ E.centerX, iconFont ] (E.text "  \u{F061}  ")
+                                ]
+                        , onPress = Just (changeMsg (Date.incrementWeek model.date))
                         }
                     )
               )
