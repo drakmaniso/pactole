@@ -161,7 +161,7 @@ configOptional model =
 
                     else
                         Msg.ForDatabase <| Msg.StoreSettings { settings | summaryEnabled = False }
-            , label = "Page de bilan:"
+            , label = "page de bilan"
             , checked = model.settings.summaryEnabled
             }
         , Ui.toggleSwitch model.context
@@ -172,7 +172,7 @@ configOptional model =
 
                     else
                         Msg.ForDatabase <| Msg.StoreSettings { settings | reconciliationEnabled = False }
-            , label = "Page de pointage:"
+            , label = "page de pointage"
             , checked = model.settings.reconciliationEnabled
             }
         , Ui.toggleSwitch model.context
@@ -183,7 +183,7 @@ configOptional model =
 
                     else
                         Msg.ForDatabase <| Msg.StoreSettings { settings | categoriesEnabled = False }
-            , label = "Catégories de dépense:"
+            , label = "catégories pour les dépenses"
             , checked = model.settings.categoriesEnabled
             }
         , Ui.paragraph "Liste des catégories:"
@@ -273,7 +273,7 @@ configLocked model =
 
                     else
                         Msg.ForDatabase <| Msg.StoreSettings { settings | settingsLocked = False }
-            , label = "Accès aux réglages:"
+            , label = "accès aux réglages"
             , checked = not model.settings.settingsLocked
             }
         , Ui.paragraph
@@ -308,7 +308,7 @@ configFont model =
         [ E.width E.fill, E.spacing 24 ]
         [ Ui.title model.context "Apparence"
         , Ui.toggleSwitch model.context
-            { label = "Zoom automatique:"
+            { label = "zoom automatique"
             , checked = settings.fontSize == 0
             , onChange =
                 \v ->

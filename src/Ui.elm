@@ -364,10 +364,11 @@ toggleSwitch context { label, checked, onChange } =
         , Border.width 4
         , Border.color Color.transparent
         , focusVisibleOnly
+        , E.paddingEach { bottom = 0, top = 0, left = context.em // 2, right = 0 }
         ]
         { label =
-            Input.labelLeft
-                [ E.paddingEach { bottom = 0, top = 0, left = 0, right = context.em } ]
+            Input.labelRight
+                [ E.paddingEach { bottom = 0, top = 0, left = context.em // 2, right = context.em // 2 } ]
                 (E.el [] (E.text label))
         , checked = checked
         , onChange = onChange
