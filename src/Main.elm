@@ -14,6 +14,7 @@ import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
 import Element.Input as Input
+import Element.Keyed as Keyed
 import Html
 import Html.Attributes
 import Json.Decode as Decode
@@ -656,81 +657,95 @@ navigationBar model =
                 , label = label
                 }
     in
-    E.row
+    Keyed.row
         [ E.width E.fill
         , Background.color Color.primary85
         , Ui.fontFamily model.settings.font
         ]
-        [ navigationButton
-            { targetPage = Model.CalendarPage
-            , label =
-                if extraCompact then
-                    -- E.image [ E.width <| E.px <| model.context.bigEm ]
-                    --     { src = "images/icon-512x512.png"
-                    --     , description = "Pactole Logo"
-                    --     }
-                    E.el [ Ui.iconFont, Ui.bigFont model.context ] (E.text "\u{F133}")
-                    -- F4D3, F153, F133
-
-                else
-                    E.text "Pactole"
-            }
-        , if model.settings.summaryEnabled then
-            navigationButton
-                { targetPage = Model.StatisticsPage
+        [ ( "home button"
+          , navigationButton
+                { targetPage = Model.CalendarPage
                 , label =
-                    if compact then
-                        E.el [ Ui.iconFont, Ui.bigFont model.context ] (E.text "\u{F200}")
-                        -- F200, E0E3
+                    if extraCompact then
+                        -- E.image [ E.width <| E.px <| model.context.bigEm ]
+                        --     { src = "images/icon-512x512.png"
+                        --     , description = "Pactole Logo"
+                        --     }
+                        E.el [ Ui.iconFont, Ui.bigFont model.context ] (E.text "\u{F133}")
+                        -- F4D3, F153, F133
 
                     else
-                        E.text "Bilan"
+                        E.text "Pactole"
                 }
+          )
+        , ( "statistics button"
+          , if model.settings.summaryEnabled then
+                navigationButton
+                    { targetPage = Model.StatisticsPage
+                    , label =
+                        if compact then
+                            E.el [ Ui.iconFont, Ui.bigFont model.context ] (E.text "\u{F200}")
+                            -- F200, E0E3
 
-          else
-            E.none
-        , if model.settings.reconciliationEnabled then
-            navigationButton
-                { targetPage = Model.ReconcilePage
-                , label =
-                    if compact then
-                        E.el [ Ui.iconFont, Ui.bigFont model.context ] (E.text "\u{F0AE}")
-                        -- F0AE
+                        else
+                            E.text "Bilan"
+                    }
 
-                    else
-                        E.text "Pointer"
-                }
+            else
+                E.none
+          )
+        , ( "reconcile button"
+          , if model.settings.reconciliationEnabled then
+                navigationButton
+                    { targetPage = Model.ReconcilePage
+                    , label =
+                        if compact then
+                            E.el [ Ui.iconFont, Ui.bigFont model.context ] (E.text "\u{F0AE}")
+                            -- F0AE
 
-          else
-            E.none
-        , E.el
-            [ E.width E.fill
-            , E.height E.fill
-            ]
-            E.none
-        , case model.errors of
-            [] ->
+                        else
+                            E.text "Pointer"
+                    }
+
+            else
+                E.none
+          )
+        , ( "navbar filler"
+          , E.el
+                [ E.width E.fill
+                , E.height E.fill
+                ]
+                E.none
+          )
+        , ( "diagnostics button"
+          , case model.errors of
+                [] ->
+                    E.none
+
+                _ ->
+                    navigationButton
+                        { targetPage = Model.DiagnosticsPage
+                        , label = E.el [ Font.color Color.warning60, Ui.iconFont, Ui.bigFont model.context ] (E.text "\u{F071}")
+                        }
+          )
+        , ( "settings button"
+          , if model.settings.settingsLocked then
                 E.none
 
-            _ ->
+            else
                 navigationButton
-                    { targetPage = Model.DiagnosticsPage
-                    , label = E.el [ Font.color Color.warning60, Ui.iconFont, Ui.bigFont model.context ] (E.text "\u{F071}")
+                    { targetPage = Model.SettingsPage
+                    , label =
+                        E.el [ Ui.iconFont, Ui.bigFont model.context, E.centerX, E.paddingXY 0 0 ] (E.text "\u{F013}")
                     }
-        , if model.settings.settingsLocked then
-            E.none
-
-          else
-            navigationButton
-                { targetPage = Model.SettingsPage
+          )
+        , ( "help button"
+          , navigationButton
+                { targetPage = Model.HelpPage
                 , label =
-                    E.el [ Ui.iconFont, Ui.bigFont model.context, E.centerX, E.paddingXY 0 0 ] (E.text "\u{F013}")
+                    E.el [ Ui.iconFont, Ui.bigFont model.context, E.centerX, E.paddingXY 0 0 ] (E.text "\u{F059}")
                 }
-        , navigationButton
-            { targetPage = Model.HelpPage
-            , label =
-                E.el [ Ui.iconFont, Ui.bigFont model.context, E.centerX, E.paddingXY 0 0 ] (E.text "\u{F059}")
-            }
+          )
         ]
 
 

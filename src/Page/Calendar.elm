@@ -429,13 +429,20 @@ dayContentFor model day =
     in
     case transactions of
         [] ->
-            [ E.paragraph
+            [ E.el
                 [ E.width E.fill
-                , Font.center
-                , Font.color Color.neutral40
-                , E.paddingXY 8 32
+                , E.padding 0
                 ]
-                [ E.text "(Aucune opération)" ]
+              <|
+                E.paragraph
+                    [ E.width E.fill
+                    , Font.center
+                    , Font.color Color.neutral40
+                    , E.paddingXY 8 32
+                    , Border.color Color.transparent
+                    , Border.width 4
+                    ]
+                    [ E.text "(Aucune opération)" ]
             ]
 
         t ->
