@@ -26,7 +26,8 @@ viewMonth model =
         , E.height E.fill
         , E.padding 3
         ]
-        (monthHeader model
+        (Ui.monthNavigationBar model.context model Msg.SelectDate
+            :: weekDayNames model
             :: (Date.weeksOfMonth model.date
                     |> List.map
                         (\week ->
@@ -57,7 +58,8 @@ viewWeek model =
         , E.height E.fill
         , E.spacing <| model.context.em // 4
         ]
-        [ weekHeader model
+        [ Ui.weekNavigationBar model.context model Msg.SelectDate
+        , weekDayNames model
         , E.row [ E.width E.fill, E.height E.fill ]
             (Date.daysOfWeek model.date
                 |> List.map (\day -> calendarCell model day)
@@ -65,13 +67,14 @@ viewWeek model =
         ]
 
 
-monthHeader : Model -> E.Element Msg
-monthHeader model =
-    E.column
-        [ E.width E.fill
-        ]
-        [ Ui.monthNavigationBar model.context model Msg.SelectDate
-        , E.row
+weekDayNames : Model -> E.Element Msg
+weekDayNames model =
+    let
+        em =
+            model.context.em
+    in
+    if Ui.contentWidth model.context > 28 * em then
+        E.row
             [ E.width E.fill
             , E.alignBottom
             , Ui.smallFont model.context
@@ -86,31 +89,9 @@ monthHeader model =
             , E.el [ E.width E.fill ] (E.el [ E.centerX ] (E.text "Samedi"))
             , E.el [ E.width E.fill ] (E.el [ E.centerX ] (E.text "Dimanche"))
             ]
-        ]
 
-
-weekHeader : Model -> E.Element Msg
-weekHeader model =
-    E.column
-        [ E.width E.fill
-        ]
-        [ Ui.weekNavigationBar model.context model Msg.SelectDate
-        , E.row
-            [ E.width E.fill
-            , E.alignBottom
-            , Ui.smallFont model.context
-            , Ui.notSelectable
-            , Font.color Color.neutral40
-            ]
-            [ E.el [ E.width E.fill ] (E.el [ E.centerX ] (E.text "L"))
-            , E.el [ E.width E.fill ] (E.el [ E.centerX ] (E.text "M"))
-            , E.el [ E.width E.fill ] (E.el [ E.centerX ] (E.text "M"))
-            , E.el [ E.width E.fill ] (E.el [ E.centerX ] (E.text "J"))
-            , E.el [ E.width E.fill ] (E.el [ E.centerX ] (E.text "V"))
-            , E.el [ E.width E.fill ] (E.el [ E.centerX ] (E.text "S"))
-            , E.el [ E.width E.fill ] (E.el [ E.centerX ] (E.text "D"))
-            ]
-        ]
+    else
+        E.none
 
 
 calendarCell : Model -> Date -> E.Element Msg
@@ -259,7 +240,7 @@ cellContentFor model day =
                 parts =
                     Money.toStrings transaction.amount
             in
-            if Ui.contentWidth model.context.device.orientation model.context.width > 26 * model.context.em then
+            if Ui.contentWidth model.context > 26 * model.context.em then
                 E.el
                     [ Font.color Color.white
                     , Background.color color
@@ -299,31 +280,6 @@ dayView model =
     let
         em =
             model.context.em
-
-        dayDiff =
-            Date.getDayDiff model.today model.date
-
-        dateDesc =
-            E.el [ E.width E.fill, Font.color Color.neutral40, Ui.smallFont model.context ]
-                (E.text <|
-                    if model.date == model.today then
-                        "— Aujourd'hui —"
-
-                    else if dayDiff == 1 then
-                        "— demain —"
-
-                    else if dayDiff == -1 then
-                        "— hier —"
-
-                    else if dayDiff > 1 then
-                        "— dans " ++ String.fromInt dayDiff ++ " jours —"
-
-                    else if dayDiff < -1 then
-                        "— il y a " ++ String.fromInt -dayDiff ++ " jours —"
-
-                    else
-                        ""
-                )
     in
     E.column
         [ E.width E.fill
@@ -341,12 +297,12 @@ dayView model =
             , E.height <| E.minimum (em * 5) <| E.fill
             , E.scrollbarY
             ]
-            [ case model.context.device.orientation of
-                E.Landscape ->
-                    dateDesc
+            [ if model.context.device.orientation == E.Landscape && model.context.height > 28 * em then
+                E.el [ E.width E.fill, Font.color Color.neutral40, Ui.smallFont model.context ]
+                    (E.text <| Date.fancyDayDescription model.today model.date)
 
-                E.Portrait ->
-                    dateDesc
+              else
+                E.none
             , Ui.viewDate model.context model.date
             , E.column
                 [ E.width E.fill

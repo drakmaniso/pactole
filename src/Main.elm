@@ -584,30 +584,32 @@ navigationBar model =
         em =
             model.context.em
 
-        mini =
-            let
-                width =
-                    case model.context.device.orientation of
-                        E.Landscape ->
-                            model.context.width // 3
+        width =
+            case model.context.device.orientation of
+                E.Landscape ->
+                    model.context.width // 3
 
-                        E.Portrait ->
-                            model.context.width
+                E.Portrait ->
+                    model.context.width
 
-                optional flag s =
-                    if flag then
-                        s
+        optional flag s =
+            if flag then
+                s
 
-                    else
-                        0
-            in
+            else
+                0
+
+        compact =
             width
-                < em
-                * (6
+                < (6
                     + optional model.settings.summaryEnabled 6
                     + optional model.settings.reconciliationEnabled 6
                     + optional (not model.settings.settingsLocked) 2
                   )
+                * em
+
+        extraCompact =
+            width < 14 * em
 
         navigationButton { targetPage, label } =
             Input.button
@@ -661,13 +663,23 @@ navigationBar model =
         ]
         [ navigationButton
             { targetPage = Model.CalendarPage
-            , label = E.text "Pactole"
+            , label =
+                if extraCompact then
+                    -- E.image [ E.width <| E.px <| model.context.bigEm ]
+                    --     { src = "images/icon-512x512.png"
+                    --     , description = "Pactole Logo"
+                    --     }
+                    E.el [ Ui.iconFont, Ui.bigFont model.context ] (E.text "\u{F133}")
+                    -- F4D3, F153, F133
+
+                else
+                    E.text "Pactole"
             }
         , if model.settings.summaryEnabled then
             navigationButton
                 { targetPage = Model.StatisticsPage
                 , label =
-                    if mini then
+                    if compact then
                         E.el [ Ui.iconFont, Ui.bigFont model.context ] (E.text "\u{F200}")
                         -- F200, E0E3
 
@@ -681,7 +693,7 @@ navigationBar model =
             navigationButton
                 { targetPage = Model.ReconcilePage
                 , label =
-                    if mini then
+                    if compact then
                         E.el [ Ui.iconFont, Ui.bigFont model.context ] (E.text "\u{F0AE}")
                         -- F0AE
 

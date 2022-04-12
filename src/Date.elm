@@ -9,6 +9,8 @@ module Date exposing
     , decrementWeek
     , default
     , encode
+    , fancyDayDescription
+    , fancyWeekDescription
     , findNextDayOfMonth
     , firstDayOf
     , firstDayOfMonth
@@ -502,3 +504,62 @@ weeksOfMonth date =
                         :: (step <| incrementWeek d)
     in
     step firstDay
+
+
+fancyDayDescription : Date -> Date -> String
+fancyDayDescription today date =
+    let
+        dayDiff =
+            getDayDiff today date
+    in
+    if date == today then
+        "— Aujourd'hui —"
+
+    else if dayDiff == 1 then
+        "— demain —"
+
+    else if dayDiff == -1 then
+        "— hier —"
+
+    else if dayDiff > 1 then
+        "— dans " ++ String.fromInt dayDiff ++ " jours —"
+
+    else if dayDiff < -1 then
+        "— il y a " ++ String.fromInt -dayDiff ++ " jours —"
+
+    else
+        ""
+
+
+fancyWeekDescription : Date -> Date -> String
+fancyWeekDescription today date =
+    let
+        thisMonday =
+            mondayOfWeek today
+
+        dateMonday =
+            mondayOfWeek date
+
+        wdelta =
+            getDayDiff thisMonday dateMonday
+    in
+    if wdelta < -14 then
+        "il y a " ++ (String.fromInt <| abs wdelta // 7) ++ " semaines"
+
+    else if wdelta < -7 then
+        "il y a 15 jours"
+
+    else if wdelta < 0 then
+        "la semaine dernière"
+
+    else if wdelta < 7 then
+        "cette semaine"
+
+    else if wdelta < 14 then
+        "la semaine prochaine"
+
+    else if wdelta < 21 then
+        "dans 15 jours"
+
+    else
+        "dans " ++ (String.fromInt <| wdelta // 7) ++ " semaines"

@@ -64,6 +64,9 @@ viewAccounts model =
 viewBalance : Model -> E.Element msg
 viewBalance model =
     let
+        em =
+            model.context.em
+
         balance =
             Ledger.getBalance model.ledger model.account model.today
 
@@ -96,13 +99,17 @@ viewBalance model =
             Border.color Color.warning60
         , Border.width 2
         ]
-        [ E.el
-            [ Ui.smallFont model.context
-            , E.centerX
-            , Font.color Color.neutral40
-            , Ui.notSelectable
-            ]
-            (E.text "Solde actuel:")
+        [ if model.context.device.orientation == E.Landscape && model.context.height > 28 * em then
+            E.el
+                [ Ui.smallFont model.context
+                , E.centerX
+                , Font.color Color.neutral40
+                , Ui.notSelectable
+                ]
+                (E.text "Solde actuel:")
+
+          else
+            E.none
         , E.row
             [ E.centerX, Font.color color, Ui.notSelectable ]
             [ E.el

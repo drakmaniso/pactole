@@ -108,7 +108,7 @@ classifyContext { width, height, fontSize } =
             E.classifyDevice { width = width, height = height }
 
         w =
-            contentWidth device.orientation width
+            contentWidth { device = { orientation = device.orientation }, width = width }
 
         em =
             if fontSize >= 6 && fontSize <= 128 then
@@ -137,9 +137,9 @@ scale { em } n =
     round <| E.modular (toFloat em) 1.25 n
 
 
-contentWidth : E.Orientation -> Int -> Int
-contentWidth orientation width =
-    case orientation of
+contentWidth : { a | device : { b | orientation : E.Orientation }, width : Int } -> Int
+contentWidth { device, width } =
+    case device.orientation of
         E.Portrait ->
             width
 
@@ -604,6 +604,10 @@ warningPopup context elements =
 
 monthNavigationBar : Context -> { a | date : Date, today : Date } -> (Date -> msg) -> E.Element msg
 monthNavigationBar context model changeMsg =
+    let
+        em =
+            context.em
+    in
     E.row
         [ E.width E.fill
         , E.paddingEach { top = 3, bottom = 8, left = 2 * context.em, right = 2 * context.em }
@@ -637,7 +641,7 @@ monthNavigationBar context model changeMsg =
                         { label =
                             E.row
                                 [ E.width E.fill ]
-                                [ if context.device.orientation == E.Landscape then
+                                [ if context.device.orientation == E.Landscape && contentWidth context > 28 * em then
                                     E.el [ E.centerX ]
                                         (E.text (Date.getMonthName (Date.decrementMonth model.date)))
 
@@ -688,7 +692,7 @@ monthNavigationBar context model changeMsg =
                             E.row
                                 [ E.width E.fill ]
                                 [ E.el [ E.centerX, iconFont ] (E.text "  \u{F061}  ")
-                                , if context.device.orientation == E.Landscape then
+                                , if context.device.orientation == E.Landscape && contentWidth context > 28 * em then
                                     E.el [ E.centerX ]
                                         (E.text (Date.getMonthName (Date.incrementMonth model.date)))
 
@@ -709,7 +713,7 @@ weekNavigationBar context model changeMsg =
         em =
             context.em
     in
-    E.row
+    E.column
         [ E.width E.fill
         , E.paddingEach { top = 3, bottom = 8, left = 3, right = 3 }
         ]
@@ -717,12 +721,12 @@ weekNavigationBar context model changeMsg =
             [ E.width <| E.fill
             , E.centerX
             , E.alignTop
-            , E.spacing <| em
+            , E.spacing <| em // 4
             ]
             [ ( "previous week button"
               , E.el
                     [ E.height E.fill
-                    , E.width E.fill
+                    , E.paddingXY (em // 2) 0
                     ]
                     (Input.button
                         [ E.width E.fill
@@ -748,28 +752,33 @@ weekNavigationBar context model changeMsg =
                         }
                     )
               )
+            , ( "current week header"
+              , E.el
+                    [ E.width E.fill
+                    , E.height <| E.px <| 2 * em + em // 2
+                    , notSelectable
+                    , E.paddingEach { left = 0, right = 0, top = 0, bottom = em // 4 }
+                    ]
+                    (E.el
+                        [ E.centerX
+                        , E.centerY
+                        , Font.center
 
-            -- , ( "current week header"
-            --   , E.el
-            --         [ E.width E.fill
-            --         , E.height E.fill
-            --         , notSelectable
-            --         ]
-            --         (E.el
-            --             [ E.centerX
-            --             , Font.bold
-            --             , bigFont context
-            --             , Font.color Color.neutral30
-            --             , E.padding 6
-            --             ]
-            --             (E.text (Date.getMonthFullName model.today model.date))
-            --         )
-            --   )
+                        -- , Font.bold
+                        -- , smallFont context
+                        , Font.color Color.neutral30
+                        , E.padding 6
+                        ]
+                        (E.paragraph []
+                            [ E.text (Date.fancyWeekDescription model.today model.date) ]
+                        )
+                    )
+              )
             , ( "next week button"
               , E.el
                     -- needed to circumvent focus bug in elm-ui
                     [ E.height E.fill
-                    , E.width E.fill
+                    , E.paddingXY (em // 2) 0
                     ]
                     (Input.button
                         [ E.width E.fill

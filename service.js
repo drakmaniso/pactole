@@ -24,7 +24,7 @@ const version = 2
 const staticCacheName = "pactole-cache-2"
 
 // Used to force an update on client-side
-const serviceVersion = "1.4.0b9"
+const serviceVersion = "1.4.0b11"
 
 
 self.addEventListener('install', event => {
