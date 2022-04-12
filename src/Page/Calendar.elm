@@ -24,7 +24,12 @@ viewMonth model =
     E.column
         [ E.width E.fill
         , E.height E.fill
-        , E.padding 3
+        , E.padding <|
+            if model.context.device.orientation == E.Landscape then
+                3
+
+            else
+                0
         ]
         (Ui.monthNavigationBar model.context model Msg.SelectDate
             :: weekDayNames model
@@ -97,8 +102,17 @@ weekDayNames model =
 calendarCell : Model -> Date -> E.Element Msg
 calendarCell model day =
     let
+        em =
+            model.context.em
+
         smallEm =
             model.context.smallEm
+
+        compact =
+            Ui.contentWidth model.context < 26 * model.context.em
+
+        extraCompact =
+            compact && model.context.height < 40 * model.context.em
 
         sel =
             day == model.date
@@ -117,10 +131,10 @@ calendarCell model day =
             , Ui.transition
             , Border.rounded
                 (if sel then
-                    12
+                    em // 2
 
                  else
-                    6
+                    em // 4
                 )
             , Border.color
                 (if sel then
@@ -164,19 +178,23 @@ calendarCell model day =
                     ]
                     [ E.el
                         [ E.width E.fill
-                        , E.paddingEach { top = 0, bottom = 2, left = 0, right = 0 }
-                        , Ui.smallFont model.context
-                        , Font.center
-                        , Font.color
-                            (if sel then
-                                Color.white
+                        , E.paddingEach { top = 0, bottom = 0, left = 0, right = 0 }
+                        , if extraCompact then
+                            Ui.smallerFont model.context
 
-                             else
-                                Color.neutral30
-                            )
+                          else
+                            Ui.smallFont model.context
+                        , Font.center
+
+                        -- , Font.color
+                        --     (if sel then
+                        --         Color.white
+                        --      else
+                        --         Color.neutral30
+                        --     )
                         , Background.color
                             (if sel then
-                                Color.primary40
+                                Color.primary95
 
                              else
                                 Color.transparent
@@ -198,15 +216,36 @@ calendarCell model day =
                     , E.paragraph
                         [ E.width E.fill
                         , E.height E.fill
-                        , E.scrollbarY
-                        , E.paddingEach { left = 0, right = 0, top = smallEm // 4, bottom = 0 }
-                        , E.spacing (smallEm // 2)
+                        , E.clip
+                        , E.paddingEach
+                            { left = 0
+                            , right = 0
+                            , top =
+                                if extraCompact then
+                                    0
+
+                                else if compact then
+                                    smallEm // 4
+
+                                else
+                                    smallEm // 2
+                            , bottom = 0
+                            }
+                        , E.spacing <|
+                            if extraCompact then
+                                0
+
+                            else if compact then
+                                smallEm // 8
+
+                            else
+                                smallEm // 2
                         , Ui.smallFont model.context
                         , Font.center
                         , E.centerY
                         , Background.color
                             (if sel then
-                                Color.white
+                                Color.primary95
 
                              else
                                 Color.transparent
@@ -225,6 +264,15 @@ cellContentFor model day =
         em =
             model.context.em
 
+        smallEm =
+            model.context.smallEm
+
+        compact =
+            Ui.contentWidth model.context < 26 * model.context.em
+
+        extraCompact =
+            compact && model.context.height < 40 * model.context.em
+
         render transaction =
             let
                 future =
@@ -240,7 +288,28 @@ cellContentFor model day =
                 parts =
                     Money.toStrings transaction.amount
             in
-            if Ui.contentWidth model.context > 26 * model.context.em then
+            if extraCompact then
+                E.el
+                    [ E.width <| E.px <| smallEm // 2
+                    , E.height <| E.px <| smallEm // 2
+                    , Background.color color
+                    , Border.rounded 1000
+                    , Border.width 0
+                    , E.htmlAttribute <| Html.Attributes.style "display" "inline-flex"
+                    ]
+                    E.none
+
+            else if compact then
+                E.el
+                    [ E.width <| E.px <| smallEm
+                    , E.height <| E.px <| smallEm
+                    , Background.color color
+                    , Border.rounded 1000
+                    , E.htmlAttribute <| Html.Attributes.style "display" "inline-flex"
+                    ]
+                    E.none
+
+            else
                 E.el
                     [ Font.color Color.white
                     , Background.color color
@@ -254,21 +323,22 @@ cellContentFor model day =
                         , E.el [ Ui.smallerFont model.context ] (E.text ("," ++ parts.cents))
                         ]
                     )
-
-            else
-                E.el
-                    [ E.width <| E.px <| model.context.smallEm
-                    , E.height <| E.px <| model.context.smallEm
-                    , Background.color color
-                    , Border.rounded 1000
-                    , E.htmlAttribute <| Html.Attributes.style "display" "inline-flex"
-                    ]
-                    E.none
     in
     (List.map render (Ledger.getTransactionsForDate model.ledger model.account day)
         ++ List.map render (Ledger.getRecurringTransactionsForDate model.recurring model.account day)
     )
-        |> List.intersperse (E.el [ Ui.smallFont model.context ] (E.text " "))
+        |> List.intersperse
+            (if extraCompact then
+                E.el
+                    [ Ui.smallerFont model.context
+                    , E.width <| E.px <| smallEm // 4
+                    , E.height <| E.px <| smallEm // 2
+                    ]
+                    (E.text " ")
+
+             else
+                E.el [ Ui.smallFont model.context ] (E.text " ")
+            )
 
 
 

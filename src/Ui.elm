@@ -607,10 +607,28 @@ monthNavigationBar context model changeMsg =
     let
         em =
             context.em
+
+        compact =
+            contentWidth context < 28 * em
     in
     E.row
         [ E.width E.fill
-        , E.paddingEach { top = 3, bottom = 8, left = 2 * context.em, right = 2 * context.em }
+        , E.paddingEach
+            { top = 3
+            , bottom = 8
+            , left =
+                if compact then
+                    em // 2
+
+                else
+                    2 * em
+            , right =
+                if compact then
+                    em // 2
+
+                else
+                    2 * em
+            }
         ]
         [ Keyed.row
             [ E.width <| E.fill
@@ -641,12 +659,12 @@ monthNavigationBar context model changeMsg =
                         { label =
                             E.row
                                 [ E.width E.fill ]
-                                [ if context.device.orientation == E.Landscape && contentWidth context > 28 * em then
-                                    E.el [ E.centerX ]
-                                        (E.text (Date.getMonthName (Date.decrementMonth model.date)))
+                                [ if compact then
+                                    E.none
 
                                   else
-                                    E.none
+                                    E.el [ E.centerX ]
+                                        (E.text (Date.getMonthName (Date.decrementMonth model.date)))
                                 , E.el [ E.centerX, iconFont ] (E.text "  \u{F060}  ")
                                 ]
                         , onPress = Just (changeMsg (Date.decrementMonthUI model.date model.today))
@@ -662,7 +680,11 @@ monthNavigationBar context model changeMsg =
                     (E.el
                         [ E.centerX
                         , Font.bold
-                        , bigFont context
+                        , if compact then
+                            defaultFontSize context
+
+                          else
+                            bigFont context
                         , Font.color Color.neutral30
                         , E.padding 6
                         ]
@@ -692,12 +714,12 @@ monthNavigationBar context model changeMsg =
                             E.row
                                 [ E.width E.fill ]
                                 [ E.el [ E.centerX, iconFont ] (E.text "  \u{F061}  ")
-                                , if context.device.orientation == E.Landscape && contentWidth context > 28 * em then
-                                    E.el [ E.centerX ]
-                                        (E.text (Date.getMonthName (Date.incrementMonth model.date)))
+                                , if compact then
+                                    E.none
 
                                   else
-                                    E.none
+                                    E.el [ E.centerX ]
+                                        (E.text (Date.getMonthName (Date.incrementMonth model.date)))
                                 ]
                         , onPress = Just (changeMsg (Date.incrementMonthUI model.date model.today))
                         }
