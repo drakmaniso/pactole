@@ -110,7 +110,7 @@ viewBalance model =
 
           else
             E.none
-        , E.row
+        , E.paragraph
             [ E.centerX, Font.color color, Ui.notSelectable ]
             [ E.el
                 [ Ui.biggestFont model.context
@@ -120,14 +120,11 @@ viewBalance model =
             , E.el
                 [ Ui.bigFont model.context
                 , Font.bold
-                , E.alignBottom
-                , E.paddingEach { top = 0, bottom = 2, left = 0, right = 0 }
                 ]
                 (E.text ("," ++ parts.cents))
             , E.el
                 [ Ui.bigFont model.context
                 , E.alignTop
-                , E.paddingEach { top = 2, bottom = 0, left = 4, right = 0 }
                 ]
                 (E.text "€")
             ]
