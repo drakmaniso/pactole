@@ -361,6 +361,13 @@ configFont model =
             { label = E.text "Changer la police de caractères"
             , onPress = Just <| Msg.ForSettings <| Msg.EditFont
             }
+        , Ui.toggleSwitch model.context
+            { label = "vue par semaine en mode portrait"
+            , checked = settings.useWeekView
+            , onChange =
+                \v ->
+                    Msg.ChangeSettings { settings | useWeekView = v }
+            }
         , Ui.verticalSpacer
         ]
 

@@ -177,6 +177,9 @@ update msg model =
         Msg.ForSettings m ->
             Update.Settings.update m model
 
+        Msg.ChangeSettings newSettings ->
+            ( { model | settings = newSettings }, Cmd.none )
+
         Msg.NoOp ->
             ( model, Cmd.none )
 
@@ -372,7 +375,7 @@ viewMobilePage model =
         Model.CalendarPage ->
             pageWithTopNavBar model
                 [ Summary.viewMobile model ]
-                (if False then
+                (if model.settings.useWeekView then
                     [ E.el [ E.width E.fill, E.height <| E.fillPortion 1 ] <|
                         Calendar.viewWeek model
                     , E.el [ E.width E.fill, E.height <| E.fillPortion 2 ] <|
