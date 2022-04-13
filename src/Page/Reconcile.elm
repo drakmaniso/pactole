@@ -17,7 +17,6 @@ viewContent model =
     E.column
         [ E.width E.fill
         , E.height E.fill
-        , E.clipY
         , E.padding 3
         ]
         [ Ui.monthNavigationBar model.context model Msg.SelectDate
@@ -64,7 +63,6 @@ viewTransactions model =
     E.column
         [ E.width E.fill
         , E.height E.fill
-        , E.scrollbarY
         , Font.color Color.neutral30
         ]
         (List.indexedMap

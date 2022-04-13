@@ -1,4 +1,4 @@
-module Main exposing (init, keyDecoder, main, subscriptions, update, viewDesktopPage)
+module Main exposing (init, keyDecoder, main, subscriptions, update, viewLandscapePage)
 
 import Browser
 import Browser.Dom as Dom
@@ -210,21 +210,21 @@ view : Model -> Browser.Document Msg
 view model =
     case model.context.device.orientation of
         E.Landscape ->
-            viewDesktop model
+            viewLandscape model
 
         E.Portrait ->
-            viewMobile model
+            viewPortrait model
 
 
 
 -- DESKTOP VIEW
 
 
-viewDesktop : Model -> Browser.Document Msg
-viewDesktop model =
+viewLandscape : Model -> Browser.Document Msg
+viewLandscape model =
     let
         activePage =
-            viewDesktopPage model
+            viewLandscapePage model
 
         activeDialog =
             model.dialog |> Maybe.map (viewDialog model)
@@ -237,8 +237,8 @@ viewDesktop model =
     }
 
 
-viewDesktopPage : Model -> E.Element Msg
-viewDesktopPage model =
+viewLandscapePage : Model -> E.Element Msg
+viewLandscapePage model =
     case model.page of
         Model.LoadingPage ->
             Loading.view model
@@ -271,10 +271,16 @@ viewDesktopPage model =
                 }
 
         Model.CalendarPage ->
-            pageWithSidePanel model
-                { panel = panelWithTwoParts { top = Summary.viewDesktop model, bottom = Calendar.dayView model }
-                , page = Calendar.viewMonth model
-                }
+            if model.context.device.class == E.Phone then
+                pageWithTopNavBar model
+                    []
+                    [ Calendar.viewWeek model ]
+
+            else
+                pageWithSidePanel model
+                    { panel = panelWithTwoParts { top = Summary.viewDesktop model, bottom = Calendar.dayView model }
+                    , page = Calendar.viewMonth model
+                    }
 
         Model.DiagnosticsPage ->
             pageWithSidePanel model
@@ -321,12 +327,12 @@ viewDialog model dialog =
 -- MOBILE VIEW
 
 
-viewMobile : Model -> Browser.Document Msg
-viewMobile model =
+viewPortrait : Model -> Browser.Document Msg
+viewPortrait model =
     case model.dialog of
         Nothing ->
             { title = "Pactole"
-            , body = [ pageHtml model <| viewMobilePage model, mobileDialogHtml model Nothing ]
+            , body = [ pageHtml model <| viewPortraitPage model, mobileDialogHtml model Nothing ]
             }
 
         Just dialog ->
@@ -343,8 +349,8 @@ viewMobile model =
             }
 
 
-viewMobilePage : Model -> E.Element Msg
-viewMobilePage model =
+viewPortraitPage : Model -> E.Element Msg
+viewPortraitPage model =
     case model.page of
         Model.LoadingPage ->
             E.column [ E.width E.fill, E.height E.fill ]
@@ -402,12 +408,21 @@ pageHtml : Model -> E.Element Msg -> Html.Html Msg
 pageHtml model element =
     E.layoutWith
         { options =
-            [ E.focusStyle
+            E.focusStyle
                 { borderColor = Nothing
                 , backgroundColor = Nothing
                 , shadow = Nothing
                 }
-            ]
+                :: (case model.context.device.class of
+                        E.Phone ->
+                            [ E.noHover ]
+
+                        E.Tablet ->
+                            [ E.noHover ]
+
+                        _ ->
+                            []
+                   )
         }
         []
         (E.column
@@ -540,6 +555,7 @@ pageWithSidePanel model { panel, page } =
         [ E.width E.fill
         , E.height E.fill
         , E.spacing 3
+        , E.clip
         ]
         [ E.column
             [ E.width (E.fillPortion 1)
@@ -553,7 +569,7 @@ pageWithSidePanel model { panel, page } =
         , E.el
             [ E.width (E.fillPortion 3)
             , E.height E.fill
-            , E.clipY
+            , E.scrollbarY
             ]
             page
         ]
@@ -581,14 +597,16 @@ pageWithTopNavBar model topElements elements =
         [ E.width E.fill
         , E.height E.fill
         , E.spacing <| model.context.em // 2
+        , E.clip
         ]
-        (E.column
+        [ E.column
             [ E.width E.fill
             , E.htmlAttribute <| Html.Attributes.class "panel-shadow"
             ]
             (navigationBar model :: topElements)
-            :: elements
-        )
+        , E.column [ E.width E.fill, E.height E.fill, E.scrollbarY ]
+            elements
+        ]
 
 
 navigationBar : Model -> E.Element Msg

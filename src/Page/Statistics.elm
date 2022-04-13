@@ -25,7 +25,6 @@ viewContent model =
         , E.column
             [ E.width E.fill
             , E.height E.fill
-            , E.scrollbarY
             ]
             [ E.el [ E.height E.fill ] E.none
             , viewItem model

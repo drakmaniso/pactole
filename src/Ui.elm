@@ -109,9 +109,6 @@ classifyContext { width, height, fontSize } =
         device =
             E.classifyDevice { width = width, height = height }
 
-        w =
-            contentWidth { device = { orientation = device.orientation }, width = width }
-
         em =
             if fontSize >= 6 && fontSize <= 128 then
                 fontSize
@@ -882,7 +879,11 @@ viewDate context date =
     E.paragraph
         [ E.width E.fill
         , Font.bold
-        , bigFont context
+        , if context.device.orientation == E.Landscape && context.density /= Comfortable then
+            defaultFontSize context
+
+          else
+            bigFont context
         , E.paddingEach { top = 0, bottom = 12, right = 0, left = 0 }
         , Font.color Color.neutral30
         , Font.center

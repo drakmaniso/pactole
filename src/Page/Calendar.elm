@@ -77,7 +77,7 @@ viewWeek model =
         ]
         [ Ui.weekNavigationBar model.context model Msg.SelectDate
         , weekDayNames model
-        , E.row [ E.width E.fill, E.height E.fill ]
+        , E.row [ E.width E.fill, E.height E.fill, E.spacing 2 ]
             (Date.daysOfWeek model.date
                 |> List.map (\day -> calendarCell model day)
             )
@@ -87,10 +87,14 @@ viewWeek model =
 weekDayNames : Model -> E.Element Msg
 weekDayNames model =
     let
-        em =
-            model.context.em
+        device =
+            model.context.device
     in
-    if Ui.contentWidth model.context > 28 * em then
+    if
+        model.context.density
+            == Ui.Comfortable
+            || (device.class == E.Phone && device.orientation == E.Landscape)
+    then
         E.row
             [ E.width E.fill
             , E.alignBottom
@@ -117,6 +121,9 @@ calendarCell model day =
         em =
             model.context.em
 
+        device =
+            model.context.device
+
         smallEm =
             model.context.smallEm
 
@@ -132,7 +139,7 @@ calendarCell model day =
         (Input.button
             [ E.width E.fill
             , E.height E.fill
-            , E.clipY
+            , E.clip
             , Border.width <|
                 case model.context.density of
                     Ui.Comfortable ->
@@ -189,7 +196,7 @@ calendarCell model day =
                 E.column
                     [ E.width E.fill
                     , E.height E.fill
-                    , E.clipY
+                    , E.clip
                     ]
                     [ E.el
                         [ E.width E.fill
@@ -203,7 +210,7 @@ calendarCell model day =
                             Ui.Condensed ->
                                 Ui.smallerFont model.context
                         , Font.center
-                        , if day == model.today then
+                        , if day == model.today && model.context.density /= Ui.Comfortable then
                             Font.bold
 
                           else
@@ -215,30 +222,35 @@ calendarCell model day =
                             Font.color Color.neutral30
                         ]
                       <|
-                        E.text <|
-                            String.fromInt <|
-                                Date.getDay day
-                    , case model.context.density of
-                        Ui.Comfortable ->
-                            E.paragraph
-                                [ E.width E.fill
-                                , E.height E.fill
-                                , E.clip
-                                , E.paddingEach
-                                    { left = 0
-                                    , right = 0
-                                    , top = smallEm // 2
-                                    , bottom = 0
-                                    }
-                                , E.spacing <| smallEm // 2
-                                , Ui.smallFont model.context
-                                , Font.center
-                                ]
-                                (cellContentFor model day)
+                        if day == model.today && model.context.density == Ui.Comfortable then
+                            E.text <| "Aujourd'hui"
 
-                        _ ->
-                            E.paragraph [ E.centerX, E.centerY, E.spacing 0, Ui.smallerFont model.context, Font.center ]
-                                (cellContentFor model day)
+                        else
+                            E.text <| String.fromInt <| Date.getDay day
+                    , if
+                        model.context.density
+                            == Ui.Comfortable
+                            || (device.class == E.Phone && device.orientation == E.Landscape)
+                      then
+                        E.paragraph
+                            [ E.width E.fill
+                            , E.height E.fill
+                            , E.clip
+                            , E.paddingEach
+                                { left = 0
+                                , right = 0
+                                , top = smallEm // 2
+                                , bottom = 0
+                                }
+                            , E.spacing <| smallEm // 2
+                            , Ui.smallFont model.context
+                            , Font.center
+                            ]
+                            (cellContentFor model day)
+
+                      else
+                        E.paragraph [ E.centerX, E.centerY, E.spacing 0, Ui.smallerFont model.context, Font.center ]
+                            (cellContentFor model day)
                     ]
             , onPress = Just (Msg.SelectDate day)
             }
@@ -250,6 +262,9 @@ cellContentFor model day =
     let
         em =
             model.context.em
+
+        device =
+            model.context.device
 
         render transaction =
             let
@@ -266,40 +281,43 @@ cellContentFor model day =
                 parts =
                     Money.toStrings transaction.amount
             in
-            case model.context.density of
-                Ui.Comfortable ->
-                    E.el
-                        [ Font.color Color.white
-                        , Background.color color
-                        , Border.rounded 1000
-                        , E.htmlAttribute <| Html.Attributes.style "display" "inline-flex"
-                        , E.paddingEach { left = em // 4, right = em // 4, top = 0, bottom = 0 }
+            if
+                model.context.density
+                    == Ui.Comfortable
+                    || (device.class == E.Phone && device.orientation == E.Landscape)
+            then
+                E.el
+                    [ Font.color Color.white
+                    , Background.color color
+                    , Border.rounded 1000
+                    , E.htmlAttribute <| Html.Attributes.style "display" "inline-flex"
+                    , E.paddingEach { left = em // 4, right = em // 4, top = 0, bottom = 0 }
+                    ]
+                    (E.paragraph
+                        []
+                        [ E.el [ Ui.smallFont model.context ] (E.text (parts.sign ++ parts.units))
+                        , E.el [ Ui.smallerFont model.context ] (E.text ("," ++ parts.cents))
                         ]
-                        (E.paragraph
-                            []
-                            [ E.el [ Ui.smallFont model.context ] (E.text (parts.sign ++ parts.units))
-                            , E.el [ Ui.smallerFont model.context ] (E.text ("," ++ parts.cents))
-                            ]
-                        )
+                    )
 
-                _ ->
-                    let
-                        size =
-                            case model.context.device.orientation of
-                                E.Landscape ->
-                                    model.context.height // 32
+            else
+                let
+                    size =
+                        case model.context.device.orientation of
+                            E.Landscape ->
+                                model.context.height // 32
 
-                                E.Portrait ->
-                                    model.context.height // 70
-                    in
-                    E.el
-                        [ E.width <| E.px size
-                        , E.height <| E.px size
-                        , Background.color color
-                        , Border.rounded 1000
-                        , E.htmlAttribute <| Html.Attributes.style "display" "inline-flex"
-                        ]
-                        E.none
+                            E.Portrait ->
+                                model.context.height // 70
+                in
+                E.el
+                    [ E.width <| E.px size
+                    , E.height <| E.px size
+                    , Background.color color
+                    , Border.rounded 1000
+                    , E.htmlAttribute <| Html.Attributes.style "display" "inline-flex"
+                    ]
+                    E.none
     in
     (List.map render (Ledger.getTransactionsForDate model.ledger model.account day)
         ++ List.map render (Ledger.getRecurringTransactionsForDate model.recurring model.account day)
