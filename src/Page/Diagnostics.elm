@@ -67,17 +67,7 @@ view model =
                                )
                     ]
                 , E.paragraph []
-                    [ E.text <|
-                        "- font sizes = "
-                            ++ String.fromInt model.context.smallEm
-                            ++ ", "
-                            ++ String.fromInt model.context.em
-                            ++ ", "
-                            ++ String.fromInt model.context.bigEm
-                    ]
-                , Ui.verticalSpacer
-                , Ui.textInput
-                    { label = Ui.labelLeft "test input:", text = "", onChange = \_ -> Msg.NoOp }
+                    [ E.text <| "- font size = " ++ String.fromInt model.context.em ]
                 , Ui.verticalSpacer
                 , errorLog model
                 ]

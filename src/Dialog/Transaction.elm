@@ -77,7 +77,7 @@ viewAmount model dialog =
                     "Entrée d'argent:"
     in
     if dialog.isRecurring then
-        Ui.dialogSectionRow Color.neutral30
+        Ui.dialogSectionRow model.context
             titleText
             (E.el
                 [ Ui.bigFont model.context
@@ -103,7 +103,7 @@ viewAmount model dialog =
             )
 
     else
-        Ui.dialogSectionRow Color.neutral30
+        Ui.dialogSectionRow model.context
             titleText
             (E.row [ E.width E.fill, E.padding 0, Font.color titleColor, Font.bold ]
                 [ E.el
@@ -142,7 +142,7 @@ viewAmount model dialog =
 viewDescription : Model -> Model.TransactionData -> E.Element Msg
 viewDescription model dialog =
     if dialog.isRecurring then
-        Ui.dialogSectionRow Color.neutral30
+        Ui.dialogSectionRow model.context
             "Description:"
             (E.el
                 [ Ui.bigFont model.context
@@ -154,7 +154,7 @@ viewDescription model dialog =
             )
 
     else
-        Ui.dialogSectionRow Color.neutral30
+        Ui.dialogSectionRow model.context
             "Description:"
             (Input.multiline
                 [ Border.width 4
@@ -204,8 +204,7 @@ viewCategories model dialog =
                                 |> List.reverse
                        )
         in
-        Ui.dialogSection Color.neutral30
-            "Catégorie:"
+        Ui.dialogSection "Catégorie:"
             (E.table [ E.width E.fill ]
                 { data = categories
                 , columns =

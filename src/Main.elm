@@ -343,7 +343,12 @@ viewPortrait model =
                     Just <|
                         E.column [ E.width E.fill, E.height E.fill ]
                             [ mobileDialogNavigationBar model
-                            , viewDialog model dialog
+                            , E.el
+                                [ E.width E.fill
+                                , E.height E.fill
+                                , E.padding <| model.context.em // 2
+                                ]
+                                (viewDialog model dialog)
                             ]
                 ]
             }
@@ -635,7 +640,7 @@ navigationBar model =
 
         navigationButton { targetPage, label } =
             Input.button
-                [ E.padding <| model.context.em // 4
+                [ E.padding <| model.context.em // 2
                 , Ui.transition
                 , Border.color Color.transparent
                 , Background.color
@@ -774,13 +779,15 @@ mobileDialogNavigationBar : Model -> E.Element Msg
 mobileDialogNavigationBar model =
     E.row
         [ E.width E.fill
-        , Background.color Color.primary85
+        , Background.color Color.white
         , Ui.fontFamily model.settings.font
+        , E.htmlAttribute <| Html.Attributes.class "panel-shadow"
+        , E.htmlAttribute <| Html.Attributes.style "z-index" "2"
         ]
         [ Input.button
-            [ E.paddingXY 6 6
+            [ E.padding <| model.context.em // 2
             , Border.color Color.transparent
-            , Background.color Color.primary85
+            , Background.color Color.transparent
             , Font.color Color.primary40
             , E.mouseDown [ Background.color Color.primary80 ]
             , E.mouseOver [ Background.color Color.primary90 ]
@@ -789,7 +796,7 @@ mobileDialogNavigationBar model =
             , Ui.focusVisibleOnly
             ]
             { onPress = Just Msg.CloseDialog
-            , label = E.row [] [ E.el [ Ui.bigFont model.context ] Ui.backIcon, E.text "  Retour" ]
+            , label = E.el [ Ui.bigFont model.context ] Ui.backIcon
             }
         ]
 

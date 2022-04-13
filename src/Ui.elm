@@ -292,7 +292,8 @@ closeIcon =
 backIcon : E.Element msg
 backIcon =
     E.el [ iconFont ]
-        (E.text "\u{F30A}")
+        -- F30A
+        (E.text "\u{F060}")
 
 
 editIcon : E.Element msg
@@ -549,26 +550,31 @@ pageTitle context element =
         ]
 
 
-dialogSectionRow : E.Color -> String -> E.Element msg -> E.Element msg
-dialogSectionRow titleColor titleText content =
-    E.row [ E.width E.fill, E.spacing 24 ]
-        [ E.el
-            [ Font.color titleColor
-            , Font.bold
-            , E.padding 0
-            , notSelectable
-            ]
-            (E.text titleText)
-        , content
-        ]
+dialogSectionRow : Context -> String -> E.Element msg -> E.Element msg
+dialogSectionRow context titleText content =
+    case context.device.orientation of
+        E.Landscape ->
+            E.row [ E.width E.fill, E.spacing 24 ]
+                [ E.el
+                    [ Font.color Color.neutral30
+                    , Font.bold
+                    , E.padding 0
+                    , notSelectable
+                    ]
+                    (E.text titleText)
+                , content
+                ]
+
+        E.Portrait ->
+            dialogSection titleText content
 
 
-dialogSection : E.Color -> String -> E.Element msg -> E.Element msg
-dialogSection titleColor titleText content =
+dialogSection : String -> E.Element msg -> E.Element msg
+dialogSection titleText content =
     E.column [ E.width E.fill, E.spacing 12 ]
         [ E.el
             [ E.width E.fill
-            , Font.color titleColor
+            , Font.color Color.neutral30
             , Font.bold
             , E.padding 0
             , notSelectable
@@ -1301,6 +1307,7 @@ moneyInput context args =
             ]
         , E.htmlAttribute <| Html.Attributes.id "dialog-focus"
         , E.htmlAttribute <| Html.Attributes.autocomplete False
+        , E.htmlAttribute <| Html.Attributes.attribute "inputmode" "numeric"
         , Font.color args.color
         , case Tuple.second args.state of
             Just error ->
