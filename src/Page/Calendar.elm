@@ -24,9 +24,15 @@ viewMonth model =
     E.column
         [ E.width E.fill
         , E.height E.fill
+        , E.spacing <|
+            if model.context.density == Ui.Comfortable then
+                4
+
+            else
+                2
         , E.padding <|
             if model.context.device.orientation == E.Landscape then
-                3
+                4
 
             else
                 0
@@ -40,6 +46,12 @@ viewMonth model =
                                 [ E.width E.fill
                                 , E.height E.fill
                                 , E.clipY
+                                , E.spacing <|
+                                    if model.context.density == Ui.Comfortable then
+                                        4
+
+                                    else
+                                        2
                                 ]
                             <|
                                 List.map
@@ -108,12 +120,6 @@ calendarCell model day =
         smallEm =
             model.context.smallEm
 
-        compact =
-            Ui.contentWidth model.context < 26 * model.context.em
-
-        extraCompact =
-            compact && model.context.height < 40 * model.context.em
-
         sel =
             day == model.date
     in
@@ -127,11 +133,20 @@ calendarCell model day =
             [ E.width E.fill
             , E.height E.fill
             , E.clipY
-            , Border.width 3
+            , Border.width <|
+                case model.context.density of
+                    Ui.Comfortable ->
+                        2
+
+                    Ui.Compact ->
+                        2
+
+                    Ui.Condensed ->
+                        2
             , Ui.transition
             , Border.rounded
                 (if sel then
-                    em // 2
+                    (em // 4) + 4
 
                  else
                     em // 4
@@ -141,11 +156,11 @@ calendarCell model day =
                     Color.primary40
 
                  else
-                    Color.white
+                    Color.transparent
                 )
             , Background.color
                 (if sel then
-                    Color.primary40
+                    Color.primary95
 
                  else
                     Color.neutral95
@@ -153,7 +168,7 @@ calendarCell model day =
             , E.mouseDown
                 [ Background.color
                     (if sel then
-                        Color.primary30
+                        Color.primary90
 
                      else
                         Color.neutral90
@@ -162,7 +177,7 @@ calendarCell model day =
             , E.mouseOver
                 [ Background.color
                     (if sel then
-                        Color.primary40
+                        Color.primary95
 
                      else
                         Color.neutral98
@@ -178,80 +193,52 @@ calendarCell model day =
                     ]
                     [ E.el
                         [ E.width E.fill
-                        , E.paddingEach { top = 0, bottom = 0, left = 0, right = 0 }
-                        , if extraCompact then
-                            Ui.smallerFont model.context
+                        , case model.context.density of
+                            Ui.Comfortable ->
+                                Ui.smallFont model.context
 
-                          else
-                            Ui.smallFont model.context
-                        , Font.center
+                            Ui.Compact ->
+                                Ui.smallFont model.context
 
-                        -- , Font.color
-                        --     (if sel then
-                        --         Color.white
-                        --      else
-                        --         Color.neutral30
-                        --     )
-                        , Background.color
-                            (if sel then
-                                Color.primary95
-
-                             else
-                                Color.transparent
-                            )
+                            Ui.Condensed ->
+                                Ui.smallerFont model.context
                         , Font.center
                         , if day == model.today then
                             Font.bold
 
                           else
                             Font.regular
+                        , if day == model.today then
+                            Font.color Color.black
+
+                          else
+                            Font.color Color.neutral30
                         ]
-                        (E.text <|
-                            if day == model.today then
-                                "· " ++ (String.fromInt <| Date.getDay day) ++ " ·"
+                      <|
+                        E.text <|
+                            String.fromInt <|
+                                Date.getDay day
+                    , case model.context.density of
+                        Ui.Comfortable ->
+                            E.paragraph
+                                [ E.width E.fill
+                                , E.height E.fill
+                                , E.clip
+                                , E.paddingEach
+                                    { left = 0
+                                    , right = 0
+                                    , top = smallEm // 2
+                                    , bottom = 0
+                                    }
+                                , E.spacing <| smallEm // 2
+                                , Ui.smallFont model.context
+                                , Font.center
+                                ]
+                                (cellContentFor model day)
 
-                            else
-                                String.fromInt <| Date.getDay day
-                        )
-                    , E.paragraph
-                        [ E.width E.fill
-                        , E.height E.fill
-                        , E.clip
-                        , E.paddingEach
-                            { left = 0
-                            , right = 0
-                            , top =
-                                if extraCompact then
-                                    0
-
-                                else if compact then
-                                    smallEm // 4
-
-                                else
-                                    smallEm // 2
-                            , bottom = 0
-                            }
-                        , E.spacing <|
-                            if extraCompact then
-                                0
-
-                            else if compact then
-                                smallEm // 8
-
-                            else
-                                smallEm // 2
-                        , Ui.smallFont model.context
-                        , Font.center
-                        , E.centerY
-                        , Background.color
-                            (if sel then
-                                Color.primary95
-
-                             else
-                                Color.transparent
-                            )
-                        ]
-                        (cellContentFor model day)
+                        _ ->
+                            E.paragraph [ E.centerX, E.centerY, E.spacing 0, Ui.smallerFont model.context, Font.center ]
+                                (cellContentFor model day)
                     ]
             , onPress = Just (Msg.SelectDate day)
             }
@@ -263,15 +250,6 @@ cellContentFor model day =
     let
         em =
             model.context.em
-
-        smallEm =
-            model.context.smallEm
-
-        compact =
-            Ui.contentWidth model.context < 26 * model.context.em
-
-        extraCompact =
-            compact && model.context.height < 40 * model.context.em
 
         render transaction =
             let
@@ -288,56 +266,56 @@ cellContentFor model day =
                 parts =
                     Money.toStrings transaction.amount
             in
-            if extraCompact then
-                E.el
-                    [ E.width <| E.px <| smallEm // 2
-                    , E.height <| E.px <| smallEm // 2
-                    , Background.color color
-                    , Border.rounded 1000
-                    , Border.width 0
-                    , E.htmlAttribute <| Html.Attributes.style "display" "inline-flex"
-                    ]
-                    E.none
-
-            else if compact then
-                E.el
-                    [ E.width <| E.px <| smallEm
-                    , E.height <| E.px <| smallEm
-                    , Background.color color
-                    , Border.rounded 1000
-                    , E.htmlAttribute <| Html.Attributes.style "display" "inline-flex"
-                    ]
-                    E.none
-
-            else
-                E.el
-                    [ Font.color Color.white
-                    , Background.color color
-                    , Border.rounded 1000
-                    , E.htmlAttribute <| Html.Attributes.style "display" "inline-flex"
-                    , E.paddingEach { left = em // 4, right = em // 4, top = 0, bottom = 0 }
-                    ]
-                    (E.paragraph
-                        []
-                        [ E.el [ Ui.smallFont model.context ] (E.text (parts.sign ++ parts.units))
-                        , E.el [ Ui.smallerFont model.context ] (E.text ("," ++ parts.cents))
+            case model.context.density of
+                Ui.Comfortable ->
+                    E.el
+                        [ Font.color Color.white
+                        , Background.color color
+                        , Border.rounded 1000
+                        , E.htmlAttribute <| Html.Attributes.style "display" "inline-flex"
+                        , E.paddingEach { left = em // 4, right = em // 4, top = 0, bottom = 0 }
                         ]
-                    )
+                        (E.paragraph
+                            []
+                            [ E.el [ Ui.smallFont model.context ] (E.text (parts.sign ++ parts.units))
+                            , E.el [ Ui.smallerFont model.context ] (E.text ("," ++ parts.cents))
+                            ]
+                        )
+
+                _ ->
+                    let
+                        size =
+                            case model.context.device.orientation of
+                                E.Landscape ->
+                                    model.context.height // 32
+
+                                E.Portrait ->
+                                    model.context.height // 70
+                    in
+                    E.el
+                        [ E.width <| E.px size
+                        , E.height <| E.px size
+                        , Background.color color
+                        , Border.rounded 1000
+                        , E.htmlAttribute <| Html.Attributes.style "display" "inline-flex"
+                        ]
+                        E.none
     in
     (List.map render (Ledger.getTransactionsForDate model.ledger model.account day)
         ++ List.map render (Ledger.getRecurringTransactionsForDate model.recurring model.account day)
     )
         |> List.intersperse
-            (if extraCompact then
-                E.el
-                    [ Ui.smallerFont model.context
-                    , E.width <| E.px <| smallEm // 4
-                    , E.height <| E.px <| smallEm // 2
-                    ]
-                    (E.text " ")
+            (case model.context.density of
+                Ui.Comfortable ->
+                    E.el [ Ui.smallFont model.context ] (E.text " ")
 
-             else
-                E.el [ Ui.smallFont model.context ] (E.text " ")
+                _ ->
+                    E.el
+                        [ Ui.smallerFont model.context
+                        , E.width <| E.px 2
+                        , E.height <| E.px 2
+                        ]
+                        E.none
             )
 
 

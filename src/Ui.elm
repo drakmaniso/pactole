@@ -1,5 +1,6 @@
 module Ui exposing
     ( Context
+    , Density(..)
     , backIcon
     , bigFont
     , bigWarningIcon
@@ -98,6 +99,7 @@ type alias Context =
     , bigEm : Int
     , em : Int
     , smallEm : Int
+    , density : Density
     }
 
 
@@ -114,14 +116,49 @@ classifyContext { width, height, fontSize } =
             if fontSize >= 6 && fontSize <= 128 then
                 fontSize
 
-            else if w >= 960 then
-                26
-
-            else if w <= 360 then
-                22
-
             else
-                round <| 22 + (toFloat w - 360) / ((960 - 360) / (26 - 22))
+                case device.orientation of
+                    E.Landscape ->
+                        if width > 1280 && height > 720 then
+                            26
+
+                        else if width > 1024 && height > 720 then
+                            24
+
+                        else
+                            22
+
+                    E.Portrait ->
+                        if width > 720 && height > 1280 then
+                            26
+
+                        else if width > 720 && height > 1024 then
+                            24
+
+                        else
+                            22
+
+        density =
+            case device.orientation of
+                E.Landscape ->
+                    if width > 42 * em && height > 22 * em then
+                        Comfortable
+
+                    else if width > 28 * em && height > 16 * em then
+                        Compact
+
+                    else
+                        Condensed
+
+                E.Portrait ->
+                    if width > 28 * em && height > 50 * em then
+                        Comfortable
+
+                    else if width > 14 * em && height > 38 * em then
+                        Compact
+
+                    else
+                        Condensed
     in
     { width = width
     , height = height
@@ -129,7 +166,14 @@ classifyContext { width, height, fontSize } =
     , bigEm = scale { em = em } 2
     , em = em
     , smallEm = scale { em = em } -1
+    , density = density
     }
+
+
+type Density
+    = Comfortable
+    | Compact
+    | Condensed
 
 
 scale : { a | em : Int } -> Int -> Int
@@ -607,9 +651,6 @@ monthNavigationBar context model changeMsg =
     let
         em =
             context.em
-
-        compact =
-            contentWidth context < 28 * em
     in
     E.row
         [ E.width E.fill
@@ -617,17 +658,17 @@ monthNavigationBar context model changeMsg =
             { top = 3
             , bottom = 8
             , left =
-                if compact then
-                    em // 2
+                if context.density == Comfortable then
+                    2 * em
 
                 else
-                    2 * em
+                    em // 2
             , right =
-                if compact then
-                    em // 2
+                if context.density == Comfortable then
+                    2 * em
 
                 else
-                    2 * em
+                    em // 2
             }
         ]
         [ Keyed.row
@@ -659,12 +700,12 @@ monthNavigationBar context model changeMsg =
                         { label =
                             E.row
                                 [ E.width E.fill ]
-                                [ if compact then
-                                    E.none
-
-                                  else
+                                [ if context.density == Comfortable then
                                     E.el [ E.centerX ]
                                         (E.text (Date.getMonthName (Date.decrementMonth model.date)))
+
+                                  else
+                                    E.none
                                 , E.el [ E.centerX, iconFont ] (E.text "  \u{F060}  ")
                                 ]
                         , onPress = Just (changeMsg (Date.decrementMonthUI model.date model.today))
@@ -680,11 +721,11 @@ monthNavigationBar context model changeMsg =
                     (E.el
                         [ E.centerX
                         , Font.bold
-                        , if compact then
-                            defaultFontSize context
+                        , if context.density == Comfortable then
+                            bigFont context
 
                           else
-                            bigFont context
+                            defaultFontSize context
                         , Font.color Color.neutral30
                         , E.padding 6
                         ]
@@ -714,12 +755,12 @@ monthNavigationBar context model changeMsg =
                             E.row
                                 [ E.width E.fill ]
                                 [ E.el [ E.centerX, iconFont ] (E.text "  \u{F061}  ")
-                                , if compact then
-                                    E.none
-
-                                  else
+                                , if context.density == Comfortable then
                                     E.el [ E.centerX ]
                                         (E.text (Date.getMonthName (Date.incrementMonth model.date)))
+
+                                  else
+                                    E.none
                                 ]
                         , onPress = Just (changeMsg (Date.incrementMonthUI model.date model.today))
                         }
