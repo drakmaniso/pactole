@@ -381,20 +381,11 @@ viewPortraitPage model =
         Model.CalendarPage ->
             pageWithTopNavBar model
                 [ Summary.viewMobile model ]
-                (if model.settings.useWeekView then
-                    [ E.el [ E.width E.fill, E.height <| E.fillPortion 1 ] <|
-                        Calendar.viewWeek model
-                    , E.el [ E.width E.fill, E.height <| E.fillPortion 2 ] <|
-                        Calendar.dayView model
-                    ]
-
-                 else
-                    [ E.el [ E.width E.fill, E.height <| E.fillPortion 1 ] <|
-                        Calendar.viewMonth model
-                    , E.el [ E.width E.fill, E.height <| E.fillPortion 1 ] <|
-                        Calendar.dayView model
-                    ]
-                )
+                [ E.el [ E.width E.fill, E.height <| E.fillPortion 1 ] <|
+                    Calendar.viewMonth model
+                , E.el [ E.width E.fill, E.height <| E.fillPortion 1 ] <|
+                    Calendar.dayView model
+                ]
 
         Model.DiagnosticsPage ->
             pageWithTopNavBar model [] [ Diagnostics.view model ]

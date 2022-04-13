@@ -149,7 +149,6 @@ type alias Settings =
     , settingsLocked : Bool
     , font : String
     , fontSize : Int
-    , useWeekView : Bool
     }
 
 
@@ -162,7 +161,6 @@ defaultSettings =
     , settingsLocked = False
     , font = "Andika New Basic"
     , fontSize = 0
-    , useWeekView = False
     }
 
 
@@ -190,7 +188,6 @@ decodeSettings =
             , settingsLocked = setlock
             , font = font
             , fontSize = fontSize
-            , useWeekView = False
             }
         )
         (Decode.oneOf [ Decode.field "categoriesEnabled" Decode.bool, Decode.succeed False ])

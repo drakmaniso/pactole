@@ -350,23 +350,10 @@ configFont model =
                     , onPress =
                         Just (Msg.ForDatabase <| Msg.StoreSettings { settings | fontSize = sanitize <| fontSize + 1 })
                     }
-
-            -- , Ui.simpleButton
-            --     { label = E.text "Taille par défaut"
-            --     , onPress =
-            --         Just <| Msg.ForDatabase <| Msg.StoreSettings { settings | fontSize = 0 }
-            --     }
             ]
         , Ui.simpleButton
             { label = E.text "Changer la police de caractères"
             , onPress = Just <| Msg.ForSettings <| Msg.EditFont
-            }
-        , Ui.toggleSwitch model.context
-            { label = "vue par semaine en mode portrait"
-            , checked = settings.useWeekView
-            , onChange =
-                \v ->
-                    Msg.ChangeSettings { settings | useWeekView = v }
             }
         , Ui.verticalSpacer
         ]
