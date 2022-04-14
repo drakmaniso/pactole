@@ -885,12 +885,11 @@ viewDate context date =
     E.paragraph
         [ E.width E.fill
         , Font.bold
-        , if context.device.orientation == E.Landscape && context.density /= Comfortable then
+        , if context.density /= Comfortable then
             defaultFontSize context
 
           else
             bigFont context
-        , E.paddingEach { top = 0, bottom = 12, right = 0, left = 0 }
         , Font.color Color.neutral30
         , Font.center
         ]

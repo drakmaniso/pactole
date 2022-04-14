@@ -24,6 +24,7 @@ view model =
                 , E.spacing <| model.context.em
                 ]
                 [ viewDate model dialog
+                , Ui.verticalSpacer
                 , viewAmount model dialog
                 , viewDescription model dialog
                 , viewCategories model dialog

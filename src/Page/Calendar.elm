@@ -91,8 +91,7 @@ weekDayNames model =
             model.context.device
     in
     if
-        model.context.density
-            == Ui.Comfortable
+        (model.context.density == Ui.Comfortable && device.orientation == E.Landscape)
             || (device.class == E.Phone && device.orientation == E.Landscape)
     then
         E.row
@@ -355,7 +354,7 @@ dayView model =
         [ E.column
             [ E.width E.fill
             , E.height E.fill
-            , E.paddingXY 0 (em // 2)
+            , E.paddingXY 0 (em // 4)
             , E.spacing (em // 4)
             , Font.color Color.neutral30
             , Font.center

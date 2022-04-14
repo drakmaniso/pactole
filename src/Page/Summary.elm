@@ -24,6 +24,7 @@ viewDesktop model =
         , E.column
             [ E.width E.fill
             , E.height E.fill
+            , E.spacing <| model.context.em // 4
             ]
             [ viewAccounts model
             , viewBalance model

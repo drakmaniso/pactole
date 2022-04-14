@@ -582,7 +582,7 @@ panelWithTwoParts { top, bottom } =
             [ E.width E.fill, E.height (E.fillPortion 1) ]
             top
         , E.el
-            [ E.width E.fill, E.height (E.fillPortion 2) ]
+            [ E.width E.fill, E.height (E.fillPortion 3) ]
             bottom
         ]
 
@@ -600,7 +600,12 @@ pageWithTopNavBar model topElements elements =
             , E.htmlAttribute <| Html.Attributes.class "panel-shadow"
             ]
             (navigationBar model :: topElements)
-        , E.column [ E.width E.fill, E.height E.fill, E.scrollbarY ]
+        , E.column
+            [ E.width E.fill
+            , E.height E.fill
+            , E.scrollbarY
+            , E.spacing <| model.context.em // 4
+            ]
             elements
         ]
 
