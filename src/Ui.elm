@@ -1,5 +1,6 @@
 module Ui exposing
-    ( Context
+    ( ButtonColor(..)
+    , Context
     , Density(..)
     , backIcon
     , bigFont
@@ -16,6 +17,7 @@ module Ui exposing
     , defaultFontSize
     , defaultShadow
     , deleteIcon
+    , dialog
     , dialogSection
     , dialogSectionRow
     , editIcon
@@ -50,6 +52,7 @@ module Ui exposing
     , radioButton
     , radioRowOption
     , reconcileCheckBox
+    , roundButton
     , roundCorners
     , ruler
     , saveIcon
@@ -373,6 +376,60 @@ loadIcon =
 -- CONTAINERS
 
 
+dialog :
+    Context
+    ->
+        { content : E.Element msg
+        , close : { label : E.Element msg, icon : E.Element msg, color : ButtonColor, onPress : msg }
+        , actions : List { label : E.Element msg, icon : E.Element msg, color : ButtonColor, onPress : msg }
+        }
+    -> E.Element msg
+dialog context { content, close, actions } =
+    if context.device.class == E.Phone || context.device.orientation == E.Portrait then
+        E.column
+            [ E.width E.fill
+            , E.height E.fill
+            , E.spacing <| context.em // 2
+            ]
+            [ E.row
+                [ E.width E.fill
+                , Background.color Color.neutral95
+                , E.htmlAttribute <| Html.Attributes.class "panel-shadow"
+                , E.htmlAttribute <| Html.Attributes.style "z-index" "2"
+                ]
+                (navigationButton context close
+                    :: E.el [ E.width E.fill ] E.none
+                    :: List.map
+                        (\button -> navigationButton context button)
+                        actions
+                )
+            , E.el [ E.padding <| context.em // 2, E.width E.fill, E.height E.fill, E.clipX ]
+                content
+            ]
+
+    else
+        let
+            buttonRow =
+                E.row
+                    [ E.width E.fill
+                    , E.spacing <| context.em
+                    ]
+                <|
+                    E.el [ E.width E.fill ] E.none
+                        :: List.map
+                            (\button -> roundButton context button)
+                            actions
+        in
+        E.column
+            [ E.width E.fill
+            , E.height E.fill
+            , E.spacing <| context.em * 2
+            ]
+            [ content
+            , buttonRow
+            ]
+
+
 toggleSwitch :
     Context
     ->
@@ -552,30 +609,27 @@ pageTitle context element =
 
 dialogSectionRow : Context -> String -> E.Element msg -> E.Element msg
 dialogSectionRow context titleText content =
-    case context.device.orientation of
-        E.Landscape ->
-            E.row [ E.width E.fill, E.spacing 24 ]
-                [ E.el
-                    [ Font.color Color.neutral30
-                    , Font.bold
-                    , E.padding 0
-                    , notSelectable
-                    ]
-                    (E.text titleText)
-                , content
-                ]
+    E.row [ E.width E.fill, E.spacing <| context.em ]
+        [ E.el
+            [ Font.color Color.neutral30
 
-        E.Portrait ->
-            dialogSection titleText content
+            -- , Font.bold
+            , E.padding 0
+            , notSelectable
+            ]
+            (E.text titleText)
+        , content
+        ]
 
 
-dialogSection : String -> E.Element msg -> E.Element msg
-dialogSection titleText content =
-    E.column [ E.width E.fill, E.spacing 12 ]
+dialogSection : Context -> String -> E.Element msg -> E.Element msg
+dialogSection context titleText content =
+    E.column [ E.width E.fill, E.spacing <| context.em // 2 ]
         [ E.el
             [ E.width E.fill
             , Font.color Color.neutral30
-            , Font.bold
+
+            -- , Font.bold
             , E.padding 0
             , notSelectable
             ]
@@ -1017,6 +1071,149 @@ viewSum context money =
 -- INTERACTIVE ELEMENTS
 
 
+type ButtonColor
+    = PlainButton
+    | DangerButton
+    | MainButton
+
+
+roundButton :
+    Context
+    ->
+        { a
+            | label : E.Element msg
+            , color : ButtonColor
+            , onPress : msg
+        }
+    -> E.Element msg
+roundButton context { label, color, onPress } =
+    let
+        em =
+            context.em
+    in
+    Input.button
+        [ Background.color <|
+            case color of
+                PlainButton ->
+                    Color.neutral95
+
+                DangerButton ->
+                    Color.warning60
+
+                MainButton ->
+                    Color.primary40
+        , Font.color <|
+            case color of
+                PlainButton ->
+                    Color.neutral30
+
+                DangerButton ->
+                    Color.white
+
+                MainButton ->
+                    Color.white
+        , Font.center
+        , Border.rounded 1000
+        , Border.width 4
+        , Border.color Color.transparent
+        , focusVisibleOnly
+        , defaultShadow
+        , transition
+        , E.paddingXY em (em // 4)
+        , E.mouseDown
+            [ Background.color <|
+                case color of
+                    PlainButton ->
+                        Color.neutral90
+
+                    DangerButton ->
+                        Color.warning50
+
+                    MainButton ->
+                        Color.primary30
+            ]
+        , E.mouseOver
+            [ Background.color <|
+                case color of
+                    PlainButton ->
+                        Color.neutral98
+
+                    DangerButton ->
+                        Color.warning70
+
+                    MainButton ->
+                        Color.primary50
+            ]
+        , E.htmlAttribute <| Html.Attributes.class "focus-visible-only"
+        ]
+        { onPress = Just onPress
+        , label = label
+        }
+
+
+navigationButton :
+    Context
+    ->
+        { a
+            | icon : E.Element msg
+            , color : ButtonColor
+            , onPress : msg
+        }
+    -> E.Element msg
+navigationButton context { icon, color, onPress } =
+    let
+        em =
+            context.em
+    in
+    Input.button
+        [ Background.color Color.transparent
+        , Font.color <|
+            case color of
+                PlainButton ->
+                    Color.primary40
+
+                DangerButton ->
+                    Color.warning60
+
+                MainButton ->
+                    Color.primary40
+        , Font.center
+        , Border.width 4
+        , Border.color Color.transparent
+        , focusVisibleOnly
+        , transition
+        , E.padding (em // 2)
+        , E.mouseDown
+            [ Font.color <|
+                case color of
+                    PlainButton ->
+                        Color.primary30
+
+                    DangerButton ->
+                        Color.warning50
+
+                    MainButton ->
+                        Color.primary30
+            ]
+        , E.mouseOver
+            [ Font.color <|
+                case color of
+                    PlainButton ->
+                        Color.primary50
+
+                    DangerButton ->
+                        Color.warning70
+
+                    MainButton ->
+                        Color.primary50
+            ]
+        , E.htmlAttribute <| Html.Attributes.class "focus-visible-only"
+        ]
+        { onPress = Just onPress
+        , label = icon
+        }
+
+
 simpleButton :
     { onPress : Maybe msg, label : E.Element msg }
     -> E.Element msg
@@ -1228,7 +1425,7 @@ radioButton { onPress, icon, label, active } =
                     ]
 
                 else
-                    [ Font.color Color.neutral30
+                    [ Font.color Color.primary40
                     , Background.color Color.white
                     , E.mouseDown [ Background.color Color.neutral90 ]
                     , E.mouseOver [ Background.color Color.neutral95 ]

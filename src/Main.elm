@@ -292,8 +292,8 @@ viewLandscapePage model =
 viewDialog : Model -> Model.Dialog -> E.Element Msg
 viewDialog model dialog =
     case dialog of
-        Model.TransactionDialog _ ->
-            EditTransaction.view model
+        Model.TransactionDialog data ->
+            EditTransaction.view model data
 
         Model.AccountDialog data ->
             Dialog.Settings.viewAccountDialog model data
@@ -341,15 +341,7 @@ viewPortrait model =
                 [ pageHtml model <| E.none
                 , mobileDialogHtml model <|
                     Just <|
-                        E.column [ E.width E.fill, E.height E.fill ]
-                            [ mobileDialogNavigationBar model
-                            , E.el
-                                [ E.width E.fill
-                                , E.height E.fill
-                                , E.padding <| model.context.em // 2
-                                ]
-                                (viewDialog model dialog)
-                            ]
+                        viewDialog model dialog
                 ]
             }
 
@@ -777,32 +769,6 @@ navigationBar model =
                     E.el [ Ui.iconFont, Ui.bigFont model.context, E.centerX, E.paddingXY 0 0 ] (E.text "\u{F059}")
                 }
           )
-        ]
-
-
-mobileDialogNavigationBar : Model -> E.Element Msg
-mobileDialogNavigationBar model =
-    E.row
-        [ E.width E.fill
-        , Background.color Color.white
-        , Ui.fontFamily model.settings.font
-        , E.htmlAttribute <| Html.Attributes.class "panel-shadow"
-        , E.htmlAttribute <| Html.Attributes.style "z-index" "2"
-        ]
-        [ Input.button
-            [ E.padding <| model.context.em // 2
-            , Border.color Color.transparent
-            , Background.color Color.transparent
-            , Font.color Color.primary40
-            , E.mouseDown [ Background.color Color.primary80 ]
-            , E.mouseOver [ Background.color Color.primary90 ]
-            , E.height E.fill
-            , Border.width 4
-            , Ui.focusVisibleOnly
-            ]
-            { onPress = Just Msg.CloseDialog
-            , label = E.el [ Ui.bigFont model.context ] Ui.backIcon
-            }
         ]
 
 

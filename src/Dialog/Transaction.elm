@@ -13,26 +13,63 @@ import Ui
 import Ui.Color as Color
 
 
-view : Model -> E.Element Msg
-view model =
-    case model.dialog of
-        Just (Model.TransactionDialog dialog) ->
+view : Model -> Model.TransactionData -> E.Element Msg
+view model data =
+    Ui.dialog model.context
+        { content =
             E.column
                 [ Ui.onEnter (Msg.ForTransaction <| Msg.ConfirmTransaction)
                 , E.width E.fill
                 , E.height E.fill
                 , E.spacing <| model.context.em
                 ]
-                [ viewDate model dialog
+                [ viewDate model data
                 , Ui.verticalSpacer
-                , viewAmount model dialog
-                , viewDescription model dialog
-                , viewCategories model dialog
-                , viewButtons dialog
+                , viewAmount model data
+                , viewDescription model data
+                , viewCategories model data
                 ]
+        , close =
+            if data.isRecurring then
+                { label = E.text "Fermer"
+                , icon = Ui.closeIcon
+                , color = Ui.PlainButton
+                , onPress = Msg.CloseDialog
+                }
 
-        _ ->
-            E.none
+            else
+                { label = E.text "Annuler"
+                , icon = Ui.closeIcon
+                , color = Ui.PlainButton
+                , onPress = Msg.CloseDialog
+                }
+        , actions =
+            if data.isRecurring then
+                []
+
+            else
+                case data.id of
+                    Just _ ->
+                        [ { label = E.text "Supprimer"
+                          , icon = Ui.deleteIcon
+                          , color = Ui.DangerButton
+                          , onPress = Msg.ForTransaction <| Msg.DeleteTransaction
+                          }
+                        , { label = E.text "  OK  "
+                          , icon = E.text "  OK  "
+                          , color = Ui.MainButton
+                          , onPress = Msg.ForTransaction <| Msg.ConfirmTransaction
+                          }
+                        ]
+
+                    Nothing ->
+                        [ { label = E.text "  OK  "
+                          , icon = E.text "  OK  "
+                          , color = Ui.MainButton
+                          , onPress = Msg.ForTransaction <| Msg.ConfirmTransaction
+                          }
+                        ]
+        }
 
 
 viewDate : Model -> Model.TransactionData -> E.Element Msg
@@ -42,23 +79,31 @@ viewDate model _ =
 
 
 viewAmount : Model -> Model.TransactionData -> E.Element Msg
-viewAmount model dialog =
+viewAmount model data =
     let
         em =
             model.context.em
 
+        section =
+            case model.context.device.orientation of
+                E.Landscape ->
+                    Ui.dialogSectionRow
+
+                E.Portrait ->
+                    Ui.dialogSection
+
         isFuture =
-            Date.compare dialog.date model.today == GT
+            Date.compare data.date model.today == GT
 
         titleColor =
             if isFuture then
                 Color.neutral30
 
             else
-                Color.transactionColor dialog.isExpense
+                Color.transactionColor data.isExpense
 
         titleText =
-            case ( dialog.isRecurring, isFuture, dialog.isExpense ) of
+            case ( data.isRecurring, isFuture, data.isExpense ) of
                 ( True, _, True ) ->
                     "Dépense mensuelle:"
 
@@ -77,12 +122,11 @@ viewAmount model dialog =
                 ( False, False, False ) ->
                     "Entrée d'argent:"
     in
-    if dialog.isRecurring then
-        Ui.dialogSectionRow model.context
+    if data.isRecurring then
+        section model.context
             titleText
             (E.el
-                [ Ui.bigFont model.context
-                , Font.bold
+                [ Font.bold
                 , E.width (E.shrink |> E.minimum (6 * em))
                 , E.alignLeft
                 , Border.width 1
@@ -91,20 +135,20 @@ viewAmount model dialog =
                 , E.padding 0
                 ]
                 (E.text
-                    ((if dialog.isExpense then
+                    ((if data.isExpense then
                         "-"
 
                       else
                         "+"
                      )
-                        ++ Tuple.first dialog.amount
+                        ++ Tuple.first data.amount
                         ++ " €"
                     )
                 )
             )
 
     else
-        Ui.dialogSectionRow model.context
+        section model.context
             titleText
             (E.row [ E.width E.fill, E.padding 0, Font.color titleColor, Font.bold ]
                 [ E.el
@@ -115,7 +159,7 @@ viewAmount model dialog =
                     , Ui.notSelectable
                     ]
                     (E.el []
-                        (if dialog.isExpense then
+                        (if data.isExpense then
                             E.text "-"
 
                          else
@@ -125,7 +169,7 @@ viewAmount model dialog =
                 , Ui.moneyInput model.context
                     { label = Input.labelHidden "Somme"
                     , color = titleColor
-                    , state = dialog.amount
+                    , state = data.amount
                     , onChange = Msg.ForTransaction << Msg.ChangeTransactionAmount
                     }
                 , E.el
@@ -141,21 +185,29 @@ viewAmount model dialog =
 
 
 viewDescription : Model -> Model.TransactionData -> E.Element Msg
-viewDescription model dialog =
-    if dialog.isRecurring then
-        Ui.dialogSectionRow model.context
+viewDescription model data =
+    let
+        section =
+            case model.context.device.orientation of
+                E.Landscape ->
+                    Ui.dialogSectionRow
+
+                E.Portrait ->
+                    Ui.dialogSection
+    in
+    if data.isRecurring then
+        section model.context
             "Description:"
             (E.el
-                [ Ui.bigFont model.context
-                , Border.width 1
+                [ Border.width 1
                 , Border.color Color.transparent
                 , Font.color Color.neutral40
                 ]
-                (E.text dialog.description)
+                (E.text data.description)
             )
 
     else
-        Ui.dialogSectionRow model.context
+        section model.context
             "Description:"
             (Input.multiline
                 [ Border.width 4
@@ -169,7 +221,7 @@ viewDescription model dialog =
                 , Font.color Color.neutral20
                 ]
                 { label = Input.labelHidden "Description:"
-                , text = dialog.description
+                , text = data.description
                 , placeholder = Nothing
                 , onChange = Msg.ForTransaction << Msg.ChangeTransactionDescription
                 , spellcheck = True
@@ -178,8 +230,8 @@ viewDescription model dialog =
 
 
 viewCategories : Model -> Model.TransactionData -> E.Element Msg
-viewCategories model dialog =
-    if dialog.isRecurring || not dialog.isExpense || not model.settings.categoriesEnabled then
+viewCategories model data =
+    if data.isRecurring || not data.isExpense || not model.settings.categoriesEnabled then
         E.none
 
     else
@@ -205,7 +257,8 @@ viewCategories model dialog =
                                 |> List.reverse
                        )
         in
-        Ui.dialogSection "Catégorie:"
+        Ui.dialogSection model.context
+            "Catégorie:"
             (E.table [ E.width E.fill ]
                 { data = categories
                 , columns =
@@ -222,7 +275,7 @@ viewCategories model dialog =
                                             { onPress = Just (Msg.ForTransaction <| Msg.ChangeTransactionCategory k)
                                             , icon = v.icon
                                             , label = v.name
-                                            , active = k == dialog.category
+                                            , active = k == data.category
                                             }
                       }
                     , { header = E.none
@@ -238,7 +291,7 @@ viewCategories model dialog =
                                             { onPress = Just (Msg.ForTransaction <| Msg.ChangeTransactionCategory k)
                                             , icon = v.icon
                                             , label = v.name
-                                            , active = k == dialog.category
+                                            , active = k == data.category
                                             }
                       }
                     , { header = E.none
@@ -254,49 +307,9 @@ viewCategories model dialog =
                                             { onPress = Just (Msg.ForTransaction <| Msg.ChangeTransactionCategory k)
                                             , icon = v.icon
                                             , label = v.name
-                                            , active = k == dialog.category
+                                            , active = k == data.category
                                             }
                       }
                     ]
                 }
-            )
-
-
-viewButtons : Model.TransactionData -> E.Element Msg
-viewButtons dialog =
-    if dialog.isRecurring then
-        E.row
-            [ E.width E.fill
-            , E.spacing 24
-            , Background.color Color.white
-            , E.paddingEach { left = 0, right = 0, top = 12, bottom = 0 }
-            ]
-            [ E.el [ E.width E.fill ] E.none
-            , Ui.mainButton
-                { label = E.text "  OK  "
-                , onPress = Just Msg.CloseDialog
-                }
-            ]
-
-    else
-        E.el
-            [ E.width E.fill
-            , Background.color Color.white
-            , E.paddingEach { left = 0, right = 0, top = 12, bottom = 0 }
-            ]
-            (E.row [ E.alignRight, E.spacing 24 ]
-                [ Ui.simpleButton
-                    { label = E.text "Annuler", onPress = Just Msg.CloseDialog }
-                , case dialog.id of
-                    Just _ ->
-                        Ui.simpleButton
-                            { label = E.text "Supprimer", onPress = Just (Msg.ForTransaction <| Msg.DeleteTransaction) }
-
-                    Nothing ->
-                        E.none
-                , Ui.mainButton
-                    { label = E.text "  OK  "
-                    , onPress = Just (Msg.ForTransaction <| Msg.ConfirmTransaction)
-                    }
-                ]
             )
