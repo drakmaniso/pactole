@@ -416,6 +416,7 @@ dialog context { content, close, actions } =
                     ]
                 <|
                     E.el [ E.width E.fill ] E.none
+                        :: roundButton context close
                         :: List.map
                             (\button -> roundButton context button)
                             actions
