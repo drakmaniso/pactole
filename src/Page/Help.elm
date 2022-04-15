@@ -26,51 +26,42 @@ view model =
                 [ Ui.verticalSpacer
                 , Ui.paragraph
                     """
-            Pactole est une application très simple de gestion de budget personel.
-            """
+                    Pactole est une application très simple de gestion de budget personel.
+                    """
                 , Ui.paragraph
                     """
-            La page principale est divisée en trois parties:
-            """
-                , Ui.helpImage "images/general-presentation-FR.png"
+                    La page est divisée en deux parties: le calendrier du mois
+                    courant, et la liste des opérations correspondant jour choisi dans
+                    le calendrier.
                     """
-            les trois parties de la page principale: à droite, le calendrier;
-            en haut à gauche, le solde du compte; et juste en dessous,
-            le détail du jour sélectionné.
-            """
                 , Ui.verticalSpacer
                 , Ui.title model.context "Pour utiliser le calendrier"
                 , Ui.paragraph
                     """
-            Le calendrier affiche une vue d'ensemble de vos opérations pour le mois courant.
-            """
+                    Le calendrier affiche une vue d'ensemble de vos opérations pour le mois courant.
+                    """
                 , Ui.paragraph
                     """
-            En haut, les deux boutons avec une flèche permettent de voir un autre mois.
-            """
+                    Vous pouvez voir un autre mois en utilisant les flêches situées
+                    au dessus du calendrier.
+                    """
                 , Ui.paragraph
                     """
-            Lorsque vous appuyez sur un jour
-            cela affiche la liste des opérations de ce jour dans la
-            partie de gauche.
-            """
-                , Ui.paragraph
+                    Vous pouvez choisir un jour en appuyant dessus. Cela va afficher les opérations
+                    correspondant à ce jour.
                     """
-            C'est dans cette liste d'opérations que vous pouvez créer et
-            modifier les opérations.
-            """
                 , Ui.verticalSpacer
                 , Ui.title model.context "Pour créer une nouvelle opération"
                 , Ui.helpList
                     [ Ui.paragraph
                         """
-                Appuyez sur le jour voulu dans le calendrier.
-                """
+                        Appuyez sur le jour voulu dans le calendrier.
+                        """
                     , Ui.paragraph
                         """
-                    Appuyez sur le bouton "-" si vous voulez créer une dépense. Appuyez
-                    sur le bouton "+" si vous voulez créer une entrée d'argent.
-                    """
+                        Appuyez sur le bouton "-" si vous voulez créer une dépense, ou bien
+                        sur le bouton "+" si vous voulez créer une entrée d'argent.
+                        """
                     , Ui.paragraph
                         """
                     Une boite de dialogue va s'ouvrir.
