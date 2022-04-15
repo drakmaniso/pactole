@@ -146,7 +146,7 @@ proceedWithInstallation model data =
                     ]
               )
             , ( "settings"
-              , Model.encodeSettings { defaultSettings | settingsLocked = model.settings.settingsLocked }
+              , Model.encodeSettings defaultSettings
               )
             ]
         )

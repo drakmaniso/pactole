@@ -650,7 +650,6 @@ navigationBar model =
                 < (6
                     + optional model.settings.summaryEnabled 6
                     + optional model.settings.reconciliationEnabled 6
-                    + optional (not model.settings.settingsLocked) 2
                   )
                 * em
 
@@ -772,17 +771,6 @@ navigationBar model =
                         { targetPage = Model.DiagnosticsPage
                         , label = E.el [ Font.color Color.warning60, Ui.iconFont, Ui.bigFont model.context ] (E.text "\u{F071}")
                         }
-          )
-        , ( "settings button"
-          , if model.settings.settingsLocked then
-                E.none
-
-            else
-                navigationButton
-                    { targetPage = Model.SettingsPage
-                    , label =
-                        E.el [ Ui.iconFont, Ui.bigFont model.context, E.centerX, E.paddingXY 0 0 ] (E.text "\u{F013}")
-                    }
           )
         , ( "help button"
           , navigationButton

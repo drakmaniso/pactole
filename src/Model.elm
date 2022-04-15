@@ -146,7 +146,6 @@ type alias Settings =
     , reconciliationEnabled : Bool
     , summaryEnabled : Bool
     , balanceWarning : Int
-    , settingsLocked : Bool
     , font : String
     , fontSize : Int
     }
@@ -158,7 +157,6 @@ defaultSettings =
     , reconciliationEnabled = False
     , summaryEnabled = False
     , balanceWarning = 100
-    , settingsLocked = False
     , font = "Andika New Basic"
     , fontSize = 0
     }
@@ -171,7 +169,6 @@ encodeSettings settings =
         , ( "reconciliationEnabled", Encode.bool settings.reconciliationEnabled )
         , ( "summaryEnabled", Encode.bool settings.summaryEnabled )
         , ( "balanceWarning", Encode.int settings.balanceWarning )
-        , ( "settingsLocked", Encode.bool settings.settingsLocked )
         , ( "font", Encode.string settings.font )
         , ( "fontSize", Encode.int settings.fontSize )
         ]
@@ -179,13 +176,12 @@ encodeSettings settings =
 
 decodeSettings : Decode.Decoder Settings
 decodeSettings =
-    Decode.map7
-        (\cat rec summ balwarn setlock font fontSize ->
+    Decode.map6
+        (\cat rec summ balwarn font fontSize ->
             { categoriesEnabled = cat
             , reconciliationEnabled = rec
             , summaryEnabled = summ
             , balanceWarning = balwarn
-            , settingsLocked = setlock
             , font = font
             , fontSize = fontSize
             }
@@ -194,7 +190,6 @@ decodeSettings =
         (Decode.oneOf [ Decode.field "reconciliationEnabled" Decode.bool, Decode.succeed False ])
         (Decode.oneOf [ Decode.field "summaryEnabled" Decode.bool, Decode.succeed False ])
         (Decode.oneOf [ Decode.field "balanceWarning" Decode.int, Decode.succeed 100 ])
-        (Decode.oneOf [ Decode.field "settingsLocked" Decode.bool, Decode.succeed False ])
         (Decode.oneOf [ Decode.field "font" Decode.string, Decode.succeed "Andika New Basic" ])
         (Decode.oneOf [ Decode.field "fontSize" Decode.int, Decode.succeed 0 ])
 

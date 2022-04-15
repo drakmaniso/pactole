@@ -1,4 +1,4 @@
-module Page.Settings exposing (configLocked, view)
+module Page.Settings exposing (view)
 
 import Date
 import Dict
@@ -41,7 +41,6 @@ view model =
                     , configOptional model
                     , configRecurring model
                     , configFont model
-                    , configLocked model
                     , Ui.verticalSpacer
                     , Ui.verticalSpacer
                     , secretDiagnosticsButton model
@@ -271,41 +270,6 @@ configRecurring model =
             , color = Ui.PlainButton
             , label = E.row [] [ Ui.plusIcon, E.text "  Nouvelle opération mensuelle" ]
             }
-        , Ui.verticalSpacer
-        ]
-
-
-configLocked : Model -> E.Element Msg
-configLocked model =
-    let
-        settings =
-            model.settings
-    in
-    E.column
-        [ E.width E.fill, E.spacing 24 ]
-        [ Ui.title model.context "Accès aux réglages"
-        , Ui.paragraph
-            """
-            Si l'utilisateur principal de l'application n'est pas à l'aise avec
-            toutes les fonctionnalités, vous pouvez cacher l'accès aux réglages
-            afin de prévenir toute fausse manipulation.
-            """
-        , Ui.toggleSwitch model.context
-            { onChange =
-                \o ->
-                    if o then
-                        Msg.ForDatabase <| Msg.StoreSettings { settings | settingsLocked = True }
-
-                    else
-                        Msg.ForDatabase <| Msg.StoreSettings { settings | settingsLocked = False }
-            , label = "réglages cachés"
-            , checked = model.settings.settingsLocked
-            }
-        , Ui.paragraph
-            """
-            Note: dans tous les cas, les réglages restent accessibles en utilisant
-            le lien présent en bas de la page d'aide.
-            """
         , Ui.verticalSpacer
         ]
 
