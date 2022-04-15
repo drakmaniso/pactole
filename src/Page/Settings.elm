@@ -86,12 +86,14 @@ configBackup model =
             Si vous voulez transférer vos données sur un nouvel appareil, vous pouvez
             faire une copie de sauvegarde, transférer le fichier et le récupérer sur le nouvel appareil.
             """
-        , Ui.simpleButton
-            { onPress = Just (Msg.ForSettings <| Msg.Export)
+        , Ui.roundButton model.context
+            { onPress = Msg.ForSettings <| Msg.Export
+            , color = Ui.PlainButton
             , label = E.row [ E.spacing 12 ] [ Ui.saveIcon, E.text "Faire une copie de sauvegarde" ]
             }
-        , Ui.simpleButton
-            { onPress = Just (Msg.ForSettings <| Msg.Import)
+        , Ui.roundButton model.context
+            { onPress = Msg.ForSettings <| Msg.Import
+            , color = Ui.PlainButton
             , label = E.row [ E.spacing 12 ] [ Ui.loadIcon, E.text "Récupérer une sauvegarde" ]
             }
         , Ui.verticalSpacer
@@ -118,8 +120,9 @@ configAccounts model =
                             }
                     )
             )
-        , Ui.simpleButton
-            { onPress = Just <| Msg.ForSettings <| Msg.EditAccount Nothing
+        , Ui.roundButton model.context
+            { onPress = Msg.ForSettings <| Msg.EditAccount Nothing
+            , color = Ui.PlainButton
             , label = E.row [] [ Ui.plusIcon, E.text "  Nouveau compte" ]
             }
         , Ui.verticalSpacer
@@ -201,8 +204,9 @@ configOptional model =
                             }
                     )
             )
-        , Ui.simpleButton
-            { onPress = Just <| Msg.ForSettings <| Msg.EditCategory Nothing
+        , Ui.roundButton model.context
+            { onPress = Msg.ForSettings <| Msg.EditCategory Nothing
+            , color = Ui.PlainButton
             , label = E.row [] [ Ui.plusIcon, E.text "  Nouvelle catégorie" ]
             }
         , Ui.verticalSpacer
@@ -241,8 +245,9 @@ configRecurring model =
                             }
                     )
             )
-        , Ui.simpleButton
-            { onPress = Just (Msg.ForSettings <| Msg.EditRecurring Nothing)
+        , Ui.roundButton model.context
+            { onPress = Msg.ForSettings <| Msg.EditRecurring Nothing
+            , color = Ui.PlainButton
             , label = E.row [] [ Ui.plusIcon, E.text "  Nouvelle opération mensuelle" ]
             }
         , Ui.verticalSpacer
@@ -351,9 +356,10 @@ configFont model =
                         Just (Msg.ForDatabase <| Msg.StoreSettings { settings | fontSize = sanitize <| fontSize + 1 })
                     }
             ]
-        , Ui.simpleButton
+        , Ui.roundButton model.context
             { label = E.text "Changer la police de caractères"
-            , onPress = Just <| Msg.ForSettings <| Msg.EditFont
+            , color = Ui.PlainButton
+            , onPress = Msg.ForSettings <| Msg.EditFont
             }
         , Ui.verticalSpacer
         ]

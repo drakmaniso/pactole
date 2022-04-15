@@ -350,16 +350,52 @@ dayView model =
         [ E.width E.fill
         , E.height E.fill
         , E.clip
+        , E.inFront <|
+            if model.context.device.class == E.Phone then
+                E.column
+                    [ E.alignBottom
+                    , E.alignRight
+                    , E.spacing (em // 2)
+                    , E.paddingXY (em // 2) (em // 2)
+                    , Background.color Color.transparent
+                    ]
+                    [ Ui.incomeButton model.context
+                        { label = Ui.incomeIcon
+                        , onPress = Just (Msg.ForTransaction <| Msg.NewTransaction False model.date)
+                        }
+                    , Ui.expenseButton model.context
+                        { label = Ui.expenseIcon
+                        , onPress = Just (Msg.ForTransaction <| Msg.NewTransaction True model.date)
+                        }
+                    ]
+
+            else
+                E.row
+                    [ E.centerX
+                    , E.alignBottom
+                    , E.spacing em
+                    , E.paddingXY em (em // 2)
+                    , Border.roundEach { topLeft = model.context.bigEm, topRight = model.context.bigEm, bottomLeft = 0, bottomRight = 0 }
+                    , Background.color Color.translucentWhite
+                    ]
+                    [ Ui.incomeButton model.context
+                        { label = Ui.incomeIcon
+                        , onPress = Just (Msg.ForTransaction <| Msg.NewTransaction False model.date)
+                        }
+                    , Ui.expenseButton model.context
+                        { label = Ui.expenseIcon
+                        , onPress = Just (Msg.ForTransaction <| Msg.NewTransaction True model.date)
+                        }
+                    ]
         ]
         [ E.column
             [ E.width E.fill
-            , E.height E.fill
+            , E.height <| E.fill
             , E.paddingXY 0 (em // 4)
             , E.spacing (em // 4)
             , Font.color Color.neutral30
             , Font.center
             , Ui.notSelectable
-            , E.height <| E.minimum (em * 5) <| E.fill
             , E.scrollbarY
             ]
             [ if model.context.device.orientation == E.Landscape && model.context.height > 28 * em then
@@ -373,21 +409,6 @@ dayView model =
                 [ E.width E.fill
                 ]
                 (dayContentFor model model.date)
-            ]
-        , E.row
-            [ E.width E.fill
-            , E.height E.shrink
-            , E.spacing em
-            , E.paddingXY em (em // 2)
-            ]
-            [ Ui.incomeButton
-                { label = Ui.incomeIcon
-                , onPress = Just (Msg.ForTransaction <| Msg.NewTransaction False model.date)
-                }
-            , Ui.expenseButton
-                { label = Ui.expenseIcon
-                , onPress = Just (Msg.ForTransaction <| Msg.NewTransaction True model.date)
-                }
             ]
         ]
 

@@ -125,13 +125,15 @@ viewInstallation model installation =
                 }
             , Ui.verticalSpacer
             , E.wrappedRow [ E.spacing 36 ]
-                [ Ui.mainButton
+                [ Ui.roundButton model.context
                     { label = E.text "Installer Pactole"
-                    , onPress = Just (Msg.ProceedWithInstall |> Msg.ForInstallation)
+                    , color = Ui.MainButton
+                    , onPress = Msg.ProceedWithInstall |> Msg.ForInstallation
                     }
-                , Ui.simpleButton
+                , Ui.roundButton model.context
                     { label = E.text "Récupérer une sauvegarde"
-                    , onPress = Just (Msg.ImportInstall |> Msg.ForInstallation)
+                    , color = Ui.PlainButton
+                    , onPress = Msg.ImportInstall |> Msg.ForInstallation
                     }
                 ]
             , Ui.verticalSpacer

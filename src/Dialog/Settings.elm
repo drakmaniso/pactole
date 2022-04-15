@@ -439,9 +439,10 @@ viewFontDialog model fontName =
                         , text = fontName
                         , onChange = \n -> Msg.ForSettings <| Msg.ChangeSettingsName n
                         }
-                    , Ui.simpleButton
+                    , Ui.roundButton model.context
                         { label = Ui.text "Réinitialiser"
-                        , onPress = Just <| Msg.ForSettings <| Msg.ChangeSettingsName "Andika New Basic"
+                        , color = Ui.PlainButton
+                        , onPress = Msg.ForSettings <| Msg.ChangeSettingsName "Andika New Basic"
                         }
                     ]
                 , Ui.paragraph

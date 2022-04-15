@@ -13,7 +13,6 @@ module Ui exposing
     , closeIcon
     , configCustom
     , contentWidth
-    , dangerButton
     , defaultFontSize
     , defaultShadow
     , deleteIcon
@@ -39,7 +38,6 @@ module Ui exposing
     , labelLeft
     , linkButton
     , loadIcon
-    , mainButton
     , minusIcon
     , moneyInput
     , monthNavigationBar
@@ -57,7 +55,6 @@ module Ui exposing
     , ruler
     , saveIcon
     , scale
-    , simpleButton
     , smallFont
     , smallerFont
     , text
@@ -350,13 +347,13 @@ bigWarningIcon =
 
 incomeIcon : E.Element msg
 incomeIcon =
-    E.el [ iconFont, E.centerX, Font.color Color.income40 ]
+    E.el [ iconFont, E.centerX ]
         (E.text "\u{F067}")
 
 
 expenseIcon : E.Element msg
 expenseIcon =
-    E.el [ iconFont, E.centerX, Font.color Color.expense40 ]
+    E.el [ iconFont, E.centerX ]
         (E.text "\u{F068}")
 
 
@@ -1215,121 +1212,57 @@ navigationButton context { icon, color, onPress } =
         }
 
 
-simpleButton :
-    { onPress : Maybe msg, label : E.Element msg }
-    -> E.Element msg
-simpleButton { onPress, label } =
-    Input.button
-        [ Background.color Color.neutral95
-        , Font.color Color.neutral30
-        , Font.center
-        , roundCorners
-        , Border.width 4
-        , Border.color Color.transparent
-        , focusVisibleOnly
-        , defaultShadow
-        , transition
-        , E.paddingXY 20 4
-        , E.mouseDown [ Background.color Color.neutral90 ]
-        , E.mouseOver [ Background.color Color.neutral98 ]
-        , E.htmlAttribute <| Html.Attributes.class "focus-visible-only"
-        ]
-        { onPress = onPress
-        , label = label
-        }
-
-
-mainButton :
-    { onPress : Maybe msg, label : E.Element msg }
-    -> E.Element msg
-mainButton { onPress, label } =
-    Input.button
-        [ Background.color Color.primary40
-        , Font.color Color.white
-        , Font.center
-        , roundCorners
-        , Border.width 4
-        , Border.color Color.transparent
-        , focusVisibleOnly
-        , defaultShadow
-        , transition
-        , E.paddingXY 20 4
-        , E.mouseDown [ Background.color Color.primary30, Border.color Color.primary30 ]
-        , E.mouseOver [ Background.color Color.primary50, Border.color Color.primary50 ]
-        ]
-        { onPress = onPress
-        , label = label
-        }
-
-
-dangerButton :
-    { onPress : Maybe msg, label : E.Element msg }
-    -> E.Element msg
-dangerButton { onPress, label } =
-    Input.button
-        [ Background.color Color.warning60
-        , Font.color Color.white
-        , Font.center
-        , roundCorners
-        , Border.width 4
-        , Border.color Color.transparent
-        , focusVisibleOnly
-        , defaultShadow
-        , transition
-        , E.paddingXY 20 4
-        , E.mouseDown [ Background.color Color.warning50, Border.color Color.warning50 ]
-        , E.mouseOver [ Background.color Color.warning70, Border.color Color.warning70 ]
-        ]
-        { onPress = onPress
-        , label = label
-        }
-
-
 incomeButton :
-    { onPress : Maybe msg, label : E.Element msg }
+    Context
+    -> { onPress : Maybe msg, label : E.Element msg }
     -> E.Element msg
-incomeButton { onPress, label } =
+incomeButton context { onPress, label } =
     Input.button
-        [ E.width (E.fillPortion 2)
+        [ E.width <| E.px <| 2 * context.bigEm + context.bigEm // 2
+        , E.height <| E.px <| 2 * context.bigEm + context.bigEm // 2
+        , Font.color Color.income30
         , Background.color Color.income90
         , Font.center
-        , roundCorners
+        , Border.rounded 1000
         , Border.width 4
         , Border.color Color.transparent
         , focusVisibleOnly
         , defaultShadow
         , transition
-        , E.paddingXY 20 4
+        , E.padding (context.em // 4)
         , E.mouseDown [ Background.color Color.income80, Border.color Color.income80 ]
         , E.mouseOver [ Background.color Color.income95, Border.color Color.income95 ]
         , E.htmlAttribute <| Html.Attributes.class "focus-visible-only"
         ]
         { onPress = onPress
-        , label = label
+        , label = E.el [ E.centerX, E.centerY ] label
         }
 
 
 expenseButton :
-    { onPress : Maybe msg, label : E.Element msg }
+    Context
+    -> { onPress : Maybe msg, label : E.Element msg }
     -> E.Element msg
-expenseButton { onPress, label } =
+expenseButton context { onPress, label } =
     Input.button
-        [ E.width (E.fillPortion 2)
+        [ E.width <| E.px <| 2 * context.bigEm + context.bigEm // 2
+        , E.height <| E.px <| 2 * context.bigEm + context.bigEm // 2
         , Background.color Color.expense90
+        , Font.color Color.expense30
         , Font.center
-        , roundCorners
+        , Border.rounded 1000
         , Border.width 4
         , Border.color Color.transparent
         , focusVisibleOnly
         , defaultShadow
         , transition
-        , E.paddingXY 20 4
+        , E.padding (context.em // 4)
         , E.mouseDown [ Background.color Color.expense80, Border.color Color.expense80 ]
         , E.mouseOver [ Background.color Color.expense95, Border.color Color.expense95 ]
         , focusVisibleOnly
         ]
         { onPress = onPress
-        , label = label
+        , label = E.el [ E.centerX, E.centerY ] label
         }
 
 
