@@ -984,7 +984,6 @@ viewMoney context money future =
     E.row
         [ E.width E.fill
         , E.height E.shrink
-        , E.paddingEach { top = 0, bottom = 0, left = 0, right = 16 }
         ]
         [ E.el [ E.width E.fill ] E.none
         , E.paragraph

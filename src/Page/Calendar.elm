@@ -351,7 +351,7 @@ dayView model =
         , E.height E.fill
         , E.clip
         , E.inFront <|
-            if model.context.device.class == E.Phone then
+            if model.context.device.orientation == E.Portrait then
                 E.column
                     [ E.alignBottom
                     , E.alignRight
@@ -458,8 +458,9 @@ dayContentFor model day =
                 , E.padding 0
                 ]
                 (Input.button
-                    [ E.width E.fill
-                    , E.paddingEach { top = em // 4, bottom = em // 4, left = em // 2, right = em // 2 }
+                    [ E.width <| E.maximum (20 * em) <| E.fill
+                    , E.centerX
+                    , E.padding <| em // 4 + em // 8
                     , Border.width 4
                     , Border.color Color.transparent
                     , Ui.focusVisibleOnly
@@ -478,9 +479,22 @@ dayContentFor model day =
                     , label =
                         E.row
                             [ E.width E.fill
+                            , E.spacing <| em // 2
                             ]
-                            [ E.el
-                                [ E.width (E.fillPortion 3)
+                            [ if model.settings.categoriesEnabled then
+                                E.el
+                                    [ E.width <| E.px <| 2 * em
+                                    , E.alignTop
+                                    , Font.color Color.neutral30
+                                    , Ui.iconFont
+                                    , Font.center
+                                    ]
+                                    (E.text category.icon)
+
+                              else
+                                E.none
+                            , E.el
+                                [ E.width (E.fillPortion 1)
                                 , E.height E.fill
                                 ]
                                 (E.column
@@ -490,25 +504,12 @@ dayContentFor model day =
                                     ]
                                 )
                             , E.el
-                                [ E.width (E.fillPortion 6)
+                                [ E.width (E.fillPortion 2)
                                 , E.alignTop
                                 , Font.color Color.neutral30
                                 , Font.alignLeft
                                 ]
                                 (E.paragraph [] [ E.text (Ledger.getTransactionDescription transaction) ])
-                            , E.el
-                                [ E.width (E.fillPortion 1)
-                                , E.alignTop
-                                , Font.color Color.neutral30
-                                , Ui.iconFont
-                                , Font.center
-                                ]
-                                (if model.settings.categoriesEnabled then
-                                    E.text category.icon
-
-                                 else
-                                    E.none
-                                )
                             ]
                     }
                 )

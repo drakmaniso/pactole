@@ -78,6 +78,7 @@ viewTransactions model =
                 E.row
                     [ E.width E.fill
                     , E.paddingXY (em // 2) (em // 2)
+                    , E.spacing (em // 2)
                     , Background.color bg
                     ]
                     [ colDate transaction

@@ -548,7 +548,6 @@ pageWithSidePanel model { panel, page } =
         [ E.column
             [ E.width (E.fillPortion 1)
             , E.height E.fill
-            , E.clip
             , E.htmlAttribute <| Html.Attributes.class "panel-shadow"
             , E.htmlAttribute <| Html.Attributes.style "z-index" "2"
             ]
