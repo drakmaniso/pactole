@@ -8,7 +8,9 @@ import Model
 
 type Msg
     = ChangePage Model.Page
+    | OpenDialog Model.Dialog
     | CloseDialog
+    | ConfirmDialog
     | SelectDate Date
     | SelectAccount Int
     | WindowResize { width : Int, height : Int }
@@ -34,30 +36,16 @@ type DatabaseMsg
 
 
 type TransactionMsg
-    = NewTransaction Bool Date -- isExpense date
-    | EditTransaction Int
-    | ShowRecurring Int
-    | ChangeTransactionAmount String
+    = ChangeTransactionAmount String
     | ChangeTransactionDescription String
     | ChangeTransactionCategory Int
-    | DeleteTransaction
-    | ConfirmTransaction
 
 
 type SettingsMsg
-    = EditAccount (Maybe Int)
-    | DeleteAccount Int
-    | EditCategory (Maybe Int)
-    | EditRecurring (Maybe Int)
-    | Import
-    | Export
-    | EditFont
-    | ChangeSettingsName String
+    = ChangeSettingsName String
     | ChangeSettingsAccount Int
     | ChangeSettingsAmount String
     | ChangeSettingsDueDate String
     | ChangeSettingsIsExpense Bool
     | ChangeSettingsIcon String
-    | DeleteCategory Int
     | DeleteRecurring Int
-    | ConfirmSettings

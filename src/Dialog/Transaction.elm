@@ -1,4 +1,4 @@
-module Dialog.Transaction exposing (view)
+module Dialog.Transaction exposing (view, viewDeleteTransaction)
 
 import Date
 import Dict
@@ -7,7 +7,9 @@ import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
 import Element.Input as Input
+import Ledger
 import Model exposing (Model)
+import Money
 import Msg exposing (Msg)
 import Ui
 import Ui.Color as Color
@@ -18,7 +20,7 @@ view model data =
     Ui.dialog model.context
         { content =
             E.column
-                [ Ui.onEnter (Msg.ForTransaction <| Msg.ConfirmTransaction)
+                [ Ui.onEnter Msg.ConfirmDialog
                 , E.width E.fill
                 , E.height E.fill
                 , E.spacing <| model.context.em
@@ -49,16 +51,16 @@ view model data =
 
             else
                 case data.id of
-                    Just _ ->
+                    Just id ->
                         [ { label = E.text "Supprimer"
                           , icon = Ui.deleteIcon
-                          , color = Ui.DangerButton
-                          , onPress = Msg.ForTransaction <| Msg.DeleteTransaction
+                          , color = Ui.PlainButton
+                          , onPress = Msg.OpenDialog <| Model.DeleteTransactionDialog id
                           }
                         , { label = E.text "  OK  "
                           , icon = E.text "  OK  "
                           , color = Ui.MainButton
-                          , onPress = Msg.ForTransaction <| Msg.ConfirmTransaction
+                          , onPress = Msg.ConfirmDialog
                           }
                         ]
 
@@ -66,7 +68,7 @@ view model data =
                         [ { label = E.text "  OK  "
                           , icon = E.text "  OK  "
                           , color = Ui.MainButton
-                          , onPress = Msg.ForTransaction <| Msg.ConfirmTransaction
+                          , onPress = Msg.ConfirmDialog
                           }
                         ]
         }
@@ -313,3 +315,62 @@ viewCategories model data =
                     ]
                 }
             )
+
+
+
+-- DELETE CONFIRMATION DIALOG
+
+
+viewDeleteTransaction : Model -> Int -> E.Element Msg
+viewDeleteTransaction model id =
+    let
+        transaction =
+            Ledger.getTransaction id model.ledger
+    in
+    case transaction of
+        Just t ->
+            Ui.dialog model.context
+                { content =
+                    E.column [ E.width E.fill, E.spacing <| model.context.em ]
+                        [ if Money.isExpense t.amount then
+                            E.paragraph [ Font.bold, E.centerX, Font.center ] [ E.text "Supprimer la dépense?" ]
+
+                          else
+                            E.paragraph [ Font.bold, E.centerX, Font.center ] [ E.text "Supprimer l'entrée d'argent?" ]
+                        , E.paragraph []
+                            [ E.text "Montant: "
+                            , Ui.viewMoney model.context t.amount False
+                            ]
+                        , E.paragraph []
+                            [ E.text "Description: "
+                            , E.text t.description
+                            ]
+                        ]
+                , close =
+                    { label = E.text "Annuler"
+                    , icon = Ui.closeIcon
+                    , color = Ui.PlainButton
+                    , onPress = Msg.CloseDialog
+                    }
+                , actions =
+                    [ { label = E.text "Supprimer"
+                      , icon = E.text "Supprimer"
+                      , color = Ui.DangerButton
+                      , onPress = Msg.ConfirmDialog
+                      }
+                    ]
+                }
+
+        Nothing ->
+            Ui.dialog model.context
+                { content =
+                    Ui.paragraph "Erreur..."
+                , close =
+                    { label = E.text "Fermer"
+                    , icon = Ui.closeIcon
+                    , color = Ui.PlainButton
+                    , onPress = Msg.CloseDialog
+                    }
+                , actions =
+                    []
+                }

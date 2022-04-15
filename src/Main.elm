@@ -140,6 +140,25 @@ update msg model =
             , Task.attempt (\_ -> Msg.NoOp) (Dom.blur "unfocus-on-page-change")
             )
 
+        Msg.OpenDialog dialog ->
+            ( { model | dialog = Just dialog }
+            , Cmd.batch
+                [ Ports.openDialog ()
+                , Task.attempt (\_ -> Msg.NoOp) (Dom.focus "dialog-focus")
+                ]
+            )
+
+        Msg.ConfirmDialog ->
+            case model.dialog of
+                Just (Model.TransactionDialog data) ->
+                    Update.Transaction.confirm model data
+
+                Just (Model.DeleteTransactionDialog data) ->
+                    Update.Transaction.confirmDelete model data
+
+                _ ->
+                    Update.Settings.confirm model
+
         Msg.CloseDialog ->
             ( { model | dialog = Nothing }, Ports.closeDialog () )
 
@@ -294,6 +313,9 @@ viewDialog model dialog =
     case dialog of
         Model.TransactionDialog data ->
             EditTransaction.view model data
+
+        Model.DeleteTransactionDialog data ->
+            EditTransaction.viewDeleteTransaction model data
 
         Model.AccountDialog data ->
             Dialog.Settings.viewAccountDialog model data

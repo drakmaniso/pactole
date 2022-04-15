@@ -87,12 +87,12 @@ configBackup model =
             faire une copie de sauvegarde, transférer le fichier et le récupérer sur le nouvel appareil.
             """
         , Ui.roundButton model.context
-            { onPress = Msg.ForSettings <| Msg.Export
+            { onPress = Msg.OpenDialog <| Model.ExportDialog
             , color = Ui.PlainButton
             , label = E.row [ E.spacing 12 ] [ Ui.saveIcon, E.text "Faire une copie de sauvegarde" ]
             }
         , Ui.roundButton model.context
-            { onPress = Msg.ForSettings <| Msg.Import
+            { onPress = Msg.OpenDialog <| Model.ImportDialog
             , color = Ui.PlainButton
             , label = E.row [ E.spacing 12 ] [ Ui.loadIcon, E.text "Récupérer une sauvegarde" ]
             }
@@ -116,12 +116,12 @@ configAccounts model =
                     (\( id, name ) ->
                         Ui.flatButton
                             { label = E.text name
-                            , onPress = Just <| Msg.ForSettings <| Msg.EditAccount (Just id)
+                            , onPress = Just <| Msg.OpenDialog <| Model.AccountDialog { id = Just id, name = name }
                             }
                     )
             )
         , Ui.roundButton model.context
-            { onPress = Msg.ForSettings <| Msg.EditAccount Nothing
+            { onPress = Msg.OpenDialog <| Model.AccountDialog { id = Nothing, name = "" }
             , color = Ui.PlainButton
             , label = E.row [] [ Ui.plusIcon, E.text "  Nouveau compte" ]
             }
@@ -200,12 +200,12 @@ configOptional model =
                                     [ Ui.viewIcon icon
                                     , E.text <| " " ++ name
                                     ]
-                            , onPress = Just <| Msg.ForSettings <| Msg.EditCategory (Just id)
+                            , onPress = Just <| Msg.OpenDialog <| Model.CategoryDialog { id = Just id, name = name, icon = icon }
                             }
                     )
             )
         , Ui.roundButton model.context
-            { onPress = Msg.ForSettings <| Msg.EditCategory Nothing
+            { onPress = Msg.OpenDialog <| Model.CategoryDialog { id = Nothing, name = "", icon = " " }
             , color = Ui.PlainButton
             , label = E.row [] [ Ui.plusIcon, E.text "  Nouvelle catégorie" ]
             }
@@ -227,7 +227,18 @@ configRecurring model =
                                 Money.toStrings t.amount
                         in
                         Ui.flatButton
-                            { onPress = Just <| (Msg.ForSettings <| Msg.EditRecurring (Just t.id))
+                            { onPress =
+                                Just <|
+                                    Msg.OpenDialog <|
+                                        Model.RecurringDialog
+                                            { id = Just t.id
+                                            , account = t.account
+                                            , isExpense = Money.isExpense t.amount
+                                            , amount = Money.toInput t.amount
+                                            , description = t.description
+                                            , category = t.category
+                                            , dueDate = String.fromInt <| Date.getDay t.date
+                                            }
                             , label =
                                 E.row [ E.spacing 24, E.width E.fill ]
                                     [ E.el [ E.width E.fill ] <|
@@ -246,7 +257,17 @@ configRecurring model =
                     )
             )
         , Ui.roundButton model.context
-            { onPress = Msg.ForSettings <| Msg.EditRecurring Nothing
+            { onPress =
+                Msg.OpenDialog <|
+                    Model.RecurringDialog
+                        { id = Nothing
+                        , account = model.account
+                        , isExpense = False
+                        , amount = "0"
+                        , description = "Opération mensuelle"
+                        , category = 0
+                        , dueDate = "1"
+                        }
             , color = Ui.PlainButton
             , label = E.row [] [ Ui.plusIcon, E.text "  Nouvelle opération mensuelle" ]
             }
@@ -359,7 +380,7 @@ configFont model =
         , Ui.roundButton model.context
             { label = E.text "Changer la police de caractères"
             , color = Ui.PlainButton
-            , onPress = Msg.ForSettings <| Msg.EditFont
+            , onPress = Msg.OpenDialog <| Model.FontDialog model.settings.font
             }
         , Ui.verticalSpacer
         ]

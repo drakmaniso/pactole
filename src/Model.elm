@@ -205,6 +205,7 @@ decodeSettings =
 
 type Dialog
     = TransactionDialog TransactionData
+    | DeleteTransactionDialog Int
     | AccountDialog AccountData
     | DeleteAccountDialog Int
     | CategoryDialog CategoryData

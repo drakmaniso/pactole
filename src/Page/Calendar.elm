@@ -361,11 +361,31 @@ dayView model =
                     ]
                     [ Ui.incomeButton model.context
                         { label = Ui.incomeIcon
-                        , onPress = Just (Msg.ForTransaction <| Msg.NewTransaction False model.date)
+                        , onPress =
+                            Msg.OpenDialog <|
+                                Model.TransactionDialog
+                                    { id = Nothing
+                                    , isExpense = False
+                                    , isRecurring = False
+                                    , date = model.date
+                                    , amount = ( "", Nothing )
+                                    , description = ""
+                                    , category = 0
+                                    }
                         }
                     , Ui.expenseButton model.context
                         { label = Ui.expenseIcon
-                        , onPress = Just (Msg.ForTransaction <| Msg.NewTransaction True model.date)
+                        , onPress =
+                            Msg.OpenDialog <|
+                                Model.TransactionDialog
+                                    { id = Nothing
+                                    , isExpense = True
+                                    , isRecurring = False
+                                    , date = model.date
+                                    , amount = ( "", Nothing )
+                                    , description = ""
+                                    , category = 0
+                                    }
                         }
                     ]
 
@@ -380,11 +400,31 @@ dayView model =
                     ]
                     [ Ui.incomeButton model.context
                         { label = Ui.incomeIcon
-                        , onPress = Just (Msg.ForTransaction <| Msg.NewTransaction False model.date)
+                        , onPress =
+                            Msg.OpenDialog <|
+                                Model.TransactionDialog
+                                    { id = Nothing
+                                    , isExpense = False
+                                    , isRecurring = False
+                                    , date = model.date
+                                    , amount = ( "", Nothing )
+                                    , description = ""
+                                    , category = 0
+                                    }
                         }
                     , Ui.expenseButton model.context
                         { label = Ui.expenseIcon
-                        , onPress = Just (Msg.ForTransaction <| Msg.NewTransaction True model.date)
+                        , onPress =
+                            Msg.OpenDialog <|
+                                Model.TransactionDialog
+                                    { id = Nothing
+                                    , isExpense = True
+                                    , isRecurring = False
+                                    , date = model.date
+                                    , amount = ( "", Nothing )
+                                    , description = ""
+                                    , category = 0
+                                    }
                         }
                     ]
         ]
@@ -469,13 +509,30 @@ dayContentFor model day =
                     , Ui.transition
                     ]
                     { onPress =
-                        Just
-                            (if transaction.isRecurring then
-                                (Msg.ForTransaction << Msg.ShowRecurring) transaction.id
+                        Just <|
+                            if transaction.isRecurring then
+                                Msg.OpenDialog <|
+                                    Model.TransactionDialog
+                                        { id = Just transaction.id
+                                        , isExpense = Money.isExpense transaction.amount
+                                        , isRecurring = True
+                                        , date = transaction.date
+                                        , amount = ( Money.toInput transaction.amount, Nothing )
+                                        , description = transaction.description
+                                        , category = transaction.category
+                                        }
 
-                             else
-                                (Msg.ForTransaction << Msg.EditTransaction) transaction.id
-                            )
+                            else
+                                Msg.OpenDialog <|
+                                    Model.TransactionDialog
+                                        { id = Just transaction.id
+                                        , isExpense = Money.isExpense transaction.amount
+                                        , isRecurring = False
+                                        , date = transaction.date
+                                        , amount = ( Money.toInput transaction.amount, Nothing )
+                                        , description = transaction.description
+                                        , category = transaction.category
+                                        }
                     , label =
                         E.row
                             [ E.width E.fill

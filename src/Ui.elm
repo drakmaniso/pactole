@@ -1213,7 +1213,7 @@ navigationButton context { icon, color, onPress } =
 
 incomeButton :
     Context
-    -> { onPress : Maybe msg, label : E.Element msg }
+    -> { onPress : msg, label : E.Element msg }
     -> E.Element msg
 incomeButton context { onPress, label } =
     Input.button
@@ -1233,14 +1233,14 @@ incomeButton context { onPress, label } =
         , E.mouseOver [ Background.color Color.income95, Border.color Color.income95 ]
         , E.htmlAttribute <| Html.Attributes.class "focus-visible-only"
         ]
-        { onPress = onPress
+        { onPress = Just onPress
         , label = E.el [ E.centerX, E.centerY ] label
         }
 
 
 expenseButton :
     Context
-    -> { onPress : Maybe msg, label : E.Element msg }
+    -> { onPress : msg, label : E.Element msg }
     -> E.Element msg
 expenseButton context { onPress, label } =
     Input.button
@@ -1260,7 +1260,7 @@ expenseButton context { onPress, label } =
         , E.mouseOver [ Background.color Color.expense95, Border.color Color.expense95 ]
         , focusVisibleOnly
         ]
-        { onPress = onPress
+        { onPress = Just onPress
         , label = E.el [ E.centerX, E.centerY ] label
         }
 

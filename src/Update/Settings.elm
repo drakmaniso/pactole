@@ -1,9 +1,7 @@
-module Update.Settings exposing (update)
+module Update.Settings exposing (confirm, update)
 
 import Database
 import Date
-import Dict
-import Ledger
 import Log
 import Model exposing (Model)
 import Money
@@ -15,87 +13,6 @@ import String
 update : Msg.SettingsMsg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        Msg.EditAccount (Just id) ->
-            let
-                name =
-                    Maybe.withDefault "ERROR"
-                        (Dict.get id model.accounts)
-            in
-            ( { model | dialog = Just (Model.AccountDialog { id = Just id, name = name }) }
-            , Ports.openDialog ()
-            )
-
-        Msg.EditAccount Nothing ->
-            ( { model | dialog = Just (Model.AccountDialog { id = Nothing, name = "" }) }
-            , Ports.openDialog ()
-            )
-
-        Msg.DeleteAccount id ->
-            ( { model | dialog = Just (Model.DeleteAccountDialog id) }
-            , Ports.openDialog ()
-            )
-
-        Msg.EditCategory (Just id) ->
-            let
-                { name, icon } =
-                    Maybe.withDefault { name = "ERROR", icon = "" }
-                        (Dict.get id model.categories)
-            in
-            ( { model | dialog = Just (Model.CategoryDialog { id = Just id, name = name, icon = icon }) }
-            , Ports.openDialog ()
-            )
-
-        Msg.EditCategory Nothing ->
-            ( { model | dialog = Just (Model.CategoryDialog { id = Nothing, name = "", icon = " " }) }
-            , Ports.openDialog ()
-            )
-
-        Msg.DeleteCategory id ->
-            ( { model | dialog = Just (Model.DeleteCategoryDialog id) }
-            , Ports.openDialog ()
-            )
-
-        Msg.EditRecurring (Just idx) ->
-            case Ledger.getTransaction idx model.recurring of
-                Nothing ->
-                    Log.error "SettingsEditRecurring: unable to get transaction" ( model, Cmd.none )
-
-                Just recurring ->
-                    ( { model
-                        | dialog =
-                            Just
-                                (Model.RecurringDialog
-                                    { id = Just idx
-                                    , account = recurring.account
-                                    , isExpense = Money.isExpense recurring.amount
-                                    , amount = Money.toInput recurring.amount
-                                    , description = recurring.description
-                                    , category = recurring.category
-                                    , dueDate = String.fromInt (Date.getDay recurring.date)
-                                    }
-                                )
-                      }
-                    , Ports.openDialog ()
-                    )
-
-        Msg.EditRecurring Nothing ->
-            ( { model
-                | dialog =
-                    Just
-                        (Model.RecurringDialog
-                            { id = Nothing
-                            , account = model.account
-                            , isExpense = False
-                            , amount = "0"
-                            , description = "(opération mensuelle)"
-                            , category = 0
-                            , dueDate = "1"
-                            }
-                        )
-              }
-            , Ports.openDialog ()
-            )
-
         Msg.DeleteRecurring idx ->
             ( { model | dialog = Nothing }
             , Cmd.batch
@@ -106,18 +23,18 @@ update msg model =
 
         Msg.ChangeSettingsName name ->
             case model.dialog of
-                Just (Model.AccountDialog submodel) ->
-                    ( { model | dialog = Just (Model.AccountDialog { submodel | name = name }) }
+                Just (Model.AccountDialog data) ->
+                    ( { model | dialog = Just (Model.AccountDialog { data | name = name }) }
                     , Cmd.none
                     )
 
-                Just (Model.CategoryDialog submodel) ->
-                    ( { model | dialog = Just (Model.CategoryDialog { submodel | name = name }) }
+                Just (Model.CategoryDialog data) ->
+                    ( { model | dialog = Just (Model.CategoryDialog { data | name = name }) }
                     , Cmd.none
                     )
 
-                Just (Model.RecurringDialog submodel) ->
-                    ( { model | dialog = Just (Model.RecurringDialog { submodel | description = name }) }
+                Just (Model.RecurringDialog data) ->
+                    ( { model | dialog = Just (Model.RecurringDialog { data | description = name }) }
                     , Cmd.none
                     )
 
@@ -132,8 +49,8 @@ update msg model =
 
         Msg.ChangeSettingsIsExpense isExpense ->
             case model.dialog of
-                Just (Model.RecurringDialog submodel) ->
-                    ( { model | dialog = Just (Model.RecurringDialog { submodel | isExpense = isExpense }) }
+                Just (Model.RecurringDialog data) ->
+                    ( { model | dialog = Just (Model.RecurringDialog { data | isExpense = isExpense }) }
                     , Cmd.none
                     )
 
@@ -142,8 +59,8 @@ update msg model =
 
         Msg.ChangeSettingsAmount amount ->
             case model.dialog of
-                Just (Model.RecurringDialog submodel) ->
-                    ( { model | dialog = Just (Model.RecurringDialog { submodel | amount = amount }) }
+                Just (Model.RecurringDialog data) ->
+                    ( { model | dialog = Just (Model.RecurringDialog { data | amount = amount }) }
                     , Cmd.none
                     )
 
@@ -152,8 +69,8 @@ update msg model =
 
         Msg.ChangeSettingsAccount account ->
             case model.dialog of
-                Just (Model.RecurringDialog submodel) ->
-                    ( { model | dialog = Just (Model.RecurringDialog { submodel | account = account }) }
+                Just (Model.RecurringDialog data) ->
+                    ( { model | dialog = Just (Model.RecurringDialog { data | account = account }) }
                     , Cmd.none
                     )
 
@@ -162,8 +79,8 @@ update msg model =
 
         Msg.ChangeSettingsDueDate day ->
             case model.dialog of
-                Just (Model.RecurringDialog submodel) ->
-                    ( { model | dialog = Just (Model.RecurringDialog { submodel | dueDate = day }) }
+                Just (Model.RecurringDialog data) ->
+                    ( { model | dialog = Just (Model.RecurringDialog { data | dueDate = day }) }
                     , Cmd.none
                     )
 
@@ -172,178 +89,173 @@ update msg model =
 
         Msg.ChangeSettingsIcon icon ->
             case model.dialog of
-                Just (Model.CategoryDialog submodel) ->
-                    ( { model | dialog = Just (Model.CategoryDialog { submodel | icon = icon }) }
+                Just (Model.CategoryDialog data) ->
+                    ( { model | dialog = Just (Model.CategoryDialog { data | icon = icon }) }
                     , Cmd.none
                     )
 
                 _ ->
                     ( model, Cmd.none ) |> Log.error "unexpected SettingsChangeIcon message"
 
-        Msg.Import ->
-            ( { model | dialog = Just Model.ImportDialog }
-            , Ports.openDialog ()
-            )
 
-        Msg.Export ->
-            ( { model | dialog = Just Model.ExportDialog }
-            , Ports.openDialog ()
-            )
-
-        Msg.EditFont ->
-            ( { model | dialog = Just <| Model.FontDialog model.settings.font }, Ports.openDialog () )
-
-        Msg.ConfirmSettings ->
-            case model.dialog of
-                Just (Model.AccountDialog submodel) ->
-                    case submodel.id of
-                        Just accountId ->
-                            ( { model | dialog = Nothing }
-                            , Cmd.batch
-                                [ Database.renameAccount accountId (sanitizeName submodel.name)
-                                , Ports.closeDialog ()
-                                ]
-                            )
-
-                        Nothing ->
-                            ( { model | dialog = Nothing }
-                            , Cmd.batch
-                                [ Database.createAccount (sanitizeName submodel.name)
-                                , Ports.closeDialog ()
-                                ]
-                            )
-
-                Just (Model.DeleteAccountDialog id) ->
+confirm : Model -> ( Model, Cmd Msg )
+confirm model =
+    case model.dialog of
+        Just (Model.AccountDialog data) ->
+            case data.id of
+                Just accountId ->
                     ( { model | dialog = Nothing }
                     , Cmd.batch
-                        [ Database.deleteAccount id
+                        [ Database.renameAccount accountId (sanitizeName data.name)
                         , Ports.closeDialog ()
                         ]
                     )
-
-                Just (Model.CategoryDialog submodel) ->
-                    case submodel.id of
-                        Just categoryId ->
-                            ( { model | dialog = Nothing }
-                            , Cmd.batch
-                                [ Database.renameCategory categoryId submodel.name submodel.icon
-                                , Ports.closeDialog ()
-                                ]
-                            )
-
-                        Nothing ->
-                            ( { model | dialog = Nothing }
-                            , Cmd.batch
-                                [ Database.createCategory (sanitizeName submodel.name) submodel.icon
-                                , Ports.closeDialog ()
-                                ]
-                            )
-
-                Just (Model.DeleteCategoryDialog id) ->
-                    ( { model | dialog = Nothing }
-                    , Cmd.batch
-                        [ Database.deleteCategory id
-                        , Ports.closeDialog ()
-                        ]
-                    )
-
-                Just (Model.RecurringDialog submodel) ->
-                    let
-                        dayInput =
-                            Maybe.withDefault 1 (String.toInt submodel.dueDate)
-
-                        day =
-                            if dayInput < 1 then
-                                1
-
-                            else if dayInput > 28 then
-                                28
-
-                            else
-                                dayInput
-
-                        dueDate =
-                            Date.findNextDayOfMonth day model.today
-                    in
-                    case submodel.id of
-                        Just recurringId ->
-                            ( { model | dialog = Nothing }
-                            , Cmd.batch
-                                [ Database.replaceRecurringTransaction
-                                    { id = recurringId
-                                    , account = submodel.account
-                                    , amount =
-                                        Result.withDefault Money.zero
-                                            (Money.fromInput submodel.isExpense submodel.amount)
-                                    , description = submodel.description
-                                    , category = submodel.category
-                                    , date = dueDate
-                                    , checked = False
-                                    }
-                                , Ports.closeDialog ()
-                                ]
-                            )
-
-                        Nothing ->
-                            ( { model | dialog = Nothing }
-                            , Cmd.batch
-                                [ Database.createRecurringTransaction
-                                    { date = dueDate
-                                    , account = submodel.account
-                                    , amount =
-                                        Result.withDefault Money.zero
-                                            (Money.fromInput submodel.isExpense submodel.amount)
-                                    , description = submodel.description
-                                    , category = submodel.category
-                                    , checked = False
-                                    }
-                                , Ports.closeDialog ()
-                                ]
-                            )
-
-                Just Model.ImportDialog ->
-                    ( { model | dialog = Nothing }
-                    , Cmd.batch
-                        [ Database.importDatabase
-                        , Ports.closeDialog ()
-                        ]
-                    )
-
-                Just Model.ExportDialog ->
-                    ( { model | dialog = Nothing }
-                    , Cmd.batch
-                        [ Database.exportDatabase model
-                        , Ports.closeDialog ()
-                        ]
-                    )
-
-                Just (Model.UserErrorDialog _) ->
-                    ( { model | dialog = Nothing }
-                    , Ports.closeDialog ()
-                    )
-
-                Just (Model.FontDialog fontName) ->
-                    let
-                        settings =
-                            model.settings
-                    in
-                    ( { model | dialog = Nothing }
-                    , Cmd.batch
-                        [ Database.storeSettings { settings | font = fontName }
-                        , Ports.closeDialog ()
-                        ]
-                    )
-
-                Just (Model.TransactionDialog _) ->
-                    ( { model | dialog = Nothing }
-                    , Ports.closeDialog ()
-                    )
-                        |> Log.error "unexpected SettingsConfirm message"
 
                 Nothing ->
                     ( { model | dialog = Nothing }
-                    , Ports.closeDialog ()
+                    , Cmd.batch
+                        [ Database.createAccount (sanitizeName data.name)
+                        , Ports.closeDialog ()
+                        ]
                     )
+
+        Just (Model.DeleteAccountDialog id) ->
+            ( { model | dialog = Nothing }
+            , Cmd.batch
+                [ Database.deleteAccount id
+                , Ports.closeDialog ()
+                ]
+            )
+
+        Just (Model.CategoryDialog data) ->
+            case data.id of
+                Just categoryId ->
+                    ( { model | dialog = Nothing }
+                    , Cmd.batch
+                        [ Database.renameCategory categoryId data.name data.icon
+                        , Ports.closeDialog ()
+                        ]
+                    )
+
+                Nothing ->
+                    ( { model | dialog = Nothing }
+                    , Cmd.batch
+                        [ Database.createCategory (sanitizeName data.name) data.icon
+                        , Ports.closeDialog ()
+                        ]
+                    )
+
+        Just (Model.DeleteCategoryDialog id) ->
+            ( { model | dialog = Nothing }
+            , Cmd.batch
+                [ Database.deleteCategory id
+                , Ports.closeDialog ()
+                ]
+            )
+
+        Just (Model.RecurringDialog data) ->
+            let
+                dayInput =
+                    Maybe.withDefault 1 (String.toInt data.dueDate)
+
+                day =
+                    if dayInput < 1 then
+                        1
+
+                    else if dayInput > 28 then
+                        28
+
+                    else
+                        dayInput
+
+                dueDate =
+                    Date.findNextDayOfMonth day model.today
+            in
+            case data.id of
+                Just recurringId ->
+                    ( { model | dialog = Nothing }
+                    , Cmd.batch
+                        [ Database.replaceRecurringTransaction
+                            { id = recurringId
+                            , account = data.account
+                            , amount =
+                                Result.withDefault Money.zero
+                                    (Money.fromInput data.isExpense data.amount)
+                            , description = data.description
+                            , category = data.category
+                            , date = dueDate
+                            , checked = False
+                            }
+                        , Ports.closeDialog ()
+                        ]
+                    )
+
+                Nothing ->
+                    ( { model | dialog = Nothing }
+                    , Cmd.batch
+                        [ Database.createRecurringTransaction
+                            { date = dueDate
+                            , account = data.account
+                            , amount =
+                                Result.withDefault Money.zero
+                                    (Money.fromInput data.isExpense data.amount)
+                            , description = data.description
+                            , category = data.category
+                            , checked = False
+                            }
+                        , Ports.closeDialog ()
+                        ]
+                    )
+
+        Just Model.ImportDialog ->
+            ( { model | dialog = Nothing }
+            , Cmd.batch
+                [ Database.importDatabase
+                , Ports.closeDialog ()
+                ]
+            )
+
+        Just Model.ExportDialog ->
+            ( { model | dialog = Nothing }
+            , Cmd.batch
+                [ Database.exportDatabase model
+                , Ports.closeDialog ()
+                ]
+            )
+
+        Just (Model.UserErrorDialog _) ->
+            ( { model | dialog = Nothing }
+            , Ports.closeDialog ()
+            )
+
+        Just (Model.FontDialog fontName) ->
+            let
+                settings =
+                    model.settings
+            in
+            ( { model | dialog = Nothing }
+            , Cmd.batch
+                [ Database.storeSettings { settings | font = fontName }
+                , Ports.closeDialog ()
+                ]
+            )
+
+        Just (Model.TransactionDialog _) ->
+            ( { model | dialog = Nothing }
+            , Ports.closeDialog ()
+            )
+                |> Log.error "unexpected SettingsConfirm message"
+
+        Just (Model.DeleteTransactionDialog _) ->
+            ( { model | dialog = Nothing }
+            , Ports.closeDialog ()
+            )
+                |> Log.error "unexpected SettingsConfirm message"
+
+        Nothing ->
+            ( { model | dialog = Nothing }
+            , Ports.closeDialog ()
+            )
 
 
 

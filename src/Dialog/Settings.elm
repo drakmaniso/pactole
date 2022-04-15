@@ -24,13 +24,13 @@ viewAccountDialog model data =
     Ui.dialog model.context
         { content =
             E.column
-                [ Ui.onEnter (Msg.ForSettings <| Msg.ConfirmSettings)
+                [ Ui.onEnter Msg.ConfirmDialog
                 , E.width E.fill
                 , E.height E.fill
                 , E.spacing 36
                 ]
                 [ E.el
-                    [ Ui.onEnter (Msg.ForSettings <| Msg.ConfirmSettings) ]
+                    [ Ui.onEnter Msg.ConfirmDialog ]
                     (Ui.textInput
                         { label = Ui.labelLeft "Nom du compte:"
                         , text = data.name
@@ -50,12 +50,12 @@ viewAccountDialog model data =
                     [ { label = E.text "Supprimer"
                       , icon = Ui.deleteIcon
                       , color = Ui.PlainButton
-                      , onPress = Msg.ForSettings <| Msg.DeleteAccount accountId
+                      , onPress = Msg.OpenDialog <| Model.DeleteAccountDialog accountId
                       }
                     , { label = E.text "  OK  "
                       , icon = E.text "  OK  "
                       , color = Ui.MainButton
-                      , onPress = Msg.ForSettings <| Msg.ConfirmSettings
+                      , onPress = Msg.ConfirmDialog
                       }
                     ]
 
@@ -63,7 +63,7 @@ viewAccountDialog model data =
                     [ { label = E.text "  OK  "
                       , icon = E.text "  OK  "
                       , color = Ui.MainButton
-                      , onPress = Msg.ForSettings <| Msg.ConfirmSettings
+                      , onPress = Msg.ConfirmDialog
                       }
                     ]
         }
@@ -78,7 +78,7 @@ viewDeleteAccountDialog model id =
     Ui.dialog model.context
         { content =
             E.column
-                [ Ui.onEnter (Msg.ForSettings <| Msg.ConfirmSettings)
+                [ Ui.onEnter Msg.ConfirmDialog
                 , E.width E.fill
                 , E.height E.fill
                 , E.spacing 36
@@ -104,7 +104,7 @@ viewDeleteAccountDialog model id =
             [ { label = E.text "Supprimer"
               , icon = E.text "Supprimer"
               , color = Ui.DangerButton
-              , onPress = Msg.ForSettings <| Msg.ConfirmSettings
+              , onPress = Msg.ConfirmDialog
               }
             ]
         }
@@ -115,12 +115,12 @@ viewCategoryDialog model submodel =
     Ui.dialog model.context
         { content =
             E.column
-                [ Ui.onEnter (Msg.ForSettings <| Msg.ConfirmSettings)
+                [ Ui.onEnter Msg.ConfirmDialog
                 , E.width E.fill
                 , E.height E.fill
                 , E.spacing 36
                 ]
-                [ E.el [ Ui.onEnter (Msg.ForSettings <| Msg.ConfirmSettings) ]
+                [ E.el [ Ui.onEnter Msg.ConfirmDialog ]
                     (Ui.textInput
                         { label = Ui.labelLeft "Catégorie:"
                         , text = submodel.name
@@ -155,12 +155,12 @@ viewCategoryDialog model submodel =
                     [ { label = E.text "Supprimer"
                       , icon = Ui.deleteIcon
                       , color = Ui.PlainButton
-                      , onPress = Msg.ForSettings <| Msg.DeleteCategory categoryId
+                      , onPress = Msg.OpenDialog <| Model.DeleteCategoryDialog categoryId
                       }
                     , { label = E.text "  OK  "
                       , icon = E.text "  OK  "
                       , color = Ui.MainButton
-                      , onPress = Msg.ForSettings <| Msg.ConfirmSettings
+                      , onPress = Msg.ConfirmDialog
                       }
                     ]
 
@@ -168,7 +168,7 @@ viewCategoryDialog model submodel =
                     [ { label = E.text "  OK  "
                       , icon = E.text "  OK  "
                       , color = Ui.MainButton
-                      , onPress = Msg.ForSettings <| Msg.ConfirmSettings
+                      , onPress = Msg.ConfirmDialog
                       }
                     ]
         }
@@ -183,7 +183,7 @@ viewDeleteCategoryDialog model id =
     Ui.dialog model.context
         { content =
             E.column
-                [ Ui.onEnter (Msg.ForSettings <| Msg.ConfirmSettings)
+                [ Ui.onEnter Msg.ConfirmDialog
                 , E.width E.fill
                 , E.height E.fill
                 , E.spacing 36
@@ -208,7 +208,7 @@ viewDeleteCategoryDialog model id =
             [ { label = E.text "Supprimer"
               , icon = E.text "Supprimer"
               , color = Ui.DangerButton
-              , onPress = Msg.ForSettings <| Msg.ConfirmSettings
+              , onPress = Msg.ConfirmDialog
               }
             ]
         }
@@ -219,11 +219,11 @@ viewRecurringDialog model submodel =
     Ui.dialog model.context
         { content =
             E.column
-                [ Ui.onEnter (Msg.ForSettings <| Msg.ConfirmSettings)
+                [ Ui.onEnter Msg.ConfirmDialog
                 , E.width E.fill
                 , E.height E.fill
                 , E.spacing 36
-                , Ui.onEnter (Msg.ForSettings <| Msg.ConfirmSettings)
+                , Ui.onEnter Msg.ConfirmDialog
                 ]
                 [ Ui.textInput
                     { label = Ui.labelLeft "Jour du mois: "
@@ -290,7 +290,7 @@ viewRecurringDialog model submodel =
                     , { label = E.text "  OK  "
                       , icon = E.text "  OK  "
                       , color = Ui.MainButton
-                      , onPress = Msg.ForSettings <| Msg.ConfirmSettings
+                      , onPress = Msg.ConfirmDialog
                       }
                     ]
 
@@ -298,7 +298,7 @@ viewRecurringDialog model submodel =
                     [ { label = E.text "  OK  "
                       , icon = E.text "  OK  "
                       , color = Ui.MainButton
-                      , onPress = Msg.ForSettings <| Msg.ConfirmSettings
+                      , onPress = Msg.ConfirmDialog
                       }
                     ]
         }
@@ -309,7 +309,7 @@ viewImportDialog model =
     Ui.dialog model.context
         { content =
             E.column
-                [ Ui.onEnter (Msg.ForSettings <| Msg.ConfirmSettings)
+                [ Ui.onEnter Msg.ConfirmDialog
                 , E.width E.fill
                 , E.height E.fill
                 , E.spacing 36
@@ -337,7 +337,7 @@ viewImportDialog model =
             [ { label = E.text "Tout Remplacer"
               , icon = E.text "Tout Remplacer"
               , color = Ui.DangerButton
-              , onPress = Msg.ForSettings <| Msg.ConfirmSettings
+              , onPress = Msg.ConfirmDialog
               }
             ]
         }
@@ -348,7 +348,7 @@ viewExportDialog model =
     Ui.dialog model.context
         { content =
             E.column
-                [ Ui.onEnter (Msg.ForSettings <| Msg.ConfirmSettings)
+                [ Ui.onEnter Msg.ConfirmDialog
                 , E.width E.fill
                 , E.height E.fill
                 , E.spacing 36
@@ -385,7 +385,7 @@ viewExportDialog model =
             [ { label = E.text "Sauvegarder"
               , icon = E.text "Sauvegarder"
               , color = Ui.MainButton
-              , onPress = Msg.ForSettings <| Msg.ConfirmSettings
+              , onPress = Msg.ConfirmDialog
               }
             ]
         }
@@ -396,7 +396,7 @@ viewUserErrorDialog model errorMsg =
     Ui.dialog model.context
         { content =
             E.column
-                [ Ui.onEnter (Msg.ForSettings <| Msg.ConfirmSettings)
+                [ Ui.onEnter Msg.ConfirmDialog
                 , E.width E.fill
                 , E.height E.fill
                 , E.spacing 36
@@ -416,7 +416,7 @@ viewUserErrorDialog model errorMsg =
             { label = E.text "  OK  "
             , icon = Ui.closeIcon
             , color = Ui.PlainButton
-            , onPress = Msg.ForSettings <| Msg.ConfirmSettings
+            , onPress = Msg.ConfirmDialog
             }
         , actions = []
         }
@@ -427,11 +427,11 @@ viewFontDialog model fontName =
     Ui.dialog model.context
         { content =
             E.column
-                [ Ui.onEnter (Msg.ForSettings <| Msg.ConfirmSettings)
+                [ Ui.onEnter Msg.ConfirmDialog
                 , E.width E.fill
                 , E.height E.fill
                 , E.spacing 36
-                , Ui.onEnter (Msg.ForSettings <| Msg.ConfirmSettings)
+                , Ui.onEnter Msg.ConfirmDialog
                 ]
                 [ E.wrappedRow [ E.spacing 12 ]
                     [ Ui.textInput
@@ -465,7 +465,7 @@ viewFontDialog model fontName =
             [ { label = E.text "  OK  "
               , icon = E.text "  OK  "
               , color = Ui.MainButton
-              , onPress = Msg.ForSettings <| Msg.ConfirmSettings
+              , onPress = Msg.ConfirmDialog
               }
             ]
         }
