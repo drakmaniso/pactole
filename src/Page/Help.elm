@@ -26,32 +26,45 @@ view model =
                 [ Ui.verticalSpacer
                 , Ui.paragraph
                     """
-                    Pactole est une application très simple de gestion de budget personel.
+                    Pactole est une application très simple pour gérer votre argent.
                     """
                 , Ui.paragraph
                     """
-                    La page est divisée en deux parties: le calendrier du mois
-                    courant, et la liste des opérations correspondant jour choisi dans
-                    le calendrier.
+                    Elle vous permet d'entrer des opérations bancaires: vos dépenses et vos
+                    entrées d'argent.
                     """
+                , Ui.paragraph
+                    """
+                    Le calendrier affiche une vue d'ensemble de toutes les opérations faites
+                    dans le mois.
+                    """
+                , Ui.paragraph
+                    ((case model.context.device.orientation of
+                        E.Landscape ->
+                            "Dans la partie de gauche,"
+
+                        E.Portrait ->
+                            "En dessous,"
+                     )
+                        ++ """
+                    il y a une liste des opérations pour le
+                    jour choisi dans le calendrier.
+                    """
+                    )
                 , Ui.verticalSpacer
                 , Ui.title model.context "Pour utiliser le calendrier"
                 , Ui.paragraph
                     """
-                    Le calendrier affiche une vue d'ensemble de vos opérations pour le mois courant.
-                    """
-                , Ui.paragraph
-                    """
-                    Vous pouvez voir un autre mois en utilisant les flêches situées
+                    Vous pouvez voir un autre mois en utilisant les deux flêches situées
                     au dessus du calendrier.
                     """
                 , Ui.paragraph
                     """
                     Vous pouvez choisir un jour en appuyant dessus. Cela va afficher les opérations
-                    correspondant à ce jour.
+                    faites ce jour-là.
                     """
                 , Ui.verticalSpacer
-                , Ui.title model.context "Pour créer une nouvelle opération"
+                , Ui.title model.context "Pour entrer une nouvelle opération"
                 , Ui.helpList
                     [ Ui.paragraph
                         """
@@ -59,85 +72,104 @@ view model =
                         """
                     , Ui.paragraph
                         """
-                        Appuyez sur le bouton "-" si vous voulez créer une dépense, ou bien
-                        sur le bouton "+" si vous voulez créer une entrée d'argent.
+                        Si c'est une dépense, appuyez sur le bouton "-".
+                        Si c'est une entrée d'argent, appuyez sur le bouton "+".
                         """
                     , Ui.paragraph
                         """
-                    Une boite de dialogue va s'ouvrir.
-                    """
+                        Une boite de dialogue va s'ouvrir.
+                        """
                     , Ui.paragraph
                         """
-                    Entrez le montant de l'opération.
-                    """
+                        Entrez le montant de l'opération.
+                        """
                     , Ui.paragraph
                         """
-                    Vous pouvez également entrer une description.
-                    """
+                        Entrez une description.
+                        """
                     , Ui.paragraph
                         """
-                    Appuyez sur le bouton "OK" pour confirmer la création de l'opération.
-                    """
+                        Appuyez sur le bouton "OK" pour confirmer la création de l'opération.
+                        """
                     ]
                 , Ui.verticalSpacer
                 , Ui.title model.context "Pour supprimer une opération"
                 , Ui.helpList
                     [ Ui.paragraph
                         """
-                    Appuyez sur le jour où se trouve l'opération dans le calendrier.
-                    """
+                        Dans le calendrier: appuyez sur le jour où se trouve l'opération.
+                        """
+                    , Ui.paragraph <|
+                        case model.context.device.orientation of
+                            E.Landscape ->
+                                """
+                                Dans la partie de gauche: appuyez sur l'opération que vous voulez supprimer.
+                                """
+
+                            E.Portrait ->
+                                """
+                                En dessous du calendrier: appuyez sur l'opération que vous voulez supprimer.
+                                """
                     , Ui.paragraph
                         """
-                    Appuyez sur la ligne correspondant à l'opération (dans la partie de gauche).
-                    """
+                        Une boite de dialogue va s'ouvrir.
+                        """
                     , Ui.paragraph
                         """
-                    Une boite de dialogue va s'ouvrir.
-                    """
-                    , Ui.paragraph
+                        Appuyez sur le bouton "Supprimer".
                         """
-                    Appuyez sur le bouton "Supprimer".
-                    """
                     ]
                 , Ui.verticalSpacer
-                , Ui.title model.context "Pour changer le montant ou la description d'une opération"
+                , Ui.title model.context "Pour faire des changements sur une opération"
                 , Ui.helpList
                     [ Ui.paragraph
                         """
-                    Appuyez sur le jour où se trouve l'opération dans le calendrier.
-                    """
+                        Dans le calendrier: appuyez sur le jour où se trouve l'opération.
+                        """
+                    , Ui.paragraph <|
+                        case model.context.device.orientation of
+                            E.Landscape ->
+                                """
+                                Dans la partie de gauche: appuyez sur l'opération que vous voulez supprimer.
+                                """
+
+                            E.Portrait ->
+                                """
+                                En dessous du calendrier: appuyez sur l'opération que vous voulez supprimer.
+                                """
                     , Ui.paragraph
                         """
-                    Appuyez sur la ligne correspondant à l'opération (dans la partie de gauche).
-                    """
+                        Une boite de dialogue va s'ouvrir.
+                        """
                     , Ui.paragraph
                         """
-                    Une boite de dialogue va s'ouvrir.
-                    """
+                        Changez le montant et la description de l'opération.
+                        """
                     , Ui.paragraph
                         """
-                    Changez le montant et la description de l'opération.
-                    """
-                    , Ui.paragraph
+                        Appuyez sur le bouton "OK" pour confirmer les changements.
                         """
-                    Appuyez sur le bouton "OK" pour confirmer les changements.
-                    """
                     ]
                 , Ui.verticalSpacer
                 , Ui.title model.context "Pour changer la date d'une opération"
-                , Ui.paragraph
-                    """
-                Pour déplacer une opération à une date différente, il suffit de supprimer
-                l'opération existante et de la recréer à la nouvelle date.
-                """
+                , Ui.helpList
+                    [ Ui.paragraph
+                        """
+                        Supprimez l'opération existante.
+                        """
+                    , Ui.paragraph
+                        """
+                        Entrez une nouvelle opération à la date voulue.
+                        """
+                    ]
                 , Ui.verticalSpacer
                 , Ui.title model.context "Pour les fonctions avancées"
                 , Ui.paragraphParts
                     [ Ui.text
                         """
-                Certaines fonctionnalités supplémentaires de Pactole sont désactivées par
-                défaut. Si vous voulez les utiliser, vous pouvez les activer 
-                """
+                        Certaines fonctionnalités supplémentaires de Pactole sont désactivées par
+                        défaut. Si vous voulez les utiliser, vous pouvez les activer 
+                        """
                     , Ui.linkButton
                         { label =
                             Ui.text "dans les réglages de l'application"

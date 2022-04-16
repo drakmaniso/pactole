@@ -49,15 +49,17 @@ viewInstallation model installation =
                 """
             , Ui.paragraph
                 """
-                Elle vous permet de saisir des opérations bancaires, et les affiche sous forme
-                de calendrier. 
+                Par défaut son interface est réduite à l'essentiel:
                 """
+            , Ui.helpList
+                [ Ui.paragraph "une seule page, présentant une vue d'ensemble des opérations sous forme de calendrier;"
+                , Ui.paragraph "saisie simplifiée des entrées d'argent et des dépenses (un montant et une description);"
+                , Ui.paragraph "affichage du solde actuel."
+                ]
             , Ui.paragraph
                 """
-                Par défaut son interface est réduite à l'essentiel: saisie d'entrées 
-                d'argent et de dépenses, affichage du solde actuel. 
-                Des fonctionnalités optionnelles peuvent être activées dans les réglages: bilan du
-                mois, pointage, catégories pour les dépenses, dépenses mensuelles récurrentes.
+                Des fonctionnalités optionnelles peuvent être activées dans les réglages: comptes multiples,
+                bilan du mois, pointage, catégories pour les dépenses, dépenses mensuelles récurrentes.
                 """
             , Ui.verticalSpacer
             , Ui.title model.context "Installation"
@@ -84,8 +86,8 @@ viewInstallation model installation =
                 """
             , Ui.paragraph
                 """
-                Si vous utilisez Chrome, Edge ou Safari, vous
-                pouvez ajouter l'application à votre écran d'accueil pour un accès plus rapide.
+                Enfin, si vous êtes sur un téléphone ou sur une tablette, vous pouvez ajouter l'application
+                à votre écran d'accueil pour un accès plus rapide.
                 """
             , Ui.paragraph
                 """

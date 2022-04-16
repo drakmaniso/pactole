@@ -60,7 +60,7 @@ configBackup model =
         , Ui.paragraph
             """
             Les données de Pactole ne sont pas enregistrées en ligne.
-            Elles sont disponible uniquement sur l'appareil que vous êtes en train d'utiliser.
+            Elles sont disponibles uniquement sur l'appareil que vous êtes en train d'utiliser.
             """
         , E.row [ E.width E.fill, E.spacing 12 ]
             [ E.el
@@ -76,7 +76,7 @@ configBackup model =
                     du navigateur."""
                 , Ui.text
                     """
-                    Cela effacerait tout les opérations que vous avez entré dans Pactole.
+                    Cela effacerait toutes les opérations que vous avez entrées dans Pactole.
                     """
                 ]
             ]
