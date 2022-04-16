@@ -22,7 +22,8 @@ import Ui
 viewAccountDialog : Model -> Model.AccountData -> E.Element Msg
 viewAccountDialog model data =
     Ui.dialog model.context
-        { content =
+        { key = "account dialog"
+        , content =
             E.column
                 [ Ui.onEnter Msg.ConfirmDialog
                 , E.width E.fill
@@ -76,7 +77,8 @@ viewDeleteAccountDialog model id =
             Model.accountName id model
     in
     Ui.dialog model.context
-        { content =
+        { key = "delete account dialog"
+        , content =
             E.column
                 [ Ui.onEnter Msg.ConfirmDialog
                 , E.width E.fill
@@ -113,7 +115,8 @@ viewDeleteAccountDialog model id =
 viewCategoryDialog : Model -> Model.CategoryData -> E.Element Msg
 viewCategoryDialog model submodel =
     Ui.dialog model.context
-        { content =
+        { key = "category dialog"
+        , content =
             E.column
                 [ Ui.onEnter Msg.ConfirmDialog
                 , E.width E.fill
@@ -181,7 +184,8 @@ viewDeleteCategoryDialog model id =
             Model.category id model
     in
     Ui.dialog model.context
-        { content =
+        { key = "deleta category dialog"
+        , content =
             E.column
                 [ Ui.onEnter Msg.ConfirmDialog
                 , E.width E.fill
@@ -217,7 +221,8 @@ viewDeleteCategoryDialog model id =
 viewRecurringDialog : Model -> Model.RecurringData -> E.Element Msg
 viewRecurringDialog model submodel =
     Ui.dialog model.context
-        { content =
+        { key = "recurring dialog"
+        , content =
             E.column
                 [ Ui.onEnter Msg.ConfirmDialog
                 , E.width E.fill
@@ -307,7 +312,8 @@ viewRecurringDialog model submodel =
 viewImportDialog : Model -> E.Element Msg
 viewImportDialog model =
     Ui.dialog model.context
-        { content =
+        { key = "import dialog"
+        , content =
             E.column
                 [ Ui.onEnter Msg.ConfirmDialog
                 , E.width E.fill
@@ -346,7 +352,8 @@ viewImportDialog model =
 viewExportDialog : Model -> E.Element Msg
 viewExportDialog model =
     Ui.dialog model.context
-        { content =
+        { key = "export dialog"
+        , content =
             E.column
                 [ Ui.onEnter Msg.ConfirmDialog
                 , E.width E.fill
@@ -394,7 +401,8 @@ viewExportDialog model =
 viewUserErrorDialog : Model -> String -> E.Element Msg
 viewUserErrorDialog model errorMsg =
     Ui.dialog model.context
-        { content =
+        { key = "user error dialog"
+        , content =
             E.column
                 [ Ui.onEnter Msg.ConfirmDialog
                 , E.width E.fill
@@ -425,7 +433,8 @@ viewUserErrorDialog model errorMsg =
 viewFontDialog : Model -> String -> E.Element Msg
 viewFontDialog model fontName =
     Ui.dialog model.context
-        { content =
+        { key = "font dialog"
+        , content =
             E.column
                 [ Ui.onEnter Msg.ConfirmDialog
                 , E.width E.fill

@@ -369,33 +369,37 @@ loadIcon =
 dialog :
     Context
     ->
-        { content : E.Element msg
+        { key : String
+        , content : E.Element msg
         , close : { label : E.Element msg, icon : E.Element msg, color : ButtonColor, onPress : msg }
         , actions : List { label : E.Element msg, icon : E.Element msg, color : ButtonColor, onPress : msg }
         }
     -> E.Element msg
-dialog context { content, close, actions } =
+dialog context { key, content, close, actions } =
     if context.device.class == E.Phone || context.device.orientation == E.Portrait then
-        E.column
-            [ E.width E.fill
-            , E.height E.fill
-            , E.spacing <| context.em // 2
-            ]
-            [ E.row
+        Keyed.el [ E.width E.fill, E.height E.fill ] <|
+            ( key
+            , E.column
                 [ E.width E.fill
-                , Background.color Color.neutral95
-                , E.htmlAttribute <| Html.Attributes.class "panel-shadow"
-                , E.htmlAttribute <| Html.Attributes.style "z-index" "2"
+                , E.height E.fill
+                , E.spacing <| context.em // 2
                 ]
-                (navigationButton context close
-                    :: E.el [ E.width E.fill ] E.none
-                    :: List.map
-                        (\button -> navigationButton context button)
-                        actions
-                )
-            , E.el [ E.padding <| context.em // 2, E.width E.fill, E.height E.fill, E.clipX ]
-                content
-            ]
+                [ E.row
+                    [ E.width E.fill
+                    , Background.color Color.neutral95
+                    , E.htmlAttribute <| Html.Attributes.class "panel-shadow"
+                    , E.htmlAttribute <| Html.Attributes.style "z-index" "2"
+                    ]
+                    (navigationButton context close
+                        :: E.el [ E.width E.fill ] E.none
+                        :: List.map
+                            (\button -> navigationButton context button)
+                            actions
+                    )
+                , E.el [ E.padding <| context.em // 2, E.width E.fill, E.height E.fill, E.clipX ]
+                    content
+                ]
+            )
 
     else
         let
@@ -411,14 +415,17 @@ dialog context { content, close, actions } =
                             (\button -> roundButton context button)
                             actions
         in
-        E.column
-            [ E.width E.fill
-            , E.height E.fill
-            , E.spacing <| context.em * 2
-            ]
-            [ content
-            , buttonRow
-            ]
+        Keyed.el [ E.width E.fill, E.height E.fill ] <|
+            ( key
+            , E.column
+                [ E.width E.fill
+                , E.height E.fill
+                , E.spacing <| context.em * 2
+                ]
+                [ content
+                , buttonRow
+                ]
+            )
 
 
 toggleSwitch :

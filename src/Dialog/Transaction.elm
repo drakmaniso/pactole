@@ -18,7 +18,8 @@ import Ui.Color as Color
 view : Model -> Model.TransactionData -> E.Element Msg
 view model data =
     Ui.dialog model.context
-        { content =
+        { key = "transaction dialog"
+        , content =
             E.column
                 [ Ui.onEnter Msg.ConfirmDialog
                 , E.width E.fill
@@ -329,7 +330,8 @@ viewDeleteTransaction model id =
     case transaction of
         Just t ->
             Ui.dialog model.context
-                { content =
+                { key = "delete transaction dialog"
+                , content =
                     E.column [ E.width E.fill, E.spacing <| model.context.em ]
                         [ if Money.isExpense t.amount then
                             E.paragraph [ Font.bold, E.centerX, Font.center ] [ E.text "Supprimer la dépense?" ]
@@ -362,7 +364,8 @@ viewDeleteTransaction model id =
 
         Nothing ->
             Ui.dialog model.context
-                { content =
+                { key = "delete transaction error dialog"
+                , content =
                     Ui.paragraph "Erreur..."
                 , close =
                     { label = E.text "Fermer"
