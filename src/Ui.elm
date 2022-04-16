@@ -1332,11 +1332,16 @@ reconcileCheckBox { state, onPress, background } =
         }
 
 
-radioButton : { a | onPress : Maybe msg, icon : String, label : String, active : Bool } -> E.Element msg
-radioButton { onPress, icon, label, active } =
+radioButton : Context -> { a | onPress : Maybe msg, icon : String, label : String, active : Bool } -> E.Element msg
+radioButton context { onPress, icon, label, active } =
+    let
+        em =
+            context.em
+    in
     Input.button
         ([ Border.rounded 4
-         , E.paddingXY 20 4
+         , E.paddingXY 4 4
+         , E.width E.fill
          , Border.width 4
          , Border.color Color.transparent
          , focusVisibleOnly
@@ -1362,7 +1367,7 @@ radioButton { onPress, icon, label, active } =
         , label =
             E.row []
                 [ if icon /= "" then
-                    E.el [ E.width (E.shrink |> E.minimum 48), iconFont, Font.center ]
+                    E.el [ E.width (E.shrink |> E.minimum (em + em // 2)), iconFont, Font.center ]
                         (E.text icon)
 
                   else

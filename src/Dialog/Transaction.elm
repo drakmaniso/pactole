@@ -240,14 +240,61 @@ viewCategories model data =
         let
             groupBy3 accum list =
                 let
-                    group =
-                        List.take 3 list
+                    empty =
+                        ( 0, { name = "", icon = "" } )
                 in
-                if List.isEmpty group then
-                    accum
+                case list of
+                    [] ->
+                        accum
 
-                else
-                    groupBy3 (group :: accum) (List.drop 3 list)
+                    [ a ] ->
+                        [ a, empty, empty ] :: accum
+
+                    [ a, b ] ->
+                        [ a, b, empty ] :: accum
+
+                    a :: b :: c :: rest ->
+                        groupBy3 ([ a, b, c ] :: accum) rest
+
+            groupBy2 accum list =
+                let
+                    empty =
+                        ( 0, { name = "", icon = "" } )
+                in
+                case list of
+                    [] ->
+                        accum
+
+                    [ a ] ->
+                        [ a, empty ] :: accum
+
+                    a :: b :: rest ->
+                        groupBy2 ([ a, b ] :: accum) rest
+
+            groupByOrientation accum list =
+                case model.context.device.orientation of
+                    E.Landscape ->
+                        groupBy3 accum list
+
+                    E.Portrait ->
+                        groupBy2 accum list
+
+            render category =
+                let
+                    ( k, v ) =
+                        category
+                in
+                E.el [ E.width E.fill ] <|
+                    if v.name /= "" then
+                        Ui.radioButton model.context
+                            { onPress = Just (Msg.ForTransaction <| Msg.ChangeTransactionCategory k)
+                            , icon = v.icon
+                            , label = v.name
+                            , active = k == data.category
+                            }
+
+                    else
+                        E.none
 
             categories =
                 model.categories
@@ -255,66 +302,18 @@ viewCategories model data =
                     |> (\l ->
                             ( 0, { name = "Aucune", icon = " " } )
                                 :: l
-                                |> groupBy3 []
+                                |> groupByOrientation []
                                 |> List.reverse
                        )
         in
-        Ui.dialogSection model.context
-            "Catégorie:"
-            (E.table [ E.width E.fill ]
-                { data = categories
-                , columns =
-                    [ { header = E.none
-                      , width = E.fill
-                      , view =
-                            \row ->
-                                case List.head row of
-                                    Nothing ->
-                                        E.none
-
-                                    Just ( k, v ) ->
-                                        Ui.radioButton
-                                            { onPress = Just (Msg.ForTransaction <| Msg.ChangeTransactionCategory k)
-                                            , icon = v.icon
-                                            , label = v.name
-                                            , active = k == data.category
-                                            }
-                      }
-                    , { header = E.none
-                      , width = E.fill
-                      , view =
-                            \row ->
-                                case List.head (List.drop 1 row) of
-                                    Nothing ->
-                                        E.none
-
-                                    Just ( k, v ) ->
-                                        Ui.radioButton
-                                            { onPress = Just (Msg.ForTransaction <| Msg.ChangeTransactionCategory k)
-                                            , icon = v.icon
-                                            , label = v.name
-                                            , active = k == data.category
-                                            }
-                      }
-                    , { header = E.none
-                      , width = E.fill
-                      , view =
-                            \row ->
-                                case List.head (List.drop 2 row) of
-                                    Nothing ->
-                                        E.none
-
-                                    Just ( k, v ) ->
-                                        Ui.radioButton
-                                            { onPress = Just (Msg.ForTransaction <| Msg.ChangeTransactionCategory k)
-                                            , icon = v.icon
-                                            , label = v.name
-                                            , active = k == data.category
-                                            }
-                      }
-                    ]
-                }
-            )
+        Ui.dialogSection model.context "Catégorie:" <|
+            E.column [ E.width E.fill ] <|
+                List.map
+                    (\group ->
+                        E.row [ E.width E.fill ] <|
+                            List.map render group
+                    )
+                    categories
 
 
 

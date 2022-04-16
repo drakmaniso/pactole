@@ -132,7 +132,7 @@ viewCategoryDialog model submodel =
                         [ E.spacing 6 ]
                         (List.map
                             (\icon ->
-                                Ui.radioButton
+                                Ui.radioButton model.context
                                     { onPress = Just (Msg.ForSettings <| Msg.ChangeSettingsIcon icon)
                                     , icon = icon
                                     , label = ""
@@ -234,7 +234,7 @@ viewRecurringDialog model submodel =
                     (E.el [] (E.text "Compte: ")
                         :: List.map
                             (\( k, v ) ->
-                                Ui.radioButton
+                                Ui.radioButton model.context
                                     { onPress = Just (Msg.ForSettings <| Msg.ChangeSettingsAccount k)
                                     , icon = ""
                                     , label = v
@@ -248,13 +248,13 @@ viewRecurringDialog model submodel =
                     ]
                     [ E.el [] (E.text "Type: ")
                     , E.row []
-                        [ Ui.radioButton
+                        [ Ui.radioButton model.context
                             { onPress = Just (Msg.ForSettings <| Msg.ChangeSettingsIsExpense False)
                             , icon = "" --"\u{F067}"
                             , label = "Entrée d'argent"
                             , active = not submodel.isExpense
                             }
-                        , Ui.radioButton
+                        , Ui.radioButton model.context
                             { onPress = Just (Msg.ForSettings <| Msg.ChangeSettingsIsExpense True)
                             , icon = "" --"\u{F068}"
                             , label = "Dépense"

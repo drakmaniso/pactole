@@ -6,7 +6,6 @@ import Element.Background as Background
 import Element.Font as Font
 import Ledger
 import Model exposing (Model)
-import Money
 import Msg exposing (Msg)
 import Ui
 import Ui.Color as Color
