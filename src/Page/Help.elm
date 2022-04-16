@@ -39,17 +39,18 @@ view model =
                     dans le mois.
                     """
                 , Ui.paragraph
-                    ((case model.context.device.orientation of
+                    (case model.context.device.orientation of
                         E.Landscape ->
-                            "Dans la partie de gauche,"
+                            """
+                            À gauche, il y a le solde actuel de votre compte,
+                            et la liste des opérations pour le jour choisi dans le calendrier.
+                            """
 
                         E.Portrait ->
-                            "En dessous,"
-                     )
-                        ++ """
-                    il y a une liste des opérations pour le
-                    jour choisi dans le calendrier.
-                    """
+                            """
+                            En dessous, il y a la liste des opérations pour le
+                            jour choisi dans le calendrier.
+                            """
                     )
                 , Ui.verticalSpacer
                 , Ui.title model.context "Pour utiliser le calendrier"
@@ -60,8 +61,8 @@ view model =
                     """
                 , Ui.paragraph
                     """
-                    Vous pouvez choisir un jour en appuyant dessus. Cela va afficher les opérations
-                    faites ce jour-là.
+                    Vous pouvez choisir un jour en appuyant dessus. Cela va afficher le détail
+                    des opérations faites ce jour-là.
                     """
                 , Ui.verticalSpacer
                 , Ui.title model.context "Pour entrer une nouvelle opération"
