@@ -354,13 +354,16 @@ viewPortrait model =
     case model.dialog of
         Nothing ->
             { title = "Pactole"
-            , body = [ pageHtml model <| viewPortraitPage model, mobileDialogHtml model Nothing ]
+            , body =
+                [ pageHtml model <| viewPortraitPage model
+                , mobileDialogHtml model Nothing
+                ]
             }
 
         Just dialog ->
             { title = "Pactole"
             , body =
-                [ pageHtml model <| E.none
+                [ pageHtml model <| viewPortraitPage model
                 , mobileDialogHtml model <|
                     Just <|
                         viewDialog model dialog
@@ -481,24 +484,23 @@ dialogHtml model maybeElement =
                 ]
             }
             []
-            (E.el
-                [ E.width <| E.minimum (32 * em) <| E.maximum (40 * em) <| E.shrink
-                , E.height <| E.minimum (5 * em) <| E.shrink
-                , Ui.fontFamily model.settings.font
-                , Ui.defaultFontSize model.context
-                , Background.color Color.white
-                , Font.color Color.neutral30
-                , E.paddingXY (2 * em) em
-                , E.scrollbarY
-                ]
-             <|
-                case maybeElement of
-                    Just e ->
+          <|
+            case maybeElement of
+                Just e ->
+                    E.el
+                        [ E.width <| E.minimum (32 * em) <| E.maximum (40 * em) <| E.shrink
+                        , E.height <| E.minimum (5 * em) <| E.shrink
+                        , Ui.fontFamily model.settings.font
+                        , Ui.defaultFontSize model.context
+                        , Background.color Color.white
+                        , Font.color Color.neutral30
+                        , E.paddingXY (2 * em) em
+                        , E.scrollbarY
+                        ]
                         e
 
-                    Nothing ->
-                        E.none
-            )
+                Nothing ->
+                    E.none
         ]
 
 

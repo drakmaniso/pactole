@@ -60,7 +60,7 @@
       border: 4px solid #FFD000;
     }
 
-    .dialog {
+    dialog.dialog {
       padding: unset;
       border: unset;
       border-radius: 6px;
@@ -71,15 +71,22 @@
         4px 8px 4px 0px rgba(0, 0, 0, 0.32),
         2px 4px 2px 0px rgba(0, 0, 0, 0.32),
         1px 2px 1px 0px rgba(0, 0, 0, 0.32),
-        0px 1px 1px 0px rgba(0, 0, 0, 0.64)
+        0px 1px 1px 0px rgba(0, 0, 0, 0.64);
     }
 
-    .dialog::backdrop {
+    dialog.dialog::backdrop {
       background: rgba(0, 0, 0, 60%);
     }
 
+    dialog[open].dialog {
+      animation: desktop-show 0.150s ease-out;
+    }
 
-    #dialog.mobile-dialog {
+    dialog[open].dialog::backdrop {
+      animation: desktop-show-backdrop 0.150s ease-out;
+    }
+
+    dialog.mobile-dialog {
       width: 100vw;
       max-width: 100vw;
       height: 100vh;
@@ -88,6 +95,74 @@
       margin: 0;
       border: 0;
     }
+
+    dialog.mobile-dialog::backdrop {
+      background: rgba(255, 255, 255, 100%);
+    }
+
+    dialog[open].mobile-dialog {
+      animation: mobile-show 0.150s ease-out;
+    }
+
+    dialog[open].mobile-dialog::backdrop {
+      animation: mobile-show-backdrop 0.150s ease-out;
+    }
+
+    @keyframes desktop-show {
+      from {
+        opacity: 0%;
+      }
+
+      to {
+        opacity: 100%;
+      }
+    }
+
+    @keyframes desktop-show-backdrop {
+      from {
+        background: rgba(0, 0, 0, 0);
+      }
+
+      66% {
+        background: rgba(0, 0, 0, 60%);
+      }
+
+      to {
+        background: rgba(0, 0, 0, 60%);
+      }
+    }
+
+    @keyframes mobile-show-backdrop {
+      from {
+        background: rgba(255, 255, 255, 0%);
+      }
+
+      25% {
+        background: rgba(255, 255, 255, 100%);
+      }
+
+      to {
+        background: rgba(255, 255, 255, 100%);
+      }
+    }
+
+    @keyframes mobile-show {
+      from {
+        /* transform: translateY(100%); */
+        opacity: 0%;
+      }
+
+      25% {
+        /* transform: translateY(100%); */
+        opacity: 0%;
+      }
+
+      to {
+        /* transform: translateY(0%); */
+        opacity: 100%;
+      }
+    }
+
 
     .panel-shadow {
       box-shadow:
