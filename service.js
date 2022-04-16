@@ -13,7 +13,6 @@ const files = [
   'fonts/andika-new-basic-v15-latin-regular.woff2',
   'fonts/andika-new-basic-v15-latin-700.woff2',
   'images/icon-512x512.png',
-  'images/general-presentation-FR.png',
 ]
 
 
@@ -24,14 +23,12 @@ const version = 2
 const staticCacheName = "pactole-cache-2"
 
 // Used to force an update on client-side
-const serviceVersion = "1.4.0b27"
+const serviceVersion = "1.4.0b29"
 
 
 self.addEventListener('install', event => {
   log('Installing service worker...')
   event.waitUntil(self.skipWaiting())
-  // event.waitUntil(precache())
-  // log('...service worker installed.')
   caches
     .open(staticCacheName)
     .then(cache => {
