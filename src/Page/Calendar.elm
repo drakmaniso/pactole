@@ -120,6 +120,14 @@ calendarCell model day =
         em =
             model.context.em
 
+        size =
+            case model.context.device.orientation of
+                E.Landscape ->
+                    model.context.height // 32
+
+                E.Portrait ->
+                    model.context.height // 70
+
         device =
             model.context.device
 
@@ -248,8 +256,21 @@ calendarCell model day =
                             (cellContentFor model day)
 
                       else
-                        E.paragraph [ E.centerX, E.centerY, E.spacing 0, Ui.smallerFont model.context, Font.center ]
-                            (cellContentFor model day)
+                        E.el
+                            [ E.width E.fill
+                            , E.height E.fill
+                            , E.clip
+                            ]
+                        <|
+                            E.paragraph
+                                [ E.centerX
+                                , E.centerY
+                                , E.clip
+                                , E.spacing 0
+                                , Font.size (size + 2)
+                                , Font.center
+                                ]
+                                (cellContentFor model day)
                     ]
             , onPress = Just (Msg.SelectDate day)
             }
@@ -261,6 +282,14 @@ cellContentFor model day =
     let
         em =
             model.context.em
+
+        size =
+            case model.context.device.orientation of
+                E.Landscape ->
+                    model.context.height // 32
+
+                E.Portrait ->
+                    model.context.height // 70
 
         device =
             model.context.device
@@ -300,23 +329,16 @@ cellContentFor model day =
                     )
 
             else
-                let
-                    size =
-                        case model.context.device.orientation of
-                            E.Landscape ->
-                                model.context.height // 32
-
-                            E.Portrait ->
-                                model.context.height // 70
-                in
-                E.el
-                    [ E.width <| E.px size
-                    , E.height <| E.px size
-                    , Background.color color
-                    , Border.rounded 1000
-                    , E.htmlAttribute <| Html.Attributes.style "display" "inline-flex"
-                    ]
-                    E.none
+                E.el [ E.width E.fill ] <|
+                    E.el
+                        [ E.width <| E.px size
+                        , E.height <| E.px size
+                        , E.centerX
+                        , Background.color color
+                        , Border.rounded 1000
+                        , E.htmlAttribute <| Html.Attributes.style "display" "inline-flex"
+                        ]
+                        E.none
     in
     (List.map render (Ledger.getTransactionsForDate model.ledger model.account day)
         ++ List.map render (Ledger.getRecurringTransactionsForDate model.recurring model.account day)
