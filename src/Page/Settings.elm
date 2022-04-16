@@ -263,7 +263,7 @@ configRecurring model =
                         , account = model.account
                         , isExpense = False
                         , amount = "0"
-                        , description = "Opération mensuelle"
+                        , description = ""
                         , category = 0
                         , dueDate = "1"
                         }

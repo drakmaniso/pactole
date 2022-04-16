@@ -618,6 +618,7 @@ pageWithTopNavBar model topElements elements =
             [ E.width E.fill
             , E.height E.fill
             , E.scrollbarY
+            , E.scrollbarX
             , E.spacing <| model.context.em // 4
             ]
             elements

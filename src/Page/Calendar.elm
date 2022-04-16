@@ -538,9 +538,18 @@ dayContentFor model day =
                             [ E.width E.fill
                             , E.spacing <| em // 2
                             ]
-                            [ if model.settings.categoriesEnabled then
+                            [ E.el
+                                [ E.height E.fill
+                                ]
+                                (E.column
+                                    []
+                                    [ Ui.viewMoney model.context transaction.amount future
+                                    , E.el [ E.height E.fill ] E.none
+                                    ]
+                                )
+                            , if model.settings.categoriesEnabled then
                                 E.el
-                                    [ E.width <| E.px <| 2 * em
+                                    [ E.width <| E.px <| em + em // 2
                                     , E.alignTop
                                     , Font.color Color.neutral30
                                     , Ui.iconFont
@@ -550,16 +559,6 @@ dayContentFor model day =
 
                               else
                                 E.none
-                            , E.el
-                                [ E.width (E.fillPortion 1)
-                                , E.height E.fill
-                                ]
-                                (E.column
-                                    [ E.width E.fill ]
-                                    [ Ui.viewMoney model.context transaction.amount future
-                                    , E.el [ E.height E.fill ] E.none
-                                    ]
-                                )
                             , E.el
                                 [ E.width (E.fillPortion 2)
                                 , E.alignTop

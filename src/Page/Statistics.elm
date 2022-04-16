@@ -61,7 +61,7 @@ viewMonthBalance model =
     in
     E.row
         [ E.width E.fill
-        , E.paddingXY 48 24
+        , E.padding model.context.em
         , Font.color Color.neutral30
         ]
         [ E.el [ E.width (E.fillPortion 2) ] E.none
@@ -74,21 +74,17 @@ viewMonthBalance model =
 
 
 viewMonthFutureWarning : Model -> E.Element msg
-viewMonthFutureWarning shared =
+viewMonthFutureWarning model =
     if
-        Ledger.hasFutureTransactionsForMonth shared.recurring shared.account shared.date shared.today
-            || Ledger.hasFutureTransactionsForMonth shared.ledger shared.account shared.date shared.today
+        Ledger.hasFutureTransactionsForMonth model.recurring model.account model.date model.today
+            || Ledger.hasFutureTransactionsForMonth model.ledger model.account model.date model.today
     then
-        E.row
+        E.paragraph
             [ E.width E.fill
-            , E.paddingEach { top = 0, bottom = 24, left = 48, right = 48 }
             , Font.color Color.neutral50
+            , Font.center
             ]
-            [ E.el [ E.width (E.fillPortion 2) ] E.none
-            , E.el
-                [ Font.alignRight ]
-                (E.text "(sans compter les futures opérations)")
-            , E.el [ E.width (E.fillPortion 2) ] E.none
+            [ E.text "(sans compter les futures opérations)"
             ]
 
     else
@@ -98,9 +94,7 @@ viewMonthFutureWarning shared =
 viewCategories : Model -> E.Element Msg
 viewCategories model =
     E.column
-        [ E.width E.fill
-        , E.paddingXY 0 0
-        ]
+        [ E.width E.fill ]
         (Dict.toList model.categories
             |> List.map
                 (\( catID, category ) ->
@@ -114,16 +108,23 @@ viewCategories model =
 
 viewItem : Model -> String -> String -> Money.Money -> E.Element msg
 viewItem model icon description money =
+    let
+        em =
+            model.context.em
+    in
     E.row
-        [ E.width E.fill
-        , E.paddingXY 48 12
+        [ E.centerX
+        , E.padding <| em // 2
         , Font.color Color.neutral30
+        , E.spacing <| em // 2
+        , E.width E.fill
         ]
-        [ E.row [ E.width (E.fillPortion 3), E.spacing 12 ]
-            [ E.el [ E.width E.fill ] E.none
-            , E.el [ Ui.iconFont, Font.center ] (E.text icon)
-            , E.el [ Font.alignRight ] (E.text description)
+        [ E.row [ E.width E.fill, E.spacing <| em // 2 ]
+            [ E.el [ Ui.iconFont, E.alignRight ] (E.text icon)
+            , E.el [ E.alignRight ] <| E.text description
             ]
-        , Ui.viewMoney model.context money False
-        , E.el [ E.width (E.fillPortion 2) ] E.none
+        , E.row [ E.width E.fill ]
+            [ Ui.viewMoney model.context money False
+            , E.el [ E.width E.fill ] E.none
+            ]
         ]

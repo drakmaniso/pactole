@@ -75,59 +75,87 @@ viewTransactions model =
                         else
                             Color.neutral90
                 in
-                E.row
+                E.el
                     [ E.width E.fill
-                    , E.paddingXY (em // 2) (em // 2)
-                    , E.spacing (em // 2)
                     , Background.color bg
                     ]
-                    [ colDate transaction
-                    , colReconciled transaction bg
-                    , colAmount model transaction model.today
-                    , colDescription transaction
-                    ]
+                    (E.row
+                        [ E.width <| E.maximum (32 * em) <| E.fill
+                        , E.centerX
+                        , E.paddingXY (em // 4) 0
+                        , E.spacing (em // 2)
+                        ]
+                        [ colReconciled model transaction bg
+                        , colDate model transaction
+                        , colAmount model transaction model.today
+                        , colCategory model transaction
+                        , colDescription model transaction bg
+                        ]
+                    )
             )
             (Ledger.getTransactionsForMonth model.ledger model.account model.date model.today)
         )
 
 
-colReconciled : Ledger.Transaction -> E.Color -> E.Element Msg
-colReconciled transaction bg =
-    E.el
-        [ E.width (E.fillPortion 1) ]
-        (Ui.reconcileCheckBox
+colReconciled : Model -> Ledger.Transaction -> E.Color -> E.Element Msg
+colReconciled model transaction bg =
+    let
+        em =
+            model.context.em
+    in
+    E.el [ E.padding (em // 4) ] <|
+        Ui.reconcileCheckBox
             { background = bg
             , state = transaction.checked
             , onPress = Just (Msg.ForDatabase <| Msg.CheckTransaction transaction (not transaction.checked))
             }
-        )
 
 
-colDate : { a | date : Date } -> E.Element msg
-colDate transaction =
+colDate : Model -> Ledger.Transaction -> E.Element msg
+colDate model transaction =
+    let
+        em =
+            model.context.em
+    in
     E.el
-        [ E.width (E.fillPortion 2), E.alignRight, Font.alignRight ]
+        [ E.width <| E.minimum (3 * em + em // 4) <| E.shrink, E.alignRight, Font.alignRight ]
         (E.text (Date.toShortString transaction.date))
 
 
-colAmount : Model -> { a | date : Date, amount : Money.Money } -> Date -> E.Element msg
+colAmount : Model -> Ledger.Transaction -> Date -> E.Element msg
 colAmount model transaction today =
     let
         future =
             Date.compare transaction.date today == GT
     in
-    E.el
-        [ E.width (E.fillPortion 2) ]
-        (Ui.viewMoney model.context transaction.amount future)
+    Ui.viewMoney model.context transaction.amount future
 
 
-colDescription : { a | description : String } -> E.Element msg
-colDescription transaction =
-    E.el
-        [ E.width (E.fillPortion 8), E.clip ]
-        (if transaction.description == "" then
-            E.el [ Font.color Color.neutral70 ] (E.text "—")
+colCategory : Model -> Ledger.Transaction -> E.Element msg
+colCategory model transaction =
+    let
+        em =
+            model.context.em
 
-         else
-            E.text transaction.description
-        )
+        category =
+            Model.category transaction.category model
+    in
+    if model.settings.categoriesEnabled && model.context.device.class /= E.Phone then
+        E.el
+            [ E.width <| E.minimum (em + em // 2) <| E.shrink, E.centerX, Font.center, Ui.iconFont ]
+            (E.text category.icon)
+
+    else
+        E.none
+
+
+colDescription : Model -> Ledger.Transaction -> E.Color -> E.Element msg
+colDescription model transaction bg =
+    let
+        em =
+            model.context.em
+    in
+    E.el [ E.width E.fill, E.height E.fill, Background.color bg, E.padding (em // 2) ] <|
+        E.el [ E.centerY ] <|
+            E.text <|
+                Ledger.getTransactionDescription transaction

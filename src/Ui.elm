@@ -109,31 +109,24 @@ classifyContext { width, height, fontSize } =
         device =
             E.classifyDevice { width = width, height = height }
 
+        shortSide =
+            min width height
+
+        longSide =
+            max width height
+
         em =
             if fontSize >= 6 && fontSize <= 128 then
                 fontSize
 
+            else if longSide > 1280 && shortSide > 900 then
+                26
+
+            else if longSide > 1024 && shortSide > 720 then
+                24
+
             else
-                case device.orientation of
-                    E.Landscape ->
-                        if width > 1280 && height > 720 then
-                            26
-
-                        else if width > 1024 && height > 720 then
-                            24
-
-                        else
-                            22
-
-                    E.Portrait ->
-                        if width > 720 && height > 1280 then
-                            26
-
-                        else if width > 720 && height > 1024 then
-                            24
-
-                        else
-                            22
+                22
 
         density =
             case device.orientation of
@@ -958,6 +951,9 @@ viewDate context date =
 viewMoney : Context -> Money.Money -> Bool -> E.Element msg
 viewMoney context money future =
     let
+        em =
+            context.em
+
         openpar =
             if future then
                 "("
@@ -981,57 +977,54 @@ viewMoney context money future =
         isZero =
             Money.isZero money
     in
-    E.row
-        [ E.width E.fill
-        , E.height E.shrink
+    E.paragraph
+        [ E.width <| E.minimum (4 * em + em // 2) <| E.fill
+        , E.alignRight
+        , Font.alignRight
+        , if future then
+            Font.color Color.neutral50
+
+          else if isExpense then
+            Font.color Color.expense40
+
+          else if isZero then
+            Font.color Color.neutral70
+
+          else
+            Font.color Color.income40
+        , Font.variant Font.tabularNumbers
+        , Font.alignRight
         ]
-        [ E.el [ E.width E.fill ] E.none
-        , E.paragraph
-            [ if future then
-                Font.color Color.neutral50
-
-              else if isExpense then
-                Font.color Color.expense40
-
-              else if isZero then
-                Font.color Color.neutral70
-
-              else
-                Font.color Color.income40
-            , Font.variant Font.tabularNumbers
-            , Font.alignRight
+        (if isZero then
+            [ E.el [ E.width (E.fillPortion 75), defaultFontSize context, Font.alignRight ] (E.text "—")
+            , E.el [ E.width (E.fillPortion 25) ] E.none
             ]
-            (if isZero then
-                [ E.el [ E.width (E.fillPortion 75), defaultFontSize context, Font.alignRight ] (E.text "—")
-                , E.el [ E.width (E.fillPortion 25) ] E.none
-                ]
 
-             else
+         else
+            [ E.el
+                [ E.width (E.fillPortion 75)
+                , defaultFontSize context
+                , Font.bold
+                , Font.alignRight
+                ]
+                (E.text (openpar ++ parts.sign ++ parts.units ++ ","))
+            , E.row
+                [ E.width (E.fillPortion 25) ]
                 [ E.el
-                    [ E.width (E.fillPortion 75)
-                    , defaultFontSize context
+                    [ Font.bold
+                    , smallFont context
+                    , Font.alignLeft
+                    ]
+                    (E.text ("" ++ parts.cents))
+                , E.el
+                    [ defaultFontSize context
                     , Font.bold
                     , Font.alignRight
                     ]
-                    (E.text (openpar ++ parts.sign ++ parts.units ++ ","))
-                , E.row
-                    [ E.width (E.fillPortion 25) ]
-                    [ E.el
-                        [ Font.bold
-                        , smallFont context
-                        , Font.alignLeft
-                        ]
-                        (E.text ("" ++ parts.cents))
-                    , E.el
-                        [ defaultFontSize context
-                        , Font.bold
-                        , Font.alignRight
-                        ]
-                        (E.text closepar)
-                    ]
+                    (E.text closepar)
                 ]
-            )
-        ]
+            ]
+        )
 
 
 viewSum : Context -> Money.Money -> E.Element msg
@@ -1217,8 +1210,8 @@ incomeButton :
     -> E.Element msg
 incomeButton context { onPress, label } =
     Input.button
-        [ E.width <| E.px <| 2 * context.bigEm + context.bigEm // 2
-        , E.height <| E.px <| 2 * context.bigEm + context.bigEm // 2
+        [ E.width <| E.px <| 2 * context.bigEm + context.bigEm // 4
+        , E.height <| E.px <| 2 * context.bigEm + context.bigEm // 4
         , Font.color Color.income30
         , Background.color Color.income90
         , Font.center
@@ -1244,8 +1237,8 @@ expenseButton :
     -> E.Element msg
 expenseButton context { onPress, label } =
     Input.button
-        [ E.width <| E.px <| 2 * context.bigEm + context.bigEm // 2
-        , E.height <| E.px <| 2 * context.bigEm + context.bigEm // 2
+        [ E.width <| E.px <| 2 * context.bigEm + context.bigEm // 4
+        , E.height <| E.px <| 2 * context.bigEm + context.bigEm // 4
         , Background.color Color.expense90
         , Font.color Color.expense30
         , Font.center

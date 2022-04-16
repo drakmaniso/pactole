@@ -273,14 +273,10 @@ getTransaction id (Ledger transactions) =
 -}
 
 
-getTransactionDescription : { a | description : String, amount : Money.Money } -> String
+getTransactionDescription : { a | description : String } -> String
 getTransactionDescription transaction =
     if transaction.description == "" then
-        if Money.isExpense transaction.amount then
-            "Dépense"
-
-        else
-            "Entrée d'argent"
+        "..."
 
     else
         transaction.description
