@@ -283,6 +283,45 @@
               history.go(-2)
             })
 
+            // Handle Touch Horizontal Swipes
+
+            var xTouch = null
+            var yTouch = null
+            document.ontouchstart = event => {
+              xTouch = event.touches[0].clientX
+              yTouch = event.touches[0].clientY
+            }
+            document.ontouchmove = event => {
+              if (!xTouch || !yTouch) {
+                return
+              }
+              const x = event.touches[0].clientX
+              const y = event.touches[0].clientY
+              const xDiff = x - xTouch
+              const yDiff = y - yTouch
+              if (Math.abs(xDiff) > Math.abs(yDiff)) {
+                if (xDiff > 100) {
+                  log("right swipe")
+                  xTouch = null
+                  yTouch = null
+                  app.ports.onRightSwipe.send(null)
+                } else if (xDiff < -100) {
+                  log("left swipe")
+                  xTouch = null
+                  yTouch = null
+                  app.ports.onLeftSwipe.send(null)
+                }
+              }
+            }
+            document.ontouchcancel = event => {
+              xTouch = null
+              yTouch = null
+            }
+            document.ontouchend = event => {
+              xTouch = null
+              yTouch = null
+            }
+
             // Connect Elm code to window JS
 
             app.ports.error.subscribe(

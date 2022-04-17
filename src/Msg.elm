@@ -12,6 +12,8 @@ type Msg
     | CloseDialog
     | ConfirmDialog
     | OnPopState ()
+    | OnLeftSwipe ()
+    | OnRightSwipe ()
     | SelectDate Date
     | SelectAccount Int
     | WindowResize { width : Int, height : Int }

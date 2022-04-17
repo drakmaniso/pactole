@@ -1,10 +1,12 @@
-Urgent:
-- When changing month, deselect day
-- Use wrappedRow for account selector, categories...
-- Unify dialogs: use single OpenDialog message
+Short-term:
+- Use wrappedRow for account selector?
+- Finish landscape orientation for phones.
+- Handle week navigation by swipe.
+- Deselect day when changing month.
 
 Long-term:
-- Color-blind modes
-- Mobile layout
-- Add internationalisation mechanism
+- Better animations?
+- Color-blind modes.
+- High-contrast mode.
+- Internationalization?
 

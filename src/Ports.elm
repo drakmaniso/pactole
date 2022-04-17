@@ -3,7 +3,9 @@ port module Ports exposing
     , error
     , exportDatabase
     , historyBack
+    , onLeftSwipe
     , onPopState
+    , onRightSwipe
     , openDialog
     , receive
     , requestStoragePersistence
@@ -20,6 +22,12 @@ import Json.Encode as Encode
 
 
 port onPopState : (() -> msg) -> Sub msg
+
+
+port onLeftSwipe : (() -> msg) -> Sub msg
+
+
+port onRightSwipe : (() -> msg) -> Sub msg
 
 
 

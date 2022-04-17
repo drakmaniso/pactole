@@ -179,6 +179,24 @@ update msg model =
         Msg.SelectDate date ->
             ( { model | date = date }, Cmd.none )
 
+        Msg.OnLeftSwipe () ->
+            if hasMonthDisplay model.page then
+                ( { model | date = Date.incrementMonthUI model.date model.today }
+                , Cmd.none
+                )
+
+            else
+                ( model, Cmd.none )
+
+        Msg.OnRightSwipe () ->
+            if hasMonthDisplay model.page then
+                ( { model | date = Date.decrementMonthUI model.date model.today }
+                , Cmd.none
+                )
+
+            else
+                ( model, Cmd.none )
+
         Msg.SelectAccount accountID ->
             --TODO: check that accountID corresponds to an account
             ( { model | account = accountID }, Cmd.none )
@@ -217,6 +235,22 @@ update msg model =
             ( model, Cmd.none )
 
 
+hasMonthDisplay : Model.Page -> Bool
+hasMonthDisplay page =
+    case page of
+        Model.CalendarPage ->
+            True
+
+        Model.StatisticsPage ->
+            True
+
+        Model.ReconcilePage ->
+            True
+
+        _ ->
+            False
+
+
 
 -- SUBSCRIPTIONS
 
@@ -226,6 +260,8 @@ subscriptions _ =
     Sub.batch
         [ Database.receive
         , Ports.onPopState Msg.OnPopState
+        , Ports.onLeftSwipe Msg.OnLeftSwipe
+        , Ports.onRightSwipe Msg.OnRightSwipe
         , Browser.Events.onResize (\width height -> Msg.WindowResize { width = width, height = height })
         ]
 
