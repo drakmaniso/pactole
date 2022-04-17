@@ -79,11 +79,11 @@
     }
 
     dialog[open].dialog {
-      animation: desktop-show 0.150s ease-out;
+      animation: show-dialog 0.150s ease-in;
     }
 
     dialog[open].dialog::backdrop {
-      animation: desktop-show-backdrop 0.150s ease-out;
+      animation: show-dialog 0.150s ease-in;
     }
 
     dialog.mobile-dialog {
@@ -101,14 +101,14 @@
     }
 
     dialog[open].mobile-dialog {
-      animation: mobile-show 0.150s ease-out;
+      animation: show-dialog 0.150s ease-in;
     }
 
     dialog[open].mobile-dialog::backdrop {
-      animation: mobile-show-backdrop 0.150s ease-out;
+      animation: show-dialog 0.150s ease-in;
     }
 
-    @keyframes desktop-show {
+    @keyframes show-dialog {
       from {
         opacity: 0%;
       }
@@ -117,52 +117,6 @@
         opacity: 100%;
       }
     }
-
-    @keyframes desktop-show-backdrop {
-      from {
-        background: rgba(0, 0, 0, 0);
-      }
-
-      66% {
-        background: rgba(0, 0, 0, 60%);
-      }
-
-      to {
-        background: rgba(0, 0, 0, 60%);
-      }
-    }
-
-    @keyframes mobile-show-backdrop {
-      from {
-        background: rgba(255, 255, 255, 0%);
-      }
-
-      25% {
-        background: rgba(255, 255, 255, 100%);
-      }
-
-      to {
-        background: rgba(255, 255, 255, 100%);
-      }
-    }
-
-    @keyframes mobile-show {
-      from {
-        /* transform: translateY(100%); */
-        opacity: 0%;
-      }
-
-      25% {
-        /* transform: translateY(100%); */
-        opacity: 0%;
-      }
-
-      to {
-        /* transform: translateY(0%); */
-        opacity: 100%;
-      }
-    }
-
 
     .panel-shadow {
       box-shadow:
