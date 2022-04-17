@@ -162,6 +162,20 @@ update msg model =
         Msg.CloseDialog ->
             ( { model | dialog = Nothing }, Ports.closeDialog () )
 
+        Msg.OnPopState () ->
+            case ( model.dialog, model.page ) of
+                ( Just _, _ ) ->
+                    ( { model | dialog = Nothing }, Ports.closeDialog () )
+
+                ( Nothing, Model.CalendarPage ) ->
+                    ( model, Ports.historyBack () )
+
+                ( Nothing, Model.SettingsPage ) ->
+                    ( { model | page = Model.HelpPage }, Cmd.none )
+
+                ( Nothing, _ ) ->
+                    ( { model | page = Model.CalendarPage }, Cmd.none )
+
         Msg.SelectDate date ->
             ( { model | date = date }, Cmd.none )
 
@@ -211,6 +225,7 @@ subscriptions : Model -> Sub Msg
 subscriptions _ =
     Sub.batch
         [ Database.receive
+        , Ports.onPopState Msg.OnPopState
         , Browser.Events.onResize (\width height -> Msg.WindowResize { width = width, height = height })
         ]
 

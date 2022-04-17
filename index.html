@@ -256,10 +256,34 @@
             }
             const app = Elm.Main.init({ flags: flags })
 
+            // Connect service worker JS to Elm code
+
             navigator.serviceWorker.onmessage = event => {
               log(`Received "${event.data.title}".`)
               app.ports.receive.send([event.data.title, event.data.content])
             }
+            app.ports.sendToSW.subscribe(function (args) {
+              try {
+                [title, content] = args
+                sendToServiceWorker(title, content)
+              }
+              catch (err) {
+                error(`forwarding service worker message: ${err}`)
+              }
+            })
+
+            // Hijack back button
+
+            history.pushState(null, document.title, location.href)
+            window.onpopstate = event => {
+              history.pushState(null, document.title, location.href)
+              app.ports.onPopState.send(null)
+            }
+            app.ports.historyBack.subscribe(_ => {
+              history.go(-2)
+            })
+
+            // Connect Elm code to window JS
 
             app.ports.error.subscribe(
               msg => console.error(`[ELM] ${msg}`)
@@ -289,15 +313,6 @@
                 }
               }
             )
-            app.ports.sendToSW.subscribe(function (args) {
-              try {
-                [title, content] = args
-                sendToServiceWorker(title, content)
-              }
-              catch (err) {
-                error(`forwarding service worker message: ${err}`)
-              }
-            })
 
             log(`Starting Elm application.`)
             app.ports.receive.send(["start application", null])

@@ -2,6 +2,8 @@ port module Ports exposing
     ( closeDialog
     , error
     , exportDatabase
+    , historyBack
+    , onPopState
     , openDialog
     , receive
     , requestStoragePersistence
@@ -14,7 +16,17 @@ import Json.Encode as Encode
 
 
 
--- To Javascript
+-- From Window Javascript
+
+
+port onPopState : (() -> msg) -> Sub msg
+
+
+
+-- To Window Javascript
+
+
+port historyBack : () -> Cmd msg
 
 
 port error : String -> Cmd msg

@@ -11,6 +11,7 @@ type Msg
     | OpenDialog Model.Dialog
     | CloseDialog
     | ConfirmDialog
+    | OnPopState ()
     | SelectDate Date
     | SelectAccount Int
     | WindowResize { width : Int, height : Int }
