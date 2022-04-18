@@ -1310,14 +1310,19 @@ iconButton { onPress, icon } =
 
 
 reconcileCheckBox :
-    { state : Bool, onPress : Maybe msg, background : E.Color }
+    Context
+    -> { state : Bool, onPress : Maybe msg, background : E.Color }
     -> E.Element msg
-reconcileCheckBox { state, onPress, background } =
+reconcileCheckBox context { state, onPress, background } =
+    let
+        em =
+            context.em
+    in
     Input.button
         [ Font.color Color.primary40
         , Font.center
-        , E.width (E.px 48)
-        , E.height (E.px 48)
+        , E.width <| E.px <| 2 * em
+        , E.height <| E.px <| 2 * em
         , E.alignRight
         , Background.color (E.rgba 1 1 1 1)
         , Border.width 4

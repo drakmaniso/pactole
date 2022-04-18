@@ -16,7 +16,6 @@ viewContent model =
     E.column
         [ E.width E.fill
         , E.height E.fill
-        , E.padding 3
         ]
         [ Ui.monthNavigationBar model.context model Msg.SelectDate
         , viewReconciled model
@@ -78,18 +77,38 @@ viewTransactions model =
                     [ E.width E.fill
                     , Background.color bg
                     ]
-                    (E.row
-                        [ E.width <| E.maximum (32 * em) <| E.fill
-                        , E.centerX
-                        , E.paddingXY (em // 4) 0
-                        , E.spacing (em // 2)
-                        ]
-                        [ colReconciled model transaction bg
-                        , colDate model transaction
-                        , colAmount model transaction model.today
-                        , colCategory model transaction
-                        , colDescription model transaction bg
-                        ]
+                    (case model.context.device.orientation of
+                        E.Landscape ->
+                            E.row
+                                [ E.width <| E.maximum (32 * em) <| E.fill
+                                , E.centerX
+                                , E.paddingXY (em // 4) (em // 4)
+                                , E.spacing (em // 2)
+                                ]
+                                [ colReconciled model transaction bg
+                                , colDate model transaction
+                                , colAmount model transaction model.today
+                                , colCategory model transaction
+                                , colDescription model transaction
+                                ]
+
+                        E.Portrait ->
+                            E.row
+                                [ E.width <| E.maximum (32 * em) <| E.fill
+                                , E.centerX
+                                , E.paddingXY (em // 2) (em // 2)
+                                , E.spacing (em // 4)
+                                ]
+                                [ colReconciled model transaction bg
+                                , colDate model transaction
+                                , E.column [ E.width E.fill, E.height E.fill, E.spacing (em // 4) ]
+                                    [ colAmount model transaction model.today
+                                    , E.paragraph [ Font.alignRight ]
+                                        [ colCategory model transaction
+                                        , colDescription model transaction
+                                        ]
+                                    ]
+                                ]
                     )
             )
             (Ledger.getTransactionsForMonth model.ledger model.account model.date model.today)
@@ -102,8 +121,13 @@ colReconciled model transaction bg =
         em =
             model.context.em
     in
-    E.el [ E.padding (em // 4) ] <|
-        Ui.reconcileCheckBox
+    E.el
+        [ E.centerX
+        , E.centerY
+        , E.padding (em // 4)
+        ]
+    <|
+        Ui.reconcileCheckBox model.context
             { background = bg
             , state = transaction.checked
             , onPress = Just (Msg.ForDatabase <| Msg.CheckTransaction transaction (not transaction.checked))
@@ -117,7 +141,7 @@ colDate model transaction =
             model.context.em
     in
     E.el
-        [ E.width <| E.minimum (3 * em + em // 4) <| E.shrink, E.alignRight, Font.alignRight ]
+        [ E.width <| E.minimum (3 * em) <| E.shrink, E.alignLeft, Font.alignLeft, E.centerY ]
         (E.text (Date.toShortString transaction.date))
 
 
@@ -139,22 +163,22 @@ colCategory model transaction =
         category =
             Model.category transaction.category model
     in
-    if model.settings.categoriesEnabled && model.context.device.class /= E.Phone then
+    if model.settings.categoriesEnabled then
         E.el
             [ E.width <| E.minimum (em + em // 2) <| E.shrink, E.centerX, Font.center, Ui.iconFont ]
-            (E.text category.icon)
+            (E.text <| category.icon ++ " ")
 
     else
         E.none
 
 
-colDescription : Model -> Ledger.Transaction -> E.Color -> E.Element msg
-colDescription model transaction bg =
-    let
-        em =
-            model.context.em
-    in
-    E.el [ E.width E.fill, E.height E.fill, Background.color bg, E.padding (em // 2) ] <|
-        E.el [ E.centerY ] <|
-            E.text <|
-                Ledger.getTransactionDescription transaction
+colDescription : Model -> Ledger.Transaction -> E.Element msg
+colDescription _ transaction =
+    E.paragraph
+        [ E.width E.fill
+        , E.centerY
+        ]
+    <|
+        [ E.text <|
+            Ledger.getTransactionDescription transaction
+        ]
