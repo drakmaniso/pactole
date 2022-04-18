@@ -77,38 +77,36 @@ viewTransactions model =
                     [ E.width E.fill
                     , Background.color bg
                     ]
-                    (case model.context.device.orientation of
-                        E.Landscape ->
-                            E.row
-                                [ E.width <| E.maximum (32 * em) <| E.fill
-                                , E.centerX
-                                , E.paddingXY (em // 4) (em // 4)
-                                , E.spacing (em // 2)
-                                ]
-                                [ colReconciled model transaction bg
-                                , colDate model transaction
-                                , colAmount model transaction model.today
-                                , colCategory model transaction
-                                , colDescription model transaction
-                                ]
+                    (if model.context.width > 20 * em then
+                        E.row
+                            [ E.width <| E.maximum (32 * em) <| E.fill
+                            , E.centerX
+                            , E.paddingXY (em // 4) (em // 4)
+                            , E.spacing (em // 2)
+                            ]
+                            [ colReconciled model transaction bg
+                            , colDate model transaction
+                            , colAmount model transaction model.today
+                            , colCategory model transaction
+                            , colDescription model transaction
+                            ]
 
-                        E.Portrait ->
-                            E.row
-                                [ E.width <| E.maximum (32 * em) <| E.fill
-                                , E.centerX
-                                , E.paddingXY (em // 2) (em // 2)
-                                , E.spacing (em // 4)
-                                ]
-                                [ colReconciled model transaction bg
-                                , colDate model transaction
-                                , E.column [ E.width E.fill, E.height E.fill, E.spacing (em // 4) ]
-                                    [ colAmount model transaction model.today
-                                    , E.paragraph [ Font.alignRight ]
-                                        [ colCategory model transaction
-                                        , colDescription model transaction
-                                        ]
+                     else
+                        E.row
+                            [ E.width <| E.maximum (32 * em) <| E.fill
+                            , E.centerX
+                            , E.paddingXY (em // 2) (em // 2)
+                            , E.spacing (em // 4)
+                            ]
+                            [ colReconciled model transaction bg
+                            , colDate model transaction
+                            , E.column [ E.width E.fill, E.height E.fill, E.spacing (em // 4) ]
+                                [ colAmount model transaction model.today
+                                , E.paragraph [ Font.alignRight ]
+                                    [ colDescription model transaction
                                     ]
                                 ]
+                            ]
                     )
             )
             (Ledger.getTransactionsForMonth model.ledger model.account model.date model.today)
