@@ -209,7 +209,7 @@ update msg model =
                 newContext =
                     Ui.classifyContext { width = size.width, height = size.height, fontSize = model.settings.fontSize }
             in
-            if size.width == model.context.width && heightChange > 0.1 then
+            if size.width == model.context.width && abs heightChange > 0.1 then
                 -- This is probably triggered by opening the on-screen keyboard
                 ( model, Cmd.none )
 
@@ -278,11 +278,14 @@ keyDecoder msg =
 
 view : Model -> Browser.Document Msg
 view model =
-    case model.context.device.orientation of
-        E.Landscape ->
+    case ( model.context.device.orientation, model.context.device.class ) of
+        ( E.Landscape, E.Phone ) ->
+            viewPortrait model
+
+        ( E.Landscape, _ ) ->
             viewLandscape model
 
-        E.Portrait ->
+        ( E.Portrait, _ ) ->
             viewPortrait model
 
 
@@ -305,6 +308,28 @@ viewLandscape model =
         , dialogHtml model activeDialog
         ]
     }
+
+
+viewPortrait : Model -> Browser.Document Msg
+viewPortrait model =
+    case model.dialog of
+        Nothing ->
+            { title = "Pactole"
+            , body =
+                [ pageHtml model <| viewPortraitPage model
+                , mobileDialogHtml model Nothing
+                ]
+            }
+
+        Just dialog ->
+            { title = "Pactole"
+            , body =
+                [ pageHtml model <| viewPortraitPage model
+                , mobileDialogHtml model <|
+                    Just <|
+                        viewDialog model dialog
+                ]
+            }
 
 
 viewLandscapePage : Model -> E.Element Msg
@@ -341,22 +366,65 @@ viewLandscapePage model =
                 }
 
         Model.CalendarPage ->
-            if model.context.device.class == E.Phone then
-                pageWithTopNavBar model
-                    []
-                    [ Calendar.viewWeek model ]
-
-            else
-                pageWithSidePanel model
-                    { panel = panelWithTwoParts { top = Summary.viewDesktop model, bottom = Calendar.dayView model }
-                    , page = Calendar.viewMonth model
-                    }
+            pageWithSidePanel model
+                { panel = panelWithTwoParts { top = Summary.viewDesktop model, bottom = Calendar.dayView model }
+                , page = Calendar.viewMonth model
+                }
 
         Model.DiagnosticsPage ->
             pageWithSidePanel model
                 { panel = logoPanel model
                 , page = Diagnostics.view model
                 }
+
+
+viewPortraitPage : Model -> E.Element Msg
+viewPortraitPage model =
+    case model.page of
+        Model.LoadingPage ->
+            E.column [ E.width E.fill, E.height E.fill ]
+                [ Loading.view model ]
+
+        Model.InstallationPage data ->
+            E.column [ E.width E.fill, E.height E.fill ]
+                [ Installation.view model data ]
+
+        Model.HelpPage ->
+            pageWithTopNavBar model [] [ Help.view model ]
+
+        Model.SettingsPage ->
+            pageWithTopNavBar model [] [ Settings.view model ]
+
+        Model.StatisticsPage ->
+            pageWithTopNavBar model
+                [ Summary.viewMobile model ]
+                [ Statistics.viewContent model
+                ]
+
+        Model.ReconcilePage ->
+            pageWithTopNavBar model
+                [ Summary.viewMobile model ]
+                [ Reconcile.viewContent model
+                ]
+
+        Model.CalendarPage ->
+            case model.context.device.orientation of
+                E.Portrait ->
+                    pageWithTopNavBar model
+                        [ Summary.viewMobile model ]
+                        [ E.el [ E.width E.fill, E.height <| E.fillPortion 1 ] <|
+                            Calendar.viewMonth model
+                        , E.el [ E.width E.fill, E.height <| E.fillPortion 1 ] <|
+                            Calendar.dayView model
+                        ]
+
+                E.Landscape ->
+                    pageWithTopNavBar model
+                        []
+                        [ Calendar.viewWeek model ]
+
+        Model.DiagnosticsPage ->
+            pageWithTopNavBar model [] [ Diagnostics.view model ]
 
 
 viewDialog : Model -> Model.Dialog -> E.Element Msg
@@ -394,74 +462,6 @@ viewDialog model dialog =
 
         Model.UserErrorDialog data ->
             Dialog.Settings.viewUserErrorDialog model data
-
-
-
--- MOBILE VIEW
-
-
-viewPortrait : Model -> Browser.Document Msg
-viewPortrait model =
-    case model.dialog of
-        Nothing ->
-            { title = "Pactole"
-            , body =
-                [ pageHtml model <| viewPortraitPage model
-                , mobileDialogHtml model Nothing
-                ]
-            }
-
-        Just dialog ->
-            { title = "Pactole"
-            , body =
-                [ pageHtml model <| viewPortraitPage model
-                , mobileDialogHtml model <|
-                    Just <|
-                        viewDialog model dialog
-                ]
-            }
-
-
-viewPortraitPage : Model -> E.Element Msg
-viewPortraitPage model =
-    case model.page of
-        Model.LoadingPage ->
-            E.column [ E.width E.fill, E.height E.fill ]
-                [ Loading.view model ]
-
-        Model.InstallationPage data ->
-            E.column [ E.width E.fill, E.height E.fill ]
-                [ Installation.view model data ]
-
-        Model.HelpPage ->
-            pageWithTopNavBar model [] [ Help.view model ]
-
-        Model.SettingsPage ->
-            pageWithTopNavBar model [] [ Settings.view model ]
-
-        Model.StatisticsPage ->
-            pageWithTopNavBar model
-                [ Summary.viewMobile model ]
-                [ Statistics.viewContent model
-                ]
-
-        Model.ReconcilePage ->
-            pageWithTopNavBar model
-                [ Summary.viewMobile model ]
-                [ Reconcile.viewContent model
-                ]
-
-        Model.CalendarPage ->
-            pageWithTopNavBar model
-                [ Summary.viewMobile model ]
-                [ E.el [ E.width E.fill, E.height <| E.fillPortion 1 ] <|
-                    Calendar.viewMonth model
-                , E.el [ E.width E.fill, E.height <| E.fillPortion 1 ] <|
-                    Calendar.dayView model
-                ]
-
-        Model.DiagnosticsPage ->
-            pageWithTopNavBar model [] [ Diagnostics.view model ]
 
 
 
