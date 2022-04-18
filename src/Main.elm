@@ -180,7 +180,12 @@ update msg model =
             ( { model | date = date }, Cmd.none )
 
         Msg.OnLeftSwipe () ->
-            if hasMonthDisplay model.page then
+            if hasWeekDisplay model then
+                ( { model | date = Date.incrementWeek model.date }
+                , Cmd.none
+                )
+
+            else if hasMonthDisplay model then
                 ( { model | date = Date.incrementMonthUI model.date model.today }
                 , Cmd.none
                 )
@@ -189,7 +194,12 @@ update msg model =
                 ( model, Cmd.none )
 
         Msg.OnRightSwipe () ->
-            if hasMonthDisplay model.page then
+            if hasWeekDisplay model then
+                ( { model | date = Date.decrementWeek model.date }
+                , Cmd.none
+                )
+
+            else if hasMonthDisplay model then
                 ( { model | date = Date.decrementMonthUI model.date model.today }
                 , Cmd.none
                 )
@@ -235,9 +245,23 @@ update msg model =
             ( model, Cmd.none )
 
 
-hasMonthDisplay : Model.Page -> Bool
-hasMonthDisplay page =
-    case page of
+hasWeekDisplay : Model -> Bool
+hasWeekDisplay model =
+    let
+        device =
+            model.context.device
+    in
+    case model.page of
+        Model.CalendarPage ->
+            device.class == E.Phone && device.orientation == E.Landscape
+
+        _ ->
+            False
+
+
+hasMonthDisplay : Model -> Bool
+hasMonthDisplay model =
+    case model.page of
         Model.CalendarPage ->
             True
 
