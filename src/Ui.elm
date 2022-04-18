@@ -1,8 +1,80 @@
-module Ui exposing (..)
+module Ui exposing
+    ( ButtonColor(..)
+    , Context
+    , Density(..)
+    , backIcon
+    , bigFont
+    , bigWarningIcon
+    , biggestFont
+    , boldText
+    , borderWidth
+    , checkIcon
+    , classifyContext
+    , closeIcon
+    , configCustom
+    , contentWidth
+    , defaultFontSize
+    , defaultShadow
+    , deleteIcon
+    , dialog
+    , dialogSection
+    , dialogSectionRow
+    , editIcon
+    , errorIcon
+    , expenseButton
+    , expenseIcon
+    , flatButton
+    , focusVisibleOnly
+    , fontFamily
+    , helpImage
+    , helpList
+    , helpListItem
+    , helpNumberedList
+    , iconButton
+    , iconFont
+    , incomeButton
+    , incomeIcon
+    , innerShadow
+    , labelLeft
+    , linkButton
+    , loadIcon
+    , minusIcon
+    , moneyInput
+    , monthNavigationBar
+    , notSelectable
+    , onEnter
+    , pageTitle
+    , paragraph
+    , paragraphParts
+    , plusIcon
+    , radioButton
+    , radioRowOption
+    , reconcileCheckBox
+    , roundButton
+    , roundCorners
+    , ruler
+    , saveIcon
+    , scale
+    , smallFont
+    , smallerFont
+    , text
+    , textColumn
+    , textInput
+    , title
+    , toggleSwitch
+    , transition
+    , verticalSpacer
+    , viewDate
+    , viewIcon
+    , viewMoney
+    , viewSum
+    , warningIcon
+    , warningParagraph
+    , warningPopup
+    , weekNavigationBar
+    )
 
---TODO: remove dependency to module Msg
-
-import Date
+import Date exposing (Date)
 import Element as E
 import Element.Background as Background
 import Element.Border as Border
@@ -13,7 +85,100 @@ import Html.Attributes
 import Html.Events as Events
 import Json.Decode as Decode
 import Money
-import Msg
+import Ui.Color as Color
+
+
+
+-- ENVIRONMENT FOR UI
+
+
+type alias Context =
+    { width : Int
+    , height : Int
+    , device : E.Device
+    , bigEm : Int
+    , em : Int
+    , smallEm : Int
+    , density : Density
+    }
+
+
+classifyContext : { width : Int, height : Int, fontSize : Int } -> Context
+classifyContext { width, height, fontSize } =
+    let
+        device =
+            E.classifyDevice { width = width, height = height }
+
+        shortSide =
+            min width height
+
+        longSide =
+            max width height
+
+        defaultEm =
+            if longSide > 1280 && shortSide > 900 then
+                26
+
+            else if longSide > 1024 && shortSide > 720 then
+                24
+
+            else
+                22
+
+        em =
+            defaultEm + fontSize
+
+        density =
+            case device.orientation of
+                E.Landscape ->
+                    if width > 42 * em && height > 22 * em then
+                        Comfortable
+
+                    else if width > 28 * em && height > 16 * em then
+                        Compact
+
+                    else
+                        Condensed
+
+                E.Portrait ->
+                    if width > 28 * em && height > 50 * em then
+                        Comfortable
+
+                    else if width > 14 * em && height > 38 * em then
+                        Compact
+
+                    else
+                        Condensed
+    in
+    { width = width
+    , height = height
+    , device = device
+    , bigEm = scale { em = em } 2
+    , em = em
+    , smallEm = scale { em = em } -1
+    , density = density
+    }
+
+
+type Density
+    = Comfortable
+    | Compact
+    | Condensed
+
+
+scale : { a | em : Int } -> Int -> Int
+scale { em } n =
+    round <| E.modular (toFloat em) 1.25 n
+
+
+contentWidth : { a | device : { b | orientation : E.Orientation }, width : Int } -> Int
+contentWidth { device, width } =
+    case device.orientation of
+        E.Portrait ->
+            width
+
+        E.Landscape ->
+            round <| 2 * toFloat width / 3
 
 
 
@@ -36,322 +201,70 @@ notSelectable =
 
 
 
--- COLORS
-
-
-transparent : E.Color
-transparent =
-    E.rgba 0 0 0 0
-
-
-warningColor : E.Color
-warningColor =
-    E.rgb 0.82 0.47 0.0
-
-
-fgFocus : E.Color
-fgFocus =
-    --rgb 0.98 0.62 0.05
-    --rgb 0.15 0.76 0.98
-    --rgba 0 0 0 0.4
-    E.rgb 1.0 0.7 0
-
-
-bgPage : E.Color
-bgPage =
-    --rgb 0.85 0.82 0.75
-    --rgb 0.76 0.73 0.65
-    -- rgb 0.74 0.71 0.65
-    E.rgb 1 1 1
-
-
-bgLight : E.Color
-bgLight =
-    -- rgb 0.94 0.92 0.87
-    --E.rgb 0.86 0.86 0.86
-    E.rgb 0.9 0.9 0.89
-
-
-bgDark : E.Color
-bgDark =
-    -- rgb 0.72 0.71 0.68
-    E.rgb 0.7 0.7 0.65
-
-
-bgWhite : E.Color
-bgWhite =
-    E.rgb 1.0 1.0 1.0
-
-
-fgWhite : E.Color
-fgWhite =
-    E.rgb 1.0 1.0 1.0
-
-
-fgBlack : E.Color
-fgBlack =
-    E.rgb 0 0 0
-
-
-fgRed : E.Color
-fgRed =
-    E.rgb 0.84 0.22 0.0
-
-
-fgDark : E.Color
-fgDark =
-    E.rgb 0.7 0.7 0.65
-
-
-fgDarker : E.Color
-fgDarker =
-    E.rgb 0.5 0.5 0.45
-
-
-fgTransaction : Bool -> E.Color
-fgTransaction isExpense =
-    if isExpense then
-        fgExpense
-
-    else
-        fgIncome
-
-
-bgTransaction : Bool -> E.Color
-bgTransaction isExpense =
-    if isExpense then
-        bgExpense
-
-    else
-        bgIncome
-
-
-bgExpense : E.Color
-bgExpense =
-    -- rgb 0.8 0.25 0.2
-    E.rgb 0.64 0.12 0.0
-
-
-fgExpense : E.Color
-fgExpense =
-    -- rgb 0.6 0.125 0
-    bgExpense
-
-
-fgOnExpense : E.Color
-fgOnExpense =
-    E.rgb 1.0 1.0 1.0
-
-
-bgIncome : E.Color
-bgIncome =
-    -- rgb255 44 136 32
-    -- rgb255 22 102 0
-    E.rgb 0.1 0.44 0
-
-
-bgIncomeButton : E.Color
-bgIncomeButton =
-    E.rgb 0.92 0.94 0.86
-
-
-bgIncomeButtonOver : E.Color
-bgIncomeButtonOver =
-    E.rgb 0.98 1 0.96
-
-
-bgIncomeButtonDown : E.Color
-bgIncomeButtonDown =
-    E.rgb 0.7 0.8 0.6
-
-
-bgExpenseButton : E.Color
-bgExpenseButton =
-    E.rgb 0.94 0.87 0.87
-
-
-bgExpenseButtonOver : E.Color
-bgExpenseButtonOver =
-    E.rgb 1 0.96 0.96
-
-
-bgExpenseButtonDown : E.Color
-bgExpenseButtonDown =
-    E.rgb 0.8 0.6 0.6
-
-
-fgIncome : E.Color
-fgIncome =
-    -- rgb255 22 68 0
-    bgIncome
-
-
-fgOnIncome : E.Color
-fgOnIncome =
-    E.rgb 1.0 1.0 1.0
-
-
-bgEvenRow : E.Color
-bgEvenRow =
-    --E.rgb 0.99 0.98 0.9
-    E.rgb 0.96 0.96 0.95
-
-
-bgOddRow : E.Color
-bgOddRow =
-    --E.rgb 0.96 0.95 0.74
-    --E.rgb 0.9 0.9 0.89
-    E.rgb 0.92 0.92 0.91
-
-
-bgButton : E.Color
-bgButton =
-    --E.rgb 0.85 0.9 0.94
-    E.rgb 0.94 0.94 0.93
-
-
-bgButtonOver : E.Color
-bgButtonOver =
-    --E.rgb 0.98 0.99 1
-    E.rgb 1 1 1
-
-
-bgButtonDown : E.Color
-bgButtonDown =
-    --E.rgb 0.7 0.75 0.79
-    E.rgb 0.9 0.9 0.89
-
-
-bgMouseOver : E.Color
-bgMouseOver =
-    E.rgb 0.94 0.94 0.93
-
-
-bgMouseDown : E.Color
-bgMouseDown =
-    E.rgb 0.9 0.9 0.89
-
-
-bgMainButton : E.Color
-bgMainButton =
-    bgTitle
-
-
-bgMainButtonOver : E.Color
-bgMainButtonOver =
-    E.rgb 0.18 0.52 0.66
-
-
-bgMainButtonDown : E.Color
-bgMainButtonDown =
-    E.rgb 0.08 0.19 0.3
-
-
-bgTitle : E.Color
-bgTitle =
-    --rgb 0.3 0.6 0.7
-    --rgb 0.12 0.51 0.65
-    --rgb 0.06 0.25 0.32
-    E.rgb 0.08 0.26 0.42
-
-
-fgTitle : E.Color
-fgTitle =
-    bgTitle
-
-
-fgOnTitle : E.Color
-fgOnTitle =
-    E.rgb 1 1 1
-
-
-
 -- STYLES FOR INTERACTIVE ELEMENTS
+
+
+focusVisibleOnly : E.Attribute msg
+focusVisibleOnly =
+    E.htmlAttribute <| Html.Attributes.class "focus-visible-only"
 
 
 transition : E.Attribute msg
 transition =
-    E.htmlAttribute (Html.Attributes.style "transition" "background 0.1s, color 0.1s, box-shadow 0.1s, border-color 0.1s")
+    E.htmlAttribute <| Html.Attributes.class "button-transition"
 
 
-defaultShadow : E.Attr decorative msg
+defaultShadow : E.Attribute msg
 defaultShadow =
-    Border.shadow { offset = ( 0, 5 ), size = 0, blur = 8, color = E.rgba 0 0 0 0.5 }
+    E.htmlAttribute <| Html.Attributes.class "button-shadow"
 
 
-smallShadow : E.Attr decorative msg
+smallShadow : E.Attribute msg
 smallShadow =
-    Border.shadow { offset = ( 0, 2 ), size = 0, blur = 6, color = E.rgba 0 0 0 0.5 }
+    E.htmlAttribute <| Html.Attributes.class "small-shadow"
 
 
-innerShadow : E.Attr decorative msg
+innerShadow : E.Attribute msg
 innerShadow =
     Border.innerShadow { offset = ( 0, 1 ), size = 0, blur = 4, color = E.rgba 0 0 0 0.5 }
-
-
-bigInnerShadow : E.Attr decorative msg
-bigInnerShadow =
-    Border.innerShadow { offset = ( 0, 1 ), size = 0, blur = 6, color = E.rgba 0 0 0 0.7 }
-
-
-mouseDown : List (E.Attr Never Never) -> E.Attribute msg
-mouseDown attr =
-    E.mouseDown
-        (Border.shadow { offset = ( 0, 1 ), size = 0, blur = 3, color = E.rgba 0 0 0 0.4 }
-            :: attr
-        )
-
-
-mouseOver : List E.Decoration -> E.Attribute msg
-mouseOver attr =
-    E.mouseOver attr
 
 
 
 -- FONTS
 
 
-fontFamily : E.Attribute msg
-fontFamily =
+fontFamily : String -> E.Attribute msg
+fontFamily font =
     Font.family
-        [ Font.typeface "Work Sans"
-        , Font.sansSerif
+        [ Font.typeface font
+
+        -- , Font.sansSerif
         ]
 
 
-biggestFont : E.Attr decorative msg
-biggestFont =
-    Font.size 48
+biggestFont : Context -> E.Attr decorative msg
+biggestFont context =
+    Font.size <| scale context 3
 
 
-biggerFont : E.Attr decorative msg
-biggerFont =
-    Font.size 36
+bigFont : Context -> E.Attr decorative msg
+bigFont context =
+    Font.size <| scale context 2
 
 
-bigFont : E.Attr decorative msg
-bigFont =
-    Font.size 32
+defaultFontSize : Context -> E.Attr decorative msg
+defaultFontSize context =
+    Font.size <| context.em
 
 
-normalFont : E.Attr decorative msg
-normalFont =
-    Font.size 26
+smallFont : Context -> E.Attr decorative msg
+smallFont context =
+    Font.size <| scale context -1
 
 
-smallFont : E.Attr decorative msg
-smallFont =
-    Font.size 20
-
-
-smallerFont : E.Attr decorative msg
-smallerFont =
-    Font.size 14
-
-
-verySmallFont : E.Attr decorative msg
-verySmallFont =
-    Font.size 16
+smallerFont : Context -> E.Attr decorative msg
+smallerFont context =
+    Font.size <| scale context -2
 
 
 iconFont : E.Attribute msg
@@ -363,84 +276,89 @@ iconFont =
 -- ICONS
 
 
-closeIcon : List (E.Attribute msg) -> E.Element msg
-closeIcon attributes =
-    E.el ([ iconFont, normalFont, E.centerX ] ++ attributes)
+closeIcon : E.Element msg
+closeIcon =
+    E.el [ iconFont, E.centerX ]
         (E.text "\u{F00D}")
 
 
-backIcon : List (E.Attribute msg) -> E.Element msg
-backIcon attributes =
-    E.el ([ iconFont, normalFont ] ++ attributes)
-        (E.text "\u{F30A}")
+backIcon : E.Element msg
+backIcon =
+    E.el [ iconFont ]
+        -- F30A
+        (E.text "\u{F060}")
 
 
-editIcon : List (E.Attribute msg) -> E.Element msg
-editIcon attributes =
-    E.el ([ iconFont, normalFont, E.centerX ] ++ attributes)
+editIcon : E.Element msg
+editIcon =
+    E.el [ iconFont, E.centerX ]
         (E.text "\u{F044}")
 
 
-deleteIcon : List (E.Attribute msg) -> E.Element msg
-deleteIcon attributes =
-    E.el ([ iconFont, normalFont, E.centerX ] ++ attributes)
+deleteIcon : E.Element msg
+deleteIcon =
+    E.el [ iconFont, E.centerX ]
         (E.text "\u{F2ED}")
 
 
-minusIcon : List (E.Attribute msg) -> E.Element msg
-minusIcon attributes =
-    E.el ([ iconFont, normalFont, E.centerX ] ++ attributes)
+minusIcon : E.Element msg
+minusIcon =
+    E.el [ iconFont, E.centerX ]
         (E.text "\u{F068}")
 
 
-plusIcon : List (E.Attribute msg) -> E.Element msg
-plusIcon attributes =
-    E.el ([ iconFont, normalFont, E.centerX ] ++ attributes)
+plusIcon : E.Element msg
+plusIcon =
+    E.el [ iconFont, E.centerX ]
         (E.text "\u{F067}")
 
 
-checkIcon : List (E.Attribute msg) -> E.Element msg
-checkIcon attributes =
-    E.el ([ iconFont, normalFont ] ++ attributes)
+checkIcon : E.Element msg
+checkIcon =
+    E.el [ iconFont, E.centerX ]
         (E.text "\u{F00C}")
 
 
-warningIcon : List (E.Attribute msg) -> E.Element msg
-warningIcon attributes =
-    E.el ([ iconFont, bigFont, E.centerX, E.paddingXY 24 0, Font.color warningColor ] ++ attributes)
+warningIcon : E.Element msg
+warningIcon =
+    E.el [ iconFont, E.centerX, E.paddingXY 24 0, Font.color Color.warning60 ]
         (E.text "\u{F071}")
 
 
-bigWarningIcon : List (E.Attribute msg) -> E.Element msg
-bigWarningIcon attributes =
+errorIcon : E.Element msg
+errorIcon =
+    E.el [ iconFont, E.centerX, E.paddingXY 24 0, Font.color Color.white ]
+        (E.text "\u{F071}")
+
+
+bigWarningIcon : E.Element msg
+bigWarningIcon =
     E.el
-        ([ iconFont, Font.size 48, E.alignLeft, E.padding 0, Font.color warningColor ]
-            ++ attributes
-        )
+        [ iconFont, Font.size 48, E.alignLeft, E.alignTop, E.padding 0, Font.color Color.warning60 ]
         (E.text "\u{F071}")
 
 
-incomeIcon : List (E.Attribute msg) -> E.Element msg
-incomeIcon attributes =
-    E.el ([ iconFont, normalFont, E.centerX ] ++ attributes)
+incomeIcon : E.Element msg
+incomeIcon =
+    E.el [ iconFont, E.centerX ]
         (E.text "\u{F067}")
 
 
-expenseIcon : List (E.Attribute msg) -> E.Element msg
-expenseIcon attributes =
-    E.el ([ iconFont, normalFont, E.centerX ] ++ attributes)
+expenseIcon : E.Element msg
+expenseIcon =
+    E.el [ iconFont, E.centerX ]
         (E.text "\u{F068}")
 
 
-saveIcon : List (E.Attribute msg) -> E.Element msg
-saveIcon attributes =
-    E.el ([ iconFont, normalFont, E.centerX ] ++ attributes)
+saveIcon : E.Element msg
+saveIcon =
+    E.el [ iconFont, E.centerX ]
         (E.text "\u{F0C7}")
 
 
-loadIcon : List (E.Attribute msg) -> E.Element msg
-loadIcon attributes =
-    E.el ([ iconFont, normalFont, E.centerX ] ++ attributes)
+loadIcon : E.Element msg
+loadIcon =
+    E.el [ iconFont, E.centerX ]
         (E.text "\u{F2EA}")
 
 
@@ -448,95 +366,159 @@ loadIcon attributes =
 -- CONTAINERS
 
 
-pageWithSidePanel :
-    List (E.Attribute msg)
+dialog :
+    Context
     ->
-        { panel : E.Element msg
-        , page : E.Element msg
+        { key : String
+        , content : E.Element msg
+        , close : { label : E.Element msg, icon : E.Element msg, color : ButtonColor, onPress : msg }
+        , actions : List { label : E.Element msg, icon : E.Element msg, color : ButtonColor, onPress : msg }
         }
     -> E.Element msg
-pageWithSidePanel attributes { panel, page } =
-    E.row
-        ([ E.width E.fill
-         , E.height E.fill
-         , E.clipX
-         , E.clipY
-         , Background.color bgPage
-         , fontFamily
-         , normalFont
-         ]
-            ++ attributes
-        )
-        [ E.el
-            [ E.width (E.fillPortion 1)
-            , E.height E.fill
-            , E.clipY
-            , E.paddingXY 6 12
-            , E.alignTop
-            ]
-            panel
-        , E.el
-            [ E.width (E.fillPortion 3)
-            , E.height E.fill
-            , E.clipY
-            , E.paddingEach { top = 0, left = 6, bottom = 3, right = 6 }
-            , Border.widthEach { top = 0, left = borderWidth, bottom = 0, right = 0 }
-            , Border.color bgWhite -- bgDark
-            ]
-            page
-        ]
-
-
-titledRow : String -> List (E.Attribute msg) -> List (E.Element msg) -> E.Element msg
-titledRow title attrs elems =
-    E.column
-        [ E.width E.fill
-        , E.height E.shrink
-        , E.paddingEach { top = 24, bottom = 24, right = 64, left = 64 }
-        , E.spacing 6
-        , Background.color bgWhite
-        ]
-        [ E.el
-            [ E.width E.shrink
-            , E.height E.fill
-            , Font.color fgTitle
-            , normalFont
-            , Font.bold
-            , E.paddingEach { top = 0, bottom = 12, left = 0, right = 0 }
-            , notSelectable
-            ]
-            (E.text title)
-        , E.row
-            ([ E.width E.fill
-             , E.paddingEach { top = 0, bottom = 0, left = 24, right = 0 }
-             ]
-                ++ attrs
+dialog context { key, content, close, actions } =
+    if context.device.class == E.Phone || context.device.orientation == E.Portrait then
+        Keyed.el [ E.width E.fill, E.height E.fill ] <|
+            ( key
+            , E.column
+                [ E.width E.fill
+                , E.height E.fill
+                , E.spacing <| context.em // 2
+                ]
+                [ E.row
+                    [ E.width E.fill
+                    , Background.color Color.neutral95
+                    , E.htmlAttribute <| Html.Attributes.class "panel-shadow"
+                    , E.htmlAttribute <| Html.Attributes.style "z-index" "2"
+                    ]
+                    (navigationButton context close
+                        :: E.el [ E.width E.fill ] E.none
+                        :: List.map
+                            (\button -> navigationButton context button)
+                            actions
+                    )
+                , E.el [ E.padding <| context.em // 2, E.width E.fill, E.height E.fill, E.clipX ]
+                    content
+                ]
             )
-            elems
-        ]
+
+    else
+        let
+            buttonRow =
+                E.row
+                    [ E.width E.fill
+                    , E.spacing <| context.em
+                    ]
+                <|
+                    E.el [ E.width E.fill ] E.none
+                        :: roundButton context close
+                        :: List.map
+                            (\button -> roundButton context button)
+                            actions
+        in
+        Keyed.el [ E.width E.fill, E.height E.fill ] <|
+            ( key
+            , E.column
+                [ E.width E.fill
+                , E.height E.fill
+                , E.spacing <| context.em * 2
+                ]
+                [ content
+                , buttonRow
+                ]
+            )
 
 
-configRadio :
-    List (E.Attribute msg)
+toggleSwitch :
+    Context
     ->
         { label : String
-        , options : List (Input.Option option msg)
-        , selected : Maybe option
-        , onChange : option -> msg
+        , checked : Bool
+        , onChange : Bool -> msg
         }
     -> E.Element msg
-configRadio _ { label, options, selected, onChange } =
-    Input.radioRow
-        [ E.paddingEach { top = 12, bottom = 24, left = 12 + 64, right = 12 }
-        , E.width E.fill
+toggleSwitch context { label, checked, onChange } =
+    Input.checkbox
+        [ E.width E.fill
+        , Border.width 4
+        , Border.color Color.transparent
+        , focusVisibleOnly
+        , E.paddingEach { bottom = 0, top = 0, left = context.em // 2, right = 0 }
         ]
         { label =
-            Input.labelAbove
-                [ E.paddingEach { bottom = 0, top = 48, left = 12, right = 12 } ]
-                (E.el [ Font.bold ] (E.text label))
-        , options = options
-        , selected = selected
+            Input.labelRight
+                [ E.paddingEach { bottom = 0, top = 0, left = context.em // 2, right = context.em // 2 } ]
+                (E.el [] (E.text label))
+        , checked = checked
         , onChange = onChange
+        , icon =
+            \v ->
+                if v then
+                    E.el
+                        [ E.width <| E.px <| 2 * context.em
+                        , E.height <| E.px <| context.em
+                        , E.htmlAttribute <| Html.Attributes.style "transform" "translate(0px,2px)"
+                        , E.behindContent <|
+                            E.el
+                                [ E.centerY
+                                , E.width <| E.px <| 2 * context.em
+                                , E.height <| E.px <| context.em
+                                , Border.rounded context.em
+                                , Background.color Color.primary85
+                                , innerShadow
+                                , transition
+                                ]
+                                E.none
+                        , E.inFront <|
+                            E.el
+                                [ E.alignRight
+                                , E.centerY
+                                , E.width <| E.px <| context.em + 4
+                                , E.height <| E.px <| context.em + 4
+                                , E.htmlAttribute <| Html.Attributes.style "transform" "translate(+2px,-2px)"
+                                , Border.rounded context.em
+                                , Background.color Color.primary40
+                                , smallShadow
+                                , transition
+                                , E.mouseOver [ Background.color Color.primary50 ]
+                                , E.mouseDown [ Background.color Color.primary30 ]
+                                ]
+                                E.none
+                        ]
+                        E.none
+
+                else
+                    E.el
+                        [ E.width <| E.px <| 2 * context.em
+                        , E.height <| E.px <| context.em
+                        , E.htmlAttribute <| Html.Attributes.style "transform" "translate(0px,2px)"
+                        , E.behindContent <|
+                            E.el
+                                [ E.centerY
+                                , E.width <| E.px <| 2 * context.em
+                                , E.height <| E.px <| context.em
+                                , Border.rounded context.em
+                                , Background.color Color.neutral95
+                                , innerShadow
+                                , transition
+                                ]
+                                E.none
+                        , E.inFront <|
+                            E.el
+                                [ E.alignLeft
+                                , E.centerY
+                                , E.width <| E.px <| context.em + 4
+                                , E.height <| E.px <| context.em + 4
+                                , E.htmlAttribute <| Html.Attributes.style "transform" "translate(-2px,-2px)"
+                                , Border.rounded context.em
+                                , Background.color Color.neutral70
+                                , smallShadow
+                                , transition
+                                , E.mouseOver [ Background.color Color.neutral80 ]
+                                , E.mouseDown [ Background.color Color.neutral60 ]
+                                ]
+                                E.none
+                        ]
+                        E.none
         }
 
 
@@ -549,27 +531,26 @@ radioRowOption value element =
                 ([ E.centerX
                  , E.paddingXY 16 7
                  , Border.rounded 3
-                 , bigFont
                  , transition
                  ]
                     ++ (case state of
                             Input.Idle ->
-                                [ Font.color fgTitle
-                                , E.mouseDown [ Background.color bgMouseDown ]
-                                , E.mouseOver [ Background.color bgMouseOver ]
+                                [ Font.color Color.neutral30
+                                , E.mouseDown [ Background.color Color.neutral90 ]
+                                , E.mouseOver [ Background.color Color.neutral95 ]
                                 ]
 
                             Input.Focused ->
-                                [ E.mouseDown [ Background.color bgMouseDown ]
-                                , E.mouseOver [ Background.color bgMouseOver ]
+                                [ E.mouseDown [ Background.color Color.neutral90 ]
+                                , E.mouseOver [ Background.color Color.neutral95 ]
                                 ]
 
                             Input.Selected ->
                                 [ Font.color (E.rgb 1 1 1)
-                                , Background.color bgMainButton
+                                , Background.color Color.primary40
                                 , smallShadow
-                                , mouseDown [ Background.color bgMainButtonDown ]
-                                , mouseOver [ Background.color bgMainButton ]
+                                , E.mouseDown [ Background.color Color.primary30 ]
+                                , E.mouseOver [ Background.color Color.primary40 ]
                                 ]
                        )
                 )
@@ -578,13 +559,11 @@ radioRowOption value element =
 
 
 configCustom :
-    List (E.Attribute msg)
-    ->
-        { label : String
-        , content : E.Element msg
-        }
+    { label : String
+    , content : E.Element msg
+    }
     -> E.Element msg
-configCustom _ { label, content } =
+configCustom { label, content } =
     E.column
         [ E.paddingEach { top = 48, bottom = 24, left = 12, right = 12 }
         , E.width E.fill
@@ -602,125 +581,386 @@ configCustom _ { label, content } =
 -- ELEMENTS
 
 
-pageTitle : List (E.Attribute msg) -> E.Element msg -> E.Element msg
-pageTitle attributes element =
-    E.el
-        ([ bigFont
-         , Font.center
-         , Font.bold
-         , E.paddingEach { top = 12, bottom = 12, left = 12, right = 12 }
-         , E.width E.fill
-         ]
-            ++ attributes
-        )
-        element
-
-
-warningParagraph : List (E.Attribute msg) -> List (E.Element msg) -> E.Element msg
-warningParagraph attributes elements =
+pageTitle : Context -> E.Element msg -> E.Element msg
+pageTitle context element =
     E.row
-        ([ normalFont
-         , Font.color fgBlack
-         , E.centerY
-         , E.spacing 12
-         ]
-            ++ attributes
-        )
-        [ bigWarningIcon []
+        [ E.centerX
+        , E.width E.fill
+        , E.paddingEach { top = 3, bottom = 8, left = 2 * context.em, right = 2 * context.em }
+        ]
+        [ E.el
+            [ bigFont context
+            , Font.center
+            , Font.bold
+            , E.paddingEach { top = 4, bottom = 8, left = 12, right = 12 }
+            , E.width E.fill
+            , E.centerY
+            , Background.color Color.neutral95
+            , Border.roundEach { topLeft = 32, bottomLeft = 32, topRight = 32, bottomRight = 32 }
+            , Font.color Color.neutral40
+            , Font.center
+            , smallShadow
+            ]
+            element
+        ]
+
+
+dialogSectionRow : Context -> String -> E.Element msg -> E.Element msg
+dialogSectionRow context titleText content =
+    E.row [ E.width E.fill, E.spacing <| context.em ]
+        [ E.el
+            [ Font.color Color.neutral30
+
+            -- , Font.bold
+            , E.padding 0
+            , notSelectable
+            ]
+            (E.text titleText)
+        , content
+        ]
+
+
+dialogSection : Context -> String -> E.Element msg -> E.Element msg
+dialogSection context titleText content =
+    E.column [ E.width E.fill, E.spacing <| context.em // 2 ]
+        [ E.el
+            [ E.width E.fill
+            , Font.color Color.neutral30
+
+            -- , Font.bold
+            , E.padding 0
+            , notSelectable
+            ]
+            (E.text titleText)
+        , E.el [ E.width E.fill, E.paddingXY 0 0 ] content
+        ]
+
+
+ruler : E.Element msg
+ruler =
+    E.el
+        [ E.width E.fill
+        , E.height (E.px borderWidth)
+        , E.paddingXY 48 0
+        ]
+        (E.el [ E.width E.fill, E.height E.fill, Background.color Color.neutral90 ] E.none)
+
+
+warningParagraph : List (E.Element msg) -> E.Element msg
+warningParagraph elements =
+    E.row
+        [ Font.color Color.neutral20
+        , E.centerY
+        , E.spacing 12
+        , E.width E.fill
+        , E.height (E.shrink |> E.minimum 48)
+        ]
+        [ bigWarningIcon
         , E.paragraph [] elements
         ]
 
 
-dateNavigationBar : { a | showFocus : Bool, date : Date.Date, today : Date.Date } -> E.Element Msg.Msg
-dateNavigationBar model =
-    Keyed.row
-        [ E.width E.fill
-        , E.alignTop
-        , E.paddingEach { top = 0, bottom = 8, left = 8, right = 8 }
-        , Background.color bgWhite
+warningPopup : Context -> List (E.Element msg) -> E.Element msg
+warningPopup context elements =
+    E.el
+        [ E.padding 18
+        , E.centerX
+        , notSelectable
+        , E.htmlAttribute <| Html.Attributes.style "cursor" "default"
         ]
-        [ ( "previous month button"
-          , E.el
-                [ E.width (E.fillPortion 2)
-                , E.height E.fill
-                ]
-                (Input.button
-                    [ E.width E.fill
-                    , E.height E.fill
-                    , Border.roundEach { topLeft = 0, bottomLeft = 0, topRight = 0, bottomRight = 32 }
-                    , Font.color fgTitle
-                    , Border.widthEach { top = 0, bottom = 0, left = 0, right = 0 }
-                    , Background.color bgButton
-                    , Border.color bgDark
-                    , E.paddingEach { top = 4, bottom = 8, left = 0, right = 0 }
-                    , smallShadow
-                    , transition
-                    , mouseDown [ Background.color bgButtonDown ]
-                    , mouseOver [ Background.color bgButtonOver ]
-                    ]
-                    { label =
-                        E.row
-                            [ E.width E.fill ]
-                            [ E.el [ bigFont, Font.color fgTitle, E.centerX ]
-                                (E.text (Date.getMonthName (Date.decrementMonth model.date)))
-                            , E.el [ E.centerX, iconFont, normalFont ] (E.text "  \u{F060}  ")
-                            ]
-                    , onPress = Just (Msg.SelectDate (Date.decrementMonthUI model.date model.today))
-                    }
-                )
-          )
-        , ( "current month header"
-          , E.el
-                [ E.width (E.fillPortion 3)
-                , E.height E.fill
-                , E.paddingEach { top = 4, bottom = 8, left = 0, right = 0 }
-                , notSelectable
-                ]
-                (E.el
+    <|
+        E.paragraph
+            [ Font.color Color.neutral10
+            , Background.color Color.focus85
+            , E.centerY
+            , E.spacing 12
+            , E.height (E.shrink |> E.minimum 48)
+            , E.centerX
+            , E.paddingEach { left = 24, right = 24, top = 12, bottom = 12 }
+            , E.spacing 6
+            , Border.rounded 6
+            , E.spacing 12
+            , E.above <|
+                E.el
                     [ E.centerX
-                    , Font.bold
-                    , bigFont
+                    , E.alignBottom
+                    , iconFont
+                    , biggestFont context
+                    , Font.color Color.focus85
+                    , notSelectable
+                    , E.htmlAttribute <| Html.Attributes.style "transform" "translate(0, 18px)"
                     ]
-                    (E.text (Date.getMonthFullName model.today model.date))
-                )
-          )
-        , ( "next month button"
-          , E.el
-                -- needed to circumvent focus bug in elm-ui
-                [ E.width (E.fillPortion 2)
-                , E.height E.fill
-                ]
-                (Input.button
-                    [ E.width E.fill
+                <|
+                    E.text "\u{F0D8}"
+            , E.width <| E.px 380
+            , Font.center
+            , Font.regular
+            , notSelectable
+            , smallShadow
+            ]
+            elements
+
+
+monthNavigationBar : Context -> { a | date : Date, today : Date } -> (Date -> msg) -> E.Element msg
+monthNavigationBar context model changeMsg =
+    let
+        em =
+            context.em
+    in
+    E.row
+        [ E.width E.fill
+        , E.paddingEach
+            { top = 3
+            , bottom = 8
+            , left =
+                if context.density == Comfortable then
+                    2 * em
+
+                else
+                    em // 2
+            , right =
+                if context.density == Comfortable then
+                    2 * em
+
+                else
+                    em // 2
+            }
+        ]
+        [ Keyed.row
+            [ E.width <| E.fill
+            , E.centerX
+            , E.alignTop
+            , Background.color Color.neutral95
+            , Border.roundEach { topLeft = 32, bottomLeft = 32, topRight = 32, bottomRight = 32 }
+            , smallShadow
+            ]
+            [ ( "previous month button"
+              , E.el
+                    [ E.width (E.fillPortion 2)
                     , E.height E.fill
-                    , Border.roundEach { topLeft = 0, bottomLeft = 32, topRight = 0, bottomRight = 0 }
-                    , Font.color fgTitle
-                    , Border.widthEach { top = 0, bottom = 0, left = 0, right = 0 }
-                    , Background.color bgButton
-                    , Border.color bgDark
-                    , E.paddingEach { top = 4, bottom = 8, left = 0, right = 0 }
-                    , smallShadow
-                    , transition
-                    , mouseDown [ Background.color bgButtonDown ]
-                    , mouseOver [ Background.color bgButtonOver ]
                     ]
-                    { label =
-                        E.row
-                            [ E.width E.fill ]
-                            [ E.el [ E.centerX, iconFont, normalFont ] (E.text "  \u{F061}  ")
-                            , E.el [ bigFont, Font.color fgTitle, E.centerX ]
-                                (E.text (Date.getMonthName (Date.incrementMonth model.date)))
-                            ]
-                    , onPress = Just (Msg.SelectDate (Date.incrementMonthUI model.date model.today))
-                    }
-                )
-          )
+                    (Input.button
+                        [ E.width E.fill
+                        , E.height E.fill
+                        , Border.roundEach { topLeft = 32, bottomLeft = 32, topRight = 0, bottomRight = 0 }
+                        , Font.color Color.neutral30
+                        , Background.color Color.neutral95
+                        , Border.width 4
+                        , Border.color Color.transparent
+                        , focusVisibleOnly
+                        , transition
+                        , E.mouseDown [ Background.color Color.neutral90 ]
+                        , E.mouseOver [ Background.color Color.neutral98 ]
+                        ]
+                        { label =
+                            E.row
+                                [ E.width E.fill ]
+                                [ if context.density == Comfortable then
+                                    E.el [ E.centerX ]
+                                        (E.text (Date.getMonthName (Date.decrementMonth model.date)))
+
+                                  else
+                                    E.none
+                                , E.el [ E.centerX, iconFont ] (E.text "  \u{F060}  ")
+                                ]
+                        , onPress = Just (changeMsg (Date.decrementMonthUI model.date model.today))
+                        }
+                    )
+              )
+            , ( "current month header"
+              , E.el
+                    [ E.width (E.fillPortion 3)
+                    , E.height E.fill
+                    , notSelectable
+                    ]
+                    (E.el
+                        [ E.centerX
+                        , Font.bold
+                        , if context.density == Comfortable then
+                            bigFont context
+
+                          else
+                            defaultFontSize context
+                        , Font.color Color.neutral30
+                        , E.padding 6
+                        ]
+                        (E.text (Date.getMonthFullName model.today model.date))
+                    )
+              )
+            , ( "next month button"
+              , E.el
+                    -- needed to circumvent focus bug in elm-ui
+                    [ E.width (E.fillPortion 2)
+                    , E.height E.fill
+                    ]
+                    (Input.button
+                        [ E.width E.fill
+                        , E.height E.fill
+                        , Border.roundEach { topLeft = 0, bottomLeft = 0, topRight = 32, bottomRight = 32 }
+                        , Font.color Color.neutral30
+                        , Background.color Color.neutral95
+                        , Border.width 4
+                        , Border.color Color.transparent
+                        , focusVisibleOnly
+                        , transition
+                        , E.mouseDown [ Background.color Color.neutral90 ]
+                        , E.mouseOver [ Background.color Color.neutral98 ]
+                        ]
+                        { label =
+                            E.row
+                                [ E.width E.fill ]
+                                [ E.el [ E.centerX, iconFont ] (E.text "  \u{F061}  ")
+                                , if context.density == Comfortable then
+                                    E.el [ E.centerX ]
+                                        (E.text (Date.getMonthName (Date.incrementMonth model.date)))
+
+                                  else
+                                    E.none
+                                ]
+                        , onPress = Just (changeMsg (Date.incrementMonthUI model.date model.today))
+                        }
+                    )
+              )
+            ]
         ]
 
 
-viewMoney : Money.Money -> Bool -> E.Element msg
-viewMoney money future =
+weekNavigationBar : Context -> { a | date : Date, today : Date } -> (Date -> msg) -> E.Element msg
+weekNavigationBar context model changeMsg =
     let
+        em =
+            context.em
+    in
+    E.column
+        [ E.width E.fill
+        , E.paddingEach { top = 3, bottom = 8, left = 3, right = 3 }
+        ]
+        [ Keyed.row
+            [ E.width <| E.fill
+            , E.centerX
+            , E.alignTop
+            , E.spacing <| em // 4
+            ]
+            [ ( "previous week button"
+              , E.el
+                    [ E.height E.fill
+                    , E.paddingXY (em // 2) 0
+                    ]
+                    (Input.button
+                        [ E.width E.fill
+                        , E.height E.fill
+                        , E.padding 4
+                        , Border.roundEach { topLeft = 32, bottomLeft = 32, topRight = 32, bottomRight = 32 }
+                        , Font.color Color.neutral30
+                        , Background.color Color.neutral95
+                        , smallShadow
+                        , Border.width 4
+                        , Border.color Color.transparent
+                        , focusVisibleOnly
+                        , transition
+                        , E.mouseDown [ Background.color Color.neutral90 ]
+                        , E.mouseOver [ Background.color Color.neutral98 ]
+                        ]
+                        { label =
+                            E.row
+                                [ E.width E.fill ]
+                                [ E.el [ E.centerX, iconFont ] (E.text "  \u{F060}  ")
+                                ]
+                        , onPress = Just (changeMsg (Date.decrementWeek model.date))
+                        }
+                    )
+              )
+            , ( "current week header"
+              , E.el
+                    [ E.width E.fill
+                    , E.height <| E.px <| 2 * em + em // 2
+                    , notSelectable
+                    , E.paddingEach { left = 0, right = 0, top = 0, bottom = em // 4 }
+                    ]
+                    (E.el
+                        [ E.centerX
+                        , E.centerY
+                        , Font.center
+
+                        -- , Font.bold
+                        -- , smallFont context
+                        , Font.color Color.neutral30
+                        , E.padding 6
+                        ]
+                        (E.paragraph []
+                            [ E.text (Date.fancyWeekDescription model.today model.date) ]
+                        )
+                    )
+              )
+            , ( "next week button"
+              , E.el
+                    -- needed to circumvent focus bug in elm-ui
+                    [ E.height E.fill
+                    , E.paddingXY (em // 2) 0
+                    ]
+                    (Input.button
+                        [ E.width E.fill
+                        , E.height E.fill
+                        , E.padding 4
+                        , Border.roundEach { topLeft = 32, bottomLeft = 32, topRight = 32, bottomRight = 32 }
+                        , Font.color Color.neutral30
+                        , Background.color Color.neutral95
+                        , smallShadow
+                        , Border.width 4
+                        , Border.color Color.transparent
+                        , focusVisibleOnly
+                        , transition
+                        , E.mouseDown [ Background.color Color.neutral90 ]
+                        , E.mouseOver [ Background.color Color.neutral98 ]
+                        ]
+                        { label =
+                            E.row
+                                [ E.width E.fill ]
+                                [ E.el [ E.centerX, iconFont ] (E.text "  \u{F061}  ")
+                                ]
+                        , onPress = Just (changeMsg (Date.incrementWeek model.date))
+                        }
+                    )
+              )
+            ]
+        ]
+
+
+viewIcon : String -> E.Element msg
+viewIcon txt =
+    E.el [ E.width (E.shrink |> E.minimum 48), iconFont, Font.center ]
+        (E.text txt)
+
+
+viewDate : Context -> Date -> E.Element msg
+viewDate context date =
+    E.paragraph
+        [ E.width E.fill
+        , Font.bold
+        , if context.density /= Comfortable then
+            defaultFontSize context
+
+          else
+            bigFont context
+        , Font.color Color.neutral30
+        , Font.center
+        ]
+        [ E.text
+            (Date.getWeekdayName date
+                ++ " "
+                ++ String.fromInt (Date.getDay date)
+                ++ " "
+                ++ Date.getMonthName date
+            )
+        ]
+
+
+viewMoney : Context -> Money.Money -> Bool -> E.Element msg
+viewMoney context money future =
+    let
+        em =
+            context.em
+
         openpar =
             if future then
                 "("
@@ -744,62 +984,58 @@ viewMoney money future =
         isZero =
             Money.isZero money
     in
-    E.row
-        [ E.width E.fill
-        , E.height E.shrink
-        , E.paddingEach { top = 0, bottom = 0, left = 0, right = 16 }
+    E.paragraph
+        [ E.width <| E.minimum (4 * em + em // 2) <| E.fill
+        , E.alignRight
+        , Font.alignRight
+        , if future then
+            Font.color Color.neutral50
+
+          else if isExpense then
+            Font.color Color.expense40
+
+          else if isZero then
+            Font.color Color.neutral70
+
+          else
+            Font.color Color.income40
+        , Font.variant Font.tabularNumbers
+        , Font.alignRight
         ]
-        [ E.el [E.width E.fill] E.none
-        , E.paragraph
-            [ if future then
-                Font.color fgDarker
-
-            else if isExpense then
-                Font.color fgExpense
-
-            else if isZero then
-                Font.color fgDark
-
-            else
-                Font.color fgIncome
+        (if isZero then
+            [ E.el [ E.width (E.fillPortion 75), defaultFontSize context, Font.alignRight ] (E.text "—")
+            , E.el [ E.width (E.fillPortion 25) ] E.none
             ]
-            (if isZero then
-                [ E.el [ E.width (E.fillPortion 75), normalFont, Font.alignRight ] (E.text "—")
-                , E.el [ E.width (E.fillPortion 25) ] E.none
-                ]
 
-            else
+         else
+            [ E.el
+                [ E.width (E.fillPortion 75)
+                , defaultFontSize context
+                , Font.bold
+                , Font.alignRight
+                ]
+                (E.text (openpar ++ parts.sign ++ parts.units ++ ","))
+            , E.row
+                [ E.width (E.fillPortion 25) ]
                 [ E.el
-                    [ E.width (E.fillPortion 75)
-                    , normalFont
+                    [ Font.bold
+                    , smallFont context
+                    , Font.alignLeft
+                    ]
+                    (E.text ("" ++ parts.cents))
+                , E.el
+                    [ defaultFontSize context
                     , Font.bold
                     , Font.alignRight
                     ]
-                    (E.text (openpar ++ parts.sign ++ parts.units ++ ","))
-                , E.row
-                    [ E.width (E.fillPortion 25) ]
-                    [ E.el
-                        [ Font.bold
-                        , smallFont
-                        , Font.alignLeft
-                        -- , E.alignBottom
-                        -- , E.paddingEach { top = 2, bottom = 0, left = 0, right = 0 }
-                        ]
-                        (E.text ("" ++ parts.cents))
-                    , E.el
-                        [ normalFont
-                        , Font.bold
-                        , Font.alignRight
-                        ]
-                        (E.text closepar)
-                    ]
+                    (E.text closepar)
                 ]
-            )
-        ]
+            ]
+        )
 
 
-viewSum : Money.Money -> E.Element msg
-viewSum money =
+viewSum : Context -> Money.Money -> E.Element msg
+viewSum context money =
     let
         parts =
             Money.toStrings money
@@ -811,14 +1047,14 @@ viewSum money =
         ]
         [ E.el
             [ E.width (E.fillPortion 75)
-            , biggerFont
+            , bigFont context
             , Font.alignRight
             , Font.bold
             ]
             (E.text (parts.sign ++ parts.units))
         , E.el
             [ E.width (E.fillPortion 25)
-            , normalFont
+            , defaultFontSize context
             , Font.alignLeft
             , E.alignBottom
             , E.paddingXY 0 1
@@ -832,190 +1068,399 @@ viewSum money =
 -- INTERACTIVE ELEMENTS
 
 
-simpleButton :
-    List (E.Attribute msg)
-    -> { onPress : Maybe msg, label : E.Element msg }
+type ButtonColor
+    = PlainButton
+    | DangerButton
+    | MainButton
+
+
+roundButton :
+    Context
+    ->
+        { a
+            | label : E.Element msg
+            , color : ButtonColor
+            , onPress : msg
+        }
     -> E.Element msg
-simpleButton attributes { onPress, label } =
+roundButton context { label, color, onPress } =
+    let
+        em =
+            context.em
+    in
     Input.button
-        ([ Background.color bgButton
-         , normalFont
-         , Font.color fgTitle
-         , Font.center
-         , roundCorners
-         , Border.width 0
-         , Border.color fgDark
-         , defaultShadow
-         , transition
-         , E.paddingXY 24 8
-         , mouseDown [ Background.color bgButtonDown ]
-         , mouseOver [ Background.color bgButtonOver ]
-         ]
-            ++ attributes
-        )
-        { onPress = onPress
+        [ Background.color <|
+            case color of
+                PlainButton ->
+                    Color.neutral95
+
+                DangerButton ->
+                    Color.warning60
+
+                MainButton ->
+                    Color.primary40
+        , Font.color <|
+            case color of
+                PlainButton ->
+                    Color.neutral30
+
+                DangerButton ->
+                    Color.white
+
+                MainButton ->
+                    Color.white
+        , Font.center
+        , Border.rounded 1000
+        , Border.width 4
+        , Border.color Color.transparent
+        , focusVisibleOnly
+        , defaultShadow
+        , transition
+        , E.paddingXY em (em // 4)
+        , E.mouseDown
+            [ Background.color <|
+                case color of
+                    PlainButton ->
+                        Color.neutral90
+
+                    DangerButton ->
+                        Color.warning50
+
+                    MainButton ->
+                        Color.primary30
+            ]
+        , E.mouseOver
+            [ Background.color <|
+                case color of
+                    PlainButton ->
+                        Color.neutral98
+
+                    DangerButton ->
+                        Color.warning70
+
+                    MainButton ->
+                        Color.primary50
+            ]
+        , E.htmlAttribute <| Html.Attributes.class "focus-visible-only"
+        ]
+        { onPress = Just onPress
         , label = label
         }
 
 
-mainButton :
-    List (E.Attribute msg)
-    -> { onPress : Maybe msg, label : E.Element msg }
-    -> E.Element msg
-mainButton attributes { onPress, label } =
-    Input.button
-        ([ Background.color bgTitle
-         , normalFont
-         , Font.color fgWhite
-         , Font.center
-         , roundCorners
-         , Border.width borderWidth
-         , Border.color bgTitle
-         , defaultShadow
-         , transition
-         , E.paddingXY 24 8
-         , mouseDown [ Background.color bgMainButtonDown, Border.color bgMainButtonDown ]
-         , mouseOver [ Background.color bgMainButtonOver, Border.color bgMainButtonOver ]
-         ]
-            ++ attributes
-        )
-        { onPress = onPress
-        , label = label
+navigationButton :
+    Context
+    ->
+        { a
+            | icon : E.Element msg
+            , color : ButtonColor
+            , onPress : msg
         }
-
-
-coloredButton :
-    List (E.Attribute msg)
-    -> { onPress : Maybe msg, label : E.Element msg, color : E.Color }
     -> E.Element msg
-coloredButton attributes { onPress, label, color } =
+navigationButton context { icon, color, onPress } =
+    let
+        em =
+            context.em
+    in
     Input.button
-        ([ Background.color bgPage
-         , normalFont
-         , Font.color color
-         , Font.center
-         , roundCorners
-         , Border.width borderWidth
-         , Border.color color
-         , defaultShadow
-         , transition
-         , E.paddingXY 24 8
-         , mouseDown [ Background.color color ]
-         , mouseOver [ Background.color color, Font.color bgPage ]
-         ]
-            ++ attributes
-        )
-        { onPress = onPress
-        , label = label
+        [ Background.color Color.transparent
+        , Font.color <|
+            case color of
+                PlainButton ->
+                    Color.primary40
+
+                DangerButton ->
+                    Color.warning60
+
+                MainButton ->
+                    Color.primary40
+        , Font.center
+        , Border.width 4
+        , Border.color Color.transparent
+        , focusVisibleOnly
+        , transition
+        , E.padding (em // 2)
+        , E.mouseDown
+            [ Font.color <|
+                case color of
+                    PlainButton ->
+                        Color.primary30
+
+                    DangerButton ->
+                        Color.warning50
+
+                    MainButton ->
+                        Color.primary30
+            ]
+        , E.mouseOver
+            [ Font.color <|
+                case color of
+                    PlainButton ->
+                        Color.primary50
+
+                    DangerButton ->
+                        Color.warning70
+
+                    MainButton ->
+                        Color.primary50
+            ]
+        , E.htmlAttribute <| Html.Attributes.class "focus-visible-only"
+        ]
+        { onPress = Just onPress
+        , label = icon
         }
 
 
 incomeButton :
-    List (E.Attribute msg)
-    -> { onPress : Maybe msg, label : E.Element msg }
+    Context
+    -> { onPress : msg, label : E.Element msg }
     -> E.Element msg
-incomeButton attributes { onPress, label } =
+incomeButton context { onPress, label } =
     Input.button
-        ([ Background.color bgIncomeButton
-         , normalFont
-         , Font.center
-         , roundCorners
-         , Border.width borderWidth
-         , Border.color bgIncomeButton
-         , defaultShadow
-         , transition
-         , E.paddingXY 24 8
-         , mouseDown [ Background.color bgIncomeButtonDown, Border.color bgIncomeButtonDown ]
-         , mouseOver [ Background.color bgIncomeButtonOver, Border.color bgIncomeButtonOver ]
-         ]
-            ++ attributes
-        )
-        { onPress = onPress
-        , label = label
+        [ E.width <| E.px <| 2 * context.bigEm + context.bigEm // 4
+        , E.height <| E.px <| 2 * context.bigEm + context.bigEm // 4
+        , Font.color Color.income30
+        , Background.color Color.income90
+        , Font.center
+        , Border.rounded 1000
+        , Border.width 4
+        , Border.color Color.transparent
+        , focusVisibleOnly
+        , defaultShadow
+        , transition
+        , E.padding (context.em // 4)
+        , E.mouseDown [ Background.color Color.income80, Border.color Color.income80 ]
+        , E.mouseOver [ Background.color Color.income95, Border.color Color.income95 ]
+        , E.htmlAttribute <| Html.Attributes.class "focus-visible-only"
+        ]
+        { onPress = Just onPress
+        , label = E.el [ E.centerX, E.centerY ] label
         }
 
 
 expenseButton :
-    List (E.Attribute msg)
-    -> { onPress : Maybe msg, label : E.Element msg }
+    Context
+    -> { onPress : msg, label : E.Element msg }
     -> E.Element msg
-expenseButton attributes { onPress, label } =
+expenseButton context { onPress, label } =
     Input.button
-        ([ Background.color bgExpenseButton
-         , normalFont
-         , Font.center
-         , roundCorners
-         , Border.width borderWidth
-         , Border.color bgExpenseButton
-         , defaultShadow
-         , transition
-         , E.paddingXY 24 8
-         , mouseDown [ Background.color bgExpenseButtonDown, Border.color bgExpenseButtonDown ]
-         , mouseOver [ Background.color bgExpenseButtonOver, Border.color bgExpenseButtonOver ]
-         ]
-            ++ attributes
-        )
+        [ E.width <| E.px <| 2 * context.bigEm + context.bigEm // 4
+        , E.height <| E.px <| 2 * context.bigEm + context.bigEm // 4
+        , Background.color Color.expense90
+        , Font.color Color.expense30
+        , Font.center
+        , Border.rounded 1000
+        , Border.width 4
+        , Border.color Color.transparent
+        , focusVisibleOnly
+        , defaultShadow
+        , transition
+        , E.padding (context.em // 4)
+        , E.mouseDown [ Background.color Color.expense80, Border.color Color.expense80 ]
+        , E.mouseOver [ Background.color Color.expense95, Border.color Color.expense95 ]
+        , focusVisibleOnly
+        ]
+        { onPress = Just onPress
+        , label = E.el [ E.centerX, E.centerY ] label
+        }
+
+
+flatButton :
+    { onPress : Maybe msg, label : E.Element msg }
+    -> E.Element msg
+flatButton { onPress, label } =
+    Input.button
+        [ Background.color Color.transparent
+        , Border.width 4
+        , Border.color Color.transparent
+        , focusVisibleOnly
+        , transition
+        , E.paddingXY 20 4
+        , Font.color Color.primary40
+        , E.mouseDown [ Font.color Color.primary30 ]
+        , E.mouseOver [ Font.color Color.primary50 ]
+        , E.htmlAttribute <| Html.Attributes.class "focus-visible-only"
+        ]
         { onPress = onPress
         , label = label
         }
 
 
 iconButton :
-    List (E.Attribute msg)
-    -> { onPress : Maybe msg, icon : E.Element msg }
+    { onPress : Maybe msg, icon : E.Element msg }
     -> E.Element msg
-iconButton attributes { onPress, icon } =
+iconButton { onPress, icon } =
     Input.button
-        ([ Background.color bgPage
-         , normalFont
-         , Font.color fgTitle
-         , Font.center
-         , roundCorners
-         , E.padding 8
-         , E.width (E.px 48)
-         , E.height (E.px 48)
-         , E.mouseDown [ Background.color bgMouseDown ]
-         , E.mouseOver [ Background.color bgMouseOver ]
-         ]
-            ++ attributes
-        )
+        [ Background.color Color.white
+        , Font.color Color.primary40
+        , Font.center
+        , roundCorners
+        , Border.width 4
+        , Border.color Color.transparent
+        , focusVisibleOnly
+        , E.padding 4
+        , E.width (E.shrink |> E.minimum 64)
+        , E.height (E.px 48)
+        , E.mouseDown [ Background.color Color.neutral90 ]
+        , E.mouseOver [ Background.color Color.neutral95 ]
+        ]
         { onPress = onPress
         , label = icon
         }
 
 
-radioButton : List (E.Attr () msg) -> { a | onPress : Maybe msg, icon : String, label : String, active : Bool } -> E.Element msg
-radioButton attributes { onPress, icon, label, active } =
+reconcileCheckBox :
+    Context
+    -> { state : Bool, onPress : Maybe msg, background : E.Color }
+    -> E.Element msg
+reconcileCheckBox context { state, onPress, background } =
+    let
+        em =
+            context.em
+    in
     Input.button
-        ([ normalFont
-         , Border.rounded 4
-         , E.paddingXY 24 8
+        [ Font.color Color.primary40
+        , Font.center
+        , E.width <| E.px <| 2 * em
+        , E.height <| E.px <| 2 * em
+        , E.alignRight
+        , Background.color (E.rgba 1 1 1 1)
+        , Border.width 4
+        , Border.color background
+        , focusVisibleOnly
+        , E.padding 2
+        , innerShadow
+        , transition
+        , E.mouseDown [ Background.color Color.neutral90 ]
+        , E.mouseOver []
+        ]
+        { onPress = onPress
+        , label =
+            if state then
+                checkIcon
+
+            else
+                E.none
+        }
+
+
+radioButton : Context -> { a | onPress : Maybe msg, icon : String, label : String, active : Bool } -> E.Element msg
+radioButton context { onPress, icon, label, active } =
+    let
+        em =
+            context.em
+    in
+    Input.button
+        ([ Border.rounded 4
+         , E.paddingXY 4 4
+         , E.width E.fill
+         , Border.width 4
+         , Border.color Color.transparent
+         , focusVisibleOnly
          , transition
          ]
             ++ (if active then
-                    [ Font.color fgWhite
-                    , Background.color bgMainButton
+                    [ Font.color Color.white
+                    , Background.color Color.primary40
                     , smallShadow
-                    , mouseDown [ Background.color bgMainButtonDown ]
-                    , mouseOver [ Background.color bgMainButton ]
+                    , E.mouseDown [ Background.color Color.primary30 ]
+                    , E.mouseOver [ Background.color Color.primary40 ]
                     ]
 
                 else
-                    [ Font.color fgTitle
-                    , Background.color bgWhite
-                    , E.mouseDown [ Background.color bgMouseDown ]
-                    , E.mouseOver [ Background.color bgMouseOver ]
+                    [ Font.color Color.primary40
+                    , Background.color Color.white
+                    , E.mouseDown [ Background.color Color.neutral90 ]
+                    , E.mouseOver [ Background.color Color.neutral95 ]
                     ]
                )
-            ++ attributes
         )
         { onPress = onPress
         , label =
             E.row []
-                [ E.el [ iconFont ] (E.text icon)
-                , E.text " "
-                , E.text label
+                [ if icon /= "" then
+                    E.el [ E.width (E.shrink |> E.minimum (em + em // 2)), iconFont, Font.center ]
+                        (E.text icon)
+
+                  else
+                    E.none
+                , if label /= "" then
+                    E.text (" " ++ label)
+
+                  else
+                    E.none
                 ]
+        }
+
+
+labelLeft : String -> Input.Label msg
+labelLeft txt =
+    Input.labelLeft [ E.paddingEach { left = 0, right = 12, top = 0, bottom = 0 } ] (E.text txt)
+
+
+textInput : { label : Input.Label msg, text : String, onChange : String -> msg } -> E.Element msg
+textInput args =
+    Input.text
+        [ E.width <| E.fill
+        , Border.width 4
+        , Border.color Color.white
+        , Background.color Color.neutral98
+        , innerShadow
+        , E.focused
+            [ Border.color Color.focus85
+            ]
+        , Font.color Color.neutral20
+        , E.htmlAttribute <| Html.Attributes.autocomplete False
+        ]
+        { label = args.label
+        , text = args.text
+        , placeholder = Nothing
+        , onChange = args.onChange
+        }
+
+
+moneyInput :
+    Context
+    ->
+        { label : Input.Label msg
+        , color : E.Color
+        , state : ( String, Maybe String )
+        , onChange : String -> msg
+        }
+    -> E.Element msg
+moneyInput context args =
+    let
+        minWidth =
+            6 * context.em
+    in
+    Input.text
+        [ E.paddingXY 8 12
+        , E.width (E.shrink |> E.minimum minWidth)
+        , E.alignLeft
+        , Border.width 4
+        , Border.color Color.white
+        , Background.color Color.neutral98
+        , innerShadow
+        , E.focused
+            [ Border.color Color.focus85
+            ]
+        , E.htmlAttribute <| Html.Attributes.id "dialog-focus"
+        , E.htmlAttribute <| Html.Attributes.autocomplete False
+        , E.htmlAttribute <| Html.Attributes.attribute "inputmode" "numeric"
+        , Font.color args.color
+        , case Tuple.second args.state of
+            Just error ->
+                E.below <|
+                    warningPopup context
+                        [ E.text error ]
+
+            _ ->
+                E.below <| E.none
+        ]
+        { label = args.label
+        , text = Tuple.first args.state
+        , placeholder = Nothing
+        , onChange = args.onChange
         }
 
 
@@ -1038,3 +1483,153 @@ onEnter msg =
                     )
             )
         )
+
+
+
+-- HELP ELEMENTS
+
+
+helpList : List (E.Element msg) -> E.Element msg
+helpList listItems =
+    let
+        withBullet para =
+            E.row []
+                [ E.column [ E.height E.fill ]
+                    [ E.el [ E.paddingXY 6 0 ] (E.text "•")
+                    , E.el [ E.height E.fill ] E.none
+                    ]
+                , para
+                ]
+    in
+    E.column [ E.spacing 24 ]
+        (List.map withBullet listItems)
+
+
+helpNumberedList : List (E.Element msg) -> E.Element msg
+helpNumberedList listItems =
+    let
+        withBullet index para =
+            E.row
+                []
+                [ E.column [ E.height E.fill, E.spacing 0 ]
+                    [ E.el [ E.width (E.px 48), Font.center ] (E.text (String.fromInt (index + 1) ++ "."))
+                    , E.el [ E.height E.fill ] E.none
+                    ]
+                , para
+                ]
+    in
+    E.column
+        [ E.spacing 24
+        ]
+        (List.indexedMap withBullet listItems)
+
+
+helpListItem : List (E.Element msg) -> E.Element msg
+helpListItem texts =
+    E.paragraph
+        [ Font.color Color.neutral30
+        , E.padding 0
+        ]
+        texts
+
+
+helpImage : String -> String -> E.Element msg
+helpImage src description =
+    E.image
+        [ E.centerX
+        ]
+        { src = src, description = description }
+
+
+linkButton : { label : E.Element msg, onPress : Maybe msg } -> E.Element msg
+linkButton { label, onPress } =
+    Input.button
+        [ Font.color Color.primary40
+        , Font.underline
+        , Border.width 4
+        , Border.color Color.transparent
+        , focusVisibleOnly
+        , E.mouseDown [ Font.color Color.primary30 ]
+        , E.mouseOver [ Font.color Color.primary50 ]
+        , transition
+        ]
+        { label = label
+        , onPress = onPress
+        }
+
+
+
+-- TEXT
+
+
+textColumn : Context -> List (E.Element msg) -> E.Element msg
+textColumn context elements =
+    E.column
+        [ E.width E.fill
+        , E.spacing context.em
+        ]
+        (elements
+            |> List.map
+                (\el ->
+                    E.el
+                        [ E.centerX
+                        , E.width <| E.maximum (paragraphWidth context) <| E.fill
+                        , E.padding 6
+                        ]
+                        el
+                )
+        )
+
+
+paragraphWidth : Context -> Int
+paragraphWidth context =
+    let
+        w =
+            32 * context.em
+    in
+    if w > 940 then
+        940
+
+    else
+        w
+
+
+title : Context -> String -> E.Element msg
+title context txt =
+    E.paragraph
+        [ bigFont context
+        , Font.bold
+        , Font.color Color.neutral30
+        ]
+        [ E.text txt ]
+
+
+verticalSpacer : E.Element msg
+verticalSpacer =
+    E.el [ E.height (E.px 0) ] E.none
+
+
+paragraph : String -> E.Element msg
+paragraph txt =
+    E.paragraph
+        [ Font.color Color.neutral30
+        ]
+        [ E.text txt ]
+
+
+paragraphParts : List (E.Element msg) -> E.Element msg
+paragraphParts parts =
+    E.paragraph
+        [ Font.color Color.neutral30
+        ]
+        parts
+
+
+text : String -> E.Element msg
+text txt =
+    E.text txt
+
+
+boldText : String -> E.Element msg
+boldText txt =
+    E.el [ Font.bold ] (E.text txt)

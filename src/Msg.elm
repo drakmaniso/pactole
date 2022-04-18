@@ -1,6 +1,6 @@
-module Msg exposing (DatabaseMsg(..), DialogMsg(..), Msg(..), SettingsDialogMsg(..))
+module Msg exposing (DatabaseMsg(..), InstallMsg(..), Msg(..), SettingsMsg(..), TransactionMsg(..))
 
-import Date
+import Date exposing (Date)
 import Json.Decode as Decode
 import Ledger
 import Model
@@ -8,54 +8,47 @@ import Model
 
 type Msg
     = ChangePage Model.Page
-    | AttemptSettings
-    | AttemptTimeout
-    | Close
-    | SelectDate Date.Date
+    | OpenDialog Model.Dialog
+    | CloseDialog
+    | ConfirmDialog
+    | OnPopState ()
+    | OnLeftSwipe ()
+    | OnRightSwipe ()
+    | SelectDate Date
     | SelectAccount Int
-    | KeyDown String
-    | KeyUp String
+    | WindowResize { width : Int, height : Int }
+    | ForInstallation InstallMsg
     | ForDatabase DatabaseMsg
-    | ForDialog DialogMsg
-    | ForSettingsDialog SettingsDialogMsg
+    | ForTransaction TransactionMsg
+    | ForSettings SettingsMsg
+    | ChangeSettings Model.Settings
     | NoOp
 
 
+type InstallMsg
+    = ChangeInstallName String
+    | ChangeInstallBalance String
+    | ProceedWithInstall
+    | ImportInstall
+
+
 type DatabaseMsg
-    = DbFromService ( String, Decode.Value )
-    | DbCreateAccount String
-    | DbCreateCategory String String
-    | DbStoreSettings Model.Settings
-    | DbCheckTransaction Ledger.Transaction Bool
-    | DbExport
-    | DbImport
+    = FromServiceWorker ( String, Decode.Value )
+    | StoreSettings Model.Settings
+    | CheckTransaction Ledger.Transaction Bool
 
 
-type DialogMsg
-    = DialogNewTransaction Bool Date.Date -- isExpense date
-    | DialogEditTransaction Int
-    | DialogShowRecurring Int
-    | DialogChangeAmount String
-    | DialogChangeDescription String
-    | DialogChangeCategory Int
-    | DialogDelete
-    | DialogConfirm
+type TransactionMsg
+    = ChangeTransactionAmount String
+    | ChangeTransactionDescription String
+    | ChangeTransactionCategory Int
 
 
-type SettingsDialogMsg
-    = SettingsRenameAccount Int
-    | SettingsDeleteAccount Int
-    | SettingsRenameCategory Int
-    | SettingsDeleteCategory Int
-    | SettingsChangeName String
-    | SettingsChangeAccount Int
-    | SettingsChangeAmount String
-    | SettingsChangeDueDate String
-    | SettingsChangeIsExpense Bool
-    | SettingsChangeIcon String
-    | SettingsConfirm
-    | SettingsNewRecurring
-    | SettingsEditRecurring Int Int Ledger.Transaction
-    | SettingsDeleteRecurring Int
-    | SettingsAskImportConfirmation
-    | SettingsAskExportConfirmation
+type SettingsMsg
+    = ChangeSettingsName String
+    | ChangeSettingsAccount Int
+    | ChangeSettingsAmount String
+    | ChangeSettingsDueDate String
+    | ChangeSettingsIsExpense Bool
+    | ChangeSettingsIcon String
+    | DeleteRecurring Int

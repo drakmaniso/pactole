@@ -1,6 +1,6 @@
-module Page.Calendar exposing (view)
+module Page.Calendar exposing (dayView, viewMonth, viewWeek)
 
-import Date
+import Date exposing (Date)
 import Element as E
 import Element.Background as Background
 import Element.Border as Border
@@ -8,122 +8,98 @@ import Element.Font as Font
 import Element.Input as Input
 import Html.Attributes
 import Ledger
-import Model
+import Model exposing (Model)
 import Money
-import Msg
-import Page.Summary as Summary
-import Time
+import Msg exposing (Msg)
 import Ui
-
-
-
--- VIEW
-
-
-view : Model.Model -> E.Element Msg.Msg
-view model =
-    Ui.pageWithSidePanel []
-        { panel =
-            E.column
-                [ E.width E.fill
-                , E.height E.fill
-                , E.clipX
-                , E.clipY
-                ]
-                [ E.el
-                    [ E.width E.fill, E.height (E.fillPortion 1) ]
-                    (Summary.view model)
-                , E.el
-                    [ E.width E.fill, E.height (E.fillPortion 2) ]
-                    (dayView model)
-                ]
-        , page = calendar model
-        }
+import Ui.Color as Color
 
 
 
 -- THE CALENDAR
 
 
-calendar : Model.Model -> E.Element Msg.Msg
-calendar model =
-    let
-        findTheFirst date =
-            if Date.getDay date == 1 then
-                date
-
-            else
-                findTheFirst (Date.decrementDay date)
-
-        findTheLast date =
-            if Date.getDay date == Date.getDay (Date.lastDayOf date) then
-                date
-
-            else
-                findTheLast (Date.incrementDay date)
-
-        findMonday date =
-            case Date.getWeekday date of
-                Time.Mon ->
-                    date
-
-                _ ->
-                    findMonday (Date.decrementDay date)
-
-        loopThroughMonth date =
-            let
-                theLast =
-                    findTheLast model.date
-            in
-            case ( Date.compare date theLast, Date.getWeekday date ) of
-                ( GT, Time.Mon ) ->
-                    []
-
-                _ ->
-                    E.row
-                        [ E.width E.fill
-                        , E.height E.fill
-                        , E.clipY
-                        , E.spacing 0
-                        , Background.color Ui.bgWhite
-                        ]
-                        (loopThroughWeek date)
-                        :: loopThroughMonth (Date.incrementWeek date)
-
-        loopThroughWeek date =
-            case Date.getWeekday date of
-                Time.Sun ->
-                    [ calendarCell model date ]
-
-                _ ->
-                    calendarCell model date :: loopThroughWeek (Date.incrementDay date)
-    in
+viewMonth : Model -> E.Element Msg
+viewMonth model =
     E.column
         [ E.width E.fill
         , E.height E.fill
-        , E.spacing 0
-        , E.padding 0
-        , Background.color Ui.bgWhite
+        , E.spacing <|
+            if model.context.density == Ui.Comfortable then
+                4
+
+            else
+                2
+        , E.padding <|
+            if model.context.device.orientation == E.Landscape then
+                4
+
+            else
+                0
         ]
-        (calendarHeader model
-            :: loopThroughMonth (findMonday (findTheFirst model.date))
+        (Ui.monthNavigationBar model.context model Msg.SelectDate
+            :: weekDayNames model
+            :: (Date.weeksOfMonth model.date
+                    |> List.map
+                        (\week ->
+                            E.row
+                                [ E.width E.fill
+                                , E.height E.fill
+                                , E.clipY
+                                , E.spacing <|
+                                    if model.context.density == Ui.Comfortable then
+                                        4
+
+                                    else
+                                        2
+                                ]
+                            <|
+                                List.map
+                                    (\day ->
+                                        if Date.getMonth day == Date.getMonth model.date then
+                                            calendarCell model day
+
+                                        else
+                                            E.el [ E.width E.fill, E.height E.fill ] E.none
+                                    )
+                                    week
+                        )
+               )
         )
 
 
-calendarHeader : Model.Model -> E.Element Msg.Msg
-calendarHeader model =
+viewWeek : Model -> E.Element Msg
+viewWeek model =
     E.column
         [ E.width E.fill
-        , Background.color Ui.bgWhite
+        , E.height E.fill
+        , E.spacing <| model.context.em // 4
         ]
-        [ Ui.dateNavigationBar model
-        , E.row
+        [ Ui.weekNavigationBar model.context model Msg.SelectDate
+        , weekDayNames model
+        , E.row [ E.width E.fill, E.height E.fill, E.spacing 2 ]
+            (Date.daysOfWeek model.date
+                |> List.map (\day -> calendarCell model day)
+            )
+        ]
+
+
+weekDayNames : Model -> E.Element Msg
+weekDayNames model =
+    let
+        device =
+            model.context.device
+    in
+    if
+        (model.context.density == Ui.Comfortable && device.orientation == E.Landscape)
+            || (device.class == E.Phone && device.orientation == E.Landscape)
+    then
+        E.row
             [ E.width E.fill
             , E.alignBottom
-            , Background.color Ui.bgWhite
-            , Ui.smallFont
-            , Font.color Ui.fgDarker
+            , Ui.smallFont model.context
             , Ui.notSelectable
+            , Font.color Color.neutral40
             ]
             [ E.el [ E.width E.fill ] (E.el [ E.centerX ] (E.text "Lundi"))
             , E.el [ E.width E.fill ] (E.el [ E.centerX ] (E.text "Mardi"))
@@ -133,275 +109,378 @@ calendarHeader model =
             , E.el [ E.width E.fill ] (E.el [ E.centerX ] (E.text "Samedi"))
             , E.el [ E.width E.fill ] (E.el [ E.centerX ] (E.text "Dimanche"))
             ]
-        ]
+
+    else
+        E.none
 
 
-calendarCell : Model.Model -> Date.Date -> E.Element Msg.Msg
+calendarCell : Model -> Date -> E.Element Msg
 calendarCell model day =
     let
+        em =
+            model.context.em
+
+        size =
+            case model.context.device.orientation of
+                E.Landscape ->
+                    model.context.height // 32
+
+                E.Portrait ->
+                    model.context.height // 70
+
+        device =
+            model.context.device
+
+        smallEm =
+            model.context.smallEm
+
         sel =
             day == model.date
     in
-    if Date.getMonth day == Date.getMonth model.date then
-        E.el
-            -- Need to wrap the button in E.el because of elm-ui E.focused bug
-            ([ E.width E.fill
-             , E.height E.fill
-             , E.clipY
-             , Ui.transition
-            , Background.color Ui.bgWhite
-             ]
-                ++ (if sel then
-                        [ Background.color Ui.bgWhite
-                        , E.focused
-                            [ Border.color Ui.fgFocus
-                            ]
-                        ]
-
-                    else
-                        [ Background.color Ui.bgOddRow
-                        , E.focused
-                            [ Border.color Ui.fgFocus
-                            , Border.shadow
-                                { offset = ( 0, 0 ), size = 0, blur = 0, color = E.rgba 0 0 0 0 }
-                            ]
-                        , E.mouseOver [ Background.color Ui.bgEvenRow, Border.color Ui.bgWhite ]
-                        ]
-                   )
-            )
-            (Input.button
-                [ E.width E.fill
-                , E.height E.fill
-                , E.scrollbarY
-                ]
-                { label =
-                    E.column
-                        [ E.width E.fill
-                        , E.height E.fill
-                        , E.scrollbarY
-                        ]
-                        [ E.el
-                            [ E.width E.fill
-                            , E.paddingEach { top = 2, bottom = 4, left = 0, right = 0 }
-                            , Border.widthEach { left = 3, top = 3, right = 3, bottom = 0 }
-                            , Ui.smallFont
-                            , Font.center
-                            , Border.color
-                                (if sel then
-                                    Ui.fgTitle
-
-                                 else
-                                    Ui.bgWhite
-                                )
-                            , if sel then
-                                Border.roundEach { topLeft = 12, topRight = 12, bottomLeft = 0, bottomRight = 0 }
-
-                              else
-                                Border.roundEach { topLeft = 0, topRight = 0, bottomLeft = 0, bottomRight = 0 }
-                            , Font.color
-                                (if sel then
-                                    Ui.fgWhite
-
-                                 else
-                                    Ui.fgBlack
-                                )
-                            , Background.color
-                                (if sel then
-                                    Ui.bgTitle
-
-                                 else
-                                    Ui.transparent
-                                )
-                            , if sel then
-                                E.focused []
-
-                              else
-                                E.focused
-                                    [ Border.color Ui.fgFocus
-                                    ]
-                            ]
-                            (E.text
-                                (if day == model.today then
-                                    "Aujourd'hui"
-
-                                 else
-                                    String.fromInt (Date.getDay day)
-                                )
-                            )
-                        , E.paragraph
-                            [ E.width E.fill
-                            , E.height E.fill
-                            , E.paddingXY 2 8
-                            , E.spacing 12
-                            , E.scrollbarY
-                            , Border.widthEach { left = 3, bottom = 3, right = 3, top = 0 }
-                            , Border.color
-                                (if sel then
-                                    Ui.fgTitle
-
-                                 else
-                                    Ui.bgWhite
-                                )
-                            , if sel then
-                                Border.roundEach { topLeft = 0, topRight = 0, bottomLeft = 12, bottomRight = 12 }
-
-                              else
-                                Border.roundEach { topLeft = 0, topRight = 0, bottomLeft = 0, bottomRight = 0 }
-                            , Background.color
-                                (if sel then
-                                    Ui.transparent
-
-                                 else
-                                    Ui.transparent
-                                )
-                            , if sel then
-                                E.focused []
-
-                              else
-                                E.focused
-                                    [ Border.color Ui.fgFocus
-                                    ]
-                            ]
-                            (cellContentFor model day)
-                        ]
-                , onPress = Just (Msg.SelectDate day)
-                }
-            )
-
-    else
-        E.el
+    E.el
+        -- Need to wrap the button in E.el because of elm-ui E.focused bug
+        [ E.width E.fill
+        , E.height E.fill
+        , E.clipY
+        ]
+        (Input.button
             [ E.width E.fill
             , E.height E.fill
-            , Border.color (E.rgba 0 0 0 0)
-            , Background.color Ui.bgWhite
+            , E.clip
+            , Border.width <|
+                case model.context.density of
+                    Ui.Comfortable ->
+                        2
+
+                    Ui.Compact ->
+                        2
+
+                    Ui.Condensed ->
+                        2
+            , Ui.transition
+            , Border.rounded
+                (if sel then
+                    (em // 4) + 4
+
+                 else
+                    em // 4
+                )
+            , Border.color
+                (if sel then
+                    Color.primary40
+
+                 else
+                    Color.transparent
+                )
+            , Background.color
+                (if sel then
+                    Color.primary95
+
+                 else
+                    Color.neutral95
+                )
+            , E.mouseDown
+                [ Background.color
+                    (if sel then
+                        Color.primary90
+
+                     else
+                        Color.neutral90
+                    )
+                ]
+            , E.mouseOver
+                [ Background.color
+                    (if sel then
+                        Color.primary95
+
+                     else
+                        Color.neutral98
+                    )
+                ]
+            , Ui.focusVisibleOnly
             ]
-            E.none
+            { label =
+                E.column
+                    [ E.width E.fill
+                    , E.height E.fill
+                    , E.clip
+                    ]
+                    [ E.el
+                        [ E.width E.fill
+                        , case model.context.density of
+                            Ui.Comfortable ->
+                                Ui.smallFont model.context
+
+                            Ui.Compact ->
+                                Ui.smallFont model.context
+
+                            Ui.Condensed ->
+                                Ui.smallerFont model.context
+                        , Font.center
+                        , if day == model.today && model.context.density /= Ui.Comfortable then
+                            Font.bold
+
+                          else
+                            Font.regular
+                        , if day == model.today then
+                            Font.color Color.black
+
+                          else
+                            Font.color Color.neutral30
+                        ]
+                      <|
+                        if day == model.today && model.context.density == Ui.Comfortable then
+                            E.text <| "Aujourd'hui"
+
+                        else
+                            E.text <| String.fromInt <| Date.getDay day
+                    , if
+                        model.context.density
+                            == Ui.Comfortable
+                            || (device.class == E.Phone && device.orientation == E.Landscape)
+                      then
+                        E.paragraph
+                            [ E.width E.fill
+                            , E.height E.fill
+                            , E.clip
+                            , E.paddingEach
+                                { left = 0
+                                , right = 0
+                                , top = smallEm // 2
+                                , bottom = 0
+                                }
+                            , E.spacing <| smallEm // 2
+                            , Ui.smallFont model.context
+                            , Font.center
+                            ]
+                            (cellContentFor model day)
+
+                      else
+                        E.el
+                            [ E.width E.fill
+                            , E.height E.fill
+                            , E.clip
+                            ]
+                        <|
+                            E.paragraph
+                                [ E.centerX
+                                , E.centerY
+                                , E.clip
+                                , E.spacing 0
+                                , Font.size (size + 2)
+                                , Font.center
+                                ]
+                                (cellContentFor model day)
+                    ]
+            , onPress = Just (Msg.SelectDate day)
+            }
+        )
 
 
-cellContentFor : Model.Model -> Date.Date -> List (E.Element Msg.Msg)
+cellContentFor : Model -> Date -> List (E.Element Msg)
 cellContentFor model day =
     let
+        em =
+            model.context.em
+
+        size =
+            case model.context.device.orientation of
+                E.Landscape ->
+                    model.context.height // 32
+
+                E.Portrait ->
+                    model.context.height // 70
+
+        device =
+            model.context.device
+
         render transaction =
             let
                 future =
                     Date.compare day model.today == GT
 
+                color =
+                    if future then
+                        Color.neutral60
+
+                    else
+                        Color.transactionColor (Money.isExpense transaction.amount)
+
                 parts =
                     Money.toStrings transaction.amount
             in
-            E.row
-                [ E.paddingEach { top = 3, bottom = 4, left = 6, right = 8 }
-                , Ui.smallFont
-                , if future then
-                    Font.color Ui.fgWhite
-
-                  else
-                    Font.color (E.rgb 1 1 1)
-                , if future then
-                    Background.color Ui.bgDark
-
-                  else if Money.isExpense transaction.amount then
-                    Background.color Ui.bgExpense
-
-                  else
-                    Background.color Ui.bgIncome
-                , Border.rounded 16
-                , Border.width 0
-                , E.htmlAttribute <| Html.Attributes.style "display" "inline-flex"
-                ]
-                [ E.el [ Ui.smallFont, Font.medium ] (E.text (parts.sign ++ parts.units))
-                , E.el
-                    [ Ui.smallerFont
-                    , E.alignBottom
-                    , E.paddingXY 0 1
+            if
+                model.context.density
+                    == Ui.Comfortable
+                    || (device.class == E.Phone && device.orientation == E.Landscape)
+            then
+                E.el
+                    [ Font.color Color.white
+                    , Background.color color
+                    , Border.rounded 1000
+                    , E.htmlAttribute <| Html.Attributes.style "display" "inline-flex"
+                    , E.paddingEach { left = em // 4, right = em // 4, top = 0, bottom = 0 }
                     ]
-                    (E.text ("," ++ parts.cents))
-                ]
+                    (E.paragraph
+                        []
+                        [ E.el [ Ui.smallFont model.context ] (E.text (parts.sign ++ parts.units))
+                        , E.el [ Ui.smallerFont model.context ] (E.text ("," ++ parts.cents))
+                        ]
+                    )
+
+            else
+                E.el [ E.width E.fill ] <|
+                    E.el
+                        [ E.width <| E.px size
+                        , E.height <| E.px size
+                        , E.centerX
+                        , Background.color color
+                        , Border.rounded 1000
+                        , E.htmlAttribute <| Html.Attributes.style "display" "inline-flex"
+                        ]
+                        E.none
     in
     (List.map render (Ledger.getTransactionsForDate model.ledger model.account day)
         ++ List.map render (Ledger.getRecurringTransactionsForDate model.recurring model.account day)
     )
-        |> List.intersperse (E.text " ")
+        |> List.intersperse
+            (case model.context.density of
+                Ui.Comfortable ->
+                    E.el [ Ui.smallFont model.context ] (E.text " ")
+
+                _ ->
+                    E.el
+                        [ Ui.smallerFont model.context
+                        , E.width <| E.px 2
+                        , E.height <| E.px 2
+                        ]
+                        E.none
+            )
 
 
 
 -- DAY VIEW
 
 
-dayView : Model.Model -> E.Element Msg.Msg
+dayView : Model -> E.Element Msg
 dayView model =
     let
-        dayDiff =
-            Date.getDayDiff model.today model.date
+        em =
+            model.context.em
     in
     E.column
         [ E.width E.fill
         , E.height E.fill
         , E.clip
-        , Background.color Ui.bgWhite
+        , E.inFront <|
+            if model.context.device.orientation == E.Portrait then
+                E.column
+                    [ E.alignBottom
+                    , E.alignRight
+                    , E.spacing (em // 2)
+                    , E.paddingXY (em // 2) (em // 2)
+                    , Background.color Color.transparent
+                    ]
+                    [ Ui.incomeButton model.context
+                        { label = Ui.incomeIcon
+                        , onPress =
+                            Msg.OpenDialog <|
+                                Model.TransactionDialog
+                                    { id = Nothing
+                                    , isExpense = False
+                                    , isRecurring = False
+                                    , date = model.date
+                                    , amount = ( "", Nothing )
+                                    , description = ""
+                                    , category = 0
+                                    }
+                        }
+                    , Ui.expenseButton model.context
+                        { label = Ui.expenseIcon
+                        , onPress =
+                            Msg.OpenDialog <|
+                                Model.TransactionDialog
+                                    { id = Nothing
+                                    , isExpense = True
+                                    , isRecurring = False
+                                    , date = model.date
+                                    , amount = ( "", Nothing )
+                                    , description = ""
+                                    , category = 0
+                                    }
+                        }
+                    ]
+
+            else
+                E.row
+                    [ E.centerX
+                    , E.alignBottom
+                    , E.spacing em
+                    , E.paddingXY em (em // 2)
+                    , Border.roundEach { topLeft = model.context.bigEm, topRight = model.context.bigEm, bottomLeft = 0, bottomRight = 0 }
+                    , Background.color Color.translucentWhite
+                    ]
+                    [ Ui.incomeButton model.context
+                        { label = Ui.incomeIcon
+                        , onPress =
+                            Msg.OpenDialog <|
+                                Model.TransactionDialog
+                                    { id = Nothing
+                                    , isExpense = False
+                                    , isRecurring = False
+                                    , date = model.date
+                                    , amount = ( "", Nothing )
+                                    , description = ""
+                                    , category = 0
+                                    }
+                        }
+                    , Ui.expenseButton model.context
+                        { label = Ui.expenseIcon
+                        , onPress =
+                            Msg.OpenDialog <|
+                                Model.TransactionDialog
+                                    { id = Nothing
+                                    , isExpense = True
+                                    , isRecurring = False
+                                    , date = model.date
+                                    , amount = ( "", Nothing )
+                                    , description = ""
+                                    , category = 0
+                                    }
+                        }
+                    ]
         ]
         [ E.column
             [ E.width E.fill
-            , E.height E.shrink
-            , E.paddingXY 0 12
-            , E.spacing 8
-            , Font.color Ui.fgBlack
+            , E.height <| E.fill
+            , E.paddingXY 0 (em // 4)
+            , E.spacing (em // 4)
+            , Font.color Color.neutral30
             , Font.center
-            , Ui.bigFont
-            , Border.widthEach { top = 2, bottom = 0, left = 0, right = 0 }
-            , Border.color Ui.bgDark
             , Ui.notSelectable
+            , E.scrollbarY
             ]
-            [ if model.date == model.today then
-                E.el [ E.width E.fill, Ui.normalFont ] (E.text "— Aujourd'hui —")
-
-              else if dayDiff == 1 then
-                E.el [ E.width E.fill, Ui.normalFont ] (E.text "— demain —")
-
-              else if dayDiff > 1 then
-                E.el [ E.width E.fill, Ui.normalFont ] (E.text ("— dans " ++ String.fromInt dayDiff ++ " jours —"))
+            [ if model.context.device.orientation == E.Landscape && model.context.height > 28 * em then
+                E.el [ E.width E.fill, Font.color Color.neutral40, Ui.smallFont model.context ]
+                    (E.text <| Date.fancyDayDescription model.today model.date)
 
               else
                 E.none
-            , E.el [ E.width E.fill, Font.bold, E.paddingEach { top = 0, bottom = 12, right = 0, left = 0 } ]
-                (E.text
-                    (Date.getWeekdayName model.date
-                        ++ " "
-                        ++ String.fromInt (Date.getDay model.date)
-                        ++ " "
-                        ++ Date.getMonthName model.date
-                    )
-                )
-            ]
-        , E.column
-            [ E.width E.fill
-            , E.height E.fill
-            , E.scrollbarY
-            ]
-            (dayContentFor model model.date)
-        , E.row
-            [ E.width E.fill
-            , E.height E.shrink
-            , E.spacing 24
-            , E.paddingXY 24 12
-            ]
-            [ Ui.incomeButton
-                [ E.width (E.fillPortion 2) ]
-                { label = Ui.incomeIcon [ Font.color Ui.fgIncome ]
-                , onPress = Just (Msg.ForDialog <| Msg.DialogNewTransaction False model.date)
-                }
-            , Ui.expenseButton
-                [ E.width (E.fillPortion 2) ]
-                { label = Ui.expenseIcon [ Font.color Ui.fgExpense ]
-                , onPress = Just (Msg.ForDialog <| Msg.DialogNewTransaction True model.date)
-                }
+            , Ui.viewDate model.context model.date
+            , E.column
+                [ E.width E.fill
+                ]
+                (dayContentFor model model.date)
             ]
         ]
 
 
-dayContentFor : Model.Model -> Date.Date -> List (E.Element Msg.Msg)
+dayContentFor : Model -> Date -> List (E.Element Msg)
 dayContentFor model day =
     let
+        em =
+            model.context.em
+
         future =
             Date.compare day model.today == GT
 
@@ -441,56 +520,74 @@ dayContentFor model day =
                 , E.padding 0
                 ]
                 (Input.button
-                    [ E.width E.fill
-                    , E.paddingEach { top = 8, bottom = 8, left = 12, right = 12 }
+                    [ E.width <| E.maximum (20 * em) <| E.fill
+                    , E.centerX
+                    , E.padding <| em // 4 + em // 8
                     , Border.width 4
-                    , Border.color (E.rgba 0 0 0 0)
-                    , E.mouseDown [ Background.color Ui.bgMouseDown ]
-                    , E.mouseOver [ Background.color Ui.bgMouseOver ]
+                    , Border.color Color.transparent
+                    , Ui.focusVisibleOnly
+                    , E.mouseDown [ Background.color Color.neutral90 ]
+                    , E.mouseOver [ Background.color Color.neutral95 ]
                     , Ui.transition
                     ]
                     { onPress =
-                        Just
-                            (if transaction.isRecurring then
-                                (Msg.ForDialog << Msg.DialogShowRecurring) transaction.id
+                        Just <|
+                            if transaction.isRecurring then
+                                Msg.OpenDialog <|
+                                    Model.TransactionDialog
+                                        { id = Just transaction.id
+                                        , isExpense = Money.isExpense transaction.amount
+                                        , isRecurring = True
+                                        , date = transaction.date
+                                        , amount = ( Money.toInput transaction.amount, Nothing )
+                                        , description = transaction.description
+                                        , category = transaction.category
+                                        }
 
-                             else
-                                (Msg.ForDialog << Msg.DialogEditTransaction) transaction.id
-                            )
+                            else
+                                Msg.OpenDialog <|
+                                    Model.TransactionDialog
+                                        { id = Just transaction.id
+                                        , isExpense = Money.isExpense transaction.amount
+                                        , isRecurring = False
+                                        , date = transaction.date
+                                        , amount = ( Money.toInput transaction.amount, Nothing )
+                                        , description = transaction.description
+                                        , category = transaction.category
+                                        }
                     , label =
                         E.row
                             [ E.width E.fill
+                            , E.spacing <| em // 2
                             ]
                             [ E.el
-                                [ E.width (E.fillPortion 3)
-                                , E.height E.fill
+                                [ E.height E.fill
                                 ]
                                 (E.column
-                                    [ E.width E.fill ]
-                                    [ Ui.viewMoney transaction.amount future
+                                    []
+                                    [ Ui.viewMoney model.context transaction.amount future
                                     , E.el [ E.height E.fill ] E.none
                                     ]
                                 )
+                            , if model.settings.categoriesEnabled then
+                                E.el
+                                    [ E.width <| E.px <| em + em // 2
+                                    , E.alignTop
+                                    , Font.color Color.neutral30
+                                    , Ui.iconFont
+                                    , Font.center
+                                    ]
+                                    (E.text category.icon)
+
+                              else
+                                E.none
                             , E.el
-                                [ E.width (E.fillPortion 6)
+                                [ E.width (E.fillPortion 2)
                                 , E.alignTop
-                                , Ui.normalFont
-                                , Font.color (E.rgb 0 0 0)
+                                , Font.color Color.neutral30
+                                , Font.alignLeft
                                 ]
                                 (E.paragraph [] [ E.text (Ledger.getTransactionDescription transaction) ])
-                            , E.el
-                                [ E.width (E.fillPortion 1)
-                                , E.alignTop
-                                , Font.color (E.rgb 0 0 0)
-                                , Ui.iconFont
-                                , Font.center
-                                ]
-                                (if model.settings.categoriesEnabled then
-                                    E.text category.icon
-
-                                 else
-                                    E.none
-                                )
                             ]
                     }
                 )
@@ -499,12 +596,18 @@ dayContentFor model day =
         [] ->
             [ E.el
                 [ E.width E.fill
-                , Font.center
-                , Font.color Ui.fgDarker
-                , Ui.normalFont
-                , E.paddingXY 8 32
+                , E.padding 0
                 ]
-                (E.text "(Aucune dépense)")
+              <|
+                E.paragraph
+                    [ E.width E.fill
+                    , Font.center
+                    , Font.color Color.neutral40
+                    , E.paddingXY 8 32
+                    , Border.color Color.transparent
+                    , Border.width 4
+                    ]
+                    [ E.text "(Aucune opération)" ]
             ]
 
         t ->

@@ -2,17 +2,13 @@
 <html>
 
 <head>
-  <meta charset="utf-8">
+  <meta charset="UTF-8">
   <title>Pactole</title>
-
-  <!-- meta http-equiv="Content-Security-Policy" content="style-src 'self'; script-src 'self'; default-src 'self'"-->
-
   <link rel="manifest" href="manifest.webmanifest">
   <meta name="application-name" content="Pactole">
   <meta name="theme-color" content="#ffffff">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" sizes="512x512" href="images/icon-512x512.png">
-
-  <!--link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;700&display=swap" rel="stylesheet"-->
 
   <style>
     @font-face {
@@ -24,25 +20,174 @@
     }
 
     @font-face {
-      font-family: 'Work Sans';
+      font-family: 'Andika New Basic';
       font-style: normal;
       font-weight: 400;
       font-display: swap;
-      src: url("fonts/work-sans-v7-latin-regular.woff2");
+      src: url('fonts/andika-new-basic-v15-latin-regular.woff2');
     }
 
     @font-face {
-      font-family: 'Work Sans';
+      font-family: 'Andika New Basic';
       font-style: normal;
       font-weight: 700;
       font-display: swap;
-      src: url("fonts/work-sans-v7-latin-700.woff2");
+      src: url('fonts/andika-new-basic-v15-latin-700.woff2');
+    }
+
+    @font-face {
+      font-family: 'System UI';
+      font-style: normal;
+      font-weight: 400;
+      src: local(".SFNS-Regular"), local(".SFNSText-Regular"), local(".HelveticaNeueDeskInterface-Regular"), local(".LucidaGrandeUI"), local("Segoe UI"), local("Ubuntu"), local("Roboto-Regular"), local("DroidSans"), local("Tahoma");
+    }
+
+    @font-face {
+      font-family: 'System UI';
+      font-style: normal;
+      font-weight: 500;
+      src: local(".SFNS-Medium"), local(".SFNSText-Medium"), local(".HelveticaNeueDeskInterface-MediumP4"), local(".LucidaGrandeUI"), local("Segoe UI Semibold"), local("Ubuntu Medium"), local("Roboto-Medium"), local("DroidSans-Bold"), local("Tahoma Bold");
+    }
+
+    @font-face {
+      font-family: 'System UI';
+      font-style: normal;
+      font-weight: 700;
+      src: local(".SFNS-Bold"), local(".SFNSText-Bold"), local(".HelveticaNeueDeskInterface-Bold"), local(".LucidaGrandeUI"), local("Segoe UI Bold"), local("Ubuntu Bold"), local("Roboto-Bold"), local("DroidSans-Bold"), local("Tahoma Bold");
+    }
+
+    .focus-visible-only:focus-visible {
+      border: 4px solid #FFD000;
+    }
+
+    dialog.dialog {
+      padding: unset;
+      border: unset;
+      border-radius: 6px;
+      box-shadow:
+        32px 64px 32px 0px rgba(0, 0, 0, 0.04),
+        16px 32px 16px 0px rgba(0, 0, 0, 0.08),
+        8px 16px 8px 0px rgba(0, 0, 0, 0.16),
+        4px 8px 4px 0px rgba(0, 0, 0, 0.32),
+        2px 4px 2px 0px rgba(0, 0, 0, 0.32),
+        1px 2px 1px 0px rgba(0, 0, 0, 0.32),
+        0px 1px 1px 0px rgba(0, 0, 0, 0.64);
+    }
+
+    dialog.dialog::backdrop {
+      background: rgba(0, 0, 0, 60%);
+    }
+
+    dialog[open].dialog {
+      animation: show-dialog .15s ease-out;
+    }
+
+    dialog[open].dialog::backdrop {
+      animation: show-dialog-backdrop .15s ease-out;
+    }
+
+    dialog.mobile-dialog {
+      width: 100vw;
+      max-width: 100vw;
+      height: 100vh;
+      max-height: 100vh;
+      padding: 0;
+      margin: 0;
+      border: 0;
+    }
+
+    dialog.mobile-dialog::backdrop {
+      background: rgba(255, 255, 255, 100%);
+    }
+
+    dialog[open].mobile-dialog {
+      animation: show-dialog .15s ease-out;
+    }
+
+    dialog[open].mobile-dialog::backdrop {
+      animation: show-dialog-backdrop .15s ease-out;
+    }
+
+    @keyframes show-dialog {
+      from {
+        opacity: 0%;
+        transform: scale(90%);
+      }
+
+      25% {
+        opacity: 0%;
+        transform: scale(90%);
+      }
+
+      to {
+        opacity: 100%;
+        transform: scale(100%);
+      }
+    }
+
+    @keyframes show-dialog-backdrop {
+      from {
+        opacity: 50%;
+      }
+
+      to {
+        opacity: 100%;
+      }
+    }
+
+    .panel-shadow {
+      box-shadow:
+        0px 0px 16px 16px rgba(0, 0, 0, 0.02),
+        0px 0px 8px 8px rgba(0, 0, 0, 0.04),
+        0px 0px 4px 4px rgba(0, 0, 0, 0.08),
+        0px 0px 2px 1px rgba(0, 0, 0, 0.16)
+    }
+
+    .small-shadow {
+      box-shadow:
+        3px 6px 6px 0px rgba(0, 0, 0, 0.04),
+        1px 2px 2px 0px rgba(0, 0, 0, 0.08),
+        0px 1px 1px 0px rgba(0, 0, 0, 0.16)
+    }
+
+    .button-shadow {
+      box-shadow:
+        3px 6px 8px 0px rgba(0, 0, 0, 0.04),
+        2px 4px 4px 0px rgba(0, 0, 0, 0.08),
+        1px 2px 2px 0px rgba(0, 0, 0, 0.16)
+    }
+
+    .button-shadow:active {
+      box-shadow:
+        2px 4px 4px 0px rgba(0, 0, 0, 0.04),
+        1px 2px 2px 0px rgba(0, 0, 0, 0.08),
+        0px 1px 1px 0px rgba(0, 0, 0, 0.16)
+    }
+
+    .button-transition {
+      transition-property: background-color, color, border-color, box-shadow;
+      transition-duration: 0.125s;
+      transition-timing-function: ease-in;
+    }
+
+    .button-transition:hover {
+      transition-property: background-color, color, border-color, box-shadow;
+      transition-duration: 0.125s;
+      transition-timing-function: ease-out;
+    }
+
+    .button-transition:down {
+      transition-property: background-color, color, border-color, box-shadow;
+      transition-duration: 0.125s;
+      transition-timing-function: ease-in;
     }
   </style>
   <script src="elm.js"></script>
 </head>
 
 <body>
+  <noscript>This application requires javascript.</noscript>
+  <p style="color: #aaa;">Chargement de l'application Pactole...</p>
   <script>
 
     // PROGRESSIVE WEB APP ////////////////////////////////////////////////////
@@ -55,31 +200,13 @@
       fatalError('service workers not supported by the navigator.')
     }
 
-    if (navigator.storage && navigator.storage.persist) {
-      navigator.storage.persist().then(persistent => {
-        if (persistent) {
-          navigator.storage.estimate().then(info => {
-            log(
-              `Persistent storage: usage = ${Math.round(
-                info.usage / 1024,
-              )} kb, (quota = ${Math.round(info.quota / (1024 * 1024))} Mb).`,
-            )
-          })
-        } else {
-          //TODO: fatalError instead?
-          error('persistent storage not granted')
-        }
-      })
-    } else {
-      //TODO: fatalError instead?
-      error('no persistent storage API')
+    if (!(navigator.storage && navigator.storage.persist)) {
+      fatalError('no persistent storage API')
     }
 
 
     //TODO: add a settings button to call this?
     let updateService
-
-
     onload = () => {
       navigator.serviceWorker
         .register('./service.js')
@@ -120,59 +247,136 @@
       }
       isRefreshing = true
       window.location.reload()
-      //log(`Restarting application.`)
-      //app.ports.receive.send(["start application", null])
     });
 
 
     // ELM STUFF //////////////////////////////////////////////////////////////
 
 
-    let app
-
     navigator.serviceWorker.ready
       .then(_ => {
-        let today = new Date()
-        let flags = {
-          today: {
-            year: today.getFullYear(),
-            month: today.getMonth(),
-            day: today.getDate()
-          }
-        }
-        app = Elm.Main.init({ flags: flags })
+        // Check persistent storage status
+        navigator.storage.persisted()
+          .then(isPersisted => {
+            log(`Storage is persisted: ${isPersisted}`)
 
-        app.ports.send.subscribe(function (args) {
-          [title, content] = args
-          switch (title) {
-            case "error":
-              console.error(`[ELM] ${content}`)
-              return
+            const today = new Date()
+            const flags = {
+              today: {
+                year: today.getFullYear(),
+                month: today.getMonth(),
+                day: today.getDate()
+              },
+              width: window.innerWidth,
+              height: window.innerHeight,
+              isStoragePersisted: isPersisted
+            }
+            const app = Elm.Main.init({ flags: flags })
 
-            case "export database":
-              exportDatabase(content)
-              return
+            // Connect service worker JS to Elm code
 
-            case "select import":
-              selectImport()
-              return
+            navigator.serviceWorker.onmessage = event => {
+              log(`Received "${event.data.title}".`)
+              app.ports.receive.send([event.data.title, event.data.content])
+            }
+            app.ports.sendToSW.subscribe(function (args) {
+              try {
+                [title, content] = args
+                sendToServiceWorker(title, content)
+              }
+              catch (err) {
+                error(`forwarding service worker message: ${err}`)
+              }
+            })
 
-            default:
-              sendToServiceWorker(title, content)
-          }
-        })
+            // Hijack back button
 
-        navigator.serviceWorker.onmessage = event => {
-          log(`Received "${event.data.title}".`)
-          app.ports.receive.send([event.data.title, event.data.content])
-        }
+            history.pushState(null, document.title, location.href)
+            window.onpopstate = event => {
+              history.pushState(null, document.title, location.href)
+              app.ports.onPopState.send(null)
+            }
+            app.ports.historyBack.subscribe(_ => {
+              history.go(-2)
+            })
 
-        log(`Starting application.`)
-        //sendToServiceWorker("request whole database", null)
-        app.ports.receive.send(["start application", null])
+            // Handle Touch Horizontal Swipes
+
+            var xTouch = null
+            var yTouch = null
+            document.ontouchstart = event => {
+              xTouch = event.touches[0].clientX
+              yTouch = event.touches[0].clientY
+            }
+            document.ontouchmove = event => {
+              if (!xTouch || !yTouch) {
+                return
+              }
+              const x = event.touches[0].clientX
+              const y = event.touches[0].clientY
+              const xDiff = x - xTouch
+              const yDiff = y - yTouch
+              if (Math.abs(xDiff) > Math.abs(yDiff)) {
+                if (xDiff > 100) {
+                  log("right swipe")
+                  xTouch = null
+                  yTouch = null
+                  app.ports.onRightSwipe.send(null)
+                } else if (xDiff < -100) {
+                  log("left swipe")
+                  xTouch = null
+                  yTouch = null
+                  app.ports.onLeftSwipe.send(null)
+                }
+              }
+            }
+            document.ontouchcancel = event => {
+              xTouch = null
+              yTouch = null
+            }
+            document.ontouchend = event => {
+              xTouch = null
+              yTouch = null
+            }
+
+            // Connect Elm code to window JS
+
+            app.ports.error.subscribe(
+              msg => console.error(`[ELM] ${msg}`)
+            )
+            app.ports.exportDatabase.subscribe(
+              db => exportDatabase(db)
+            )
+            app.ports.selectImport.subscribe(
+              _ => selectImport()
+            )
+            app.ports.requestStoragePersistence.subscribe(
+              _ => requestStoragePersistence()
+            )
+            app.ports.openDialog.subscribe(
+              _ => {
+                const dialog = document.getElementById("dialog")
+                if (dialog && !dialog.open) {
+                  dialog.showModal()
+                }
+              }
+            )
+            app.ports.closeDialog.subscribe(
+              _ => {
+                const dialog = document.getElementById("dialog")
+                if (dialog && dialog.open) {
+                  dialog.close()
+                }
+              }
+            )
+
+            log(`Starting Elm application.`)
+            app.ports.receive.send(["start application", null])
+          })
+          .catch(err => fatalError(`no response from navigator.storage.persisted()`))
 
       })
-      .catch(err => error(`Service worker not ready: ${err}`))
+      .catch(err => fatalError(`service worker not ready: ${err}`))
 
 
 
@@ -190,6 +394,27 @@
       }
     }
 
+    function requestStoragePersistence() {
+      navigator.storage.persist().then(granted => {
+        if (granted) {
+          log("Persistent storage has been granted.")
+        } else {
+          error('persistent storage has not been granted')
+        }
+        navigator.serviceWorker.ready
+          .then(service =>
+            sendToServiceWorker("persistent storage granted", granted)
+          )
+        if (navigator.storage.estimate) {
+          navigator.storage.estimate().then(info => {
+            log(
+              `Persistent storage estimation: usage = ${Math.round(info.usage)} bytes, (quota = ${Math.round(info.quota / (1024 * 1024))} Mb).`
+            )
+          })
+        }
+      })
+    }
+
     function exportDatabase(database) {
       let filename = database.filename
 
@@ -204,7 +429,7 @@
     function selectImport() {
       var input = document.createElement("input")
       input.type = "file"
-      input.accept = "application/json"
+      input.accept = "application/json,.json"
       input.addEventListener("change", processSelectedImportFile, false)
       input.click()
     }
@@ -212,6 +437,10 @@
     function processSelectedImportFile() {
       if (this.files.length != 1) {
         console.error(`[CLIENT] wrong number of selected files: ${this.files.length}`)
+        navigator.serviceWorker.ready
+          .then(service =>
+            sendToServiceWorker("user error", "impossible d'importer plus d'un fichier à la fois")
+          )
         return
       }
       const file = this.files[0]
@@ -223,36 +452,34 @@
           sendToServiceWorker("broadcast import database", db)
         }
         catch (err) {
-          console.error(`[CLIENT] error in file selected for import: ${err}`)
-          //TODO: UI feedback
+          console.error(`[CLIENT] error in file selected for import: ${err} `)
+          navigator.serviceWorker.ready
+            .then(service =>
+              sendToServiceWorker("user error", "impossible de lire le fichier choisi")
+            )
         }
       }
       reader.readAsText(file)
     }
 
     function log(msg) {
-      console.log(`[CLIENT] ${msg}`)
+      console.log(`[CLIENT] ${msg} `)
     }
 
 
     function error(msg) {
-      console.error(`[CLIENTJS] ${msg}`)
+      console.error(`[CLIENTJS] ${msg} `)
     }
 
     function fatalError(msg) {
       document.body.innerHTML =
-        `<div><h1>Le navigateur utilisé n'est pas compatible avec cette application (raison: "${msg}").</h1>` + document.body.innerHTML
+        `<p>Le navigateur utilisé n'est pas compatible avec cette application:</p><pre>${msg}</pre>`
       throw new Error(msg)
     }
 
 
   </script>
 
-  <div style="width: 100%; height: 100%;">
-    <h1
-      style="width: 100%; position: absolute; top: 30%; text-align: center; font-family: 'Work Sans'; font-size: 4em; color: #ddd;">
-      Pactole</h1>
-  </div>
 </body>
 
 </html>

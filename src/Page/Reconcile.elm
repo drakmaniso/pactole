@@ -1,68 +1,50 @@
-module Page.Reconcile exposing (view)
+module Page.Reconcile exposing (viewContent)
 
-import Date
+import Date exposing (Date)
 import Element as E
 import Element.Background as Background
-import Element.Border as Border
 import Element.Font as Font
 import Ledger
-import Model
-import Money
-import Msg
-import Page.Summary as Summary
+import Model exposing (Model)
+import Msg exposing (Msg)
 import Ui
+import Ui.Color as Color
 
 
+viewContent : Model -> E.Element Msg
+viewContent model =
+    E.column
+        [ E.width E.fill
+        , E.height E.fill
+        , E.padding <|
+            if model.context.device.orientation == E.Landscape then
+                4
 
--- VIEW
-
-
-view : Model.Model -> E.Element Msg.Msg
-view shared =
-    Ui.pageWithSidePanel []
-        { panel =
-            E.column
-                [ E.width E.fill
-                , E.height E.fill
-                , E.clipX
-                , E.clipY
-                ]
-                [ E.el
-                    [ E.width E.fill, E.height (E.fillPortion 1) ]
-                    (Summary.view shared)
-                , E.el
-                    [ E.width E.fill, E.height (E.fillPortion 2) ]
-                    E.none
-                ]
-        , page =
-            E.column
-                [ E.width E.fill
-                , E.height E.fill
-                , E.clipY
-                ]
-                [ Ui.dateNavigationBar shared
-                , viewReconciled shared
-                , viewTransactions shared
-                ]
-        }
+            else
+                0
+        ]
+        [ Ui.monthNavigationBar model.context model Msg.SelectDate
+        , viewReconciled model
+        , viewTransactions model
+        ]
 
 
-viewReconciled : Model.Model -> E.Element msg
-viewReconciled shared =
+viewReconciled : Model -> E.Element msg
+viewReconciled model =
     let
         prevMonth =
-            Date.getMonthName (Date.decrementMonth shared.date)
+            Date.getMonthName (Date.decrementMonth model.date)
     in
     E.column
-        [ E.width E.fill, E.paddingXY 48 24, E.spacing 24 ]
+        [ E.width E.fill, E.paddingXY 48 24, E.spacing 24, Font.color Color.neutral30 ]
         [ E.row
             [ E.width E.fill ]
             [ E.el [ E.width E.fill ] E.none
-            , E.el [ Ui.biggerFont ] (E.text "Solde bancaire: ")
-            , Ui.viewSum (Ledger.getReconciled shared.ledger shared.account)
+            , E.el [ Ui.bigFont model.context ] (E.text "Solde bancaire: ")
+            , Ui.viewSum model.context (Ledger.getReconciled model.ledger model.account)
             , E.el [ E.width E.fill ] E.none
             ]
-        , if Ledger.getNotReconciledBeforeMonth shared.ledger shared.account shared.date then
+        , if Ledger.getNotReconciledBeforeMonth model.ledger model.account model.date then
             E.el
                 [ E.width E.fill, Font.center ]
                 (E.paragraph []
@@ -76,90 +58,131 @@ viewReconciled shared =
         ]
 
 
-viewTransactions : Model.Model -> E.Element Msg.Msg
-viewTransactions shared =
+viewTransactions : Model -> E.Element Msg
+viewTransactions model =
+    let
+        em =
+            model.context.em
+    in
     E.column
-        [ E.padding 0
-        , E.spacing 0
-        , E.width E.fill
+        [ E.width E.fill
         , E.height E.fill
-        , E.scrollbarY
-        , Border.widthEach { top = Ui.borderWidth, bottom = 0, right = 0, left = 0 }
-        , Border.color Ui.transparent
+        , Font.color Color.neutral30
         ]
         (List.indexedMap
             (\idx transaction ->
-                E.row
+                let
+                    bg =
+                        if Basics.remainderBy 2 idx == 0 then
+                            Color.neutral95
+
+                        else
+                            Color.neutral90
+                in
+                E.el
                     [ E.width E.fill
-                    , E.paddingXY 12 18
-                    , if Basics.remainderBy 2 idx == 0 then
-                        Background.color Ui.bgEvenRow
+                    , Background.color bg
+                    ]
+                    (if model.context.width > 20 * em then
+                        E.row
+                            [ E.width <| E.maximum (32 * em) <| E.fill
+                            , E.centerX
+                            , E.paddingXY (em // 4) (em // 4)
+                            , E.spacing (em // 2)
+                            ]
+                            [ colReconciled model transaction bg
+                            , colDate model transaction
+                            , colAmount model transaction model.today
+                            , colCategory model transaction
+                            , colDescription model transaction
+                            ]
 
-                      else
-                        Background.color Ui.bgOddRow
-                    ]
-                    [ colDate transaction
-                    , colReconciled transaction
-                    , colAmount transaction shared.today
-                    , colDescription transaction
-                    ]
+                     else
+                        E.row
+                            [ E.width <| E.maximum (32 * em) <| E.fill
+                            , E.centerX
+                            , E.paddingXY (em // 2) (em // 2)
+                            , E.spacing (em // 4)
+                            ]
+                            [ colReconciled model transaction bg
+                            , colDate model transaction
+                            , E.column [ E.width E.fill, E.height E.fill, E.spacing (em // 4) ]
+                                [ colAmount model transaction model.today
+                                , E.paragraph [ Font.alignRight ]
+                                    [ colDescription model transaction
+                                    ]
+                                ]
+                            ]
+                    )
             )
-            (Ledger.getTransactionsForMonth shared.ledger shared.account shared.date shared.today)
+            (Ledger.getTransactionsForMonth model.ledger model.account model.date model.today)
         )
 
 
-colReconciled : Ledger.Transaction -> E.Element Msg.Msg
-colReconciled transaction =
+colReconciled : Model -> Ledger.Transaction -> E.Color -> E.Element Msg
+colReconciled model transaction bg =
+    let
+        em =
+            model.context.em
+    in
     E.el
-        [ E.width (E.fillPortion 1) ]
-        (Ui.iconButton
-            [ E.alignRight
-            , Background.color (E.rgba 1 1 1 1)
-            , Border.rounded 0
-            , Border.width Ui.borderWidth
-            , Border.color Ui.fgDark
-            , E.padding 2
-            , Ui.innerShadow
-            , Ui.transition
-            , E.mouseDown [ Background.color Ui.bgMouseDown ]
-            , E.mouseOver [ Ui.bigInnerShadow ]
-            ]
-            { icon =
-                if transaction.checked then
-                    Ui.checkIcon [ E.centerX, E.centerY ]
-
-                else
-                    E.none
-            , onPress = Just (Msg.ForDatabase <| Msg.DbCheckTransaction transaction (not transaction.checked))
+        [ E.centerX
+        , E.centerY
+        , E.padding (em // 4)
+        ]
+    <|
+        Ui.reconcileCheckBox model.context
+            { background = bg
+            , state = transaction.checked
+            , onPress = Just (Msg.ForDatabase <| Msg.CheckTransaction transaction (not transaction.checked))
             }
-        )
 
 
-colDate : { a | date : Date.Date } -> E.Element msg
-colDate transaction =
+colDate : Model -> Ledger.Transaction -> E.Element msg
+colDate model transaction =
+    let
+        em =
+            model.context.em
+    in
     E.el
-        [ E.width (E.fillPortion 2), E.alignRight, Font.alignRight ]
+        [ E.width <| E.minimum (3 * em) <| E.shrink, E.alignLeft, Font.alignLeft, E.centerY ]
         (E.text (Date.toShortString transaction.date))
 
 
-colAmount : { a | date : Date.Date, amount : Money.Money } -> Date.Date -> E.Element msg
-colAmount transaction today =
+colAmount : Model -> Ledger.Transaction -> Date -> E.Element msg
+colAmount model transaction today =
     let
         future =
             Date.compare transaction.date today == GT
     in
-    E.el
-        [ E.width (E.fillPortion 2) ]
-        (Ui.viewMoney transaction.amount future)
+    Ui.viewMoney model.context transaction.amount future
 
 
-colDescription : { a | description : String } -> E.Element msg
-colDescription transaction =
-    E.el
-        [ E.width (E.fillPortion 8), E.clip ]
-        (if transaction.description == "" then
-            E.el [ Font.color Ui.fgDark ] (E.text "—")
+colCategory : Model -> Ledger.Transaction -> E.Element msg
+colCategory model transaction =
+    let
+        em =
+            model.context.em
 
-         else
-            E.text transaction.description
-        )
+        category =
+            Model.category transaction.category model
+    in
+    if model.settings.categoriesEnabled then
+        E.el
+            [ E.width <| E.minimum (em + em // 2) <| E.shrink, E.centerX, Font.center, Ui.iconFont ]
+            (E.text <| category.icon ++ " ")
+
+    else
+        E.none
+
+
+colDescription : Model -> Ledger.Transaction -> E.Element msg
+colDescription _ transaction =
+    E.paragraph
+        [ E.width E.fill
+        , E.centerY
+        ]
+    <|
+        [ E.text <|
+            Ledger.getTransactionDescription transaction
+        ]

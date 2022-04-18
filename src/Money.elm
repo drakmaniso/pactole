@@ -1,11 +1,11 @@
 module Money exposing
     ( Money
     , add
-    , decoder
-    , encoder
+    , decode
+    , encode
     , fromInput
     , isExpense
-    , isGreaterThan
+    , isGreaterOrEqualThan
     , isZero
     , toInput
     , toStrings
@@ -36,9 +36,9 @@ isExpense (Money money) =
     money < 0
 
 
-isGreaterThan : Money -> Int -> Bool
-isGreaterThan (Money money) other =
-    money > other * 100
+isGreaterOrEqualThan : Money -> Int -> Bool
+isGreaterOrEqualThan (Money money) other =
+    money >= other * 100
 
 
 add : Money -> Money -> Money
@@ -87,10 +87,10 @@ validate input =
             String.filter (\c -> c /= ' ') input
     in
     if trimmed == "" then
-        "Entrer un nombre."
+        "Entrez un nombre."
 
     else if String.any (\c -> not (Char.isDigit c || c == ',')) trimmed then
-        "Utiliser uniquement des chiffres et une virgule."
+        "Utilisez uniquement des chiffres et une virgule."
 
     else
         case String.indices "," trimmed of
@@ -98,19 +98,26 @@ validate input =
                 ""
 
             [ i ] ->
-                if i /= (String.length trimmed - 3) then
-                    "Mettre deux chiffres après la virgule."
+                if i == 0 then
+                    "Mettez au moins un chiffre avant la virgule."
+
+                else if i /= (String.length trimmed - 3) then
+                    "Mettez deux chiffres après la virgule."
 
                 else
                     ""
 
             _ ->
-                "Utiliser une seule virgule."
+                "Utilisez une seule virgule."
 
 
-fromInput : Bool -> String -> Maybe Money
+fromInput : Bool -> String -> Result String Money
 fromInput expense input =
-    if validate input == "" then
+    let
+        validationError =
+            validate input
+    in
+    if validationError == "" then
         let
             sign =
                 if expense then
@@ -121,9 +128,12 @@ fromInput expense input =
         in
         case String.split "," input of
             [ unitsStr ] ->
-                Maybe.map
-                    (\v -> Money (sign * v * 100))
-                    (String.toInt unitsStr)
+                case String.toInt unitsStr of
+                    Just v ->
+                        Ok (Money (sign * v * 100))
+
+                    Nothing ->
+                        Err "Nombre invalide"
 
             [ unitsStr, centsStr ] ->
                 let
@@ -135,21 +145,25 @@ fromInput expense input =
                     cents =
                         String.toInt centsStr
                 in
-                Maybe.map2 (\a b -> sign * (a + b)) units cents
-                    |> Maybe.map Money
+                case ( units, cents ) of
+                    ( Just u, Just c ) ->
+                        Ok (Money (sign * (u + c)))
+
+                    _ ->
+                        Err "Nombre invalide"
 
             _ ->
-                Nothing
+                Err "Trop de virgules"
 
     else
-        Nothing
+        Err validationError
 
 
-encoder : Money -> Encode.Value
-encoder (Money money) =
+encode : Money -> Encode.Value
+encode (Money money) =
     Encode.int money
 
 
-decoder : Decode.Decoder Money
-decoder =
+decode : Decode.Decoder Money
+decode =
     Decode.map Money Decode.int

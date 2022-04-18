@@ -1,138 +1,192 @@
-module Page.Summary exposing (view)
+module Page.Summary exposing (viewDesktop, viewMobile)
 
 import Dict
 import Element as E
-import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
 import Element.Input as Input
 import Element.Keyed as Keyed
 import Ledger
-import Model
+import Model exposing (Model)
 import Money
-import Msg
+import Msg exposing (Msg)
 import Ui
+import Ui.Color as Color
 
 
-
--- SUMMARY VIEW
-
-
-view : Model.Model -> E.Element Msg.Msg
-view model =
-    Keyed.el [ E.width E.fill, E.height E.fill ]
+viewDesktop : Model -> E.Element Msg
+viewDesktop model =
+    Keyed.el
+        [ E.width E.fill
+        , E.height E.fill
+        ]
         ( "summary"
         , E.column
             [ E.width E.fill
             , E.height E.fill
-            , E.centerX
+            , E.spacing <| model.context.em // 4
             ]
-            [ E.row
-                [ E.width E.fill
-                ]
-                [ E.el [ E.paddingXY 6 0, E.width E.fill ]
-                    (settingsButton model)
-                , case Dict.values model.accounts of
-                    [ singleAccount ] ->
-                        E.el [ Ui.bigFont, Font.color Ui.fgTitle, Ui.notSelectable ]
-                            (E.text singleAccount)
+            [ viewAccounts model
+            , viewBalance model
+            ]
+        )
 
-                    _ ->
-                        accountsRow model
-                , E.el [ E.width E.fill ]
-                    E.none
-                ]
-            , E.row [ E.height (E.fillPortion 1) ] [ E.none ]
-            , E.el
-                [ Ui.smallFont
-                , E.paddingEach { top = 0, bottom = 6, left = 0, right = 0 }
-                , E.width E.fill
-                , Font.center
-                , Font.color Ui.fgDarker
+
+viewAccounts : Model -> E.Element Msg
+viewAccounts model =
+    case Dict.keys model.accounts of
+        [ singleAccount ] ->
+            E.el [ Ui.notSelectable, Font.center, E.centerX, E.centerY ]
+                (E.text <| Model.accountName singleAccount model)
+
+        accounts ->
+            E.el [ Font.center, E.centerX, E.centerY ] <|
+                Input.radioRow
+                    [ E.width E.shrink
+                    , Border.width 4
+                    , Border.color Color.transparent
+                    , Ui.focusVisibleOnly
+                    , E.centerX
+                    , E.centerY
+                    ]
+                    { onChange = Msg.SelectAccount
+                    , selected = Just model.account
+                    , label = Input.labelHidden "Compte"
+                    , options =
+                        List.map
+                            (\account ->
+                                Ui.radioRowOption account
+                                    (E.text (Model.accountName account model))
+                            )
+                            accounts
+                    }
+
+
+viewBalance : Model -> E.Element msg
+viewBalance model =
+    let
+        em =
+            model.context.em
+
+        balance =
+            Ledger.getBalance model.ledger model.account model.today
+
+        parts =
+            Money.toStrings balance
+
+        sign =
+            if parts.sign == "+" then
+                ""
+
+            else
+                "-"
+
+        color =
+            if Money.isGreaterOrEqualThan balance 0 then
+                Color.neutral30
+
+            else
+                Color.warning60
+    in
+    E.column
+        [ E.centerX
+        , E.centerY
+        , E.paddingXY model.context.em (model.context.em // 4)
+        , Border.rounded (model.context.em // 4)
+        , if Money.isGreaterOrEqualThan balance model.settings.balanceWarning then
+            Border.color Color.transparent
+
+          else
+            Border.color Color.warning60
+        , Border.width 2
+        ]
+        [ if model.context.device.orientation == E.Landscape && model.context.height > 28 * em then
+            E.el
+                [ Ui.smallFont model.context
+                , E.centerX
+                , Font.color Color.neutral40
                 , Ui.notSelectable
                 ]
                 (E.text "Solde actuel:")
-            , balanceRow model
-            , E.row [ E.height (E.fillPortion 1) ] [ E.none ]
-            , buttonRow model
-            , E.row [ E.height (E.fillPortion 2) ] [ E.none ]
+
+          else
+            E.none
+        , E.paragraph
+            [ E.centerX, Font.color color, Ui.notSelectable ]
+            [ E.el
+                [ Ui.biggestFont model.context
+                , Font.bold
+                ]
+                (E.text (sign ++ parts.units))
+            , E.el
+                [ Ui.bigFont model.context
+                , Font.bold
+                ]
+                (E.text ("," ++ parts.cents))
+            , E.el
+                [ Ui.bigFont model.context
+                , E.alignTop
+                ]
+                (E.text "€")
+            ]
+        ]
+
+
+viewMobile : Model -> E.Element Msg
+viewMobile model =
+    Keyed.el
+        [ E.width E.fill ]
+        ( "summary"
+        , E.row
+            [ E.width E.fill
+            , E.spacing <| model.context.em // 4
+            , E.paddingXY (model.context.em // 4) (model.context.em // 2)
+            ]
+            [ viewMobileAccounts model
+            , viewMobileBalance model
             ]
         )
 
 
-accountsRow : Model.Model -> E.Element Msg.Msg
-accountsRow model =
-    Input.radioRow
-        [ E.width E.shrink
-        , if model.showFocus then
-            E.focused
-                [ Border.shadow
-                    { offset = ( 0, 0 )
-                    , size = 4
-                    , blur = 0
-                    , color = Ui.fgFocus
-                    }
+viewMobileAccounts : Model -> E.Element Msg
+viewMobileAccounts model =
+    case Dict.keys model.accounts of
+        [ singleAccount ] ->
+            E.el
+                [ Ui.notSelectable
+                , Font.center
+                , E.alignLeft
+                , E.centerY
+                , E.padding (model.context.em // 4)
                 ]
+                (E.text <| Model.accountName singleAccount model)
 
-          else
-            E.focused
-                [ Border.shadow
-                    { offset = ( 0, 0 )
-                    , size = 0
-                    , blur = 0
-                    , color = Ui.transparent
+        accounts ->
+            E.el [ Font.center, E.alignLeft, E.centerY ] <|
+                Input.radioRow
+                    [ E.width E.shrink
+                    , E.padding (model.context.em // 4)
+                    , Border.width 4
+                    , Border.color Color.transparent
+                    , Ui.focusVisibleOnly
+                    , E.alignLeft
+                    , E.centerY
+                    ]
+                    { onChange = Msg.SelectAccount
+                    , selected = Just model.account
+                    , label = Input.labelHidden "Compte"
+                    , options =
+                        List.map
+                            (\account ->
+                                Ui.radioRowOption account
+                                    (E.text (Model.accountName account model))
+                            )
+                            accounts
                     }
-                ]
-        ]
-        { onChange = Msg.SelectAccount
-        , selected = Just model.account
-        , label = Input.labelHidden "Compte"
-        , options =
-            List.map
-                (\account ->
-                    Input.optionWith account
-                        (accountOption account model)
-                )
-                (Dict.keys model.accounts)
-        }
 
 
-accountOption : Int -> Model.Model -> Input.OptionState -> E.Element msg
-accountOption accountID model state =
-    E.el
-        ([ E.centerX
-         , E.paddingXY 16 7
-         , Border.rounded 3
-         , Ui.bigFont
-         , Ui.transition
-         , Ui.notSelectable
-         ]
-            ++ (case state of
-                    Input.Idle ->
-                        [ Font.color Ui.fgTitle
-                        , E.mouseDown [ Background.color Ui.bgMouseDown ]
-                        , E.mouseOver [ Background.color Ui.bgMouseOver ]
-                        ]
-
-                    Input.Focused ->
-                        [ E.mouseDown [ Background.color Ui.bgMouseDown ]
-                        , E.mouseOver [ Background.color Ui.bgMouseOver ]
-                        ]
-
-                    Input.Selected ->
-                        [ Font.color (E.rgb 1 1 1)
-                        , Background.color Ui.bgMainButton
-                        , Ui.smallShadow
-                        , Ui.mouseDown [ Background.color Ui.bgMainButtonDown ]
-                        , Ui.mouseOver [ Background.color Ui.bgMainButton ]
-                        ]
-               )
-        )
-        (E.text (Model.account accountID model))
-
-
-balanceRow : Model.Model -> E.Element msg
-balanceRow model =
+viewMobileBalance : Model -> E.Element msg
+viewMobileBalance model =
     let
         balance =
             Ledger.getBalance model.ledger model.account model.today
@@ -148,132 +202,36 @@ balanceRow model =
                 "-"
 
         color =
-            if Money.isGreaterThan balance 0 then
-                Ui.fgBlack
+            if Money.isGreaterOrEqualThan balance 0 then
+                Color.neutral30
 
             else
-                Ui.fgRed
+                Color.warning60
     in
-    E.row
-        [ E.width E.fill, Font.color color, Ui.notSelectable ]
-        [ E.el [ E.width E.fill ] E.none
-        , if Money.isGreaterThan balance model.settings.balanceWarning then
-            E.none
+    E.el
+        [ E.alignRight
+        , E.centerY
+        , E.padding (model.context.em // 4)
+        , Border.rounded (model.context.em // 4)
+        , if Money.isGreaterOrEqualThan balance model.settings.balanceWarning then
+            Border.color Color.transparent
 
           else
-            Ui.warningIcon []
-        , E.el
-            [ Ui.biggestFont
-            , Font.bold
-            ]
-            (E.text (sign ++ parts.units))
-        , E.el
-            [ Ui.biggerFont
-            , Font.bold
-            , E.alignBottom
-            , E.paddingEach { top = 0, bottom = 2, left = 0, right = 0 }
-            ]
-            (E.text ("," ++ parts.cents))
-        , E.el
-            [ Ui.bigFont
-            , E.alignTop
-            , E.paddingEach { top = 2, bottom = 0, left = 4, right = 0 }
-            ]
-            (E.text "€")
-        , if Money.isGreaterThan balance model.settings.balanceWarning then
-            E.none
-
-          else
-            Ui.warningIcon []
-        , E.el [ E.width E.fill ] E.none
+            Border.color Color.warning60
+        , Border.width 2
+        , Font.color color
+        , Ui.notSelectable
         ]
-
-
-buttonRow : Model.Model -> E.Element Msg.Msg
-buttonRow model =
-    Keyed.row
-        [ E.width E.fill
-        , E.spacing 12
-        ]
-        [ ( "blank left", E.el [ E.width E.fill ] E.none )
-        , ( "stats button"
-          , if model.page == Model.MainPage && model.settings.summaryEnabled then
-                Ui.simpleButton
-                    [ E.width (E.fillPortion 3)
-                    ]
-                    { onPress = Just (Msg.ChangePage Model.StatsPage)
-                    , label = E.text "Bilan"
-                    }
-
-            else
-                E.none
-          )
-        , ( "reconcile button"
-          , if model.page == Model.MainPage && model.settings.reconciliationEnabled then
-                Ui.simpleButton
-                    [ E.width (E.fillPortion 3)
-                    ]
-                    { onPress = Just (Msg.ChangePage Model.ReconcilePage)
-                    , label = E.text "Pointer"
-                    }
-
-            else
-                E.none
-          )
-        , ( "back button"
-          , if model.page /= Model.MainPage then
-                Ui.simpleButton
-                    [ E.width (E.fillPortion 3)
-                    ]
-                    { onPress = Just (Msg.ChangePage Model.MainPage)
-                    , label =
-                        E.row [ Font.center, E.width E.fill ]
-                            [ E.el [ E.width E.fill ] E.none
-                            , Ui.backIcon []
-                            , E.text "  Retour"
-                            , E.el [ E.width E.fill ] E.none
-                            ]
-                    }
-
-            else
-                E.none
-          )
-        , ( "blank right", E.el [ E.width E.fill ] E.none )
-        ]
-
-
-settingsButton : Model.Model -> E.Element Msg.Msg
-settingsButton model =
-    if (not model.settings.settingsLocked) || model.showAdvanced then
-        Input.button
-            [ Background.color Ui.bgPage
-            , Ui.normalFont
-            , Font.color Ui.fgTitle
-            , Font.center
-            , Ui.roundCorners
-            , E.padding 2
-            , E.width (E.px 36)
-            , E.height (E.px 36)
-            , E.alignLeft
+        (E.paragraph
+            [ Font.alignRight, E.alignRight, Font.color color, Ui.notSelectable ]
+            [ E.el
+                [ Ui.bigFont model.context, Font.bold ]
+                (E.text (sign ++ parts.units))
+            , E.el
+                [ Ui.defaultFontSize model.context, Font.bold ]
+                (E.text ("," ++ parts.cents))
+            , E.el
+                [ Ui.defaultFontSize model.context, E.alignTop ]
+                (E.text "€")
             ]
-            { onPress = Just (Msg.ChangePage Model.SettingsPage)
-            , label = E.el [ Ui.iconFont, Ui.normalFont, E.centerX, Font.color Ui.bgDark ] (E.text "\u{F013}")
-            }
-
-    else
-        Input.button
-            [ Background.color Ui.bgPage
-            , Ui.normalFont
-            , Font.color Ui.fgTitle
-            , Font.center
-            , Ui.roundCorners
-            , E.padding 2
-            , E.width (E.px 36)
-            , E.height (E.px 36)
-            , E.alignLeft
-            ]
-            { onPress = Just Msg.AttemptSettings
-            , label =
-                E.el [ Ui.iconFont, Ui.normalFont, E.centerX, Font.color Ui.bgLight ]
-                    (E.text "\u{F013}")
-            }
+        )

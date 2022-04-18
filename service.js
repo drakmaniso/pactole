@@ -10,8 +10,8 @@ const files = [
   'manifest.webmanifest',
   'elm.js',
   'fonts/fa-solid-900.woff2',
-  'fonts/work-sans-v7-latin-regular.woff2',
-  'fonts/work-sans-v7-latin-700.woff2',
+  'fonts/andika-new-basic-v15-latin-regular.woff2',
+  'fonts/andika-new-basic-v15-latin-700.woff2',
   'images/icon-512x512.png',
 ]
 
@@ -20,33 +20,31 @@ const files = [
 // - version 1 had recurring transactions stored inside settings
 const version = 2
 
-const staticCacheName = "pactole-cache-1"
+const staticCacheName = "pactole-cache-2"
 
 // Used to force an update on client-side
-const serviceVersion = "1.3.3"
+const serviceVersion = "1.4.0"
 
 
 self.addEventListener('install', event => {
-  log('Installing service worker...!')
+  log('Installing service worker...')
   event.waitUntil(self.skipWaiting())
-  event.waitUntil(
-    caches
-      .open(staticCacheName)
-      .then(cache => {
-        log('    Installing cache')
-        return cache.addAll(
-          files.map(f => {
-            return new Request(f, { cache: 'no-store' })
-          })
-        )
-      })
-      .then(() => {
-        log('...service worker installed.')
-      })
-      .catch(err => {
-        error(err)
-      })
-  )
+  caches
+    .open(staticCacheName)
+    .then(cache => {
+      log('    Installing cache')
+      return cache.addAll(
+        files.map(f => {
+          return new Request(f, { cache: 'no-store' })
+        })
+      )
+    })
+    .then(() => {
+      log('...service worker installed.')
+    })
+    .catch(err => {
+      error(err)
+    })
 })
 
 
@@ -68,14 +66,10 @@ self.addEventListener('activate', event => {
 
 
 self.addEventListener('fetch', event => {
-  //log(`fetch: ${event.request.url}...`)
-  //TODO: handle favicon?
-  //log(`FETCH REQUEST CACHE = ${event.request.cache}`)
   event.respondWith(
     caches.match(event.request)
   )
 })
-
 
 self.addEventListener('message', event => {
   const msg = event.data
@@ -86,33 +80,13 @@ self.addEventListener('message', event => {
     // Initialization
 
     case 'request whole database':
-      getSettings()
-        .then(settings =>
-          getAccounts()
-            .then(accounts =>
-              getCategories()
-                .then(categories =>
-                  getLedger('ledger')
-                    .then(ledger =>
-                      getLedger('recurring')
-                        .then(recurring => {
-                          //TODO not broadcast!
-                          let db = {
-                            settings: settings,
-                            accounts: accounts,
-                            categories: categories,
-                            ledger: ledger,
-                            recurring: recurring,
-                            serviceVersion: serviceVersion
-                          }
-                          respond(event, 'update whole database', db)
-                        })
-                    )
+      requestWholeDatabase()
+        .then(db => respond(event, 'update whole database', db))
+        .catch(err => error(`request whole database`))
+      break
 
-                )
-            )
-        )
-        .catch(err => error(`request whole database: ${err}`))
+    case 'persistent storage granted':
+      broadcast('persistent storage granted', { granted: msg.content })
       break
 
     // Settings
@@ -332,8 +306,14 @@ self.addEventListener('message', event => {
       }
       break
 
+    case 'user error':
+      broadcast('user error', msg.content)
+      break
+
     default:
-      error(`Unknown message \"${msg.title}\" with content: ${msg.content}`)
+      const e = `Unknown message \"${msg.title}\" with content: ${msg.content}`
+      error(e)
+      broadcast('javascript error', e)
   }
 })
 
@@ -350,6 +330,38 @@ function broadcast(title, content) {
     for (const c of clients) {
       c.postMessage({ title: title, content: content })
     }
+  })
+}
+
+
+function requestWholeDatabase(event) {
+  return new Promise((resolve, reject) => {
+    getSettings()
+      .then(settings =>
+        getAccounts()
+          .then(accounts =>
+            getCategories()
+              .then(categories =>
+                getLedger('ledger')
+                  .then(ledger =>
+                    getLedger('recurring')
+                      .then(recurring => {
+                        let db = {
+                          settings: settings,
+                          accounts: accounts,
+                          categories: categories,
+                          ledger: ledger,
+                          recurring: recurring,
+                          serviceVersion: serviceVersion
+                        }
+                        resolve(db)
+                      })
+                  )
+
+              )
+          )
+      )
+      .catch(err => error(`request whole database: ${err}`))
   })
 }
 
@@ -381,7 +393,6 @@ function openDB() {
       if (!db.objectStoreNames.contains('settings')) {
         log(`        Creating settings object store...`)
         const os = db.createObjectStore('settings')
-        //os.add({}, 'settings')
       }
 
       // Accounts Store
@@ -394,13 +405,6 @@ function openDB() {
       if (!db.objectStoreNames.contains('categories')) {
         log(`        Creating categories object store...`)
         const os = db.createObjectStore('categories', { keyPath: 'id', autoIncrement: true })
-        os.add({ name: 'Maison', icon: '\u{F015}' })
-        os.add({ name: 'Santé', icon: '\u{F0F1}' })
-        os.add({ name: 'Nourriture', icon: '\u{F2E7}' })
-        os.add({ name: 'Vêtements', icon: '\u{F553}' })
-        os.add({ name: 'Transports', icon: '\u{F5E4}' })
-        os.add({ name: 'Loisirs', icon: '\u{F5CA}' })
-        os.add({ name: 'Banque', icon: '\u{F19C}' })
       }
 
       // Ledger Store
@@ -482,18 +486,7 @@ function getAccounts() {
         const os = tr.objectStore('accounts')
         const req = os.getAll()
         req.onerror = () => reject(req.error)
-        req.onsuccess = () => {
-          if (req.result.length == 0) {
-            const tr = db.transaction(['accounts'], 'readwrite')
-            tr.onerror = () => reject(tr.error)
-            const os = tr.objectStore('accounts')
-            const req = os.put({ name: 'Compte' })
-            req.onerror = () => reject(req.error)
-            req.onsuccess = () => resolve([{ id: req.result, name: 'Compte' }])
-          } else {
-            resolve(req.result)
-          }
-        }
+        req.onsuccess = () => resolve(req.result)
       })
       .catch(err => reject(err))
   })

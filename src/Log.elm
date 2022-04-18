@@ -1,9 +1,15 @@
-module Log exposing (..)
+module Log exposing (error)
 
-import Json.Encode as Encode
+import Model exposing (Model)
+import Platform.Cmd exposing (Cmd)
 import Ports
 
 
-error : String -> Cmd msg
-error msg =
-    Ports.send ( "error", Encode.string msg )
+error : String -> ( Model, Cmd msg ) -> ( Model, Cmd msg )
+error msg ( model, cmd ) =
+    ( { model | errors = model.errors ++ [ msg ] }
+    , Platform.Cmd.batch
+        [ Ports.error msg
+        , cmd
+        ]
+    )
