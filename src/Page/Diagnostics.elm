@@ -13,7 +13,12 @@ view model =
     E.column
         [ E.width E.fill
         , E.height E.fill
-        , E.padding 3
+        , E.padding <|
+            if model.context.device.orientation == E.Landscape then
+                4
+
+            else
+                0
         ]
         [ Ui.pageTitle model.context (E.text "System Diagnostics")
         , E.textColumn

@@ -684,7 +684,6 @@ pageWithTopNavBar model topElements elements =
         , E.column
             [ E.width E.fill
             , E.height E.fill
-            , E.spacing <| model.context.em // 2
             , E.clipX
             , E.scrollbarY
             ]
@@ -697,6 +696,7 @@ pageWithTopNavBar model topElements elements =
                 ([ E.width E.fill
                  , E.height E.fill
                  , E.spacing <| model.context.em // 4
+                 , E.paddingXY 0 (model.context.em // 2)
                  ]
                     ++ (if model.context.device.orientation == E.Portrait then
                             [ E.scrollbarY ]

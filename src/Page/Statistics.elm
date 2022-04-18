@@ -16,7 +16,12 @@ viewContent model =
     E.column
         [ E.width E.fill
         , E.height E.fill
-        , E.padding 3
+        , E.padding <|
+            if model.context.device.orientation == E.Landscape then
+                4
+
+            else
+                0
         ]
         [ Ui.monthNavigationBar model.context model Msg.SelectDate
         , viewMonthBalance model
