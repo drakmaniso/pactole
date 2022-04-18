@@ -79,11 +79,11 @@
     }
 
     dialog[open].dialog {
-      animation: show-dialog 0.150s ease-in;
+      animation: show-dialog .15s ease-out;
     }
 
     dialog[open].dialog::backdrop {
-      animation: show-dialog 0.150s ease-in;
+      animation: show-dialog-backdrop .15s ease-out;
     }
 
     dialog.mobile-dialog {
@@ -101,14 +101,31 @@
     }
 
     dialog[open].mobile-dialog {
-      animation: show-dialog 0.150s ease-in;
+      animation: show-dialog .15s ease-out;
     }
 
     dialog[open].mobile-dialog::backdrop {
-      animation: show-dialog 0.150s ease-in;
+      animation: show-dialog-backdrop .15s ease-out;
     }
 
     @keyframes show-dialog {
+      from {
+        opacity: 0%;
+        transform: scale(90%);
+      }
+
+      25% {
+        opacity: 0%;
+        transform: scale(90%);
+      }
+
+      to {
+        opacity: 100%;
+        transform: scale(100%);
+      }
+    }
+
+    @keyframes show-dialog-backdrop {
       from {
         opacity: 0%;
       }
