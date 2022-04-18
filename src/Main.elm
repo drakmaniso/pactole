@@ -137,7 +137,7 @@ update msg model =
     case msg of
         Msg.ChangePage page ->
             ( { model | page = page }
-            , Task.attempt (\_ -> Msg.NoOp) (Dom.blur "unfocus-on-page-change")
+            , Cmd.none
             )
 
         Msg.OpenDialog dialog ->
@@ -629,12 +629,11 @@ pageWithSidePanel model { panel, page } =
             [ navigationBar model
             , panel
             ]
-        , E.el
+        , Keyed.el
             [ E.width (E.fillPortion 3)
             , E.height E.fill
-            , E.scrollbarY
             ]
-            page
+            ( Model.pageKey model.page, E.el [ E.width E.fill, E.height E.fill, E.scrollbarY ] page )
         ]
 
 
@@ -656,26 +655,35 @@ panelWithTwoParts { top, bottom } =
 
 pageWithTopNavBar : Model -> List (E.Element Msg) -> List (E.Element Msg) -> E.Element Msg
 pageWithTopNavBar model topElements elements =
-    E.column
-        [ E.width E.fill
-        , E.height E.fill
-        , E.spacing <| model.context.em // 2
-        , E.clip
-        ]
-        [ E.column
-            [ E.width E.fill
-            , E.htmlAttribute <| Html.Attributes.class "panel-shadow"
-            ]
-            (navigationBar model :: topElements)
+    Keyed.el [ E.width E.fill, E.height E.fill ]
+        ( Model.pageKey model.page
         , E.column
             [ E.width E.fill
             , E.height E.fill
+            , E.spacing <| model.context.em // 2
+            , E.clipX
             , E.scrollbarY
-            , E.scrollbarX
-            , E.spacing <| model.context.em // 4
             ]
-            elements
-        ]
+            [ E.column
+                [ E.width E.fill
+                , E.htmlAttribute <| Html.Attributes.class "panel-shadow"
+                ]
+                (navigationBar model :: topElements)
+            , E.column
+                ([ E.width E.fill
+                 , E.height E.fill
+                 , E.spacing <| model.context.em // 4
+                 ]
+                    ++ (if model.context.device.orientation == E.Portrait then
+                            [ E.scrollbarY ]
+
+                        else
+                            []
+                       )
+                )
+                elements
+            ]
+        )
 
 
 navigationBar : Model -> E.Element Msg
@@ -685,11 +693,14 @@ navigationBar model =
             model.context.em
 
         width =
-            case model.context.device.orientation of
-                E.Landscape ->
+            case ( model.context.device.orientation, model.context.device.class ) of
+                ( E.Landscape, E.Phone ) ->
+                    model.context.width
+
+                ( E.Landscape, _ ) ->
                     model.context.width // 3
 
-                E.Portrait ->
+                ( E.Portrait, _ ) ->
                     model.context.width
 
         optional flag s =

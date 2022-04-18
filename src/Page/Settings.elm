@@ -6,7 +6,6 @@ import Element as E
 import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
-import Element.Keyed as Keyed
 import Ledger
 import Model exposing (Model)
 import Money
@@ -19,34 +18,22 @@ import Ui.Color as Color
 view : Model -> E.Element Msg
 view model =
     E.column
-        -- This extra column is necessary to circumvent a
-        -- scrollbar-related bug in elm-ui
         [ E.width E.fill
         , E.height E.fill
-        , E.clipY
+        , E.padding 3
         ]
-        [ Keyed.el [ E.width E.fill, E.height E.fill, E.scrollbarY ]
-            ( "Settings"
-            , E.column
-                [ E.width E.fill
-                , E.height E.fill
-                , E.padding 3
-                , E.scrollbarY
-                ]
-                [ Ui.pageTitle model.context (E.text "Configuration")
-                , Ui.textColumn model.context
-                    [ Ui.verticalSpacer
-                    , configBackup model
-                    , configAccounts model
-                    , configOptional model
-                    , configRecurring model
-                    , configFont model
-                    , Ui.verticalSpacer
-                    , Ui.verticalSpacer
-                    , secretDiagnosticsButton model
-                    ]
-                ]
-            )
+        [ Ui.pageTitle model.context (E.text "Configuration")
+        , Ui.textColumn model.context
+            [ Ui.verticalSpacer
+            , configBackup model
+            , configAccounts model
+            , configOptional model
+            , configRecurring model
+            , configFont model
+            , Ui.verticalSpacer
+            , Ui.verticalSpacer
+            , secretDiagnosticsButton model
+            ]
         ]
 
 

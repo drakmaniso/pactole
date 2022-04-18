@@ -21,7 +21,6 @@ viewContent model =
         [ Ui.monthNavigationBar model.context model Msg.SelectDate
         , viewMonthBalance model
         , viewMonthFutureWarning model
-        , Ui.ruler
         , E.column
             [ E.width E.fill
             , E.height E.fill

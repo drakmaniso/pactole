@@ -18,6 +18,7 @@ module Model exposing
     , encodeAccounts
     , encodeCategories
     , encodeSettings
+    , pageKey
     )
 
 import Date exposing (Date)
@@ -61,6 +62,34 @@ type Page
     | HelpPage
     | SettingsPage
     | DiagnosticsPage
+
+
+pageKey : Page -> String
+pageKey page =
+    case page of
+        LoadingPage ->
+            "loading-page"
+
+        InstallationPage _ ->
+            "installation-page"
+
+        CalendarPage ->
+            "calendar-page"
+
+        StatisticsPage ->
+            "statistics-page"
+
+        ReconcilePage ->
+            "reconcile-page"
+
+        HelpPage ->
+            "help-page"
+
+        SettingsPage ->
+            "settings-page"
+
+        DiagnosticsPage ->
+            "diagnostics-page"
 
 
 type alias InstallationData =
