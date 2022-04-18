@@ -115,11 +115,8 @@ classifyContext { width, height, fontSize } =
         longSide =
             max width height
 
-        em =
-            if fontSize >= 6 && fontSize <= 128 then
-                fontSize
-
-            else if longSide > 1280 && shortSide > 900 then
+        defaultEm =
+            if longSide > 1280 && shortSide > 900 then
                 26
 
             else if longSide > 1024 && shortSide > 720 then
@@ -127,6 +124,9 @@ classifyContext { width, height, fontSize } =
 
             else
                 22
+
+        em =
+            defaultEm + fontSize
 
         density =
             case device.orientation of
