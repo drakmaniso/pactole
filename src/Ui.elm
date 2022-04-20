@@ -376,7 +376,7 @@ dialog :
         }
     -> E.Element msg
 dialog context { key, content, close, actions } =
-    if context.device.class == E.Phone || context.device.orientation == E.Portrait then
+    if context.device.class == E.Phone || context.device.class == E.Tablet then
         Keyed.el [ E.width E.fill, E.height E.fill ] <|
             ( key
             , E.column
@@ -421,6 +421,7 @@ dialog context { key, content, close, actions } =
                 [ E.width E.fill
                 , E.height E.fill
                 , E.spacing <| context.em * 2
+                , E.paddingXY (2 * context.em) context.em
                 ]
                 [ content
                 , buttonRow

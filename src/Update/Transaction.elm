@@ -5,7 +5,6 @@ import Log
 import Model exposing (Model)
 import Money
 import Msg exposing (Msg)
-import Ports
 
 
 update : Msg.TransactionMsg -> Model -> ( Model, Cmd Msg )
@@ -60,7 +59,7 @@ update msg model =
 confirmDelete : Model -> Int -> ( Model, Cmd Msg )
 confirmDelete model data =
     ( { model | dialog = Nothing }
-    , Cmd.batch [ Database.deleteTransaction data, Ports.closeDialog () ]
+    , Database.deleteTransaction data
     )
 
 
@@ -73,33 +72,27 @@ confirm model data =
     of
         ( Just id, Ok amount ) ->
             ( { model | dialog = Nothing }
-            , Cmd.batch
-                [ Database.replaceTransaction
-                    { id = id
-                    , account = model.account
-                    , date = data.date
-                    , amount = amount
-                    , description = data.description
-                    , category = data.category
-                    , checked = False
-                    }
-                , Ports.closeDialog ()
-                ]
+            , Database.replaceTransaction
+                { id = id
+                , account = model.account
+                , date = data.date
+                , amount = amount
+                , description = data.description
+                , category = data.category
+                , checked = False
+                }
             )
 
         ( Nothing, Ok amount ) ->
             ( { model | dialog = Nothing }
-            , Cmd.batch
-                [ Database.createTransaction
-                    { account = model.account
-                    , date = data.date
-                    , amount = amount
-                    , description = data.description
-                    , category = data.category
-                    , checked = False
-                    }
-                , Ports.closeDialog ()
-                ]
+            , Database.createTransaction
+                { account = model.account
+                , date = data.date
+                , amount = amount
+                , description = data.description
+                , category = data.category
+                , checked = False
+                }
             )
 
         ( _, Err amountError ) ->

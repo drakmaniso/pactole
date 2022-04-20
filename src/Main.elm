@@ -15,7 +15,6 @@ import Element.Border as Border
 import Element.Font as Font
 import Element.Input as Input
 import Element.Keyed as Keyed
-import Html
 import Html.Attributes
 import Json.Decode as Decode
 import Ledger
@@ -143,8 +142,7 @@ update msg model =
         Msg.OpenDialog dialog ->
             ( { model | dialog = Just dialog }
             , Cmd.batch
-                [ Ports.openDialog ()
-                , Task.attempt (\_ -> Msg.NoOp) (Dom.focus "dialog-focus")
+                [ Task.attempt (\_ -> Msg.NoOp) (Dom.focus "dialog-focus")
                 ]
             )
 
@@ -160,12 +158,12 @@ update msg model =
                     Update.Settings.confirm model
 
         Msg.CloseDialog ->
-            ( { model | dialog = Nothing }, Ports.closeDialog () )
+            ( { model | dialog = Nothing }, Cmd.none )
 
         Msg.OnPopState () ->
             case ( model.dialog, model.page ) of
                 ( Just _, _ ) ->
-                    ( { model | dialog = Nothing }, Ports.closeDialog () )
+                    ( { model | dialog = Nothing }, Cmd.none )
 
                 ( Nothing, Model.CalendarPage ) ->
                     ( model, Ports.historyBack () )
@@ -302,58 +300,71 @@ keyDecoder msg =
 
 view : Model -> Browser.Document Msg
 view model =
-    case ( model.context.device.orientation, model.context.device.class ) of
-        ( E.Landscape, E.Phone ) ->
-            viewPortrait model
-
-        ( E.Landscape, _ ) ->
-            viewLandscape model
-
-        ( E.Portrait, _ ) ->
-            viewPortrait model
-
-
-
--- DESKTOP VIEW
-
-
-viewLandscape : Model -> Browser.Document Msg
-viewLandscape model =
     let
+        em =
+            model.context.em
+
+        device =
+            model.context.device
+
         activePage =
-            viewLandscapePage model
+            case ( device.orientation, device.class ) of
+                ( E.Landscape, E.Phone ) ->
+                    viewPortraitPage model
+
+                ( E.Landscape, _ ) ->
+                    viewLandscapePage model
+
+                ( E.Portrait, _ ) ->
+                    viewPortraitPage model
 
         activeDialog =
-            model.dialog |> Maybe.map (viewDialog model)
+            if device.class == E.Phone || device.class == E.Tablet then
+                model.dialog
+                    |> Maybe.map
+                        (\dialog ->
+                            E.el
+                                [ E.width E.fill
+                                , E.height E.fill
+                                , Ui.fontFamily model.settings.font
+                                , Ui.defaultFontSize model.context
+                                , Background.color Color.white
+                                , Font.color Color.neutral30
+                                , E.scrollbarY
+                                ]
+                            <|
+                                viewDialog model dialog
+                        )
+
+            else
+                model.dialog
+                    |> Maybe.map
+                        (\dialog ->
+                            E.el
+                                [ E.width <| E.minimum (32 * em) <| E.maximum (40 * em) <| E.shrink
+                                , E.height <| E.minimum (5 * em) <| E.shrink
+                                , E.centerX
+                                , E.centerY
+                                , Border.rounded (em // 4)
+                                , E.htmlAttribute <| Html.Attributes.class "desktop-dialog-shadow"
+                                , Ui.fontFamily model.settings.font
+                                , Ui.defaultFontSize model.context
+                                , Background.color Color.white
+                                , Font.color Color.neutral30
+                                , E.scrollbarY
+                                ]
+                            <|
+                                viewDialog model dialog
+                        )
     in
-    { title = "Pactole"
-    , body =
-        [ pageHtml model activePage
-        , dialogHtml model activeDialog
-        ]
-    }
+    document model
+        { page = activePage
+        , maybeDialog = activeDialog
+        }
 
 
-viewPortrait : Model -> Browser.Document Msg
-viewPortrait model =
-    case model.dialog of
-        Nothing ->
-            { title = "Pactole"
-            , body =
-                [ pageHtml model <| viewPortraitPage model
-                , mobileDialogHtml model Nothing
-                ]
-            }
 
-        Just dialog ->
-            { title = "Pactole"
-            , body =
-                [ pageHtml model <| viewPortraitPage model
-                , mobileDialogHtml model <|
-                    Just <|
-                        viewDialog model dialog
-                ]
-            }
+-- PAGES
 
 
 viewLandscapePage : Model -> E.Element Msg
@@ -492,128 +503,77 @@ viewDialog model dialog =
 -- VIEW PARTS
 
 
-pageHtml : Model -> E.Element Msg -> Html.Html Msg
-pageHtml model element =
-    E.layoutWith
-        { options =
-            E.focusStyle
-                { borderColor = Nothing
-                , backgroundColor = Nothing
-                , shadow = Nothing
-                }
-                :: (case model.context.device.class of
-                        E.Phone ->
-                            [ E.noHover ]
-
-                        E.Tablet ->
-                            [ E.noHover ]
-
-                        _ ->
-                            []
-                   )
-        }
-        []
-        (E.column
-            [ E.width E.fill
-            , E.height E.fill
-            , Ui.fontFamily model.settings.font
-            , Ui.defaultFontSize model.context
-            , Font.color Color.neutral30
-            , Background.color Color.white
-            ]
-            [ case ( model.page, model.isStoragePersisted ) of
-                ( Model.LoadingPage, _ ) ->
-                    E.none
-
-                ( Model.InstallationPage _, _ ) ->
-                    E.none
-
-                ( _, False ) ->
-                    warningBanner "Attention: le stockage n'est pas persistant!"
-
-                ( _, True ) ->
-                    E.none
-            , element
-            ]
-        )
-
-
-dialogHtml : Model -> Maybe (E.Element Msg) -> Html.Html Msg
-dialogHtml model maybeElement =
-    let
-        em =
-            model.context.em
-    in
-    Html.node "dialog"
-        [ Html.Attributes.id "dialog"
-        , Html.Attributes.class "dialog"
-        ]
+document : Model -> { page : E.Element Msg, maybeDialog : Maybe (E.Element Msg) } -> Browser.Document Msg
+document model { page, maybeDialog } =
+    { title = "Pactole"
+    , body =
         [ E.layoutWith
             { options =
-                [ E.noStaticStyleSheet
-                , E.focusStyle
+                E.focusStyle
                     { borderColor = Nothing
                     , backgroundColor = Nothing
                     , shadow = Nothing
                     }
-                ]
+                    :: (case model.context.device.class of
+                            E.Phone ->
+                                [ E.noHover ]
+
+                            E.Tablet ->
+                                [ E.noHover ]
+
+                            _ ->
+                                []
+                       )
             }
             []
-          <|
-            case maybeElement of
-                Just e ->
-                    E.el
-                        [ E.width <| E.minimum (32 * em) <| E.maximum (40 * em) <| E.shrink
-                        , E.height <| E.minimum (5 * em) <| E.shrink
-                        , Ui.fontFamily model.settings.font
-                        , Ui.defaultFontSize model.context
-                        , Background.color Color.white
-                        , Font.color Color.neutral30
-                        , E.paddingXY (2 * em) em
-                        , E.scrollbarY
-                        ]
-                        e
-
-                Nothing ->
-                    E.none
-        ]
-
-
-mobileDialogHtml : Model -> Maybe (E.Element Msg) -> Html.Html Msg
-mobileDialogHtml model maybeElement =
-    Html.node "dialog"
-        [ Html.Attributes.id "dialog"
-        , Html.Attributes.class "mobile-dialog"
-        ]
-        [ E.layoutWith
-            { options =
-                [ E.noStaticStyleSheet
-                , E.focusStyle
-                    { borderColor = Nothing
-                    , backgroundColor = Nothing
-                    , shadow = Nothing
-                    }
-                ]
-            }
-            []
-            (E.el
-                [ E.width <| E.fill
-                , E.height <| E.fill
+            (E.column
+                [ E.width E.fill
+                , E.height E.fill
                 , Ui.fontFamily model.settings.font
                 , Ui.defaultFontSize model.context
-                , Background.color Color.white
                 , Font.color Color.neutral30
-                , E.clip
-                ]
-             <|
-                case maybeElement of
-                    Just e ->
-                        e
+                , Background.color Color.white
+                , case maybeDialog of
+                    Just dialog ->
+                        E.inFront
+                            (E.el
+                                [ E.width E.fill
+                                , E.height E.fill
+                                , E.htmlAttribute <| Html.Attributes.style "z-index" "3"
+                                , E.behindContent
+                                    (Input.button
+                                        [ E.width E.fill
+                                        , E.height E.fill
+                                        , Background.color (E.rgba 0 0 0 0.6)
+                                        ]
+                                        { label = E.none
+                                        , onPress = Just Msg.CloseDialog
+                                        }
+                                    )
+                                ]
+                                dialog
+                            )
 
                     Nothing ->
+                        E.inFront E.none
+                ]
+                [ case ( model.page, model.isStoragePersisted ) of
+                    ( Model.LoadingPage, _ ) ->
                         E.none
+
+                    ( Model.InstallationPage _, _ ) ->
+                        E.none
+
+                    ( _, False ) ->
+                        warningBanner "Attention: le stockage n'est pas persistant!"
+
+                    ( _, True ) ->
+                        E.none
+                , page
+                ]
             )
         ]
+    }
 
 
 warningBanner : String -> E.Element Msg
