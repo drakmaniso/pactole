@@ -254,12 +254,10 @@
               const yDiff = y - yTouch
               if (Math.abs(xDiff) > Math.abs(yDiff)) {
                 if (xDiff > 100) {
-                  log("right swipe")
                   xTouch = null
                   yTouch = null
                   app.ports.onRightSwipe.send(null)
                 } else if (xDiff < -100) {
-                  log("left swipe")
                   xTouch = null
                   yTouch = null
                   app.ports.onLeftSwipe.send(null)
