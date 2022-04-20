@@ -1,12 +1,10 @@
 port module Ports exposing
-    ( closeDialog
-    , error
+    ( error
     , exportDatabase
     , historyBack
     , onLeftSwipe
     , onPopState
     , onRightSwipe
-    , openDialog
     , receive
     , requestStoragePersistence
     , selectImport
@@ -47,12 +45,6 @@ port selectImport : () -> Cmd msg
 
 
 port requestStoragePersistence : () -> Cmd msg
-
-
-port openDialog : () -> Cmd msg
-
-
-port closeDialog : () -> Cmd msg
 
 
 

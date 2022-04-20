@@ -441,7 +441,7 @@ msgFromService ( title, content ) model =
         "user error" ->
             case Decode.decodeValue Decode.string content of
                 Ok msg ->
-                    ( { model | dialog = Just (Model.UserErrorDialog msg) }, Ports.openDialog () )
+                    ( { model | dialog = Just (Model.UserErrorDialog msg) }, Cmd.none )
 
                 _ ->
                     ( { model | errors = model.errors ++ [ "ERROR: undecodable javascript in \"user error\" message" ] }, Cmd.none )
