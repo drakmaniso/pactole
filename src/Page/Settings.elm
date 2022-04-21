@@ -97,6 +97,7 @@ configAccounts model =
         , E.column [ E.padding 6, E.spacing 6, E.width <| E.minimum 100 <| E.fill ]
             (model.accounts
                 |> Dict.toList
+                |> List.sortBy (\( _, name ) -> name)
                 |> List.map
                     (\( id, name ) ->
                         Ui.flatButton
