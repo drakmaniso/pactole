@@ -120,7 +120,7 @@ init flags _ _ =
       , page = Model.LoadingPage
       , dialog = Nothing
       , serviceVersion = "unknown"
-      , context = Ui.classifyContext { width = width, height = height, fontSize = 0 }
+      , context = Ui.classifyContext { width = width, height = height, fontSize = 0, deviceClass = Ui.AutoClass }
       , errors = []
       }
     , Cmd.none
@@ -215,7 +215,12 @@ update msg model =
                     toFloat (model.context.height - size.height) / toFloat model.context.height
 
                 newContext =
-                    Ui.classifyContext { width = size.width, height = size.height, fontSize = model.settings.fontSize }
+                    Ui.classifyContext
+                        { width = size.width
+                        , height = size.height
+                        , fontSize = model.settings.fontSize
+                        , deviceClass = model.settings.deviceClass
+                        }
             in
             if size.width == model.context.width && abs heightChange > 0.1 then
                 -- This is probably triggered by opening the on-screen keyboard

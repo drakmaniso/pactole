@@ -355,6 +355,7 @@ msgFromService ( title, content ) model =
                                 { width = model.context.width
                                 , height = model.context.height
                                 , fontSize = db.settings.fontSize
+                                , deviceClass = db.settings.deviceClass
                                 }
                       }
                     , if not (List.isEmpty db.accounts) then
@@ -378,7 +379,13 @@ msgFromService ( title, content ) model =
                     in
                     ( { model
                         | settings = settings
-                        , context = Ui.classifyContext { width = device.width, height = device.height, fontSize = settings.fontSize }
+                        , context =
+                            Ui.classifyContext
+                                { width = device.width
+                                , height = device.height
+                                , fontSize = settings.fontSize
+                                , deviceClass = settings.deviceClass
+                                }
                       }
                     , Cmd.none
                     )

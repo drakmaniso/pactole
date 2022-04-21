@@ -28,7 +28,7 @@ view model =
             , configAccounts model
             , configOptional model
             , configRecurring model
-            , configFont model
+            , configAppearance model
             , Ui.verticalSpacer
             , Ui.verticalSpacer
             , secretDiagnosticsButton model
@@ -260,8 +260,8 @@ configRecurring model =
         ]
 
 
-configFont : Model -> E.Element Msg
-configFont model =
+configAppearance : Model -> E.Element Msg
+configAppearance model =
     let
         settings =
             model.settings
@@ -278,6 +278,24 @@ configFont model =
 
             else
                 size
+
+        detected =
+            let
+                autoDevice =
+                    E.classifyDevice model.context
+            in
+            case autoDevice.class of
+                E.Phone ->
+                    "téléphone"
+
+                E.Tablet ->
+                    "tablette"
+
+                E.Desktop ->
+                    "ordinateur"
+
+                E.BigDesktop ->
+                    "ordinateur"
     in
     E.column
         [ E.width E.fill, E.spacing 24 ]
@@ -320,6 +338,22 @@ configFont model =
             { label = E.text "Changer la police de caractères"
             , color = Ui.PlainButton
             , onPress = Msg.OpenDialog <| Model.FontDialog model.settings.font
+            }
+        , Ui.verticalSpacer
+        , Ui.radio model.context
+            { label = Ui.labelAbove model.context "Type d'appareil:"
+            , onChange =
+                \deviceClass ->
+                    Msg.ForDatabase <|
+                        Msg.StoreSettings <|
+                            { settings | deviceClass = deviceClass }
+            , selected = Just model.settings.deviceClass
+            , options =
+                [ Ui.radioOption model.context Ui.AutoClass (E.paragraph [] [ E.text <| "Détection automatique (" ++ detected ++ ")" ])
+                , Ui.radioOption model.context Ui.Phone (E.text "Téléphone")
+                , Ui.radioOption model.context Ui.Tablet (E.text "Tablette")
+                , Ui.radioOption model.context Ui.Desktop (E.text "Ordinateur")
+                ]
             }
         , Ui.verticalSpacer
         ]
