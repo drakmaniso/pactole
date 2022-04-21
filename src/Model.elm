@@ -12,7 +12,7 @@ module Model exposing
     , accountName
     , category
     , decodeAccount
-    , decodeCategory
+    , decodeCategories
     , decodeSettings
     , defaultSettings
     , encodeAccounts
@@ -134,6 +134,11 @@ decodeCategory =
         (Decode.field "id" Decode.int)
         (Decode.field "name" Decode.string)
         (Decode.field "icon" Decode.string)
+
+
+decodeCategories : Decode.Decoder (List ( Int, { name : String, icon : String } ))
+decodeCategories =
+    Decode.list decodeCategory
 
 
 

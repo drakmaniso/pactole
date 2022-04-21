@@ -177,6 +177,7 @@ configOptional model =
         , E.column [ E.padding 6, E.spacing 6, E.width <| E.minimum 100 <| E.fill ]
             (model.categories
                 |> Dict.toList
+                |> List.sortBy (\( _, { name } ) -> name)
                 |> List.map
                     (\( id, { name, icon } ) ->
                         Ui.flatButton

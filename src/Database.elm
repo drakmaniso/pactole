@@ -420,7 +420,7 @@ msgFromService ( title, content ) model =
                     Log.error ("decoding accounts: " ++ Decode.errorToString e) ( model, Cmd.none )
 
         "update categories" ->
-            case Decode.decodeValue (Decode.list Model.decodeCategory) content of
+            case Decode.decodeValue Model.decodeCategories content of
                 Ok categories ->
                     ( { model | categories = Dict.fromList categories }, Cmd.none )
 
@@ -516,7 +516,7 @@ decodeDB =
         )
         (Decode.field "settings" Model.decodeSettings)
         (Decode.field "accounts" (Decode.list Model.decodeAccount))
-        (Decode.field "categories" (Decode.list Model.decodeCategory))
+        (Decode.field "categories" Model.decodeCategories)
         (Decode.field "ledger" Ledger.decode)
         (Decode.field "recurring" Ledger.decode)
         (Decode.field "serviceVersion" Decode.string)
