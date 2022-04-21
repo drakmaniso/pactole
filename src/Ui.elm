@@ -700,16 +700,35 @@ radioRowOption value element =
 
 pageTitle : Context -> E.Element msg -> E.Element msg
 pageTitle context element =
+    let
+        em =
+            context.em
+    in
     E.row
         [ E.centerX
         , E.width E.fill
-        , E.paddingEach { top = 3, bottom = 8, left = 2 * context.em, right = 2 * context.em }
+        , E.paddingEach
+            { top = 3
+            , bottom = em // 4
+            , left =
+                if context.density == Comfortable then
+                    2 * em
+
+                else
+                    em // 2
+            , right =
+                if context.density == Comfortable then
+                    2 * em
+
+                else
+                    em // 2
+            }
         ]
         [ E.el
             [ bigFont context
             , Font.center
             , Font.bold
-            , E.paddingEach { top = 4, bottom = 8, left = 12, right = 12 }
+            , E.padding <| em // 4
             , E.width E.fill
             , E.centerY
             , Background.color Color.neutral95
@@ -818,7 +837,7 @@ monthNavigationBar context model changeMsg =
         [ E.width E.fill
         , E.paddingEach
             { top = 3
-            , bottom = 8
+            , bottom = em // 4
             , left =
                 if context.density == Comfortable then
                     2 * em
@@ -889,7 +908,7 @@ monthNavigationBar context model changeMsg =
                           else
                             defaultFontSize context
                         , Font.color Color.neutral30
-                        , E.padding 6
+                        , E.padding <| em // 4
                         ]
                         (E.text (Date.getMonthFullName model.today model.date))
                     )
