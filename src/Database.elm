@@ -524,7 +524,7 @@ decodeDB =
 
 firstAccount : List ( Int, String ) -> Int
 firstAccount accounts =
-    case accounts of
+    case accounts |> List.sortBy (\( _, name ) -> name) of
         head :: _ ->
             Tuple.first head
 
