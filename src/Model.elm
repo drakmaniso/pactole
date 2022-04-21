@@ -12,7 +12,7 @@ module Model exposing
     , accountName
     , category
     , decodeAccount
-    , decodeCategory
+    , decodeCategories
     , decodeSettings
     , defaultSettings
     , encodeAccounts
@@ -136,6 +136,11 @@ decodeCategory =
         (Decode.field "icon" Decode.string)
 
 
+decodeCategories : Decode.Decoder (List ( Int, { name : String, icon : String } ))
+decodeCategories =
+    Decode.list decodeCategory
+
+
 
 -- ACCOUNT
 
@@ -177,6 +182,7 @@ type alias Settings =
     , balanceWarning : Int
     , font : String
     , fontSize : Int
+    , deviceClass : Ui.DeviceClass
     }
 
 
@@ -188,6 +194,7 @@ defaultSettings =
     , balanceWarning = 100
     , font = "Andika New Basic"
     , fontSize = 0
+    , deviceClass = Ui.AutoClass
     }
 
 
@@ -200,19 +207,21 @@ encodeSettings settings =
         , ( "balanceWarning", Encode.int settings.balanceWarning )
         , ( "font", Encode.string settings.font )
         , ( "fontSize", Encode.int settings.fontSize )
+        , ( "deviceClass", Ui.encodeDeviceClass settings.deviceClass )
         ]
 
 
 decodeSettings : Decode.Decoder Settings
 decodeSettings =
-    Decode.map6
-        (\cat rec summ balwarn font fontSize ->
+    Decode.map7
+        (\cat rec summ balwarn font fontSize deviceClass ->
             { categoriesEnabled = cat
             , reconciliationEnabled = rec
             , summaryEnabled = summ
             , balanceWarning = balwarn
             , font = font
             , fontSize = fontSize
+            , deviceClass = deviceClass
             }
         )
         (Decode.oneOf [ Decode.field "categoriesEnabled" Decode.bool, Decode.succeed False ])
@@ -221,6 +230,7 @@ decodeSettings =
         (Decode.oneOf [ Decode.field "balanceWarning" Decode.int, Decode.succeed 100 ])
         (Decode.oneOf [ Decode.field "font" Decode.string, Decode.succeed "Andika New Basic" ])
         (Decode.oneOf [ Decode.field "fontSize" Decode.int, Decode.succeed 0 ])
+        (Decode.oneOf [ Decode.field "deviceClass" Ui.decodeDeviceClass, Decode.succeed Ui.AutoClass ])
 
 
 

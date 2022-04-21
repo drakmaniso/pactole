@@ -33,7 +33,7 @@ viewAccountDialog model data =
                 [ E.el
                     [ Ui.onEnter Msg.ConfirmDialog ]
                     (Ui.textInput
-                        { label = Ui.labelLeft "Nom du compte:"
+                        { label = Ui.labelLeft model.context "Nom du compte:"
                         , text = data.name
                         , onChange = \n -> Msg.ForSettings <| Msg.ChangeSettingsName n
                         }
@@ -125,7 +125,7 @@ viewCategoryDialog model submodel =
                 ]
                 [ E.el [ Ui.onEnter Msg.ConfirmDialog ]
                     (Ui.textInput
-                        { label = Ui.labelLeft "Catégorie:"
+                        { label = Ui.labelLeft model.context "Catégorie:"
                         , text = submodel.name
                         , onChange = \n -> Msg.ForSettings <| Msg.ChangeSettingsName n
                         }
@@ -231,7 +231,7 @@ viewRecurringDialog model submodel =
                 , Ui.onEnter Msg.ConfirmDialog
                 ]
                 [ Ui.textInput
-                    { label = Ui.labelLeft "Jour du mois: "
+                    { label = Ui.labelLeft model.context "Jour du mois: "
                     , text = submodel.dueDate
                     , onChange = \n -> Msg.ForSettings <| Msg.ChangeSettingsDueDate n
                     }
@@ -268,12 +268,12 @@ viewRecurringDialog model submodel =
                         ]
                     ]
                 , Ui.textInput
-                    { label = Ui.labelLeft "Montant:"
+                    { label = Ui.labelLeft model.context "Montant:"
                     , text = submodel.amount
                     , onChange = \n -> Msg.ForSettings <| Msg.ChangeSettingsAmount n
                     }
                 , Ui.textInput
-                    { label = Ui.labelLeft "Description:"
+                    { label = Ui.labelLeft model.context "Description:"
                     , text = submodel.description
                     , onChange = \n -> Msg.ForSettings <| Msg.ChangeSettingsName n
                     }
@@ -444,7 +444,7 @@ viewFontDialog model fontName =
                 ]
                 [ E.wrappedRow [ E.spacing 12 ]
                     [ Ui.textInput
-                        { label = Ui.labelLeft "Police de caractère:"
+                        { label = Ui.labelLeft model.context "Police de caractère:"
                         , text = fontName
                         , onChange = \n -> Msg.ForSettings <| Msg.ChangeSettingsName n
                         }

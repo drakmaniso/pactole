@@ -355,6 +355,7 @@ msgFromService ( title, content ) model =
                                 { width = model.context.width
                                 , height = model.context.height
                                 , fontSize = db.settings.fontSize
+                                , deviceClass = db.settings.deviceClass
                                 }
                       }
                     , if not (List.isEmpty db.accounts) then
@@ -378,7 +379,13 @@ msgFromService ( title, content ) model =
                     in
                     ( { model
                         | settings = settings
-                        , context = Ui.classifyContext { width = device.width, height = device.height, fontSize = settings.fontSize }
+                        , context =
+                            Ui.classifyContext
+                                { width = device.width
+                                , height = device.height
+                                , fontSize = settings.fontSize
+                                , deviceClass = settings.deviceClass
+                                }
                       }
                     , Cmd.none
                     )
@@ -413,7 +420,7 @@ msgFromService ( title, content ) model =
                     Log.error ("decoding accounts: " ++ Decode.errorToString e) ( model, Cmd.none )
 
         "update categories" ->
-            case Decode.decodeValue (Decode.list Model.decodeCategory) content of
+            case Decode.decodeValue Model.decodeCategories content of
                 Ok categories ->
                     ( { model | categories = Dict.fromList categories }, Cmd.none )
 
@@ -509,7 +516,7 @@ decodeDB =
         )
         (Decode.field "settings" Model.decodeSettings)
         (Decode.field "accounts" (Decode.list Model.decodeAccount))
-        (Decode.field "categories" (Decode.list Model.decodeCategory))
+        (Decode.field "categories" Model.decodeCategories)
         (Decode.field "ledger" Ledger.decode)
         (Decode.field "recurring" Ledger.decode)
         (Decode.field "serviceVersion" Decode.string)
@@ -517,7 +524,7 @@ decodeDB =
 
 firstAccount : List ( Int, String ) -> Int
 firstAccount accounts =
-    case accounts of
+    case accounts |> List.sortBy (\( _, name ) -> name) of
         head :: _ ->
             Tuple.first head
 

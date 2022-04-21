@@ -300,6 +300,7 @@ viewCategories model data =
             categories =
                 model.categories
                     |> Dict.toList
+                    |> List.sortBy (\( _, { name } ) -> name)
                     |> (\l ->
                             ( 0, { name = "Aucune", icon = " " } )
                                 :: l

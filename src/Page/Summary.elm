@@ -34,10 +34,10 @@ viewDesktop model =
 
 viewAccounts : Model -> E.Element Msg
 viewAccounts model =
-    case Dict.keys model.accounts of
-        [ singleAccount ] ->
+    case model.accounts |> Dict.toList |> List.sortBy (\( _, name ) -> name) of
+        [ ( _, name ) ] ->
             E.el [ Ui.notSelectable, Font.center, E.centerX, E.centerY ]
-                (E.text <| Model.accountName singleAccount model)
+                (E.text name)
 
         accounts ->
             E.el [ Font.center, E.centerX, E.centerY ] <|
@@ -54,9 +54,9 @@ viewAccounts model =
                     , label = Input.labelHidden "Compte"
                     , options =
                         List.map
-                            (\account ->
+                            (\( account, name ) ->
                                 Ui.radioRowOption account
-                                    (E.text (Model.accountName account model))
+                                    (E.text name)
                             )
                             accounts
                     }
@@ -150,8 +150,8 @@ viewMobile model =
 
 viewMobileAccounts : Model -> E.Element Msg
 viewMobileAccounts model =
-    case Dict.keys model.accounts of
-        [ singleAccount ] ->
+    case model.accounts |> Dict.toList |> List.sortBy (\( _, name ) -> name) of
+        [ ( _, name ) ] ->
             E.el
                 [ Ui.notSelectable
                 , Font.center
@@ -159,7 +159,7 @@ viewMobileAccounts model =
                 , E.centerY
                 , E.padding (model.context.em // 4)
                 ]
-                (E.text <| Model.accountName singleAccount model)
+                (E.text name)
 
         accounts ->
             E.el [ Font.center, E.alignLeft, E.centerY ] <|
@@ -177,9 +177,9 @@ viewMobileAccounts model =
                     , label = Input.labelHidden "Compte"
                     , options =
                         List.map
-                            (\account ->
+                            (\( account, name ) ->
                                 Ui.radioRowOption account
-                                    (E.text (Model.accountName account model))
+                                    (E.text name)
                             )
                             accounts
                     }

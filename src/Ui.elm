@@ -2,6 +2,7 @@ module Ui exposing
     ( ButtonColor(..)
     , Context
     , Density(..)
+    , DeviceClass(..)
     , backIcon
     , bigFont
     , bigWarningIcon
@@ -11,8 +12,8 @@ module Ui exposing
     , checkIcon
     , classifyContext
     , closeIcon
-    , configCustom
     , contentWidth
+    , decodeDeviceClass
     , defaultFontSize
     , defaultShadow
     , deleteIcon
@@ -20,6 +21,7 @@ module Ui exposing
     , dialogSection
     , dialogSectionRow
     , editIcon
+    , encodeDeviceClass
     , errorIcon
     , expenseButton
     , expenseIcon
@@ -35,6 +37,7 @@ module Ui exposing
     , incomeButton
     , incomeIcon
     , innerShadow
+    , labelAbove
     , labelLeft
     , linkButton
     , loadIcon
@@ -47,12 +50,13 @@ module Ui exposing
     , paragraph
     , paragraphParts
     , plusIcon
+    , radio
     , radioButton
+    , radioOption
     , radioRowOption
     , reconcileCheckBox
     , roundButton
     , roundCorners
-    , ruler
     , saveIcon
     , scale
     , smallFont
@@ -84,6 +88,7 @@ import Element.Keyed as Keyed
 import Html.Attributes
 import Html.Events as Events
 import Json.Decode as Decode
+import Json.Encode as Encode
 import Money
 import Ui.Color as Color
 
@@ -103,11 +108,69 @@ type alias Context =
     }
 
 
-classifyContext : { width : Int, height : Int, fontSize : Int } -> Context
-classifyContext { width, height, fontSize } =
+type DeviceClass
+    = AutoClass
+    | Phone
+    | Tablet
+    | Desktop
+
+
+encodeDeviceClass : DeviceClass -> Decode.Value
+encodeDeviceClass deviceClass =
+    Encode.string <|
+        case deviceClass of
+            AutoClass ->
+                "AutoClass"
+
+            Phone ->
+                "Phone"
+
+            Tablet ->
+                "Tablet"
+
+            Desktop ->
+                "Desktop"
+
+
+decodeDeviceClass : Decode.Decoder DeviceClass
+decodeDeviceClass =
+    Decode.string
+        |> Decode.map
+            (\deviceClassString ->
+                case deviceClassString of
+                    "Phone" ->
+                        Phone
+
+                    "Tablet" ->
+                        Tablet
+
+                    "Desktop" ->
+                        Desktop
+
+                    _ ->
+                        AutoClass
+            )
+
+
+classifyContext : { width : Int, height : Int, fontSize : Int, deviceClass : DeviceClass } -> Context
+classifyContext { width, height, fontSize, deviceClass } =
     let
-        device =
+        autoDevice =
             E.classifyDevice { width = width, height = height }
+
+        device =
+            case deviceClass of
+                AutoClass ->
+                    autoDevice
+
+                Phone ->
+                    { autoDevice | class = E.Phone }
+
+                Tablet ->
+                    { autoDevice | class = E.Tablet }
+
+                Desktop ->
+                    { autoDevice | class = E.Desktop }
 
         shortSide =
             min width height
@@ -523,6 +586,78 @@ toggleSwitch context { label, checked, onChange } =
         }
 
 
+radio :
+    Context
+    ->
+        { onChange : option -> msg
+        , options : List (Input.Option option msg)
+        , selected : Maybe option
+        , label : Input.Label msg
+        }
+    -> E.Element msg
+radio _ args =
+    Input.radio
+        [ Border.width 4, Border.color Color.transparent, focusVisibleOnly ]
+        args
+
+
+radioOption : Context -> value -> E.Element msg -> Input.Option value msg
+radioOption context value element =
+    let
+        em =
+            context.em
+
+        dot state =
+            E.el
+                [ E.width <| E.px em
+                , E.height <| E.px em
+                , E.centerX
+                , E.alignTop
+                , Border.rounded 1000
+                , Background.color Color.neutral95
+                , innerShadow
+                , E.padding <| em // 4
+                ]
+            <|
+                case state of
+                    Input.Idle ->
+                        E.el
+                            [ E.width E.fill
+                            , E.height E.fill
+                            , Border.rounded 1000
+                            , Background.color Color.transparent
+                            ]
+                            E.none
+
+                    Input.Focused ->
+                        E.el
+                            [ E.width E.fill
+                            , E.height E.fill
+                            , Border.rounded 1000
+                            , Background.color Color.transparent
+                            ]
+                            E.none
+
+                    Input.Selected ->
+                        E.el
+                            [ E.width E.fill
+                            , E.height E.fill
+                            , Border.rounded 1000
+                            , Background.color Color.primary40
+                            ]
+                            E.none
+    in
+    Input.optionWith value <|
+        \state ->
+            E.row
+                [ E.padding (em // 2)
+                , E.spacing <| em // 2
+                ]
+                [ dot state
+                , element
+                ]
+
+
 radioRowOption : value -> E.Element msg -> Input.Option value msg
 radioRowOption value element =
     Input.optionWith
@@ -559,41 +694,41 @@ radioRowOption value element =
         )
 
 
-configCustom :
-    { label : String
-    , content : E.Element msg
-    }
-    -> E.Element msg
-configCustom { label, content } =
-    E.column
-        [ E.paddingEach { top = 48, bottom = 24, left = 12, right = 12 }
-        , E.width E.fill
-        ]
-        [ E.el
-            [ E.width E.fill
-            , E.paddingEach { top = 0, bottom = 24, right = 0, left = 0 }
-            ]
-            (E.el [ Font.bold ] (E.text label))
-        , E.el [ E.paddingEach { left = 64, bottom = 24, right = 0, top = 0 } ] content
-        ]
-
-
 
 -- ELEMENTS
 
 
 pageTitle : Context -> E.Element msg -> E.Element msg
 pageTitle context element =
+    let
+        em =
+            context.em
+    in
     E.row
         [ E.centerX
         , E.width E.fill
-        , E.paddingEach { top = 3, bottom = 8, left = 2 * context.em, right = 2 * context.em }
+        , E.paddingEach
+            { top = 3
+            , bottom = em // 4
+            , left =
+                if context.density == Comfortable then
+                    2 * em
+
+                else
+                    em // 2
+            , right =
+                if context.density == Comfortable then
+                    2 * em
+
+                else
+                    em // 2
+            }
         ]
         [ E.el
             [ bigFont context
             , Font.center
             , Font.bold
-            , E.paddingEach { top = 4, bottom = 8, left = 12, right = 12 }
+            , E.padding <| em // 4
             , E.width E.fill
             , E.centerY
             , Background.color Color.neutral95
@@ -635,16 +770,6 @@ dialogSection context titleText content =
             (E.text titleText)
         , E.el [ E.width E.fill, E.paddingXY 0 0 ] content
         ]
-
-
-ruler : E.Element msg
-ruler =
-    E.el
-        [ E.width E.fill
-        , E.height (E.px borderWidth)
-        , E.paddingXY 48 0
-        ]
-        (E.el [ E.width E.fill, E.height E.fill, Background.color Color.neutral90 ] E.none)
 
 
 warningParagraph : List (E.Element msg) -> E.Element msg
@@ -712,7 +837,7 @@ monthNavigationBar context model changeMsg =
         [ E.width E.fill
         , E.paddingEach
             { top = 3
-            , bottom = 8
+            , bottom = em // 4
             , left =
                 if context.density == Comfortable then
                     2 * em
@@ -783,7 +908,7 @@ monthNavigationBar context model changeMsg =
                           else
                             defaultFontSize context
                         , Font.color Color.neutral30
-                        , E.padding 6
+                        , E.padding <| em // 4
                         ]
                         (E.text (Date.getMonthFullName model.today model.date))
                     )
@@ -1394,9 +1519,14 @@ radioButton context { onPress, icon, label, active } =
         }
 
 
-labelLeft : String -> Input.Label msg
-labelLeft txt =
-    Input.labelLeft [ E.paddingEach { left = 0, right = 12, top = 0, bottom = 0 } ] (E.text txt)
+labelAbove : Context -> String -> Input.Label msg
+labelAbove context txt =
+    Input.labelAbove [ E.paddingEach { left = 0, right = 0, top = 0, bottom = context.em // 2 } ] (E.text txt)
+
+
+labelLeft : Context -> String -> Input.Label msg
+labelLeft context txt =
+    Input.labelLeft [ E.paddingEach { left = 0, right = context.em // 2, top = 0, bottom = 0 } ] (E.text txt)
 
 
 textInput : { label : Input.Label msg, text : String, onChange : String -> msg } -> E.Element msg
