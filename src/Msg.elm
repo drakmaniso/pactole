@@ -21,7 +21,6 @@ type Msg
     | ForDatabase DatabaseMsg
     | ForTransaction TransactionMsg
     | ForSettings SettingsMsg
-    | ChangeSettings Model.Settings
     | NoOp
 
 

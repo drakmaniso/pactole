@@ -241,9 +241,6 @@ update msg model =
         Msg.ForSettings m ->
             Update.Settings.update m model
 
-        Msg.ChangeSettings newSettings ->
-            ( { model | settings = newSettings }, Cmd.none )
-
         Msg.NoOp ->
             ( model, Cmd.none )
 
