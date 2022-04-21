@@ -12,7 +12,6 @@ module Ui exposing
     , checkIcon
     , classifyContext
     , closeIcon
-    , configCustom
     , contentWidth
     , decodeDeviceClass
     , defaultFontSize
@@ -693,25 +692,6 @@ radioRowOption value element =
                 )
                 element
         )
-
-
-configCustom :
-    { label : String
-    , content : E.Element msg
-    }
-    -> E.Element msg
-configCustom { label, content } =
-    E.column
-        [ E.paddingEach { top = 48, bottom = 24, left = 12, right = 12 }
-        , E.width E.fill
-        ]
-        [ E.el
-            [ E.width E.fill
-            , E.paddingEach { top = 0, bottom = 24, right = 0, left = 0 }
-            ]
-            (E.el [ Font.bold ] (E.text label))
-        , E.el [ E.paddingEach { left = 64, bottom = 24, right = 0, top = 0 } ] content
-        ]
 
 
 
