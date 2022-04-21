@@ -115,12 +115,12 @@ viewInstallation model installation =
             , Ui.verticalSpacer
             , Ui.title model.context "Configuration initiale"
             , Ui.textInput
-                { label = Ui.labelLeft "Nom du compte:"
+                { label = Ui.labelLeft model.context "Nom du compte:"
                 , text = installation.firstAccount
                 , onChange = \txt -> Msg.ChangeInstallName txt |> Msg.ForInstallation
                 }
             , Ui.moneyInput model.context
-                { label = Ui.labelLeft "Solde initial:"
+                { label = Ui.labelLeft model.context "Solde initial:"
                 , color = Color.neutral20
                 , state = installation.initialBalance
                 , onChange = Msg.ForInstallation << Msg.ChangeInstallBalance

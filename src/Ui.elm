@@ -1536,9 +1536,9 @@ labelAbove context txt =
     Input.labelAbove [ E.paddingEach { left = 0, right = 0, top = 0, bottom = context.em // 2 } ] (E.text txt)
 
 
-labelLeft : String -> Input.Label msg
-labelLeft txt =
-    Input.labelLeft [ E.paddingEach { left = 0, right = 12, top = 0, bottom = 0 } ] (E.text txt)
+labelLeft : Context -> String -> Input.Label msg
+labelLeft context txt =
+    Input.labelLeft [ E.paddingEach { left = 0, right = context.em // 2, top = 0, bottom = 0 } ] (E.text txt)
 
 
 textInput : { label : Input.Label msg, text : String, onChange : String -> msg } -> E.Element msg
