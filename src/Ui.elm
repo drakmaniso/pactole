@@ -58,7 +58,6 @@ module Ui exposing
     , reconcileCheckBox
     , roundButton
     , roundCorners
-    , ruler
     , saveIcon
     , scale
     , smallFont
@@ -772,16 +771,6 @@ dialogSection context titleText content =
             (E.text titleText)
         , E.el [ E.width E.fill, E.paddingXY 0 0 ] content
         ]
-
-
-ruler : E.Element msg
-ruler =
-    E.el
-        [ E.width E.fill
-        , E.height (E.px borderWidth)
-        , E.paddingXY 48 0
-        ]
-        (E.el [ E.width E.fill, E.height E.fill, Background.color Color.neutral90 ] E.none)
 
 
 warningParagraph : List (E.Element msg) -> E.Element msg
