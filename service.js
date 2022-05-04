@@ -23,12 +23,11 @@ const version = 2
 const staticCacheName = "pactole-cache-2"
 
 // Used to force an update on client-side
-const serviceVersion = "1.4.2"
+const serviceVersion = "1.4.3-beta.1"
 
 
 self.addEventListener('install', event => {
   log('Installing service worker...')
-  event.waitUntil(self.skipWaiting())
   caches
     .open(staticCacheName)
     .then(cache => {

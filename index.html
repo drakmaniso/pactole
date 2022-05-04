@@ -175,17 +175,6 @@
     }
 
 
-    var isRefreshing = false
-    navigator.serviceWorker.addEventListener("controllerchange", (event) => {
-      log("Service worker controller changed.")
-      if (isRefreshing) {
-        return
-      }
-      isRefreshing = true
-      window.location.reload()
-    });
-
-
     // ELM STUFF //////////////////////////////////////////////////////////////
 
 
