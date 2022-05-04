@@ -1,6 +1,7 @@
 module Update.Transaction exposing (confirm, confirmDelete, update)
 
 import Database
+import Ledger
 import Log
 import Model exposing (Model)
 import Money
@@ -71,6 +72,12 @@ confirm model data =
         )
     of
         ( Just id, Ok amount ) ->
+            let
+                checked =
+                    Ledger.getTransaction id model.ledger
+                        |> Maybe.map .checked
+                        |> Maybe.withDefault False
+            in
             ( { model | dialog = Nothing }
             , Database.replaceTransaction
                 { id = id
@@ -79,7 +86,7 @@ confirm model data =
                 , amount = amount
                 , description = data.description
                 , category = data.category
-                , checked = False
+                , checked = checked
                 }
             )
 
