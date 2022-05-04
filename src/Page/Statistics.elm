@@ -99,7 +99,9 @@ viewCategories : Model -> E.Element Msg
 viewCategories model =
     E.column
         [ E.width E.fill ]
-        (Dict.toList model.categories
+        (model.categories
+            |> Dict.toList
+            |> List.sortBy (\( _, { name } ) -> name)
             |> List.map
                 (\( catID, category ) ->
                     viewItem model
