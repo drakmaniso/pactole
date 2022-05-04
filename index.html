@@ -292,13 +292,11 @@
 
     function sendToServiceWorker(title, content) {
       log(`Sending "${title}"...`)
-      const sw = navigator.serviceWorker.controller
-      if (sw) {
-        sw.postMessage({ title: title, content: content })
-      } else {
-        error(`Unable to send message "${title}" to service: the page has no controller`)
-        //TODO: what?
-      }
+      navigator.serviceWorker.ready
+        .then(service => {
+          service.active.postMessage({ title: title, content: content })
+        })
+        .catch(err => error(`Unable to send message "${title}" to service: ${err}`))
     }
 
     function requestStoragePersistence() {
@@ -308,10 +306,7 @@
         } else {
           error('persistent storage has not been granted')
         }
-        navigator.serviceWorker.ready
-          .then(service =>
-            sendToServiceWorker("persistent storage granted", granted)
-          )
+        sendToServiceWorker("persistent storage granted", granted)
         if (navigator.storage.estimate) {
           navigator.storage.estimate().then(info => {
             log(
@@ -344,10 +339,7 @@
     function processSelectedImportFile() {
       if (this.files.length != 1) {
         console.error(`[CLIENT] wrong number of selected files: ${this.files.length}`)
-        navigator.serviceWorker.ready
-          .then(service =>
-            sendToServiceWorker("user error", "impossible d'importer plus d'un fichier à la fois")
-          )
+        sendToServiceWorker("user error", "impossible d'importer plus d'un fichier à la fois")
         return
       }
       const file = this.files[0]
@@ -360,10 +352,7 @@
         }
         catch (err) {
           console.error(`[CLIENT] error in file selected for import: ${err} `)
-          navigator.serviceWorker.ready
-            .then(service =>
-              sendToServiceWorker("user error", "impossible de lire le fichier choisi")
-            )
+          sendToServiceWorker("user error", "impossible de lire le fichier choisi")
         }
       }
       reader.readAsText(file)
