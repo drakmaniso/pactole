@@ -178,32 +178,14 @@ update msg model =
             ( { model | date = date }, Cmd.none )
 
         Msg.OnLeftSwipe () ->
-            if hasWeekDisplay model then
-                ( { model | date = Date.incrementWeek model.date }
-                , Cmd.none
-                )
-
-            else if hasMonthDisplay model then
-                ( { model | date = Date.incrementMonthUI model.date model.today }
-                , Cmd.none
-                )
-
-            else
-                ( model, Cmd.none )
+            ( { model | date = Date.incrementMonthUI model.date model.today }
+            , Cmd.none
+            )
 
         Msg.OnRightSwipe () ->
-            if hasWeekDisplay model then
-                ( { model | date = Date.decrementWeek model.date }
-                , Cmd.none
-                )
-
-            else if hasMonthDisplay model then
-                ( { model | date = Date.decrementMonthUI model.date model.today }
-                , Cmd.none
-                )
-
-            else
-                ( model, Cmd.none )
+            ( { model | date = Date.decrementMonthUI model.date model.today }
+            , Cmd.none
+            )
 
         Msg.SelectAccount accountID ->
             --TODO: check that accountID corresponds to an account
@@ -245,36 +227,6 @@ update msg model =
             ( model, Cmd.none )
 
 
-hasWeekDisplay : Model -> Bool
-hasWeekDisplay model =
-    let
-        device =
-            model.context.device
-    in
-    case model.page of
-        Model.CalendarPage ->
-            device.class == E.Phone && device.orientation == E.Landscape
-
-        _ ->
-            False
-
-
-hasMonthDisplay : Model -> Bool
-hasMonthDisplay model =
-    case model.page of
-        Model.CalendarPage ->
-            True
-
-        Model.StatisticsPage ->
-            True
-
-        Model.ReconcilePage ->
-            True
-
-        _ ->
-            False
-
-
 
 -- SUBSCRIPTIONS
 
@@ -310,14 +262,11 @@ view model =
             model.context.device
 
         activePage =
-            case ( device.orientation, device.class ) of
-                ( E.Landscape, E.Phone ) ->
-                    viewPortraitPage model
-
-                ( E.Landscape, _ ) ->
+            case device.orientation of
+                E.Landscape ->
                     viewLandscapePage model
 
-                ( E.Portrait, _ ) ->
+                E.Portrait ->
                     viewPortraitPage model
 
         activeDialog =
@@ -445,20 +394,13 @@ viewPortraitPage model =
                 ]
 
         Model.CalendarPage ->
-            case model.context.device.orientation of
-                E.Portrait ->
-                    pageWithTopNavBar model
-                        [ Summary.viewMobile model ]
-                        [ E.el [ E.width E.fill, E.height <| E.fillPortion 1 ] <|
-                            Calendar.viewMonth model
-                        , E.el [ E.width E.fill, E.height <| E.fillPortion 1 ] <|
-                            Calendar.dayView model
-                        ]
-
-                E.Landscape ->
-                    pageWithTopNavBar model
-                        []
-                        [ Calendar.viewWeek model ]
+            pageWithTopNavBar model
+                [ Summary.viewMobile model ]
+                [ E.el [ E.width E.fill, E.height <| E.fillPortion 1 ] <|
+                    Calendar.viewMonth model
+                , E.el [ E.width E.fill, E.height <| E.fillPortion 1 ] <|
+                    Calendar.dayView model
+                ]
 
         Model.DiagnosticsPage ->
             pageWithTopNavBar model [] [ Diagnostics.view model ]
@@ -679,14 +621,11 @@ navigationBar model =
             model.context.em
 
         width =
-            case ( model.context.device.orientation, model.context.device.class ) of
-                ( E.Landscape, E.Phone ) ->
-                    model.context.width
-
-                ( E.Landscape, _ ) ->
+            case model.context.device.orientation of
+                E.Landscape ->
                     model.context.width // 3
 
-                ( E.Portrait, _ ) ->
+                E.Portrait ->
                     model.context.width
 
         optional flag s =
@@ -703,9 +642,6 @@ navigationBar model =
                     + optional model.settings.reconciliationEnabled 6
                   )
                 * em
-
-        extraCompact =
-            width < 14 * em
 
         navigationButton { targetPage, label } =
             Input.button
@@ -760,17 +696,7 @@ navigationBar model =
         [ ( "home button"
           , navigationButton
                 { targetPage = Model.CalendarPage
-                , label =
-                    if extraCompact then
-                        -- E.image [ E.width <| E.px <| model.context.bigEm ]
-                        --     { src = "images/icon-512x512.png"
-                        --     , description = "Pactole Logo"
-                        --     }
-                        E.el [ Ui.iconFont, Ui.bigFont model.context ] (E.text "\u{F133}")
-                        -- F4D3, F153, F133
-
-                    else
-                        E.text "Pactole"
+                , label = E.text "Pactole"
                 }
           )
         , ( "statistics button"

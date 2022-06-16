@@ -90,10 +90,7 @@ weekDayNames model =
         device =
             model.context.device
     in
-    if
-        (model.context.density == Ui.Comfortable && device.orientation == E.Landscape)
-            || (device.class == E.Phone && device.orientation == E.Landscape)
-    then
+    if model.context.density == Ui.Comfortable && device.orientation == E.Landscape then
         E.row
             [ E.width E.fill
             , E.alignBottom
@@ -127,9 +124,6 @@ calendarCell model day =
 
                 E.Portrait ->
                     model.context.height // 70
-
-        device =
-            model.context.device
 
         smallEm =
             model.context.smallEm
@@ -234,11 +228,7 @@ calendarCell model day =
 
                         else
                             E.text <| String.fromInt <| Date.getDay day
-                    , if
-                        model.context.density
-                            == Ui.Comfortable
-                            || (device.class == E.Phone && device.orientation == E.Landscape)
-                      then
+                    , if model.context.density == Ui.Comfortable then
                         E.paragraph
                             [ E.width E.fill
                             , E.height E.fill
@@ -291,9 +281,6 @@ cellContentFor model day =
                 E.Portrait ->
                     model.context.height // 70
 
-        device =
-            model.context.device
-
         render transaction =
             let
                 future =
@@ -309,11 +296,7 @@ cellContentFor model day =
                 parts =
                     Money.toStrings transaction.amount
             in
-            if
-                model.context.density
-                    == Ui.Comfortable
-                    || (device.class == E.Phone && device.orientation == E.Landscape)
-            then
+            if model.context.density == Ui.Comfortable then
                 E.el
                     [ Font.color Color.white
                     , Background.color color
