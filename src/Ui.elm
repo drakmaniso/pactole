@@ -801,7 +801,7 @@ warningPopup context elements =
             , E.spacing 12
             , E.height (E.shrink |> E.minimum 48)
             , E.centerX
-            , E.paddingEach { left = 24, right = 24, top = 12, bottom = 12 }
+            , E.paddingEach { left = 12, right = 12, top = 12, bottom = 12 }
             , E.spacing 6
             , Border.rounded 6
             , E.spacing 12
@@ -817,7 +817,11 @@ warningPopup context elements =
                     ]
                 <|
                     E.text "\u{F0D8}"
-            , E.width <| E.px 380
+            , if context.device.orientation == E.Landscape then
+                E.width <| E.px 360
+
+              else
+                E.width <| E.px 240
             , Font.center
             , Font.regular
             , notSelectable

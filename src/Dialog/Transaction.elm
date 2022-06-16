@@ -87,14 +87,6 @@ viewAmount model data =
         em =
             model.context.em
 
-        section =
-            case model.context.device.orientation of
-                E.Landscape ->
-                    Ui.dialogSectionRow
-
-                E.Portrait ->
-                    Ui.dialogSection
-
         isFuture =
             Date.compare data.date model.today == GT
 
@@ -126,7 +118,7 @@ viewAmount model data =
                     "Entrée d'argent:"
     in
     if data.isRecurring then
-        section model.context
+        Ui.dialogSectionRow model.context
             titleText
             (E.el
                 [ Font.bold
@@ -139,10 +131,10 @@ viewAmount model data =
                 ]
                 (E.text
                     ((if data.isExpense then
-                        "-"
+                        "- "
 
                       else
-                        "+"
+                        "+ "
                      )
                         ++ Tuple.first data.amount
                         ++ " €"
@@ -151,7 +143,7 @@ viewAmount model data =
             )
 
     else
-        section model.context
+        Ui.dialogSectionRow model.context
             titleText
             (E.row [ E.width E.fill, E.padding 0, Font.color titleColor, Font.bold ]
                 [ E.el
@@ -160,13 +152,14 @@ viewAmount model data =
                     , Border.width 1
                     , Border.color (E.rgba 0 0 0 0)
                     , Ui.notSelectable
+                    , E.padding 0
                     ]
                     (E.el []
                         (if data.isExpense then
-                            E.text "-"
+                            E.text "- "
 
                          else
-                            E.text "+"
+                            E.text "+ "
                         )
                     )
                 , Ui.moneyInput model.context
