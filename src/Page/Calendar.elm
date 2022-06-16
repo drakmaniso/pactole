@@ -1,4 +1,4 @@
-module Page.Calendar exposing (dayView, viewMonth, viewWeek)
+module Page.Calendar exposing (dayView, viewMonth)
 
 import Date exposing (Date)
 import Element as E
@@ -66,22 +66,6 @@ viewMonth model =
                         )
                )
         )
-
-
-viewWeek : Model -> E.Element Msg
-viewWeek model =
-    E.column
-        [ E.width E.fill
-        , E.height E.fill
-        , E.spacing <| model.context.em // 4
-        ]
-        [ Ui.weekNavigationBar model.context model Msg.SelectDate
-        , weekDayNames model
-        , E.row [ E.width E.fill, E.height E.fill, E.spacing 2 ]
-            (Date.daysOfWeek model.date
-                |> List.map (\day -> calendarCell model day)
-            )
-        ]
 
 
 weekDayNames : Model -> E.Element Msg
