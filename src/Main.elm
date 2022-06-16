@@ -509,7 +509,7 @@ document model { page, maybeDialog } =
                         E.none
 
                     ( _, False ) ->
-                        warningBanner "Attention: le stockage n'est pas persistant!"
+                        warningBanner "Attention: le stockage des données n'a pas été autorisé! Veuillez mettre cette page dans vos favoris."
 
                     ( _, True ) ->
                         E.none
@@ -529,14 +529,13 @@ warningBanner txt =
         , E.htmlAttribute <| Html.Attributes.style "z-index" "3"
         , Ui.defaultShadow
         ]
-        [ E.el [ E.width E.fill ] E.none
-        , E.el
+        [ E.paragraph
             [ Font.color Color.white
             , E.centerX
             , E.padding 3
+            , Font.center
             ]
-            (E.text txt)
-        , E.el [ E.width E.fill ] E.none
+            [ E.text txt ]
         ]
 
 
