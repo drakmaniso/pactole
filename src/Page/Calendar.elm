@@ -128,21 +128,14 @@ calendarCell model day =
             , Border.width <|
                 case model.context.density of
                     Ui.Comfortable ->
-                        2
+                        4
 
                     Ui.Compact ->
                         2
 
                     Ui.Condensed ->
                         2
-            , Ui.transition
-            , Border.rounded
-                (if sel then
-                    (em // 4) + 4
-
-                 else
-                    em // 4
-                )
+            , Border.rounded (em // 4)
             , Border.color
                 (if sel then
                     Color.primary40
@@ -167,12 +160,12 @@ calendarCell model day =
                     )
                 ]
             , E.mouseOver
-                [ Background.color
+                [ Border.color
                     (if sel then
-                        Color.primary95
+                        Color.primary40
 
                      else
-                        Color.neutral98
+                        Color.neutral90
                     )
                 ]
             , Ui.focusVisibleOnly
@@ -493,9 +486,8 @@ dayContentFor model day =
                     , Border.width 4
                     , Border.color Color.transparent
                     , Ui.focusVisibleOnly
-                    , E.mouseDown [ Background.color Color.neutral90 ]
+                    , E.mouseDown [ Background.color Color.neutral80 ]
                     , E.mouseOver [ Background.color Color.neutral95 ]
-                    , Ui.transition
                     ]
                     { onPress =
                         Just <|

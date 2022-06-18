@@ -36,7 +36,7 @@ viewReconciled model =
             Date.getMonthName (Date.decrementMonth model.date)
     in
     E.column
-        [ E.width E.fill, E.paddingXY 48 24, E.spacing 24, Font.color Color.neutral30 ]
+        [ E.width E.fill, E.padding <| model.context.em, E.spacing 24, Font.color Color.neutral30 ]
         [ E.row
             [ E.width E.fill ]
             [ E.el [ E.width E.fill ] E.none

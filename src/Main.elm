@@ -542,13 +542,13 @@ warningBanner txt =
 pageWithSidePanel : Model -> { panel : E.Element Msg, page : E.Element Msg } -> E.Element Msg
 pageWithSidePanel model { panel, page } =
     E.row
-        [ E.width E.fill
+        [ E.width <| E.fill
         , E.height E.fill
         , E.spacing 3
         , E.clip
         ]
         [ E.column
-            [ E.width (E.fillPortion 1)
+            [ E.width <| E.minimum 300 <| E.fillPortion 1
             , E.height E.fill
             , E.htmlAttribute <| Html.Attributes.class "panel-shadow"
             , E.htmlAttribute <| Html.Attributes.style "z-index" "2"
@@ -646,7 +646,6 @@ navigationBar model =
         navigationButton { targetPage, label } =
             Input.button
                 [ E.padding <| model.context.em // 2
-                , Ui.transition
                 , Border.color Color.transparent
                 , Background.color
                     (if model.page == targetPage then
@@ -668,7 +667,7 @@ navigationBar model =
                             Color.primary30
 
                          else
-                            Color.primary80
+                            Color.primary70
                         )
                     ]
                 , E.mouseOver
@@ -677,7 +676,7 @@ navigationBar model =
                             Color.primary40
 
                          else
-                            Color.primary90
+                            Color.primary80
                         )
                     ]
                 , E.height E.fill

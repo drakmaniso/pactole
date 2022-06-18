@@ -66,7 +66,6 @@ module Ui exposing
     , textInput
     , title
     , toggleSwitch
-    , transition
     , verticalSpacer
     , viewDate
     , viewIcon
@@ -84,6 +83,7 @@ import Element.Border as Border
 import Element.Font as Font
 import Element.Input as Input
 import Element.Keyed as Keyed
+import Html
 import Html.Attributes
 import Html.Events as Events
 import Json.Decode as Decode
@@ -269,11 +269,6 @@ notSelectable =
 focusVisibleOnly : E.Attribute msg
 focusVisibleOnly =
     E.htmlAttribute <| Html.Attributes.class "focus-visible-only"
-
-
-transition : E.Attribute msg
-transition =
-    E.htmlAttribute <| Html.Attributes.class "button-transition"
 
 
 defaultShadow : E.Attribute msg
@@ -528,7 +523,6 @@ toggleSwitch context { label, checked, onChange } =
                                 , Border.rounded context.em
                                 , Background.color Color.primary85
                                 , innerShadow
-                                , transition
                                 ]
                                 E.none
                         , E.inFront <|
@@ -541,9 +535,6 @@ toggleSwitch context { label, checked, onChange } =
                                 , Border.rounded context.em
                                 , Background.color Color.primary40
                                 , smallShadow
-                                , transition
-                                , E.mouseOver [ Background.color Color.primary50 ]
-                                , E.mouseDown [ Background.color Color.primary30 ]
                                 ]
                                 E.none
                         ]
@@ -562,7 +553,6 @@ toggleSwitch context { label, checked, onChange } =
                                 , Border.rounded context.em
                                 , Background.color Color.neutral95
                                 , innerShadow
-                                , transition
                                 ]
                                 E.none
                         , E.inFront <|
@@ -575,9 +565,6 @@ toggleSwitch context { label, checked, onChange } =
                                 , Border.rounded context.em
                                 , Background.color Color.neutral70
                                 , smallShadow
-                                , transition
-                                , E.mouseOver [ Background.color Color.neutral80 ]
-                                , E.mouseDown [ Background.color Color.neutral60 ]
                                 ]
                                 E.none
                         ]
@@ -664,28 +651,27 @@ radioRowOption value element =
         (\state ->
             E.el
                 ([ E.centerX
+                 , E.centerY
                  , E.paddingXY 16 7
                  , Border.rounded 3
-                 , transition
+                 , Border.width 4
+                 , Border.color Color.transparent
                  ]
                     ++ (case state of
                             Input.Idle ->
                                 [ Font.color Color.neutral30
-                                , E.mouseDown [ Background.color Color.neutral90 ]
+                                , E.mouseDown [ Background.color Color.neutral80 ]
                                 , E.mouseOver [ Background.color Color.neutral95 ]
                                 ]
 
                             Input.Focused ->
-                                [ E.mouseDown [ Background.color Color.neutral90 ]
-                                , E.mouseOver [ Background.color Color.neutral95 ]
-                                ]
+                                []
 
                             Input.Selected ->
                                 [ Font.color (E.rgb 1 1 1)
                                 , Background.color Color.primary40
                                 , smallShadow
                                 , E.mouseDown [ Background.color Color.primary30 ]
-                                , E.mouseOver [ Background.color Color.primary40 ]
                                 ]
                        )
                 )
@@ -877,9 +863,8 @@ monthNavigationBar context model changeMsg =
                         , Border.width 4
                         , Border.color Color.transparent
                         , focusVisibleOnly
-                        , transition
-                        , E.mouseDown [ Background.color Color.neutral90 ]
-                        , E.mouseOver [ Background.color Color.neutral98 ]
+                        , E.mouseDown [ Background.color Color.neutral80 ]
+                        , E.mouseOver [ Background.color Color.neutral90 ]
                         ]
                         { label =
                             E.row
@@ -931,9 +916,8 @@ monthNavigationBar context model changeMsg =
                         , Border.width 4
                         , Border.color Color.transparent
                         , focusVisibleOnly
-                        , transition
-                        , E.mouseDown [ Background.color Color.neutral90 ]
-                        , E.mouseOver [ Background.color Color.neutral98 ]
+                        , E.mouseDown [ Background.color Color.neutral80 ]
+                        , E.mouseOver [ Background.color Color.neutral90 ]
                         ]
                         { label =
                             E.row
@@ -1117,7 +1101,8 @@ roundButton context { label, color, onPress } =
             context.em
     in
     Input.button
-        [ Background.color <|
+        [ E.htmlAttribute <| Html.Attributes.class "round-button"
+        , Background.color <|
             case color of
                 PlainButton ->
                     Color.neutral95
@@ -1143,7 +1128,6 @@ roundButton context { label, color, onPress } =
         , Border.color Color.transparent
         , focusVisibleOnly
         , defaultShadow
-        , transition
         , E.paddingXY em (em // 4)
         , E.mouseDown
             [ Background.color <|
@@ -1156,18 +1140,6 @@ roundButton context { label, color, onPress } =
 
                     MainButton ->
                         Color.primary30
-            ]
-        , E.mouseOver
-            [ Background.color <|
-                case color of
-                    PlainButton ->
-                        Color.neutral98
-
-                    DangerButton ->
-                        Color.warning70
-
-                    MainButton ->
-                        Color.primary50
             ]
         , E.htmlAttribute <| Html.Attributes.class "focus-visible-only"
         ]
@@ -1206,7 +1178,6 @@ navigationButton context { icon, color, onPress } =
         , Border.width 4
         , Border.color Color.transparent
         , focusVisibleOnly
-        , transition
         , E.padding (em // 2)
         , E.mouseDown
             [ Font.color <|
@@ -1219,18 +1190,6 @@ navigationButton context { icon, color, onPress } =
 
                     MainButton ->
                         Color.primary30
-            ]
-        , E.mouseOver
-            [ Font.color <|
-                case color of
-                    PlainButton ->
-                        Color.primary50
-
-                    DangerButton ->
-                        Color.warning70
-
-                    MainButton ->
-                        Color.primary50
             ]
         , E.htmlAttribute <| Html.Attributes.class "focus-visible-only"
         ]
@@ -1245,7 +1204,8 @@ incomeButton :
     -> E.Element msg
 incomeButton context { onPress, label } =
     Input.button
-        [ E.width <| E.px <| 2 * context.bigEm + context.bigEm // 4
+        [ E.htmlAttribute <| Html.Attributes.class "round-button"
+        , E.width <| E.px <| 2 * context.bigEm + context.bigEm // 4
         , E.height <| E.px <| 2 * context.bigEm + context.bigEm // 4
         , Font.color Color.income30
         , Background.color Color.income90
@@ -1255,10 +1215,8 @@ incomeButton context { onPress, label } =
         , Border.color Color.transparent
         , focusVisibleOnly
         , defaultShadow
-        , transition
         , E.padding (context.em // 4)
         , E.mouseDown [ Background.color Color.income80, Border.color Color.income80 ]
-        , E.mouseOver [ Background.color Color.income95, Border.color Color.income95 ]
         , E.htmlAttribute <| Html.Attributes.class "focus-visible-only"
         ]
         { onPress = Just onPress
@@ -1272,7 +1230,8 @@ expenseButton :
     -> E.Element msg
 expenseButton context { onPress, label } =
     Input.button
-        [ E.width <| E.px <| 2 * context.bigEm + context.bigEm // 4
+        [ E.htmlAttribute <| Html.Attributes.class "round-button"
+        , E.width <| E.px <| 2 * context.bigEm + context.bigEm // 4
         , E.height <| E.px <| 2 * context.bigEm + context.bigEm // 4
         , Background.color Color.expense90
         , Font.color Color.expense30
@@ -1282,10 +1241,8 @@ expenseButton context { onPress, label } =
         , Border.color Color.transparent
         , focusVisibleOnly
         , defaultShadow
-        , transition
         , E.padding (context.em // 4)
         , E.mouseDown [ Background.color Color.expense80, Border.color Color.expense80 ]
-        , E.mouseOver [ Background.color Color.expense95, Border.color Color.expense95 ]
         , focusVisibleOnly
         ]
         { onPress = Just onPress
@@ -1301,12 +1258,12 @@ flatButton { onPress, label } =
         [ Background.color Color.transparent
         , Border.width 4
         , Border.color Color.transparent
+        , Border.rounded 4
         , focusVisibleOnly
-        , transition
         , E.paddingXY 20 4
         , Font.color Color.primary40
-        , E.mouseDown [ Font.color Color.primary30 ]
-        , E.mouseOver [ Font.color Color.primary50 ]
+        , E.mouseDown [ Background.color Color.neutral80 ]
+        , E.mouseOver [ Background.color Color.neutral95 ]
         , E.htmlAttribute <| Html.Attributes.class "focus-visible-only"
         ]
         { onPress = onPress
@@ -1358,7 +1315,6 @@ reconcileCheckBox context { state, onPress, background } =
         , focusVisibleOnly
         , E.padding 2
         , innerShadow
-        , transition
         , E.mouseDown [ Background.color Color.neutral90 ]
         , E.mouseOver []
         ]
@@ -1385,20 +1341,17 @@ radioButton context { onPress, icon, label, active } =
          , Border.width 4
          , Border.color Color.transparent
          , focusVisibleOnly
-         , transition
          ]
             ++ (if active then
                     [ Font.color Color.white
                     , Background.color Color.primary40
-                    , smallShadow
                     , E.mouseDown [ Background.color Color.primary30 ]
-                    , E.mouseOver [ Background.color Color.primary40 ]
                     ]
 
                 else
                     [ Font.color Color.primary40
                     , Background.color Color.white
-                    , E.mouseDown [ Background.color Color.neutral90 ]
+                    , E.mouseDown [ Background.color Color.neutral80 ]
                     , E.mouseOver [ Background.color Color.neutral95 ]
                     ]
                )
@@ -1583,8 +1536,6 @@ linkButton { label, onPress } =
         , Border.color Color.transparent
         , focusVisibleOnly
         , E.mouseDown [ Font.color Color.primary30 ]
-        , E.mouseOver [ Font.color Color.primary50 ]
-        , transition
         ]
         { label = label
         , onPress = onPress

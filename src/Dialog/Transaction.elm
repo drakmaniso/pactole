@@ -302,10 +302,10 @@ viewCategories model data =
                        )
         in
         Ui.dialogSection model.context "Catégorie:" <|
-            E.column [ E.width E.fill ] <|
+            E.column [ E.width E.fill, E.spacing 4 ] <|
                 List.map
                     (\group ->
-                        E.row [ E.width E.fill ] <|
+                        E.row [ E.width E.fill, E.spacing 4 ] <|
                             List.map render group
                     )
                     categories

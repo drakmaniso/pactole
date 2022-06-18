@@ -235,9 +235,10 @@ viewRecurringDialog model submodel =
                     , text = submodel.dueDate
                     , onChange = \n -> Msg.ForSettings <| Msg.ChangeSettingsDueDate n
                     }
-                , E.row [ E.spacingXY 24 0 ]
-                    (E.el [] (E.text "Compte: ")
-                        :: List.map
+                , E.row [ E.spacing 24 ]
+                    [ E.el [] (E.text "Compte: ")
+                    , E.row [ E.spacing 4 ] <|
+                        List.map
                             (\( k, v ) ->
                                 Ui.radioButton model.context
                                     { onPress = Just (Msg.ForSettings <| Msg.ChangeSettingsAccount k)
@@ -247,12 +248,12 @@ viewRecurringDialog model submodel =
                                     }
                             )
                             (Dict.toList model.accounts)
-                    )
+                    ]
                 , E.row
-                    [ E.spacingXY 24 0
+                    [ E.spacing 24
                     ]
                     [ E.el [] (E.text "Type: ")
-                    , E.row []
+                    , E.row [ E.spacing 4 ]
                         [ Ui.radioButton model.context
                             { onPress = Just (Msg.ForSettings <| Msg.ChangeSettingsIsExpense False)
                             , icon = "" --"\u{F067}"
