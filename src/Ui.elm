@@ -1133,7 +1133,7 @@ roundButton context { label, color, onPress } =
             [ Background.color <|
                 case color of
                     PlainButton ->
-                        Color.neutral90
+                        Color.neutral80
 
                     DangerButton ->
                         Color.warning50
