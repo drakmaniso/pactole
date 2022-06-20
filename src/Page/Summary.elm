@@ -91,7 +91,7 @@ viewBalance model =
 
         color =
             if Money.isGreaterOrEqualThan balance 0 then
-                Color.neutral30
+                Color.neutral20
 
             else
                 Color.warning60
@@ -112,7 +112,7 @@ viewBalance model =
             E.el
                 [ Ui.smallFont model.context
                 , E.centerX
-                , Font.color Color.neutral40
+                , Font.color Color.neutral20
                 , Ui.notSelectable
                 ]
                 (E.text "Solde actuel:")
@@ -212,7 +212,7 @@ viewMobileBalance model =
 
         color =
             if Money.isGreaterOrEqualThan balance 0 then
-                Color.neutral30
+                Color.neutral20
 
             else
                 Color.warning60

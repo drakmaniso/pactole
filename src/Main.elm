@@ -280,7 +280,7 @@ view model =
                                 , Ui.fontFamily model.settings.font
                                 , Ui.defaultFontSize model.context
                                 , Background.color Color.white
-                                , Font.color Color.neutral30
+                                , Font.color Color.neutral20
                                 , E.scrollbarY
                                 ]
                             <|
@@ -301,7 +301,7 @@ view model =
                                 , Ui.fontFamily model.settings.font
                                 , Ui.defaultFontSize model.context
                                 , Background.color Color.white
-                                , Font.color Color.neutral30
+                                , Font.color Color.neutral20
                                 , E.scrollbarY
                                 ]
                             <|
@@ -475,7 +475,7 @@ document model { page, maybeDialog } =
                 , E.height E.fill
                 , Ui.fontFamily model.settings.font
                 , Ui.defaultFontSize model.context
-                , Font.color Color.neutral30
+                , Font.color Color.neutral20
                 , Background.color Color.white
                 , case maybeDialog of
                     Just dialog ->

@@ -92,7 +92,7 @@ viewAmount model data =
 
         titleColor =
             if isFuture then
-                Color.neutral30
+                Color.neutral20
 
             else
                 Color.transactionColor data.isExpense
@@ -197,7 +197,7 @@ viewDescription model data =
             (E.el
                 [ Border.width 1
                 , Border.color Color.transparent
-                , Font.color Color.neutral40
+                , Font.color Color.neutral20
                 ]
                 (E.text data.description)
             )
@@ -214,7 +214,7 @@ viewDescription model data =
                     [ Border.color Color.focus85
                     ]
                 , E.width E.fill
-                , Font.color Color.neutral20
+                , Font.color Color.neutral10
                 ]
                 { label = Input.labelHidden "Description:"
                 , text = data.description

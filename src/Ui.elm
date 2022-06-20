@@ -659,7 +659,7 @@ radioRowOption value element =
                  ]
                     ++ (case state of
                             Input.Idle ->
-                                [ Font.color Color.neutral30
+                                [ Font.color Color.neutral20
                                 , E.mouseDown [ Background.color Color.neutral80 ]
                                 , E.mouseOver [ Background.color Color.neutral95 ]
                                 ]
@@ -718,7 +718,7 @@ pageTitle context element =
             , E.centerY
             , Background.color Color.neutral95
             , Border.roundEach { topLeft = 32, bottomLeft = 32, topRight = 32, bottomRight = 32 }
-            , Font.color Color.neutral40
+            , Font.color Color.neutral20
             , Font.center
             , smallShadow
             ]
@@ -730,7 +730,7 @@ dialogSectionRow : Context -> String -> E.Element msg -> E.Element msg
 dialogSectionRow context titleText content =
     E.row [ E.width E.fill, E.spacing <| context.em ]
         [ E.el
-            [ Font.color Color.neutral30
+            [ Font.color Color.neutral20
 
             -- , Font.bold
             , E.padding 0
@@ -746,7 +746,7 @@ dialogSection context titleText content =
     E.column [ E.width E.fill, E.spacing <| context.em // 2 ]
         [ E.el
             [ E.width E.fill
-            , Font.color Color.neutral30
+            , Font.color Color.neutral20
 
             -- , Font.bold
             , E.padding 0
@@ -760,7 +760,7 @@ dialogSection context titleText content =
 warningParagraph : List (E.Element msg) -> E.Element msg
 warningParagraph elements =
     E.row
-        [ Font.color Color.neutral20
+        [ Font.color Color.neutral10
         , E.centerY
         , E.spacing 12
         , E.width E.fill
@@ -858,7 +858,7 @@ monthNavigationBar context model changeMsg =
                         [ E.width E.fill
                         , E.height E.fill
                         , Border.roundEach { topLeft = 32, bottomLeft = 32, topRight = 0, bottomRight = 0 }
-                        , Font.color Color.neutral30
+                        , Font.color Color.neutral20
                         , Background.color Color.neutral95
                         , Border.width 4
                         , Border.color Color.transparent
@@ -895,7 +895,7 @@ monthNavigationBar context model changeMsg =
 
                           else
                             defaultFontSize context
-                        , Font.color Color.neutral30
+                        , Font.color Color.neutral20
                         , E.padding <| em // 4
                         ]
                         (E.text (Date.getMonthFullName model.today model.date))
@@ -911,7 +911,7 @@ monthNavigationBar context model changeMsg =
                         [ E.width E.fill
                         , E.height E.fill
                         , Border.roundEach { topLeft = 0, bottomLeft = 0, topRight = 32, bottomRight = 32 }
-                        , Font.color Color.neutral30
+                        , Font.color Color.neutral20
                         , Background.color Color.neutral95
                         , Border.width 4
                         , Border.color Color.transparent
@@ -954,7 +954,7 @@ viewDate context date =
 
           else
             bigFont context
-        , Font.color Color.neutral30
+        , Font.color Color.neutral20
         , Font.center
         ]
         [ E.text
@@ -1115,7 +1115,7 @@ roundButton context { label, color, onPress } =
         , Font.color <|
             case color of
                 PlainButton ->
-                    Color.neutral30
+                    Color.neutral20
 
                 DangerButton ->
                     Color.white
@@ -1395,7 +1395,7 @@ textInput args =
         , E.focused
             [ Border.color Color.focus85
             ]
-        , Font.color Color.neutral20
+        , Font.color Color.neutral10
         , E.htmlAttribute <| Html.Attributes.autocomplete False
         ]
         { label = args.label
@@ -1513,7 +1513,7 @@ helpNumberedList listItems =
 helpListItem : List (E.Element msg) -> E.Element msg
 helpListItem texts =
     E.paragraph
-        [ Font.color Color.neutral30
+        [ Font.color Color.neutral20
         , E.padding 0
         ]
         texts
@@ -1583,7 +1583,7 @@ title context txt =
     E.paragraph
         [ bigFont context
         , Font.bold
-        , Font.color Color.neutral30
+        , Font.color Color.neutral20
         ]
         [ E.text txt ]
 
@@ -1596,7 +1596,7 @@ verticalSpacer =
 paragraph : String -> E.Element msg
 paragraph txt =
     E.paragraph
-        [ Font.color Color.neutral30
+        [ Font.color Color.neutral20
         ]
         [ E.text txt ]
 
@@ -1604,7 +1604,7 @@ paragraph txt =
 paragraphParts : List (E.Element msg) -> E.Element msg
 paragraphParts parts =
     E.paragraph
-        [ Font.color Color.neutral30
+        [ Font.color Color.neutral20
         ]
         parts
 

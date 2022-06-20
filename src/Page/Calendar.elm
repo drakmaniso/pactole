@@ -80,7 +80,7 @@ weekDayNames model =
             , E.alignBottom
             , Ui.smallFont model.context
             , Ui.notSelectable
-            , Font.color Color.neutral40
+            , Font.color Color.neutral20
             ]
             [ E.el [ E.width E.fill ] (E.el [ E.centerX ] (E.text "Lundi"))
             , E.el [ E.width E.fill ] (E.el [ E.centerX ] (E.text "Mardi"))
@@ -197,7 +197,7 @@ calendarCell model day =
                             Font.color Color.black
 
                           else
-                            Font.color Color.neutral30
+                            Font.color Color.neutral20
                         ]
                       <|
                         if day == model.today && model.context.density == Ui.Comfortable then
@@ -265,7 +265,7 @@ cellContentFor model day =
 
                 color =
                     if future then
-                        Color.neutral60
+                        Color.neutral50
 
                     else
                         Color.transactionColor (Money.isExpense transaction.amount)
@@ -415,13 +415,13 @@ dayView model =
             , E.height <| E.fill
             , E.paddingXY 0 (em // 4)
             , E.spacing (em // 4)
-            , Font.color Color.neutral30
+            , Font.color Color.neutral20
             , Font.center
             , Ui.notSelectable
             , E.scrollbarY
             ]
             [ if model.context.device.orientation == E.Landscape && model.context.height > 28 * em then
-                E.el [ E.width E.fill, Font.color Color.neutral40, Ui.smallFont model.context ]
+                E.el [ E.width E.fill, Font.color Color.neutral20, Ui.smallFont model.context ]
                     (E.text <| Date.fancyDayDescription model.today model.date)
 
               else
@@ -532,7 +532,7 @@ dayContentFor model day =
                                 E.el
                                     [ E.width <| E.px <| em + em // 2
                                     , E.alignTop
-                                    , Font.color Color.neutral30
+                                    , Font.color Color.neutral20
                                     , Ui.iconFont
                                     , Font.center
                                     ]
@@ -543,7 +543,7 @@ dayContentFor model day =
                             , E.el
                                 [ E.width (E.fillPortion 2)
                                 , E.alignTop
-                                , Font.color Color.neutral30
+                                , Font.color Color.neutral20
                                 , Font.alignLeft
                                 ]
                                 (E.paragraph [] [ E.text (Ledger.getTransactionDescription transaction) ])

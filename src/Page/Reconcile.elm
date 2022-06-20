@@ -36,7 +36,7 @@ viewReconciled model =
             Date.getMonthName (Date.decrementMonth model.date)
     in
     E.column
-        [ E.width E.fill, E.padding <| model.context.em, E.spacing 24, Font.color Color.neutral30 ]
+        [ E.width E.fill, E.padding <| model.context.em, E.spacing 24, Font.color Color.neutral20 ]
         [ E.row
             [ E.width E.fill ]
             [ E.el [ E.width E.fill ] E.none
@@ -67,7 +67,7 @@ viewTransactions model =
     E.column
         [ E.width E.fill
         , E.height E.fill
-        , Font.color Color.neutral30
+        , Font.color Color.neutral20
         ]
         (List.indexedMap
             (\idx transaction ->

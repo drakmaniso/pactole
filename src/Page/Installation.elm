@@ -121,7 +121,7 @@ viewInstallation model installation =
                 }
             , Ui.moneyInput model.context
                 { label = Ui.labelLeft model.context "Solde initial:"
-                , color = Color.neutral20
+                , color = Color.neutral10
                 , state = installation.initialBalance
                 , onChange = Msg.ForInstallation << Msg.ChangeInstallBalance
                 }

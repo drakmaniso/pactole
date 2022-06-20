@@ -66,7 +66,7 @@ viewMonthBalance model =
     E.row
         [ E.width E.fill
         , E.padding model.context.em
-        , Font.color Color.neutral30
+        , Font.color Color.neutral20
         ]
         [ E.el [ E.width (E.fillPortion 2) ] E.none
         , E.el
@@ -121,7 +121,7 @@ viewItem model icon description money =
     E.row
         [ E.centerX
         , E.padding <| em // 2
-        , Font.color Color.neutral30
+        , Font.color Color.neutral20
         , E.spacing <| em // 2
         , E.width E.fill
         ]
