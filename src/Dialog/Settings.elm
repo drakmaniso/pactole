@@ -87,8 +87,10 @@ viewDeleteAccountDialog model id =
                 ]
                 [ E.paragraph
                     [ Ui.bigFont model.context
+                    , Font.bold
                     ]
                     [ E.text ("Supprimer le compte \"" ++ name ++ "\" ?") ]
+                , Ui.verticalSpacer
                 , E.el []
                     (Ui.warningParagraph
                         [ E.el [ Font.bold ] (E.text " Toutes les opérations de ce compte ")
@@ -197,6 +199,7 @@ viewDeleteCategoryDialog model id =
                     , Font.bold
                     ]
                     [ E.text ("Supprimer la catégorie \"" ++ name ++ "\" ?") ]
+                , Ui.verticalSpacer
                 , Ui.paragraph
                     """Les opérations déjà associées à cette catégorie passeront 
                             dans la catégorie "Aucune"

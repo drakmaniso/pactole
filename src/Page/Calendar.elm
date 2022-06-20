@@ -426,7 +426,18 @@ dayView model =
 
               else
                 E.none
-            , Ui.viewDate model.context model.date
+            , E.el
+                [ E.width E.fill
+                , Font.bold
+                , if model.context.density /= Ui.Comfortable then
+                    Ui.defaultFontSize model.context
+
+                  else
+                    Ui.bigFont model.context
+                , Font.center
+                ]
+              <|
+                Ui.viewDate model.context model.date
             , E.column
                 [ E.width E.fill
                 ]

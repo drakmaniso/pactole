@@ -77,8 +77,20 @@ view model data =
 
 viewDate : Model -> Model.TransactionData -> E.Element Msg
 viewDate model _ =
-    E.el [ E.width E.fill, E.paddingEach { left = 0, right = 0, top = 0, bottom = 0 // 2 } ]
-        (E.el [ E.centerX ] (Ui.viewDate model.context model.date))
+    E.el [ E.width E.fill, E.paddingEach { left = 0, right = 0, top = 0, bottom = 0 // 2 } ] <|
+        E.el
+            [ E.width E.fill
+            , E.centerX
+            , Font.bold
+            , if model.context.density /= Ui.Comfortable then
+                Ui.defaultFontSize model.context
+
+              else
+                Ui.bigFont model.context
+            , Font.center
+            ]
+        <|
+            Ui.viewDate model.context model.date
 
 
 viewAmount : Model -> Model.TransactionData -> E.Element Msg
@@ -328,15 +340,26 @@ viewDeleteTransaction model id =
                 , content =
                     E.column [ E.width E.fill, E.spacing <| model.context.em ]
                         [ if Money.isExpense t.amount then
-                            E.paragraph [ Font.bold, E.centerX, Font.center ] [ E.text "Supprimer la dépense?" ]
+                            E.paragraph
+                                [ Ui.bigFont model.context
+                                , Font.bold
+                                , E.centerX
+                                , Font.center
+                                ]
+                                [ E.text "Supprimer la dépense?" ]
 
                           else
                             E.paragraph [ Font.bold, E.centerX, Font.center ] [ E.text "Supprimer l'entrée d'argent?" ]
-                        , E.paragraph []
+                        , Ui.verticalSpacer
+                        , E.row [ E.spacing <| model.context.em ]
+                            [ E.text "Date: "
+                            , Ui.viewDate model.context model.date
+                            ]
+                        , E.row []
                             [ E.text "Montant: "
                             , Ui.viewMoney model.context t.amount False
                             ]
-                        , E.paragraph []
+                        , E.row [ E.spacing <| model.context.em ]
                             [ E.text "Description: "
                             , E.text t.description
                             ]

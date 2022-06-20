@@ -945,18 +945,8 @@ viewIcon txt =
 
 
 viewDate : Context -> Date -> E.Element msg
-viewDate context date =
-    E.paragraph
-        [ E.width E.fill
-        , Font.bold
-        , if context.density /= Comfortable then
-            defaultFontSize context
-
-          else
-            bigFont context
-        , Font.color Color.neutral20
-        , Font.center
-        ]
+viewDate _ date =
+    E.paragraph []
         [ E.text
             (Date.getWeekdayName date
                 ++ " "
