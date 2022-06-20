@@ -83,7 +83,6 @@ import Element.Border as Border
 import Element.Font as Font
 import Element.Input as Input
 import Element.Keyed as Keyed
-import Html
 import Html.Attributes
 import Html.Events as Events
 import Json.Decode as Decode
