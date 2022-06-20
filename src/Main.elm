@@ -548,7 +548,7 @@ pageWithSidePanel model { panel, page } =
         , E.clip
         ]
         [ E.column
-            [ E.width <| E.minimum 300 <| E.fillPortion 1
+            [ E.width <| E.minimum (15 * model.context.em) <| E.fillPortion 1
             , E.height E.fill
             , E.htmlAttribute <| Html.Attributes.class "panel-shadow"
             , E.htmlAttribute <| Html.Attributes.style "z-index" "2"
@@ -628,20 +628,10 @@ navigationBar model =
                 E.Portrait ->
                     model.context.width
 
-        optional flag s =
-            if flag then
-                s
-
-            else
-                0
-
         compact =
-            width
-                < (6
-                    + optional model.settings.summaryEnabled 6
-                    + optional model.settings.reconciliationEnabled 6
-                  )
-                * em
+            model.settings.summaryEnabled
+                && model.settings.reconciliationEnabled
+                && (width < 22 * em)
 
         navigationButton { targetPage, label } =
             Input.button
