@@ -112,6 +112,7 @@ init flags _ _ =
       , today = today
       , isStoragePersisted = isStoragePersisted
       , monthDisplayed = Date.getMonthYear today
+      , monthPrevious = Date.getMonthYear today
       , dateSelected = today
       , ledger = Ledger.empty
       , recurring = Ledger.empty
@@ -179,15 +180,15 @@ update msg model =
             ( { model | dateSelected = date }, Cmd.none )
 
         Msg.DisplayMonth monthYear ->
-            ( { model | monthDisplayed = monthYear }, Cmd.none )
+            ( { model | monthDisplayed = monthYear, monthPrevious = model.monthDisplayed }, Cmd.none )
 
         Msg.OnLeftSwipe () ->
-            ( { model | monthDisplayed = Date.incrementMonthYear model.monthDisplayed }
+            ( { model | monthDisplayed = Date.incrementMonthYear model.monthDisplayed, monthPrevious = model.monthDisplayed }
             , Cmd.none
             )
 
         Msg.OnRightSwipe () ->
-            ( { model | monthDisplayed = Date.decrementMonthYear model.monthDisplayed }
+            ( { model | monthDisplayed = Date.decrementMonthYear model.monthDisplayed, monthPrevious = model.monthDisplayed }
             , Cmd.none
             )
 

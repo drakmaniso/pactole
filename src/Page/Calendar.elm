@@ -22,14 +22,19 @@ import Ui.Color as Color
 viewMonth : Model -> E.Element Msg
 viewMonth model =
     let
-        anim =
-            -- if Date.compare model.date model.previousDate == GT then
-            --     "slide-from-left"
-            -- else if Date.compare model.date model.previousDate == LT then
-            --     "slide-from-right"
-            -- else
-            --     "no-slide"
-            "no-slide"
+        suffix =
+            String.fromInt <| modBy 2 <| Date.monthToInt model.monthDisplayed.month
+
+        ( anim, animPrevious ) =
+            case Date.compareMonthYear model.monthDisplayed model.monthPrevious of
+                LT ->
+                    ( "slide-from-left-" ++ suffix, "slide-to-left-" ++ suffix )
+
+                GT ->
+                    ( "slide-from-right-" ++ suffix, "slide-to-right-" ++ suffix )
+
+                EQ ->
+                    ( "no-slide", "no-slide" )
     in
     E.column
         [ E.width E.fill
@@ -50,44 +55,57 @@ viewMonth model =
         ]
         [ Ui.monthNavigationBar model.context model.monthDisplayed Msg.DisplayMonth
         , weekDayNames model
-        , E.column
+        , E.el
             [ E.width E.fill
             , E.height E.fill
-            , E.spacing <|
-                if model.context.density == Ui.Comfortable then
-                    4
-
-                else
-                    2
-            , E.htmlAttribute <| Html.Attributes.class anim
+            , E.clip
+            , Background.color Color.white
+            , E.behindContent <|
+                monthGrid model model.monthPrevious animPrevious
             ]
-            (Date.weeksOfMonth model.monthDisplayed
-                |> List.map
-                    (\week ->
-                        E.row
-                            [ E.width E.fill
-                            , E.height E.fill
-                            , E.clipY
-                            , E.spacing <|
-                                if model.context.density == Ui.Comfortable then
-                                    4
+            (monthGrid model model.monthDisplayed anim)
+        ]
+
+
+monthGrid model monthYear anim =
+    E.column
+        [ E.width E.fill
+        , E.height E.fill
+        , Background.color Color.white
+        , E.spacing <|
+            if model.context.density == Ui.Comfortable then
+                4
+
+            else
+                2
+        , E.htmlAttribute <| Html.Attributes.class anim
+        ]
+        (Date.weeksOfMonth monthYear
+            |> List.map
+                (\week ->
+                    E.row
+                        [ E.width E.fill
+                        , E.height E.fill
+                        , E.clipY
+                        , E.spacing <|
+                            if model.context.density == Ui.Comfortable then
+                                4
+
+                            else
+                                2
+                        ]
+                    <|
+                        List.map
+                            (\day ->
+                                if Date.getMonth day == monthYear.month then
+                                    calendarCell model day
 
                                 else
-                                    2
-                            ]
-                        <|
-                            List.map
-                                (\day ->
-                                    if Date.getMonth day == model.monthDisplayed.month then
-                                        calendarCell model day
-
-                                    else
-                                        E.el [ E.width E.fill, E.height E.fill ] E.none
-                                )
-                                week
-                    )
-            )
-        ]
+                                    E.el [ E.width E.fill, E.height E.fill ] E.none
+                            )
+                            week
+                )
+        )
 
 
 weekDayNames : Model -> E.Element Msg

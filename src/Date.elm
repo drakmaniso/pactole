@@ -2,6 +2,7 @@ module Date exposing
     ( Date
     , MonthYear
     , compare
+    , compareMonthYear
     , daysOfWeek
     , decode
     , decrementDay
@@ -34,6 +35,7 @@ module Date exposing
     , lastDayOf
     , lastDayOfMonth
     , mondayOfWeek
+    , monthToInt
     , previousMonth
     , toShortString
     , toString
@@ -60,6 +62,30 @@ type alias MonthYear =
 getMonthYear : Date -> MonthYear
 getMonthYear (Date date) =
     { month = Calendar.getMonth date, year = Calendar.getYear date }
+
+
+compareMonthYear : MonthYear -> MonthYear -> Order
+compareMonthYear a b =
+    let
+        am =
+            Calendar.monthToInt a.month
+
+        bm =
+            Calendar.monthToInt b.month
+    in
+    if a.year < b.year then
+        LT
+
+    else if a.year > b.year then
+        GT
+
+    else
+        Basics.compare am bm
+
+
+monthToInt : Time.Month -> Int
+monthToInt month =
+    Calendar.monthToInt month
 
 
 previousMonth : Time.Month -> Time.Month

@@ -110,6 +110,122 @@
     .round-button:active {
       transform: translate(0, 2px);
     }
+
+    .no-slide {
+      transform: translate(0, 0);
+    }
+
+    .slide-from-left-0 {
+      animation: slide-from-left-0 0.25s ease-out;
+    }
+
+    .slide-from-left-1 {
+      animation: slide-from-left-1 0.25s ease-out;
+    }
+
+    .slide-from-right-0 {
+      animation: slide-from-right-0 0.25s ease-out;
+    }
+
+    .slide-from-right-1 {
+      animation: slide-from-right-1 0.25s ease-out;
+    }
+
+    @keyframes slide-from-left-0 {
+      from {
+        transform: translateX(-100%);
+      }
+
+      to {
+        transform: translateX(0%);
+      }
+    }
+
+    @keyframes slide-from-left-1 {
+      from {
+        transform: translateX(-100%);
+      }
+
+      to {
+        transform: translateX(0%);
+      }
+    }
+
+    @keyframes slide-from-right-0 {
+      from {
+        transform: translateX(100%);
+      }
+
+      to {
+        transform: translateX(0%);
+      }
+    }
+
+    @keyframes slide-from-right-1 {
+      from {
+        transform: translateX(100%);
+      }
+
+      to {
+        transform: translateX(0%);
+      }
+    }
+
+    .slide-to-left-0 {
+      animation: slide-to-left-0 0.25s ease-out;
+    }
+
+    .slide-to-left-1 {
+      animation: slide-to-left-1 0.25s ease-out;
+    }
+
+    .slide-to-right-0 {
+      animation: slide-to-right-0 0.25s ease-out;
+    }
+
+    .slide-to-right-1 {
+      animation: slide-to-right-1 0.25s ease-out;
+    }
+
+    @keyframes slide-to-left-0 {
+      from {
+        transform: translateX(0%);
+      }
+
+      to {
+        transform: translateX(100%);
+      }
+    }
+
+    @keyframes slide-to-left-1 {
+      from {
+        transform: translateX(0%);
+      }
+
+      to {
+        transform: translateX(100%);
+      }
+    }
+
+    @keyframes slide-to-right-0 {
+      from {
+        transform: translateX(0%);
+      }
+
+      to {
+        transform: translateX(-100%);
+      }
+    }
+
+    @keyframes slide-to-right-1 {
+      from {
+        transform: translateX(0%);
+      }
+
+      to {
+        transform: translateX(-100%);
+      }
+    }
   </style>
   <script src="elm.js"></script>
 </head>
@@ -235,11 +351,11 @@
               const xDiff = x - xTouch
               const yDiff = y - yTouch
               if (Math.abs(xDiff) > Math.abs(yDiff)) {
-                if (xDiff > 100) {
+                if (xDiff > 50) {
                   xTouch = null
                   yTouch = null
                   app.ports.onRightSwipe.send(null)
-                } else if (xDiff < -100) {
+                } else if (xDiff < -50) {
                   xTouch = null
                   yTouch = null
                   app.ports.onLeftSwipe.send(null)
