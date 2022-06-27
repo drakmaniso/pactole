@@ -135,12 +135,7 @@ calendarCell model day =
             model.context.smallEm
 
         sel =
-            case model.dateSelected of
-                Just d ->
-                    day == d
-
-                Nothing ->
-                    False
+            day == model.dateSelected
     in
     E.el
         -- Need to wrap the button in E.el because of elm-ui E.focused bug

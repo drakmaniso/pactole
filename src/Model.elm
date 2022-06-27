@@ -37,7 +37,7 @@ type alias Model =
     { today : Date
     , isStoragePersisted : Bool
     , monthDisplayed : Date.MonthYear
-    , dateSelected : Maybe Date
+    , dateSelected : Date
     , account : Int
     , page : Page
     , dialog : Maybe Dialog
