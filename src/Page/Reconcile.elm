@@ -23,7 +23,7 @@ viewContent model =
             else
                 0
         ]
-        [ Ui.monthNavigationBar model.context model Msg.SelectDate
+        [ Ui.monthNavigationBar model.context model.monthDisplayed Msg.DisplayMonth
         , viewReconciled model
         , viewTransactions model
         ]
@@ -31,10 +31,6 @@ viewContent model =
 
 viewReconciled : Model -> E.Element msg
 viewReconciled model =
-    let
-        prevMonth =
-            Date.getMonthName (Date.decrementMonth model.date)
-    in
     E.column
         [ E.width E.fill, E.padding <| model.context.em, E.spacing 24, Font.color Color.neutral20 ]
         [ E.row
@@ -44,12 +40,11 @@ viewReconciled model =
             , Ui.viewSum model.context (Ledger.getReconciled model.ledger model.account)
             , E.el [ E.width E.fill ] E.none
             ]
-        , if Ledger.getNotReconciledBeforeMonth model.ledger model.account model.date then
+        , if Ledger.getNotReconciledBeforeMonth model.ledger model.account (Date.firstDayOfMonth model.monthDisplayed) then
             E.el
                 [ E.width E.fill, Font.center ]
                 (E.paragraph []
-                    [ E.text "Attention: il reste des opérations à pointer en "
-                    , E.el [ Font.bold ] (E.text prevMonth)
+                    [ E.text "Attention: il reste des opérations à pointer dans les mois précédents"
                     ]
                 )
 
@@ -115,7 +110,7 @@ viewTransactions model =
                             ]
                     )
             )
-            (Ledger.getTransactionsForMonth model.ledger model.account model.date model.today)
+            (Ledger.getTransactionsForMonth model.ledger model.account model.monthDisplayed model.today)
         )
 
 

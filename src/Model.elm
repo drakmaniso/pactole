@@ -36,7 +36,8 @@ import Ui
 type alias Model =
     { today : Date
     , isStoragePersisted : Bool
-    , date : Date
+    , monthDisplayed : Date.MonthYear
+    , dateSelected : Maybe Date
     , account : Int
     , page : Page
     , dialog : Maybe Dialog

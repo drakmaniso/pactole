@@ -23,7 +23,7 @@ viewContent model =
             else
                 0
         ]
-        [ Ui.monthNavigationBar model.context model Msg.SelectDate
+        [ Ui.monthNavigationBar model.context model.monthDisplayed Msg.DisplayMonth
         , viewMonthBalance model
         , viewMonthFutureWarning model
         , E.column
@@ -34,7 +34,7 @@ viewContent model =
             , viewItem model
                 ""
                 "Entrées d'argent: "
-                (Ledger.getIncomeForMonth model.ledger model.account model.date model.today)
+                (Ledger.getIncomeForMonth model.ledger model.account model.monthDisplayed model.today)
             , if model.settings.categoriesEnabled then
                 viewCategories model
 
@@ -44,13 +44,13 @@ viewContent model =
                 viewItem model
                     ""
                     "Sans catégorie: "
-                    (Ledger.getCategoryTotalForMonth model.ledger model.account model.date model.today 0)
+                    (Ledger.getCategoryTotalForMonth model.ledger model.account model.monthDisplayed model.today 0)
 
               else
                 viewItem model
                     ""
                     "Dépenses: "
-                    (Ledger.getExpenseForMonth model.ledger model.account model.date model.today)
+                    (Ledger.getExpenseForMonth model.ledger model.account model.monthDisplayed model.today)
             , E.text " "
             , E.el [ E.height E.fill ] E.none
             ]
@@ -61,7 +61,7 @@ viewMonthBalance : Model -> E.Element msg
 viewMonthBalance model =
     let
         monthBal =
-            Ledger.getTotalForMonth model.ledger model.account model.date model.today
+            Ledger.getTotalForMonth model.ledger model.account model.monthDisplayed model.today
     in
     E.row
         [ E.width E.fill
@@ -80,8 +80,8 @@ viewMonthBalance model =
 viewMonthFutureWarning : Model -> E.Element msg
 viewMonthFutureWarning model =
     if
-        Ledger.hasFutureTransactionsForMonth model.recurring model.account model.date model.today
-            || Ledger.hasFutureTransactionsForMonth model.ledger model.account model.date model.today
+        Ledger.hasFutureTransactionsForMonth model.recurring model.account model.monthDisplayed model.today
+            || Ledger.hasFutureTransactionsForMonth model.ledger model.account model.monthDisplayed model.today
     then
         E.paragraph
             [ E.width E.fill
@@ -107,7 +107,7 @@ viewCategories model =
                     viewItem model
                         category.icon
                         (category.name ++ ": ")
-                        (Ledger.getCategoryTotalForMonth model.ledger model.account model.date model.today catID)
+                        (Ledger.getCategoryTotalForMonth model.ledger model.account model.monthDisplayed model.today catID)
                 )
         )
 

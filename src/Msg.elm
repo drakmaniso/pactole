@@ -14,6 +14,7 @@ type Msg
     | OnPopState ()
     | OnLeftSwipe ()
     | OnRightSwipe ()
+    | DisplayMonth Date.MonthYear
     | SelectDate Date
     | SelectAccount Int
     | WindowResize { width : Int, height : Int }

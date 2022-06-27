@@ -76,7 +76,7 @@ view model data =
 
 
 viewDate : Model -> Model.TransactionData -> E.Element Msg
-viewDate model _ =
+viewDate model data =
     E.el [ E.width E.fill, E.paddingEach { left = 0, right = 0, top = 0, bottom = 0 // 2 } ] <|
         E.el
             [ E.width E.fill
@@ -90,7 +90,7 @@ viewDate model _ =
             , Font.center
             ]
         <|
-            Ui.viewDate model.context model.date
+            Ui.viewDate model.context data.date
 
 
 viewAmount : Model -> Model.TransactionData -> E.Element Msg
@@ -353,7 +353,7 @@ viewDeleteTransaction model id =
                         , Ui.verticalSpacer
                         , E.row [ E.spacing <| model.context.em ]
                             [ E.text "Date: "
-                            , Ui.viewDate model.context model.date
+                            , Ui.viewDate model.context t.date
                             ]
                         , E.row []
                             [ E.text "Montant: "

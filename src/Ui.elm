@@ -815,8 +815,8 @@ warningPopup context elements =
             elements
 
 
-monthNavigationBar : Context -> { a | date : Date, today : Date } -> (Date -> msg) -> E.Element msg
-monthNavigationBar context model changeMsg =
+monthNavigationBar : Context -> Date.MonthYear -> (Date.MonthYear -> msg) -> E.Element msg
+monthNavigationBar context monthDisplayed changeMsg =
     let
         em =
             context.em
@@ -870,13 +870,13 @@ monthNavigationBar context model changeMsg =
                                 [ E.width E.fill ]
                                 [ if context.density == Comfortable then
                                     E.el [ E.centerX ]
-                                        (E.text (Date.getMonthName (Date.decrementMonth model.date)))
+                                        (E.text (Date.getMonthName (Date.previousMonth monthDisplayed.month)))
 
                                   else
                                     E.none
                                 , E.el [ E.centerX, iconFont ] (E.text "  \u{F060}  ")
                                 ]
-                        , onPress = Just (changeMsg (Date.decrementMonthUI model.date model.today))
+                        , onPress = Just (changeMsg (Date.decrementMonthYear monthDisplayed))
                         }
                     )
               )
@@ -897,7 +897,7 @@ monthNavigationBar context model changeMsg =
                         , Font.color Color.neutral20
                         , E.padding <| em // 4
                         ]
-                        (E.text (Date.getMonthFullName model.today model.date))
+                        (E.text (Date.getMonthYearName monthDisplayed))
                     )
               )
             , ( "next month button"
@@ -924,12 +924,12 @@ monthNavigationBar context model changeMsg =
                                 [ E.el [ E.centerX, iconFont ] (E.text "  \u{F061}  ")
                                 , if context.density == Comfortable then
                                     E.el [ E.centerX ]
-                                        (E.text (Date.getMonthName (Date.incrementMonth model.date)))
+                                        (E.text (Date.getMonthName (Date.followingMonth monthDisplayed.month)))
 
                                   else
                                     E.none
                                 ]
-                        , onPress = Just (changeMsg (Date.incrementMonthUI model.date model.today))
+                        , onPress = Just (changeMsg (Date.incrementMonthYear monthDisplayed))
                         }
                     )
               )
@@ -951,7 +951,7 @@ viewDate _ date =
                 ++ " "
                 ++ String.fromInt (Date.getDay date)
                 ++ " "
-                ++ Date.getMonthName date
+                ++ Date.getMonthName (Date.getMonth date)
             )
         ]
 

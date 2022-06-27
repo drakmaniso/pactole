@@ -21,9 +21,20 @@ import Ui.Color as Color
 
 viewMonth : Model -> E.Element Msg
 viewMonth model =
+    let
+        anim =
+            -- if Date.compare model.date model.previousDate == GT then
+            --     "slide-from-left"
+            -- else if Date.compare model.date model.previousDate == LT then
+            --     "slide-from-right"
+            -- else
+            --     "no-slide"
+            "no-slide"
+    in
     E.column
         [ E.width E.fill
         , E.height E.fill
+        , E.clip
         , E.spacing <|
             if model.context.density == Ui.Comfortable then
                 4
@@ -37,35 +48,46 @@ viewMonth model =
             else
                 0
         ]
-        (Ui.monthNavigationBar model.context model Msg.SelectDate
-            :: weekDayNames model
-            :: (Date.weeksOfMonth model.date
-                    |> List.map
-                        (\week ->
-                            E.row
-                                [ E.width E.fill
-                                , E.height E.fill
-                                , E.clipY
-                                , E.spacing <|
-                                    if model.context.density == Ui.Comfortable then
-                                        4
+        [ Ui.monthNavigationBar model.context model.monthDisplayed Msg.DisplayMonth
+        , weekDayNames model
+        , E.column
+            [ E.width E.fill
+            , E.height E.fill
+            , E.spacing <|
+                if model.context.density == Ui.Comfortable then
+                    4
+
+                else
+                    2
+            , E.htmlAttribute <| Html.Attributes.class anim
+            ]
+            (Date.weeksOfMonth model.monthDisplayed
+                |> List.map
+                    (\week ->
+                        E.row
+                            [ E.width E.fill
+                            , E.height E.fill
+                            , E.clipY
+                            , E.spacing <|
+                                if model.context.density == Ui.Comfortable then
+                                    4
+
+                                else
+                                    2
+                            ]
+                        <|
+                            List.map
+                                (\day ->
+                                    if Date.getMonth day == model.monthDisplayed.month then
+                                        calendarCell model day
 
                                     else
-                                        2
-                                ]
-                            <|
-                                List.map
-                                    (\day ->
-                                        if Date.getMonth day == Date.getMonth model.date then
-                                            calendarCell model day
-
-                                        else
-                                            E.el [ E.width E.fill, E.height E.fill ] E.none
-                                    )
-                                    week
-                        )
-               )
-        )
+                                        E.el [ E.width E.fill, E.height E.fill ] E.none
+                                )
+                                week
+                    )
+            )
+        ]
 
 
 weekDayNames : Model -> E.Element Msg
@@ -113,7 +135,12 @@ calendarCell model day =
             model.context.smallEm
 
         sel =
-            day == model.date
+            case model.dateSelected of
+                Just d ->
+                    day == d
+
+                Nothing ->
+                    False
     in
     E.el
         -- Need to wrap the button in E.el because of elm-ui E.focused bug
@@ -322,8 +349,8 @@ cellContentFor model day =
 -- DAY VIEW
 
 
-dayView : Model -> E.Element Msg
-dayView model =
+dayView : Model -> Date -> E.Element Msg
+dayView model date =
     let
         em =
             model.context.em
@@ -349,7 +376,7 @@ dayView model =
                                     { id = Nothing
                                     , isExpense = False
                                     , isRecurring = False
-                                    , date = model.date
+                                    , date = date
                                     , amount = ( "", Nothing )
                                     , description = ""
                                     , category = 0
@@ -363,7 +390,7 @@ dayView model =
                                     { id = Nothing
                                     , isExpense = True
                                     , isRecurring = False
-                                    , date = model.date
+                                    , date = date
                                     , amount = ( "", Nothing )
                                     , description = ""
                                     , category = 0
@@ -388,7 +415,7 @@ dayView model =
                                     { id = Nothing
                                     , isExpense = False
                                     , isRecurring = False
-                                    , date = model.date
+                                    , date = date
                                     , amount = ( "", Nothing )
                                     , description = ""
                                     , category = 0
@@ -402,7 +429,7 @@ dayView model =
                                     { id = Nothing
                                     , isExpense = True
                                     , isRecurring = False
-                                    , date = model.date
+                                    , date = date
                                     , amount = ( "", Nothing )
                                     , description = ""
                                     , category = 0
@@ -422,7 +449,7 @@ dayView model =
             ]
             [ if model.context.device.orientation == E.Landscape && model.context.height > 28 * em then
                 E.el [ E.width E.fill, Font.color Color.neutral20, Ui.smallFont model.context ]
-                    (E.text <| Date.fancyDayDescription model.today model.date)
+                    (E.text <| Date.fancyDayDescription model.today date)
 
               else
                 E.none
@@ -437,11 +464,11 @@ dayView model =
                 , Font.center
                 ]
               <|
-                Ui.viewDate model.context model.date
+                Ui.viewDate model.context date
             , E.column
                 [ E.width E.fill
                 ]
-                (dayContentFor model model.date)
+                (dayContentFor model date)
             ]
         ]
 

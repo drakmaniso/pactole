@@ -111,7 +111,8 @@ init flags _ _ =
     ( { settings = Model.defaultSettings
       , today = today
       , isStoragePersisted = isStoragePersisted
-      , date = today
+      , monthDisplayed = Date.getMonthYear today
+      , dateSelected = Just today
       , ledger = Ledger.empty
       , recurring = Ledger.empty
       , accounts = Dict.empty
@@ -175,15 +176,18 @@ update msg model =
                     ( { model | page = Model.CalendarPage }, Cmd.none )
 
         Msg.SelectDate date ->
-            ( { model | date = date }, Cmd.none )
+            ( { model | dateSelected = Just date }, Cmd.none )
+
+        Msg.DisplayMonth monthYear ->
+            ( { model | monthDisplayed = monthYear, dateSelected = Nothing }, Cmd.none )
 
         Msg.OnLeftSwipe () ->
-            ( { model | date = Date.incrementMonthUI model.date model.today }
+            ( { model | monthDisplayed = Date.incrementMonthYear model.monthDisplayed, dateSelected = Nothing }
             , Cmd.none
             )
 
         Msg.OnRightSwipe () ->
-            ( { model | date = Date.decrementMonthUI model.date model.today }
+            ( { model | monthDisplayed = Date.decrementMonthYear model.monthDisplayed, dateSelected = Nothing }
             , Cmd.none
             )
 
@@ -353,7 +357,17 @@ viewLandscapePage model =
 
         Model.CalendarPage ->
             pageWithSidePanel model
-                { panel = panelWithTwoParts { top = Summary.viewDesktop model, bottom = Calendar.dayView model }
+                { panel =
+                    panelWithTwoParts
+                        { top = Summary.viewDesktop model
+                        , bottom =
+                            case model.dateSelected of
+                                Nothing ->
+                                    E.none
+
+                                Just date ->
+                                    Calendar.dayView model date
+                        }
                 , page = Calendar.viewMonth model
                 }
 
@@ -399,7 +413,12 @@ viewPortraitPage model =
                 [ E.el [ E.width E.fill, E.height <| E.fillPortion 1 ] <|
                     Calendar.viewMonth model
                 , E.el [ E.width E.fill, E.height <| E.fillPortion 1 ] <|
-                    Calendar.dayView model
+                    case model.dateSelected of
+                        Nothing ->
+                            E.none
+
+                        Just date ->
+                            Calendar.dayView model date
                 ]
 
         Model.DiagnosticsPage ->
