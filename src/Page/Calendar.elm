@@ -22,19 +22,8 @@ import Ui.Color as Color
 viewMonth : Model -> E.Element Msg
 viewMonth model =
     let
-        suffix =
-            String.fromInt <| modBy 2 <| Date.monthToInt model.monthDisplayed.month
-
         ( anim, animPrevious ) =
-            case Date.compareMonthYear model.monthDisplayed model.monthPrevious of
-                LT ->
-                    ( "slide-from-left-" ++ suffix, "slide-to-left-" ++ suffix )
-
-                GT ->
-                    ( "slide-from-right-" ++ suffix, "slide-to-right-" ++ suffix )
-
-                EQ ->
-                    ( "no-slide", "no-slide" )
+            Ui.animationClasses model.context model.monthDisplayed model.monthPrevious
     in
     E.column
         [ E.width E.fill

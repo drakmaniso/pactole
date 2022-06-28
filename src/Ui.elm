@@ -3,6 +3,7 @@ module Ui exposing
     , Context
     , Density(..)
     , DeviceClass(..)
+    , animationClasses
     , backIcon
     , bigFont
     , bigWarningIcon
@@ -1458,6 +1459,23 @@ onEnter msg =
                     )
             )
         )
+
+
+animationClasses : Context -> Date.MonthYear -> Date.MonthYear -> ( String, String )
+animationClasses _ monthDisplayed monthPrevious =
+    let
+        suffix =
+            String.fromInt <| modBy 2 <| Date.monthToInt monthDisplayed.month
+    in
+    case Date.compareMonthYear monthDisplayed monthPrevious of
+        LT ->
+            ( "slide-from-left-" ++ suffix, "slide-to-left-" ++ suffix )
+
+        GT ->
+            ( "slide-from-right-" ++ suffix, "slide-to-right-" ++ suffix )
+
+        EQ ->
+            ( "no-slide", "no-slide" )
 
 
 
