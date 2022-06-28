@@ -33,7 +33,12 @@ viewContent model =
             [ E.width E.fill
             , E.height E.fill
             , E.clipX
-            , E.behindContent <| viewAnimatedContent model model.monthPrevious animPrevious
+            , E.behindContent <|
+                if model.context.animationDisabled then
+                    E.none
+
+                else
+                    viewAnimatedContent model model.monthPrevious animPrevious
             ]
             (viewAnimatedContent model model.monthDisplayed anim)
         ]

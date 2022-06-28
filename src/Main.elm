@@ -122,7 +122,14 @@ init flags _ _ =
       , page = Model.LoadingPage
       , dialog = Nothing
       , serviceVersion = "unknown"
-      , context = Ui.classifyContext { width = width, height = height, fontSize = 0, deviceClass = Ui.AutoClass }
+      , context =
+            Ui.classifyContext
+                { width = width
+                , height = height
+                , fontSize = 0
+                , deviceClass = Ui.AutoClass
+                , animationDisabled = False
+                }
       , errors = []
       }
     , Cmd.none
@@ -207,6 +214,7 @@ update msg model =
                         , height = size.height
                         , fontSize = model.settings.fontSize
                         , deviceClass = model.settings.deviceClass
+                        , animationDisabled = model.settings.animationDisabled
                         }
             in
             if size.width == model.context.width && abs heightChange > 0.1 then

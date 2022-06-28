@@ -104,6 +104,7 @@ type alias Context =
     , em : Int
     , smallEm : Int
     , density : Density
+    , animationDisabled : Bool
     }
 
 
@@ -151,8 +152,8 @@ decodeDeviceClass =
             )
 
 
-classifyContext : { width : Int, height : Int, fontSize : Int, deviceClass : DeviceClass } -> Context
-classifyContext { width, height, fontSize, deviceClass } =
+classifyContext : { width : Int, height : Int, fontSize : Int, deviceClass : DeviceClass, animationDisabled : Bool } -> Context
+classifyContext { width, height, fontSize, deviceClass, animationDisabled } =
     let
         autoDevice =
             E.classifyDevice { width = width, height = height }
@@ -219,6 +220,7 @@ classifyContext { width, height, fontSize, deviceClass } =
     , em = em
     , smallEm = scale { em = em } -1
     , density = density
+    , animationDisabled = animationDisabled
     }
 
 
@@ -1462,20 +1464,24 @@ onEnter msg =
 
 
 animationClasses : Context -> Date.MonthYear -> Date.MonthYear -> ( String, String )
-animationClasses _ monthDisplayed monthPrevious =
-    let
-        suffix =
-            String.fromInt <| modBy 2 <| Date.monthToInt monthDisplayed.month
-    in
-    case Date.compareMonthYear monthDisplayed monthPrevious of
-        LT ->
-            ( "slide-from-left-" ++ suffix, "slide-to-left-" ++ suffix )
+animationClasses context monthDisplayed monthPrevious =
+    if context.animationDisabled then
+        ( "no-slide", "no-slide" )
 
-        GT ->
-            ( "slide-from-right-" ++ suffix, "slide-to-right-" ++ suffix )
+    else
+        let
+            suffix =
+                String.fromInt <| modBy 2 <| Date.monthToInt monthDisplayed.month
+        in
+        case Date.compareMonthYear monthDisplayed monthPrevious of
+            LT ->
+                ( "slide-from-left-" ++ suffix, "slide-to-left-" ++ suffix )
 
-        EQ ->
-            ( "no-slide", "no-slide" )
+            GT ->
+                ( "slide-from-right-" ++ suffix, "slide-to-right-" ++ suffix )
+
+            EQ ->
+                ( "no-slide", "no-slide" )
 
 
 

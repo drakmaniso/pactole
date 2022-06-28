@@ -50,7 +50,11 @@ viewContent model =
             , E.clip
             , Background.color Color.white
             , E.behindContent <|
-                viewAnimatedContent model model.monthPrevious animPrevious
+                if model.context.animationDisabled then
+                    E.none
+
+                else
+                    viewAnimatedContent model model.monthPrevious animPrevious
             ]
             (viewAnimatedContent model model.monthDisplayed anim)
         ]
