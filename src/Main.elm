@@ -137,7 +137,7 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Msg.ChangePage page ->
-            ( { model | page = page }
+            ( { model | page = page, monthPrevious = model.monthDisplayed }
             , Cmd.none
             )
 
@@ -165,16 +165,16 @@ update msg model =
         Msg.OnPopState () ->
             case ( model.dialog, model.page ) of
                 ( Just _, _ ) ->
-                    ( { model | dialog = Nothing }, Cmd.none )
+                    ( { model | dialog = Nothing, monthPrevious = model.monthDisplayed }, Cmd.none )
 
                 ( Nothing, Model.CalendarPage ) ->
                     ( model, Ports.historyBack () )
 
                 ( Nothing, Model.SettingsPage ) ->
-                    ( { model | page = Model.HelpPage }, Cmd.none )
+                    ( { model | page = Model.HelpPage, monthPrevious = model.monthDisplayed }, Cmd.none )
 
                 ( Nothing, _ ) ->
-                    ( { model | page = Model.CalendarPage }, Cmd.none )
+                    ( { model | page = Model.CalendarPage, monthPrevious = model.monthDisplayed }, Cmd.none )
 
         Msg.SelectDate date ->
             ( { model | dateSelected = date }, Cmd.none )
