@@ -4,6 +4,7 @@ import Date exposing (Date)
 import Element as E
 import Element.Background as Background
 import Element.Font as Font
+import Html.Attributes
 import Ledger
 import Model exposing (Model)
 import Msg exposing (Msg)
@@ -13,6 +14,10 @@ import Ui.Color as Color
 
 viewContent : Model -> E.Element Msg
 viewContent model =
+    let
+        ( anim, animPrevious ) =
+            Ui.animationClasses model.context model.monthDisplayed model.monthPrevious
+    in
     E.column
         [ E.width E.fill
         , E.height E.fill
@@ -24,13 +29,31 @@ viewContent model =
                 0
         ]
         [ Ui.monthNavigationBar model.context model.monthDisplayed Msg.DisplayMonth
-        , viewReconciled model
-        , viewTransactions model
+        , E.el
+            [ E.width E.fill
+            , E.height E.fill
+            , E.clipX
+            , E.behindContent <| viewAnimatedContent model model.monthPrevious animPrevious
+            ]
+            (viewAnimatedContent model model.monthDisplayed anim)
         ]
 
 
-viewReconciled : Model -> E.Element msg
-viewReconciled model =
+viewAnimatedContent : Model -> Date.MonthYear -> String -> E.Element Msg
+viewAnimatedContent model monthYear anim =
+    E.column
+        [ E.width E.fill
+        , E.height E.fill
+        , E.htmlAttribute <| Html.Attributes.class anim
+        , Background.color Color.white
+        ]
+        [ viewReconciled model monthYear
+        , viewTransactions model monthYear
+        ]
+
+
+viewReconciled : Model -> Date.MonthYear -> E.Element msg
+viewReconciled model monthYear =
     E.column
         [ E.width E.fill, E.padding <| model.context.em, E.spacing 24, Font.color Color.neutral20 ]
         [ E.row
@@ -40,7 +63,7 @@ viewReconciled model =
             , Ui.viewSum model.context (Ledger.getReconciled model.ledger model.account)
             , E.el [ E.width E.fill ] E.none
             ]
-        , if Ledger.getNotReconciledBeforeMonth model.ledger model.account (Date.firstDayOfMonth model.monthDisplayed) then
+        , if Ledger.getNotReconciledBeforeMonth model.ledger model.account (Date.firstDayOfMonth monthYear) then
             E.el
                 [ E.width E.fill, Font.center ]
                 (E.paragraph []
@@ -53,8 +76,8 @@ viewReconciled model =
         ]
 
 
-viewTransactions : Model -> E.Element Msg
-viewTransactions model =
+viewTransactions : Model -> Date.MonthYear -> E.Element Msg
+viewTransactions model monthYear =
     let
         em =
             model.context.em
@@ -110,7 +133,7 @@ viewTransactions model =
                             ]
                     )
             )
-            (Ledger.getTransactionsForMonth model.ledger model.account model.monthDisplayed model.today)
+            (Ledger.getTransactionsForMonth model.ledger model.account monthYear model.today)
         )
 
 

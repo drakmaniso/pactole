@@ -368,7 +368,7 @@ viewLandscapePage model =
                             else
                                 E.none
                         }
-                , page = Calendar.viewMonth model
+                , page = Calendar.viewContent model
                 }
 
         Model.DiagnosticsPage ->
@@ -411,7 +411,7 @@ viewPortraitPage model =
             pageWithTopNavBar model
                 [ Summary.viewMobile model ]
                 [ E.el [ E.width E.fill, E.height <| E.fillPortion 1 ] <|
-                    Calendar.viewMonth model
+                    Calendar.viewContent model
                 , E.el [ E.width E.fill, E.height <| E.fillPortion 1 ] <|
                     if Date.getMonthYear model.dateSelected == model.monthDisplayed then
                         Calendar.dayView model model.dateSelected

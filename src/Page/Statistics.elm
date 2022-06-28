@@ -34,7 +34,7 @@ viewContent model =
         , E.el
             [ E.width E.fill
             , E.height E.fill
-            , E.clip
+            , E.clipX
             , E.behindContent <|
                 viewAnimatedContent model model.monthPrevious animPrevious
             ]

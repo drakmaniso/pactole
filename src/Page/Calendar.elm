@@ -1,4 +1,4 @@
-module Page.Calendar exposing (dayView, viewMonth)
+module Page.Calendar exposing (dayView, viewContent)
 
 import Date exposing (Date)
 import Element as E
@@ -19,8 +19,8 @@ import Ui.Color as Color
 -- THE CALENDAR
 
 
-viewMonth : Model -> E.Element Msg
-viewMonth model =
+viewContent : Model -> E.Element Msg
+viewContent model =
     let
         ( anim, animPrevious ) =
             Ui.animationClasses model.context model.monthDisplayed model.monthPrevious
@@ -50,13 +50,14 @@ viewMonth model =
             , E.clip
             , Background.color Color.white
             , E.behindContent <|
-                monthGrid model model.monthPrevious animPrevious
+                viewAnimatedContent model model.monthPrevious animPrevious
             ]
-            (monthGrid model model.monthDisplayed anim)
+            (viewAnimatedContent model model.monthDisplayed anim)
         ]
 
 
-monthGrid model monthYear anim =
+viewAnimatedContent : Model -> Date.MonthYear -> String -> E.Element Msg
+viewAnimatedContent model monthYear anim =
     E.column
         [ E.width E.fill
         , E.height E.fill
