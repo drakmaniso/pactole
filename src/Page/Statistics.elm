@@ -34,7 +34,7 @@ viewContent model =
         , E.el
             [ E.width E.fill
             , E.height E.fill
-            , E.clipX
+            , E.clip
             , E.behindContent <|
                 if model.context.animationDisabled then
                     E.none
@@ -51,6 +51,7 @@ viewAnimatedContent model monthYear anim =
     E.column
         [ E.width E.fill
         , E.height E.fill
+        , E.scrollbarY
         , E.htmlAttribute <| Html.Attributes.class anim
         , Background.color Color.white
         ]
