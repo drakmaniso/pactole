@@ -310,7 +310,7 @@ configAppearance model =
 
                     else
                         Msg.ForDatabase <| Msg.StoreSettings { settings | animationDisabled = True }
-            , label = "animations (lors des changements de mois)"
+            , label = "animations"
             , checked = not model.settings.animationDisabled
             }
         , E.wrappedRow [ E.spacing 12 ]
