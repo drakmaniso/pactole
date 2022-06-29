@@ -370,11 +370,6 @@ viewLandscapePage model =
                     panelWithTwoParts
                         { top = Summary.viewDesktop model
                         , bottom = Calendar.viewSelectedDate model
-
-                        -- if Date.getMonthYear model.dateSelected == model.monthDisplayed then
-                        --     Calendar.dayView model model.dateSelected
-                        -- else
-                        --     E.none
                         }
                 , page = Calendar.viewContent model
                 }
@@ -422,11 +417,6 @@ viewPortraitPage model =
                     Calendar.viewContent model
                 , E.el [ E.width E.fill, E.height <| E.fillPortion 1 ] <|
                     Calendar.viewSelectedDate model
-
-                -- if Date.getMonthYear model.dateSelected == model.monthDisplayed then
-                --     Calendar.dayView model model.dateSelected
-                -- else
-                --     E.none
                 ]
 
         Model.DiagnosticsPage ->
