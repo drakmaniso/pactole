@@ -1,4 +1,4 @@
-module Page.Calendar exposing (dayView, viewContent)
+module Page.Calendar exposing (viewContent, viewSelectedDate)
 
 import Date exposing (Date)
 import Element as E
@@ -356,6 +356,19 @@ cellContentFor model day =
 -- DAY VIEW
 
 
+viewSelectedDate : Model -> E.Element Msg
+viewSelectedDate model =
+    if Date.getMonthYear model.dateSelected == model.monthDisplayed then
+        dayView model model.dateSelected
+
+    else
+        E.column [ E.width E.fill, E.height E.fill ]
+            [ E.paragraph [ E.alignBottom, Font.center, Font.color Color.neutral50 ]
+                [ E.text "(choisir une date)" ]
+            , E.el [ E.alignBottom, E.height <| E.px model.context.em ] E.none
+            ]
+
+
 dayView : Model -> Date -> E.Element Msg
 dayView model date =
     let
@@ -606,12 +619,12 @@ dayContentFor model day =
                 E.paragraph
                     [ E.width E.fill
                     , Font.center
-                    , Font.color Color.neutral40
+                    , Font.color Color.neutral50
                     , E.paddingXY 8 32
                     , Border.color Color.transparent
                     , Border.width 4
                     ]
-                    [ E.text "(Aucune opération)" ]
+                    [ E.text "(aucune opération)" ]
             ]
 
         t ->
