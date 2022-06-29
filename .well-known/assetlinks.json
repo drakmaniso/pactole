@@ -1,0 +1,14 @@
+[
+      {
+            "relation": [
+                  "delegate_permission/common.handle_all_urls"
+            ],
+            "target": {
+                  "namespace": "android_app",
+                  "package_name": "io.github.drakmaniso.pactole",
+                  "sha256_cert_fingerprints": [
+                        "ED:32:32:51:1B:90:D9:40:AF:7C:27:71:CE:E0:42:14:9C:01:71:77:AB:F1:AC:94:E8:AB:B3:AF:4F:F9:69:1C"
+                  ]
+            }
+      }
+]
