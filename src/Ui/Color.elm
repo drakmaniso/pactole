@@ -1,4 +1,4 @@
-module Ui.Color exposing (bgApajh, black, blueApajh, expense30, expense40, expense50, expense80, expense90, expense95, fgApajh, focus85, greenApajh, greenApajh90, income30, income40, income50, income80, income90, income95, neutral10, neutral20, neutral30, neutral40, neutral50, neutral60, neutral70, neutral80, neutral90, neutral93, neutral95, neutral98, primary30, primary40, primary50, primary70, primary80, primary85, primary90, primary95, redApajh, transactionColor, translucentWhite, transparent, warning50, warning60, warning70, white)
+module Ui.Color exposing (bgApajh, black, blueApajh, expense30, expense40, expense50, expense70, expense85, expense90, fgApajh, focus85, greenApajh, greenApajh90, income30, income40, income50, income70, income85, income90, neutral10, neutral20, neutral30, neutral40, neutral50, neutral60, neutral70, neutral80, neutral85, neutral90, neutral93, neutral95, neutral98, primary20, primary30, primary35, primary40, primary50, primary70, primary80, primary85, primary90, primary95, redApajh, transactionColor, translucentWhite, transparent, warning40, warning50, warning55, warning60, warning70, white)
 
 import Bitwise
 import Element as E
@@ -27,9 +27,19 @@ warning60 =
     hex 0x00FE4200
 
 
+warning55 : E.Color
+warning55 =
+    hex 0x00E83C00
+
+
 warning50 : E.Color
 warning50 =
     hex 0x00D23500
+
+
+warning40 : E.Color
+warning40 =
+    hex 0x00A82800
 
 
 focus85 : E.Color
@@ -65,6 +75,11 @@ neutral93 =
 neutral90 : E.Color
 neutral90 =
     hex 0x00E2E2E2
+
+
+neutral85 : E.Color
+neutral85 =
+    hex 0x00D4D4D4
 
 
 neutral80 : E.Color
@@ -141,14 +156,14 @@ expense90 =
     hex 0x00F4DCD8
 
 
-expense95 : E.Color
-expense95 =
-    hex 0x00FAEEEC
+expense85 : E.Color
+expense85 =
+    hex 0x00EFCBC6
 
 
-expense80 : E.Color
-expense80 =
-    hex 0x00E9BAB3
+expense70 : E.Color
+expense70 =
+    hex 0x00DB988E
 
 
 income40 : E.Color
@@ -171,14 +186,14 @@ income90 =
     hex 0x00DAE7D8
 
 
-income95 : E.Color
-income95 =
-    hex 0x00ECF3EB
+income85 : E.Color
+income85 =
+    hex 0x00C8DBC5
 
 
-income80 : E.Color
-income80 =
-    hex 0x00B7CFB4
+income70 : E.Color
+income70 =
+    hex 0x009AB496
 
 
 primary95 : E.Color
@@ -219,9 +234,19 @@ primary40 =
     hex 0x00286197
 
 
+primary35 : E.Color
+primary35 =
+    hex 0x00215485
+
+
 primary30 : E.Color
 primary30 =
     hex 0x001B4873
+
+
+primary20 : E.Color
+primary20 =
+    hex 0x000F304F
 
 
 greenApajh : E.Color

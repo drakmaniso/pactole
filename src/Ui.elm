@@ -1128,7 +1128,19 @@ roundButton context { label, color, onPress } =
                         Color.neutral80
 
                     DangerButton ->
-                        Color.warning50
+                        Color.warning40
+
+                    MainButton ->
+                        Color.primary20
+            ]
+        , E.mouseOver
+            [ Background.color <|
+                case color of
+                    PlainButton ->
+                        Color.neutral90
+
+                    DangerButton ->
+                        Color.warning55
 
                     MainButton ->
                         Color.primary30
@@ -1208,7 +1220,8 @@ incomeButton context { onPress, label } =
         , focusVisibleOnly
         , defaultShadow
         , E.padding (context.em // 4)
-        , E.mouseDown [ Background.color Color.income80, Border.color Color.income80 ]
+        , E.mouseDown [ Background.color Color.income70, Border.color Color.income70 ]
+        , E.mouseOver [ Background.color Color.income85, Border.color Color.income85 ]
         , E.htmlAttribute <| Html.Attributes.class "focus-visible-only"
         ]
         { onPress = Just onPress
@@ -1234,7 +1247,8 @@ expenseButton context { onPress, label } =
         , focusVisibleOnly
         , defaultShadow
         , E.padding (context.em // 4)
-        , E.mouseDown [ Background.color Color.expense80, Border.color Color.expense80 ]
+        , E.mouseDown [ Background.color Color.expense70, Border.color Color.expense70 ]
+        , E.mouseOver [ Background.color Color.expense85, Border.color Color.expense85 ]
         , focusVisibleOnly
         ]
         { onPress = Just onPress
