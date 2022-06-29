@@ -125,18 +125,27 @@ viewInstallation model installation =
                 , state = installation.initialBalance
                 , onChange = Msg.ForInstallation << Msg.ChangeInstallBalance
                 }
-            , Ui.verticalSpacer
-            , E.wrappedRow [ E.spacing 36 ]
-                [ Ui.roundButton model.context
-                    { label = E.text "Installer Pactole"
+            , E.row [ E.width E.fill ]
+                [ E.el [ E.width E.fill ] E.none
+                , Ui.roundButton model.context
+                    { label = E.text "Commencer"
                     , color = Ui.MainButton
                     , onPress = Msg.ProceedWithInstall |> Msg.ForInstallation
                     }
-                , Ui.roundButton model.context
-                    { label = E.text "Récupérer une sauvegarde"
-                    , color = Ui.PlainButton
-                    , onPress = Msg.ImportInstall |> Msg.ForInstallation
+                ]
+            , Ui.verticalSpacer
+            , Ui.paragraphParts
+                [ Ui.text
+                    """
+                    Si vous avez déjà utilisé Pactole sur un autre appareil,
+                    vous pouvez directement 
+                    """
+                , Ui.linkButton
+                    { label =
+                        Ui.text "récupérer une sauvegarde"
+                    , onPress = Just (Msg.ImportInstall |> Msg.ForInstallation)
                     }
+                , Ui.text "."
                 ]
             , Ui.verticalSpacer
             ]
