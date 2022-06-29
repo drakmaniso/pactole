@@ -154,7 +154,7 @@ titleBanner model =
         , E.spacing 12
         ]
         [ E.image [ E.alignLeft, E.height <| E.maximum 64 <| E.shrink ]
-            { src = "images/icon-512x512.png"
+            { src = "images/logo-512x512.png"
             , description = "Pactole Logo"
             }
         , E.el [ E.alignLeft, Ui.biggestFont model.context, Font.bold ] (E.text "Pactole")

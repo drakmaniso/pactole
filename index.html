@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 
 <head>
   <meta charset="UTF-8">
@@ -9,6 +9,7 @@
   <meta name="theme-color" content="#ffffff">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" sizes="512x512" href="images/icon-512x512.png">
+  <link rel="apple-touch-icon" href="images/icon-512x512.png">
 
   <style>
     @font-face {
@@ -440,7 +441,7 @@
     function selectImport() {
       var input = document.createElement("input")
       input.type = "file"
-      input.accept = "application/json,.json"
+      input.accept = ".json"
       input.addEventListener("change", processSelectedImportFile, false)
       input.click()
     }

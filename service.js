@@ -13,6 +13,7 @@ const files = [
   'fonts/andika-new-basic-v15-latin-regular.woff2',
   'fonts/andika-new-basic-v15-latin-700.woff2',
   'images/icon-512x512.png',
+  'images/logo-512x512.png',
 ]
 
 
