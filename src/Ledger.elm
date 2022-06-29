@@ -107,62 +107,62 @@ getTransactionsForDate (Ledger transactions) account date =
         |> List.filter (\t -> t.date == date)
 
 
-getTransactionsForMonth : Ledger -> Int -> Date -> Date -> List Transaction
-getTransactionsForMonth (Ledger transactions) account date today =
+getTransactionsForMonth : Ledger -> Int -> Date.MonthYear -> Date -> List Transaction
+getTransactionsForMonth (Ledger transactions) account monthYear today =
     transactions
         --TODO
         |> List.filter (\t -> t.account == account)
         |> List.filter
             (\t ->
                 (Date.compare t.date today /= GT)
-                    && (Date.getYear t.date == Date.getYear date)
-                    && (Date.getMonth t.date == Date.getMonth date)
+                    && (Date.getYear t.date == monthYear.year)
+                    && (Date.getMonth t.date == monthYear.month)
             )
         |> List.sortWith
             (\a b -> Date.compare a.date b.date)
 
 
-getTotalForMonth : Ledger -> Int -> Date -> Date -> Money.Money
-getTotalForMonth ledger account date today =
-    getTransactionsForMonth ledger account date today
+getTotalForMonth : Ledger -> Int -> Date.MonthYear -> Date -> Money.Money
+getTotalForMonth ledger account monthYear today =
+    getTransactionsForMonth ledger account monthYear today
         |> List.foldl
             (\t accum -> Money.add accum t.amount)
             Money.zero
 
 
-hasFutureTransactionsForMonth : Ledger -> Int -> Date -> Date -> Bool
-hasFutureTransactionsForMonth (Ledger transactions) account date today =
+hasFutureTransactionsForMonth : Ledger -> Int -> Date.MonthYear -> Date -> Bool
+hasFutureTransactionsForMonth (Ledger transactions) account monthYear today =
     transactions
         |> List.filter (\t -> t.account == account)
         |> List.any
             (\t ->
                 (Date.compare t.date today == GT)
-                    && (Date.getYear t.date == Date.getYear date)
-                    && (Date.getMonth t.date == Date.getMonth date)
+                    && (Date.getYear t.date == monthYear.year)
+                    && (Date.getMonth t.date == monthYear.month)
             )
 
 
-getIncomeForMonth : Ledger -> Int -> Date -> Date -> Money.Money
-getIncomeForMonth ledger account date today =
-    getTransactionsForMonth ledger account date today
+getIncomeForMonth : Ledger -> Int -> Date.MonthYear -> Date -> Money.Money
+getIncomeForMonth ledger account monthYear today =
+    getTransactionsForMonth ledger account monthYear today
         |> List.filter (\t -> not (Money.isExpense t.amount))
         |> List.foldl
             (\t accum -> Money.add accum t.amount)
             Money.zero
 
 
-getExpenseForMonth : Ledger -> Int -> Date -> Date -> Money.Money
-getExpenseForMonth ledger account date today =
-    getTransactionsForMonth ledger account date today
+getExpenseForMonth : Ledger -> Int -> Date.MonthYear -> Date -> Money.Money
+getExpenseForMonth ledger account monthYear today =
+    getTransactionsForMonth ledger account monthYear today
         |> List.filter (\t -> Money.isExpense t.amount)
         |> List.foldl
             (\t accum -> Money.add accum t.amount)
             Money.zero
 
 
-getCategoryTotalForMonth : Ledger -> Int -> Date -> Date -> Int -> Money.Money
-getCategoryTotalForMonth ledger account date today catID =
-    getTransactionsForMonth ledger account date today
+getCategoryTotalForMonth : Ledger -> Int -> Date.MonthYear -> Date -> Int -> Money.Money
+getCategoryTotalForMonth ledger account monthYear today catID =
+    getTransactionsForMonth ledger account monthYear today
         |> List.filter (\t -> Money.isExpense t.amount)
         |> List.filter (\t -> t.category == catID)
         |> List.foldl

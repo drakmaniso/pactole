@@ -76,9 +76,21 @@ view model data =
 
 
 viewDate : Model -> Model.TransactionData -> E.Element Msg
-viewDate model _ =
-    E.el [ E.width E.fill, E.paddingEach { left = 0, right = 0, top = 0, bottom = 0 // 2 } ]
-        (E.el [ E.centerX ] (Ui.viewDate model.context model.date))
+viewDate model data =
+    E.el [ E.width E.fill, E.paddingEach { left = 0, right = 0, top = 0, bottom = 0 // 2 } ] <|
+        E.el
+            [ E.width E.fill
+            , E.centerX
+            , Font.bold
+            , if model.context.density /= Ui.Comfortable then
+                Ui.defaultFontSize model.context
+
+              else
+                Ui.bigFont model.context
+            , Font.center
+            ]
+        <|
+            Ui.viewDate model.context data.date
 
 
 viewAmount : Model -> Model.TransactionData -> E.Element Msg
@@ -87,20 +99,12 @@ viewAmount model data =
         em =
             model.context.em
 
-        section =
-            case model.context.device.orientation of
-                E.Landscape ->
-                    Ui.dialogSectionRow
-
-                E.Portrait ->
-                    Ui.dialogSection
-
         isFuture =
             Date.compare data.date model.today == GT
 
         titleColor =
             if isFuture then
-                Color.neutral30
+                Color.neutral20
 
             else
                 Color.transactionColor data.isExpense
@@ -126,7 +130,7 @@ viewAmount model data =
                     "Entrée d'argent:"
     in
     if data.isRecurring then
-        section model.context
+        Ui.dialogSectionRow model.context
             titleText
             (E.el
                 [ Font.bold
@@ -139,10 +143,10 @@ viewAmount model data =
                 ]
                 (E.text
                     ((if data.isExpense then
-                        "-"
+                        "- "
 
                       else
-                        "+"
+                        "+ "
                      )
                         ++ Tuple.first data.amount
                         ++ " €"
@@ -151,7 +155,7 @@ viewAmount model data =
             )
 
     else
-        section model.context
+        Ui.dialogSectionRow model.context
             titleText
             (E.row [ E.width E.fill, E.padding 0, Font.color titleColor, Font.bold ]
                 [ E.el
@@ -160,13 +164,14 @@ viewAmount model data =
                     , Border.width 1
                     , Border.color (E.rgba 0 0 0 0)
                     , Ui.notSelectable
+                    , E.padding 0
                     ]
                     (E.el []
                         (if data.isExpense then
-                            E.text "-"
+                            E.text "- "
 
                          else
-                            E.text "+"
+                            E.text "+ "
                         )
                     )
                 , Ui.moneyInput model.context
@@ -204,7 +209,7 @@ viewDescription model data =
             (E.el
                 [ Border.width 1
                 , Border.color Color.transparent
-                , Font.color Color.neutral40
+                , Font.color Color.neutral20
                 ]
                 (E.text data.description)
             )
@@ -221,7 +226,7 @@ viewDescription model data =
                     [ Border.color Color.focus85
                     ]
                 , E.width E.fill
-                , Font.color Color.neutral20
+                , Font.color Color.neutral10
                 ]
                 { label = Input.labelHidden "Description:"
                 , text = data.description
@@ -309,10 +314,10 @@ viewCategories model data =
                        )
         in
         Ui.dialogSection model.context "Catégorie:" <|
-            E.column [ E.width E.fill ] <|
+            E.column [ E.width E.fill, E.spacing 4 ] <|
                 List.map
                     (\group ->
-                        E.row [ E.width E.fill ] <|
+                        E.row [ E.width E.fill, E.spacing 4 ] <|
                             List.map render group
                     )
                     categories
@@ -335,15 +340,26 @@ viewDeleteTransaction model id =
                 , content =
                     E.column [ E.width E.fill, E.spacing <| model.context.em ]
                         [ if Money.isExpense t.amount then
-                            E.paragraph [ Font.bold, E.centerX, Font.center ] [ E.text "Supprimer la dépense?" ]
+                            E.paragraph
+                                [ Ui.bigFont model.context
+                                , Font.bold
+                                , E.centerX
+                                , Font.center
+                                ]
+                                [ E.text "Supprimer la dépense?" ]
 
                           else
                             E.paragraph [ Font.bold, E.centerX, Font.center ] [ E.text "Supprimer l'entrée d'argent?" ]
-                        , E.paragraph []
+                        , Ui.verticalSpacer
+                        , E.row [ E.spacing <| model.context.em ]
+                            [ E.text "Date: "
+                            , Ui.viewDate model.context t.date
+                            ]
+                        , E.row []
                             [ E.text "Montant: "
                             , Ui.viewMoney model.context t.amount False
                             ]
-                        , E.paragraph []
+                        , E.row [ E.spacing <| model.context.em ]
                             [ E.text "Description: "
                             , E.text t.description
                             ]

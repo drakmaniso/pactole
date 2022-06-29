@@ -34,20 +34,26 @@ viewDesktop model =
 
 viewAccounts : Model -> E.Element Msg
 viewAccounts model =
+    let
+        em =
+            model.context.em
+    in
     case model.accounts |> Dict.toList |> List.sortBy (\( _, name ) -> name) of
         [ ( _, name ) ] ->
             E.el [ Ui.notSelectable, Font.center, E.centerX, E.centerY ]
                 (E.text name)
 
         accounts ->
-            E.el [ Font.center, E.centerX, E.centerY ] <|
-                Input.radioRow
+            E.column [ Font.center, E.centerX, E.centerY, E.height <| E.minimum (3 * em) <| E.fill ]
+                [ E.el [ E.height E.fill ] E.none
+                , Input.radioRow
                     [ E.width E.shrink
                     , Border.width 4
                     , Border.color Color.transparent
                     , Ui.focusVisibleOnly
                     , E.centerX
                     , E.centerY
+                    , E.spacing 4
                     ]
                     { onChange = Msg.SelectAccount
                     , selected = Just model.account
@@ -60,6 +66,8 @@ viewAccounts model =
                             )
                             accounts
                     }
+                , E.el [ E.height E.fill ] E.none
+                ]
 
 
 viewBalance : Model -> E.Element msg
@@ -83,7 +91,7 @@ viewBalance model =
 
         color =
             if Money.isGreaterOrEqualThan balance 0 then
-                Color.neutral30
+                Color.neutral20
 
             else
                 Color.warning60
@@ -98,13 +106,13 @@ viewBalance model =
 
           else
             Border.color Color.warning60
-        , Border.width 2
+        , Border.width 4
         ]
         [ if model.context.device.orientation == E.Landscape && model.context.height > 28 * em then
             E.el
                 [ Ui.smallFont model.context
                 , E.centerX
-                , Font.color Color.neutral40
+                , Font.color Color.neutral20
                 , Ui.notSelectable
                 ]
                 (E.text "Solde actuel:")
@@ -139,6 +147,7 @@ viewMobile model =
         ( "summary"
         , E.row
             [ E.width E.fill
+            , E.clipX
             , E.spacing <| model.context.em // 4
             , E.paddingXY (model.context.em // 4) (model.context.em // 2)
             ]
@@ -203,7 +212,7 @@ viewMobileBalance model =
 
         color =
             if Money.isGreaterOrEqualThan balance 0 then
-                Color.neutral30
+                Color.neutral20
 
             else
                 Color.warning60
@@ -218,7 +227,7 @@ viewMobileBalance model =
 
           else
             Border.color Color.warning60
-        , Border.width 2
+        , Border.width 4
         , Font.color color
         , Ui.notSelectable
         ]

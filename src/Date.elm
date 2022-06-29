@@ -1,11 +1,13 @@
 module Date exposing
     ( Date
+    , MonthYear
     , compare
+    , compareMonthYear
     , daysOfWeek
     , decode
     , decrementDay
     , decrementMonth
-    , decrementMonthUI
+    , decrementMonthYear
     , decrementWeek
     , default
     , encode
@@ -14,23 +16,27 @@ module Date exposing
     , findNextDayOfMonth
     , firstDayOf
     , firstDayOfMonth
+    , followingMonth
     , fromParts
     , getDay
     , getDayDiff
     , getMonth
-    , getMonthFullName
     , getMonthName
     , getMonthNumber
+    , getMonthYear
+    , getMonthYearName
     , getWeekday
     , getWeekdayName
     , getYear
     , incrementDay
     , incrementMonth
-    , incrementMonthUI
+    , incrementMonthYear
     , incrementWeek
     , lastDayOf
     , lastDayOfMonth
     , mondayOfWeek
+    , monthToInt
+    , previousMonth
     , toShortString
     , toString
     , weeksOfMonth
@@ -45,6 +51,121 @@ import Time
 
 type Date
     = Date Calendar.Date
+
+
+type alias MonthYear =
+    { month : Time.Month
+    , year : Int
+    }
+
+
+getMonthYear : Date -> MonthYear
+getMonthYear (Date date) =
+    { month = Calendar.getMonth date, year = Calendar.getYear date }
+
+
+compareMonthYear : MonthYear -> MonthYear -> Order
+compareMonthYear a b =
+    let
+        am =
+            Calendar.monthToInt a.month
+
+        bm =
+            Calendar.monthToInt b.month
+    in
+    if a.year < b.year then
+        LT
+
+    else if a.year > b.year then
+        GT
+
+    else
+        Basics.compare am bm
+
+
+monthToInt : Time.Month -> Int
+monthToInt month =
+    Calendar.monthToInt month
+
+
+previousMonth : Time.Month -> Time.Month
+previousMonth month =
+    case month of
+        Time.Jan ->
+            Time.Dec
+
+        Time.Feb ->
+            Time.Jan
+
+        Time.Mar ->
+            Time.Feb
+
+        Time.Apr ->
+            Time.Mar
+
+        Time.May ->
+            Time.Apr
+
+        Time.Jun ->
+            Time.May
+
+        Time.Jul ->
+            Time.Jun
+
+        Time.Aug ->
+            Time.Jul
+
+        Time.Sep ->
+            Time.Aug
+
+        Time.Oct ->
+            Time.Sep
+
+        Time.Nov ->
+            Time.Oct
+
+        Time.Dec ->
+            Time.Nov
+
+
+followingMonth : Time.Month -> Time.Month
+followingMonth month =
+    case month of
+        Time.Jan ->
+            Time.Feb
+
+        Time.Feb ->
+            Time.Mar
+
+        Time.Mar ->
+            Time.Apr
+
+        Time.Apr ->
+            Time.May
+
+        Time.May ->
+            Time.Jun
+
+        Time.Jun ->
+            Time.Jul
+
+        Time.Jul ->
+            Time.Aug
+
+        Time.Aug ->
+            Time.Sep
+
+        Time.Sep ->
+            Time.Oct
+
+        Time.Oct ->
+            Time.Nov
+
+        Time.Nov ->
+            Time.Dec
+
+        Time.Dec ->
+            Time.Jan
 
 
 default : Date
@@ -174,13 +295,9 @@ getMonthNumber m =
             12
 
 
-getMonthName : Date -> String
-getMonthName (Date d) =
-    let
-        m =
-            Calendar.getMonth d
-    in
-    case m of
+getMonthName : Time.Month -> String
+getMonthName month =
+    case month of
         Time.Jan ->
             "Janvier"
 
@@ -243,19 +360,13 @@ getWeekdayName (Date d) =
             "Dimanche"
 
 
-getMonthFullName : Date -> Date -> String
-getMonthFullName (Date _) (Date d) =
+getMonthYearName : MonthYear -> String
+getMonthYearName monthYear =
     let
         n =
-            getMonthName (Date d)
+            getMonthName monthYear.month
     in
-    {-
-       if Calendar.getYear d == Calendar.getYear today then
-           n
-
-       else
-    -}
-    n ++ " " ++ String.fromInt (Calendar.getYear d)
+    n ++ " " ++ String.fromInt monthYear.year
 
 
 toInt : Date -> Int
@@ -323,25 +434,16 @@ decrementMonth (Date date) =
     Date (Calendar.decrementMonth date)
 
 
-decrementMonthUI : Date -> Date -> Date
-decrementMonthUI (Date date) today =
-    let
-        d =
-            Date (Calendar.decrementMonth date)
-    in
-    if
-        getYear d
-            == getYear today
-            && getMonth d
-            == getMonth today
-    then
-        today
+decrementMonthYear : MonthYear -> MonthYear
+decrementMonthYear monthYear =
+    { month = previousMonth monthYear.month
+    , year =
+        if monthYear.month == Time.Jan then
+            monthYear.year - 1
 
-    else if compare d today == LT then
-        lastDayOf d
-
-    else
-        firstDayOf d
+        else
+            monthYear.year
+    }
 
 
 incrementMonth : Date -> Date
@@ -349,25 +451,16 @@ incrementMonth (Date date) =
     Date (Calendar.incrementMonth date)
 
 
-incrementMonthUI : Date -> Date -> Date
-incrementMonthUI (Date date) today =
-    let
-        d =
-            Date (Calendar.incrementMonth date)
-    in
-    if
-        getYear d
-            == getYear today
-            && getMonth d
-            == getMonth today
-    then
-        today
+incrementMonthYear : MonthYear -> MonthYear
+incrementMonthYear monthYear =
+    { month = followingMonth monthYear.month
+    , year =
+        if monthYear.month == Time.Dec then
+            monthYear.year + 1
 
-    else if compare d today == LT then
-        lastDayOf d
-
-    else
-        firstDayOf d
+        else
+            monthYear.year
+    }
 
 
 getDay : Date -> Int
@@ -443,22 +536,30 @@ getDayDiff (Date date1) (Date date2) =
     Calendar.getDayDiff date1 date2
 
 
-firstDayOfMonth : Date -> Date
-firstDayOfMonth date =
-    if getDay date == 1 then
-        date
+firstDayOfMonth : MonthYear -> Date
+firstDayOfMonth monthYear =
+    case Calendar.fromRawParts { day = 1, month = monthYear.month, year = monthYear.year } of
+        Just d ->
+            Date d
 
-    else
-        firstDayOfMonth (decrementDay date)
+        Nothing ->
+            default
 
 
-lastDayOfMonth : Date -> Date
-lastDayOfMonth date =
-    if getDay date == getDay (lastDayOf date) then
-        date
+lastDayOfMonth : MonthYear -> Date
+lastDayOfMonth monthYear =
+    let
+        firstDay =
+            case firstDayOfMonth monthYear of
+                Date d ->
+                    d
+    in
+    case Calendar.fromRawParts { day = Calendar.lastDayOf firstDay, month = monthYear.month, year = monthYear.year } of
+        Just d ->
+            Date d
 
-    else
-        lastDayOfMonth (incrementDay date)
+        Nothing ->
+            default
 
 
 mondayOfWeek : Date -> Date
@@ -485,14 +586,14 @@ daysOfWeek date =
     step <| mondayOfWeek date
 
 
-weeksOfMonth : Date -> List (List Date)
-weeksOfMonth date =
+weeksOfMonth : MonthYear -> List (List Date)
+weeksOfMonth monthYear =
     let
         firstDay =
-            mondayOfWeek <| firstDayOfMonth date
+            mondayOfWeek <| firstDayOfMonth monthYear
 
         lastDay =
-            lastDayOfMonth date
+            lastDayOfMonth monthYear
 
         step d =
             case ( compare d lastDay, getWeekday d ) of

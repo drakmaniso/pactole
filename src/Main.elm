@@ -111,7 +111,9 @@ init flags _ _ =
     ( { settings = Model.defaultSettings
       , today = today
       , isStoragePersisted = isStoragePersisted
-      , date = today
+      , monthDisplayed = Date.getMonthYear today
+      , monthPrevious = Date.getMonthYear today
+      , dateSelected = today
       , ledger = Ledger.empty
       , recurring = Ledger.empty
       , accounts = Dict.empty
@@ -120,7 +122,14 @@ init flags _ _ =
       , page = Model.LoadingPage
       , dialog = Nothing
       , serviceVersion = "unknown"
-      , context = Ui.classifyContext { width = width, height = height, fontSize = 0, deviceClass = Ui.AutoClass }
+      , context =
+            Ui.classifyContext
+                { width = width
+                , height = height
+                , fontSize = 0
+                , deviceClass = Ui.AutoClass
+                , animationDisabled = False
+                }
       , errors = []
       }
     , Cmd.none
@@ -135,7 +144,7 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Msg.ChangePage page ->
-            ( { model | page = page }
+            ( { model | page = page, monthPrevious = model.monthDisplayed }
             , Cmd.none
             )
 
@@ -163,47 +172,32 @@ update msg model =
         Msg.OnPopState () ->
             case ( model.dialog, model.page ) of
                 ( Just _, _ ) ->
-                    ( { model | dialog = Nothing }, Cmd.none )
+                    ( { model | dialog = Nothing, monthPrevious = model.monthDisplayed }, Cmd.none )
 
                 ( Nothing, Model.CalendarPage ) ->
                     ( model, Ports.historyBack () )
 
                 ( Nothing, Model.SettingsPage ) ->
-                    ( { model | page = Model.HelpPage }, Cmd.none )
+                    ( { model | page = Model.HelpPage, monthPrevious = model.monthDisplayed }, Cmd.none )
 
                 ( Nothing, _ ) ->
-                    ( { model | page = Model.CalendarPage }, Cmd.none )
+                    ( { model | page = Model.CalendarPage, monthPrevious = model.monthDisplayed }, Cmd.none )
 
         Msg.SelectDate date ->
-            ( { model | date = date }, Cmd.none )
+            ( { model | dateSelected = date }, Cmd.none )
+
+        Msg.DisplayMonth monthYear ->
+            ( { model | monthDisplayed = monthYear, monthPrevious = model.monthDisplayed }, Cmd.none )
 
         Msg.OnLeftSwipe () ->
-            if hasWeekDisplay model then
-                ( { model | date = Date.incrementWeek model.date }
-                , Cmd.none
-                )
-
-            else if hasMonthDisplay model then
-                ( { model | date = Date.incrementMonthUI model.date model.today }
-                , Cmd.none
-                )
-
-            else
-                ( model, Cmd.none )
+            ( { model | monthDisplayed = Date.incrementMonthYear model.monthDisplayed, monthPrevious = model.monthDisplayed }
+            , Cmd.none
+            )
 
         Msg.OnRightSwipe () ->
-            if hasWeekDisplay model then
-                ( { model | date = Date.decrementWeek model.date }
-                , Cmd.none
-                )
-
-            else if hasMonthDisplay model then
-                ( { model | date = Date.decrementMonthUI model.date model.today }
-                , Cmd.none
-                )
-
-            else
-                ( model, Cmd.none )
+            ( { model | monthDisplayed = Date.decrementMonthYear model.monthDisplayed, monthPrevious = model.monthDisplayed }
+            , Cmd.none
+            )
 
         Msg.SelectAccount accountID ->
             --TODO: check that accountID corresponds to an account
@@ -220,6 +214,7 @@ update msg model =
                         , height = size.height
                         , fontSize = model.settings.fontSize
                         , deviceClass = model.settings.deviceClass
+                        , animationDisabled = model.settings.animationDisabled
                         }
             in
             if size.width == model.context.width && abs heightChange > 0.1 then
@@ -243,36 +238,6 @@ update msg model =
 
         Msg.NoOp ->
             ( model, Cmd.none )
-
-
-hasWeekDisplay : Model -> Bool
-hasWeekDisplay model =
-    let
-        device =
-            model.context.device
-    in
-    case model.page of
-        Model.CalendarPage ->
-            device.class == E.Phone && device.orientation == E.Landscape
-
-        _ ->
-            False
-
-
-hasMonthDisplay : Model -> Bool
-hasMonthDisplay model =
-    case model.page of
-        Model.CalendarPage ->
-            True
-
-        Model.StatisticsPage ->
-            True
-
-        Model.ReconcilePage ->
-            True
-
-        _ ->
-            False
 
 
 
@@ -310,14 +275,11 @@ view model =
             model.context.device
 
         activePage =
-            case ( device.orientation, device.class ) of
-                ( E.Landscape, E.Phone ) ->
-                    viewPortraitPage model
-
-                ( E.Landscape, _ ) ->
+            case device.orientation of
+                E.Landscape ->
                     viewLandscapePage model
 
-                ( E.Portrait, _ ) ->
+                E.Portrait ->
                     viewPortraitPage model
 
         activeDialog =
@@ -331,7 +293,7 @@ view model =
                                 , Ui.fontFamily model.settings.font
                                 , Ui.defaultFontSize model.context
                                 , Background.color Color.white
-                                , Font.color Color.neutral30
+                                , Font.color Color.neutral20
                                 , E.scrollbarY
                                 ]
                             <|
@@ -352,7 +314,7 @@ view model =
                                 , Ui.fontFamily model.settings.font
                                 , Ui.defaultFontSize model.context
                                 , Background.color Color.white
-                                , Font.color Color.neutral30
+                                , Font.color Color.neutral20
                                 , E.scrollbarY
                                 ]
                             <|
@@ -404,8 +366,12 @@ viewLandscapePage model =
 
         Model.CalendarPage ->
             pageWithSidePanel model
-                { panel = panelWithTwoParts { top = Summary.viewDesktop model, bottom = Calendar.dayView model }
-                , page = Calendar.viewMonth model
+                { panel =
+                    panelWithTwoParts
+                        { top = Summary.viewDesktop model
+                        , bottom = Calendar.viewSelectedDate model
+                        }
+                , page = Calendar.viewContent model
                 }
 
         Model.DiagnosticsPage ->
@@ -445,20 +411,13 @@ viewPortraitPage model =
                 ]
 
         Model.CalendarPage ->
-            case model.context.device.orientation of
-                E.Portrait ->
-                    pageWithTopNavBar model
-                        [ Summary.viewMobile model ]
-                        [ E.el [ E.width E.fill, E.height <| E.fillPortion 1 ] <|
-                            Calendar.viewMonth model
-                        , E.el [ E.width E.fill, E.height <| E.fillPortion 1 ] <|
-                            Calendar.dayView model
-                        ]
-
-                E.Landscape ->
-                    pageWithTopNavBar model
-                        []
-                        [ Calendar.viewWeek model ]
+            pageWithTopNavBar model
+                [ Summary.viewMobile model ]
+                [ E.el [ E.width E.fill, E.height <| E.fillPortion 1 ] <|
+                    Calendar.viewContent model
+                , E.el [ E.width E.fill, E.height <| E.fillPortion 1 ] <|
+                    Calendar.viewSelectedDate model
+                ]
 
         Model.DiagnosticsPage ->
             pageWithTopNavBar model [] [ Diagnostics.view model ]
@@ -533,7 +492,7 @@ document model { page, maybeDialog } =
                 , E.height E.fill
                 , Ui.fontFamily model.settings.font
                 , Ui.defaultFontSize model.context
-                , Font.color Color.neutral30
+                , Font.color Color.neutral20
                 , Background.color Color.white
                 , case maybeDialog of
                     Just dialog ->
@@ -567,7 +526,7 @@ document model { page, maybeDialog } =
                         E.none
 
                     ( _, False ) ->
-                        warningBanner "Attention: le stockage n'est pas persistant!"
+                        warningBanner "Attention: le stockage des données n'a pas été autorisé! Veuillez mettre cette page dans vos favoris."
 
                     ( _, True ) ->
                         E.none
@@ -587,27 +546,26 @@ warningBanner txt =
         , E.htmlAttribute <| Html.Attributes.style "z-index" "3"
         , Ui.defaultShadow
         ]
-        [ E.el [ E.width E.fill ] E.none
-        , E.el
+        [ E.paragraph
             [ Font.color Color.white
             , E.centerX
             , E.padding 3
+            , Font.center
             ]
-            (E.text txt)
-        , E.el [ E.width E.fill ] E.none
+            [ E.text txt ]
         ]
 
 
 pageWithSidePanel : Model -> { panel : E.Element Msg, page : E.Element Msg } -> E.Element Msg
 pageWithSidePanel model { panel, page } =
     E.row
-        [ E.width E.fill
+        [ E.width <| E.fill
         , E.height E.fill
         , E.spacing 3
         , E.clip
         ]
         [ E.column
-            [ E.width (E.fillPortion 1)
+            [ E.width <| E.minimum (15 * model.context.em) <| E.fillPortion 1
             , E.height E.fill
             , E.htmlAttribute <| Html.Attributes.class "panel-shadow"
             , E.htmlAttribute <| Html.Attributes.style "z-index" "2"
@@ -652,6 +610,7 @@ pageWithTopNavBar model topElements elements =
             [ E.column
                 [ E.width E.fill
                 , E.htmlAttribute <| Html.Attributes.class "panel-shadow"
+                , E.htmlAttribute <| Html.Attributes.style "z-index" "2"
                 ]
                 (navigationBar model :: topElements)
             , E.column
@@ -679,38 +638,21 @@ navigationBar model =
             model.context.em
 
         width =
-            case ( model.context.device.orientation, model.context.device.class ) of
-                ( E.Landscape, E.Phone ) ->
-                    model.context.width
-
-                ( E.Landscape, _ ) ->
+            case model.context.device.orientation of
+                E.Landscape ->
                     model.context.width // 3
 
-                ( E.Portrait, _ ) ->
+                E.Portrait ->
                     model.context.width
 
-        optional flag s =
-            if flag then
-                s
-
-            else
-                0
-
         compact =
-            width
-                < (6
-                    + optional model.settings.summaryEnabled 6
-                    + optional model.settings.reconciliationEnabled 6
-                  )
-                * em
-
-        extraCompact =
-            width < 14 * em
+            model.settings.summaryEnabled
+                && model.settings.reconciliationEnabled
+                && (width < 22 * em)
 
         navigationButton { targetPage, label } =
             Input.button
                 [ E.padding <| model.context.em // 2
-                , Ui.transition
                 , Border.color Color.transparent
                 , Background.color
                     (if model.page == targetPage then
@@ -732,7 +674,7 @@ navigationBar model =
                             Color.primary30
 
                          else
-                            Color.primary80
+                            Color.primary70
                         )
                     ]
                 , E.mouseOver
@@ -741,7 +683,7 @@ navigationBar model =
                             Color.primary40
 
                          else
-                            Color.primary90
+                            Color.primary80
                         )
                     ]
                 , E.height E.fill
@@ -760,17 +702,7 @@ navigationBar model =
         [ ( "home button"
           , navigationButton
                 { targetPage = Model.CalendarPage
-                , label =
-                    if extraCompact then
-                        -- E.image [ E.width <| E.px <| model.context.bigEm ]
-                        --     { src = "images/icon-512x512.png"
-                        --     , description = "Pactole Logo"
-                        --     }
-                        E.el [ Ui.iconFont, Ui.bigFont model.context ] (E.text "\u{F133}")
-                        -- F4D3, F153, F133
-
-                    else
-                        E.text "Pactole"
+                , label = E.text "Pactole"
                 }
           )
         , ( "statistics button"
@@ -840,7 +772,7 @@ logoPanel _ =
             (E.row [ E.width E.fill, E.centerY ]
                 [ E.el [ E.width E.fill, E.height E.fill ] E.none
                 , E.image [ E.width (E.fillPortion 2) ]
-                    { src = "images/icon-512x512.png"
+                    { src = "images/logo-512x512.png"
                     , description = "Pactole Logo"
                     }
                 , E.el [ E.width E.fill, E.height E.fill ] E.none

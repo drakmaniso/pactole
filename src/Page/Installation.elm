@@ -121,22 +121,31 @@ viewInstallation model installation =
                 }
             , Ui.moneyInput model.context
                 { label = Ui.labelLeft model.context "Solde initial:"
-                , color = Color.neutral20
+                , color = Color.neutral10
                 , state = installation.initialBalance
                 , onChange = Msg.ForInstallation << Msg.ChangeInstallBalance
                 }
-            , Ui.verticalSpacer
-            , E.wrappedRow [ E.spacing 36 ]
-                [ Ui.roundButton model.context
-                    { label = E.text "Installer Pactole"
+            , E.row [ E.width E.fill ]
+                [ E.el [ E.width E.fill ] E.none
+                , Ui.roundButton model.context
+                    { label = E.text "Commencer"
                     , color = Ui.MainButton
                     , onPress = Msg.ProceedWithInstall |> Msg.ForInstallation
                     }
-                , Ui.roundButton model.context
-                    { label = E.text "Récupérer une sauvegarde"
-                    , color = Ui.PlainButton
-                    , onPress = Msg.ImportInstall |> Msg.ForInstallation
+                ]
+            , Ui.verticalSpacer
+            , Ui.paragraphParts
+                [ Ui.text
+                    """
+                    Si vous avez déjà utilisé Pactole sur un autre appareil,
+                    vous pouvez directement 
+                    """
+                , Ui.linkButton
+                    { label =
+                        Ui.text "récupérer une sauvegarde"
+                    , onPress = Just (Msg.ImportInstall |> Msg.ForInstallation)
                     }
+                , Ui.text "."
                 ]
             , Ui.verticalSpacer
             ]
@@ -154,7 +163,7 @@ titleBanner model =
         , E.spacing 12
         ]
         [ E.image [ E.alignLeft, E.height <| E.maximum 64 <| E.shrink ]
-            { src = "images/icon-512x512.png"
+            { src = "images/logo-512x512.png"
             , description = "Pactole Logo"
             }
         , E.el [ E.alignLeft, Ui.biggestFont model.context, Font.bold ] (E.text "Pactole")

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 
 <head>
   <meta charset="UTF-8">
@@ -9,6 +9,7 @@
   <meta name="theme-color" content="#ffffff">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" sizes="512x512" href="images/icon-512x512.png">
+  <link rel="apple-touch-icon" href="images/icon-512x512.png">
 
   <style>
     @font-face {
@@ -100,22 +101,124 @@
         0px 1px 1px 0px rgba(0, 0, 0, 0.16)
     }
 
-    .button-transition {
-      transition-property: background-color, color, border-color, box-shadow;
-      transition-duration: 0.125s;
-      transition-timing-function: ease-in;
+    .round-button:active {
+      transform: translate(0, 2px);
     }
 
-    .button-transition:hover {
-      transition-property: background-color, color, border-color, box-shadow;
-      transition-duration: 0.125s;
-      transition-timing-function: ease-out;
+    .no-slide {
+      transform: translate(0, 0);
     }
 
-    .button-transition:down {
-      transition-property: background-color, color, border-color, box-shadow;
-      transition-duration: 0.125s;
-      transition-timing-function: ease-in;
+    .slide-from-left-0 {
+      animation: slide-from-left-0 0.3s ease;
+    }
+
+    .slide-from-left-1 {
+      animation: slide-from-left-1 0.3s ease;
+    }
+
+    .slide-from-right-0 {
+      animation: slide-from-right-0 0.3s ease;
+    }
+
+    .slide-from-right-1 {
+      animation: slide-from-right-1 0.3s ease;
+    }
+
+    @keyframes slide-from-left-0 {
+      from {
+        transform: translateX(-100%);
+      }
+
+      to {
+        transform: translateX(0%);
+      }
+    }
+
+    @keyframes slide-from-left-1 {
+      from {
+        transform: translateX(-100%);
+      }
+
+      to {
+        transform: translateX(0%);
+      }
+    }
+
+    @keyframes slide-from-right-0 {
+      from {
+        transform: translateX(100%);
+      }
+
+      to {
+        transform: translateX(0%);
+      }
+    }
+
+    @keyframes slide-from-right-1 {
+      from {
+        transform: translateX(100%);
+      }
+
+      to {
+        transform: translateX(0%);
+      }
+    }
+
+    .slide-to-left-0 {
+      animation: slide-to-left-0 0.3s ease;
+    }
+
+    .slide-to-left-1 {
+      animation: slide-to-left-1 0.3s ease;
+    }
+
+    .slide-to-right-0 {
+      animation: slide-to-right-0 0.3s ease;
+    }
+
+    .slide-to-right-1 {
+      animation: slide-to-right-1 0.3s ease;
+    }
+
+    @keyframes slide-to-left-0 {
+      from {
+        transform: translateX(0%);
+      }
+
+      to {
+        transform: translateX(100%);
+      }
+    }
+
+    @keyframes slide-to-left-1 {
+      from {
+        transform: translateX(0%);
+      }
+
+      to {
+        transform: translateX(100%);
+      }
+    }
+
+    @keyframes slide-to-right-0 {
+      from {
+        transform: translateX(0%);
+      }
+
+      to {
+        transform: translateX(-100%);
+      }
+    }
+
+    @keyframes slide-to-right-1 {
+      from {
+        transform: translateX(0%);
+      }
+
+      to {
+        transform: translateX(-100%);
+      }
     }
   </style>
   <script src="elm.js"></script>
@@ -242,11 +345,11 @@
               const xDiff = x - xTouch
               const yDiff = y - yTouch
               if (Math.abs(xDiff) > Math.abs(yDiff)) {
-                if (xDiff > 100) {
+                if (xDiff > 50) {
                   xTouch = null
                   yTouch = null
                   app.ports.onRightSwipe.send(null)
-                } else if (xDiff < -100) {
+                } else if (xDiff < -50) {
                   xTouch = null
                   yTouch = null
                   app.ports.onLeftSwipe.send(null)
@@ -331,7 +434,7 @@
     function selectImport() {
       var input = document.createElement("input")
       input.type = "file"
-      input.accept = "application/json,.json"
+      input.accept = ".json"
       input.addEventListener("change", processSelectedImportFile, false)
       input.click()
     }

@@ -4,6 +4,7 @@ import Date exposing (Date)
 import Element as E
 import Element.Background as Background
 import Element.Font as Font
+import Html.Attributes
 import Ledger
 import Model exposing (Model)
 import Msg exposing (Msg)
@@ -13,6 +14,10 @@ import Ui.Color as Color
 
 viewContent : Model -> E.Element Msg
 viewContent model =
+    let
+        ( anim, animPrevious ) =
+            Ui.animationClasses model.context model.monthDisplayed model.monthPrevious
+    in
     E.column
         [ E.width E.fill
         , E.height E.fill
@@ -23,20 +28,39 @@ viewContent model =
             else
                 0
         ]
-        [ Ui.monthNavigationBar model.context model Msg.SelectDate
-        , viewReconciled model
-        , viewTransactions model
+        [ Ui.monthNavigationBar model.context model.monthDisplayed Msg.DisplayMonth
+        , E.el
+            [ E.width E.fill
+            , E.height E.fill
+            , E.clipX
+            , E.behindContent <|
+                if model.context.animationDisabled then
+                    E.none
+
+                else
+                    viewAnimatedContent model model.monthPrevious animPrevious
+            ]
+            (viewAnimatedContent model model.monthDisplayed anim)
         ]
 
 
-viewReconciled : Model -> E.Element msg
-viewReconciled model =
-    let
-        prevMonth =
-            Date.getMonthName (Date.decrementMonth model.date)
-    in
+viewAnimatedContent : Model -> Date.MonthYear -> String -> E.Element Msg
+viewAnimatedContent model monthYear anim =
     E.column
-        [ E.width E.fill, E.paddingXY 48 24, E.spacing 24, Font.color Color.neutral30 ]
+        [ E.width E.fill
+        , E.height E.fill
+        , E.htmlAttribute <| Html.Attributes.class anim
+        , Background.color Color.white
+        ]
+        [ viewReconciled model monthYear
+        , viewTransactions model monthYear
+        ]
+
+
+viewReconciled : Model -> Date.MonthYear -> E.Element msg
+viewReconciled model monthYear =
+    E.column
+        [ E.width E.fill, E.padding <| model.context.em, E.spacing 24, Font.color Color.neutral20 ]
         [ E.row
             [ E.width E.fill ]
             [ E.el [ E.width E.fill ] E.none
@@ -44,12 +68,11 @@ viewReconciled model =
             , Ui.viewSum model.context (Ledger.getReconciled model.ledger model.account)
             , E.el [ E.width E.fill ] E.none
             ]
-        , if Ledger.getNotReconciledBeforeMonth model.ledger model.account model.date then
+        , if Ledger.getNotReconciledBeforeMonth model.ledger model.account (Date.firstDayOfMonth monthYear) then
             E.el
                 [ E.width E.fill, Font.center ]
                 (E.paragraph []
-                    [ E.text "Attention: il reste des opérations à pointer en "
-                    , E.el [ Font.bold ] (E.text prevMonth)
+                    [ E.text "Attention: il reste des opérations à pointer dans les mois précédents"
                     ]
                 )
 
@@ -58,8 +81,8 @@ viewReconciled model =
         ]
 
 
-viewTransactions : Model -> E.Element Msg
-viewTransactions model =
+viewTransactions : Model -> Date.MonthYear -> E.Element Msg
+viewTransactions model monthYear =
     let
         em =
             model.context.em
@@ -67,7 +90,7 @@ viewTransactions model =
     E.column
         [ E.width E.fill
         , E.height E.fill
-        , Font.color Color.neutral30
+        , Font.color Color.neutral20
         ]
         (List.indexedMap
             (\idx transaction ->
@@ -115,7 +138,7 @@ viewTransactions model =
                             ]
                     )
             )
-            (Ledger.getTransactionsForMonth model.ledger model.account model.date model.today)
+            (Ledger.getTransactionsForMonth model.ledger model.account monthYear model.today)
         )
 
 

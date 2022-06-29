@@ -343,7 +343,6 @@ msgFromService ( title, content ) model =
                         , categories = Dict.fromList db.categories
                         , ledger = db.ledger
                         , recurring = db.recurring
-                        , serviceVersion = db.serviceVersion
                         , page =
                             if List.isEmpty db.accounts then
                                 Model.InstallationPage defaultInstallationData
@@ -356,6 +355,7 @@ msgFromService ( title, content ) model =
                                 , height = model.context.height
                                 , fontSize = db.settings.fontSize
                                 , deviceClass = db.settings.deviceClass
+                                , animationDisabled = db.settings.animationDisabled
                                 }
                       }
                     , if not (List.isEmpty db.accounts) then
@@ -385,6 +385,7 @@ msgFromService ( title, content ) model =
                                 , height = device.height
                                 , fontSize = settings.fontSize
                                 , deviceClass = settings.deviceClass
+                                , animationDisabled = settings.animationDisabled
                                 }
                       }
                     , Cmd.none

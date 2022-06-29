@@ -302,6 +302,17 @@ configAppearance model =
     E.column
         [ E.width E.fill, E.spacing 24 ]
         [ Ui.title model.context "Apparence"
+        , Ui.toggleSwitch model.context
+            { onChange =
+                \o ->
+                    if o then
+                        Msg.ForDatabase <| Msg.StoreSettings { settings | animationDisabled = False }
+
+                    else
+                        Msg.ForDatabase <| Msg.StoreSettings { settings | animationDisabled = True }
+            , label = "animations"
+            , checked = not model.settings.animationDisabled
+            }
         , E.wrappedRow [ E.spacing 12 ]
             [ Ui.paragraph "Taille du texte:"
             , Ui.flatButton

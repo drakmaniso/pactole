@@ -1,16 +1,42 @@
 {
-    "name": "Pactole",
-    "short_name": "Pactole",
+	"name": "Pactole",
+	"short_name": "Pactole",
 	"icons": [
-	{
-	  "src": "images/icon-512x512.png",
-	  "sizes": "512x512",
-	  "type": "image/png"
-	}
+		{
+			"src": "images/icon-512x512.png",
+			"sizes": "512x512",
+			"type": "image/png",
+			"purpose": "maskable"
+		},
+		{
+			"src": "images/logo-512x512.png",
+			"sizes": "512x512",
+			"type": "image/png"
+		}
 	],
 	"splash_pages": null,
-    "start_url": "./",
-    "display": "standalone",
-    "background_color": "#ffffff",
-    "theme_color": "#f9584a"
+	"start_url": "./",
+	"display": "standalone",
+	"background_color": "#ffffff",
+	"theme_color": "#536C18",
+	"orientation": "natural",
+	"screenshots": [
+		{
+			"src": "images/screenshot-360x640.webp",
+			"sizes": "360x640",
+			"type": "image/webp",
+			"platform": "narrow",
+			"label": "Screenshot of Pactole"
+		},
+		{
+			"src": "images/screenshot-1280x720.webp",
+			"sizes": "1280x720",
+			"type": "image/webp",
+			"platform": "wide",
+			"label": "Screenshot of Pactole"
+		}
+	],
+	"categories": [
+		"finance"
+	]
 }

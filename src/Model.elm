@@ -36,7 +36,9 @@ import Ui
 type alias Model =
     { today : Date
     , isStoragePersisted : Bool
-    , date : Date
+    , monthDisplayed : Date.MonthYear
+    , monthPrevious : Date.MonthYear
+    , dateSelected : Date
     , account : Int
     , page : Page
     , dialog : Maybe Dialog
@@ -183,6 +185,7 @@ type alias Settings =
     , font : String
     , fontSize : Int
     , deviceClass : Ui.DeviceClass
+    , animationDisabled : Bool
     }
 
 
@@ -195,6 +198,7 @@ defaultSettings =
     , font = "Andika New Basic"
     , fontSize = 0
     , deviceClass = Ui.AutoClass
+    , animationDisabled = False
     }
 
 
@@ -208,13 +212,14 @@ encodeSettings settings =
         , ( "font", Encode.string settings.font )
         , ( "fontSize", Encode.int settings.fontSize )
         , ( "deviceClass", Ui.encodeDeviceClass settings.deviceClass )
+        , ( "animationDisabled", Encode.bool settings.animationDisabled )
         ]
 
 
 decodeSettings : Decode.Decoder Settings
 decodeSettings =
-    Decode.map7
-        (\cat rec summ balwarn font fontSize deviceClass ->
+    Decode.map8
+        (\cat rec summ balwarn font fontSize deviceClass animationDisabled ->
             { categoriesEnabled = cat
             , reconciliationEnabled = rec
             , summaryEnabled = summ
@@ -222,6 +227,7 @@ decodeSettings =
             , font = font
             , fontSize = fontSize
             , deviceClass = deviceClass
+            , animationDisabled = animationDisabled
             }
         )
         (Decode.oneOf [ Decode.field "categoriesEnabled" Decode.bool, Decode.succeed False ])
@@ -231,6 +237,7 @@ decodeSettings =
         (Decode.oneOf [ Decode.field "font" Decode.string, Decode.succeed "Andika New Basic" ])
         (Decode.oneOf [ Decode.field "fontSize" Decode.int, Decode.succeed 0 ])
         (Decode.oneOf [ Decode.field "deviceClass" Ui.decodeDeviceClass, Decode.succeed Ui.AutoClass ])
+        (Decode.oneOf [ Decode.field "animationDisabled" Decode.bool, Decode.succeed False])
 
 
 

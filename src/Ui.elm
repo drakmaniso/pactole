@@ -3,6 +3,7 @@ module Ui exposing
     , Context
     , Density(..)
     , DeviceClass(..)
+    , animationClasses
     , backIcon
     , bigFont
     , bigWarningIcon
@@ -66,7 +67,6 @@ module Ui exposing
     , textInput
     , title
     , toggleSwitch
-    , transition
     , verticalSpacer
     , viewDate
     , viewIcon
@@ -75,7 +75,6 @@ module Ui exposing
     , warningIcon
     , warningParagraph
     , warningPopup
-    , weekNavigationBar
     )
 
 import Date exposing (Date)
@@ -105,6 +104,7 @@ type alias Context =
     , em : Int
     , smallEm : Int
     , density : Density
+    , animationDisabled : Bool
     }
 
 
@@ -152,8 +152,8 @@ decodeDeviceClass =
             )
 
 
-classifyContext : { width : Int, height : Int, fontSize : Int, deviceClass : DeviceClass } -> Context
-classifyContext { width, height, fontSize, deviceClass } =
+classifyContext : { width : Int, height : Int, fontSize : Int, deviceClass : DeviceClass, animationDisabled : Bool } -> Context
+classifyContext { width, height, fontSize, deviceClass, animationDisabled } =
     let
         autoDevice =
             E.classifyDevice { width = width, height = height }
@@ -220,6 +220,7 @@ classifyContext { width, height, fontSize, deviceClass } =
     , em = em
     , smallEm = scale { em = em } -1
     , density = density
+    , animationDisabled = animationDisabled
     }
 
 
@@ -270,11 +271,6 @@ notSelectable =
 focusVisibleOnly : E.Attribute msg
 focusVisibleOnly =
     E.htmlAttribute <| Html.Attributes.class "focus-visible-only"
-
-
-transition : E.Attribute msg
-transition =
-    E.htmlAttribute <| Html.Attributes.class "button-transition"
 
 
 defaultShadow : E.Attribute msg
@@ -529,7 +525,6 @@ toggleSwitch context { label, checked, onChange } =
                                 , Border.rounded context.em
                                 , Background.color Color.primary85
                                 , innerShadow
-                                , transition
                                 ]
                                 E.none
                         , E.inFront <|
@@ -542,9 +537,6 @@ toggleSwitch context { label, checked, onChange } =
                                 , Border.rounded context.em
                                 , Background.color Color.primary40
                                 , smallShadow
-                                , transition
-                                , E.mouseOver [ Background.color Color.primary50 ]
-                                , E.mouseDown [ Background.color Color.primary30 ]
                                 ]
                                 E.none
                         ]
@@ -563,7 +555,6 @@ toggleSwitch context { label, checked, onChange } =
                                 , Border.rounded context.em
                                 , Background.color Color.neutral95
                                 , innerShadow
-                                , transition
                                 ]
                                 E.none
                         , E.inFront <|
@@ -576,9 +567,6 @@ toggleSwitch context { label, checked, onChange } =
                                 , Border.rounded context.em
                                 , Background.color Color.neutral70
                                 , smallShadow
-                                , transition
-                                , E.mouseOver [ Background.color Color.neutral80 ]
-                                , E.mouseDown [ Background.color Color.neutral60 ]
                                 ]
                                 E.none
                         ]
@@ -665,28 +653,27 @@ radioRowOption value element =
         (\state ->
             E.el
                 ([ E.centerX
+                 , E.centerY
                  , E.paddingXY 16 7
                  , Border.rounded 3
-                 , transition
+                 , Border.width 4
+                 , Border.color Color.transparent
                  ]
                     ++ (case state of
                             Input.Idle ->
-                                [ Font.color Color.neutral30
-                                , E.mouseDown [ Background.color Color.neutral90 ]
+                                [ Font.color Color.neutral20
+                                , E.mouseDown [ Background.color Color.neutral80 ]
                                 , E.mouseOver [ Background.color Color.neutral95 ]
                                 ]
 
                             Input.Focused ->
-                                [ E.mouseDown [ Background.color Color.neutral90 ]
-                                , E.mouseOver [ Background.color Color.neutral95 ]
-                                ]
+                                []
 
                             Input.Selected ->
                                 [ Font.color (E.rgb 1 1 1)
                                 , Background.color Color.primary40
                                 , smallShadow
                                 , E.mouseDown [ Background.color Color.primary30 ]
-                                , E.mouseOver [ Background.color Color.primary40 ]
                                 ]
                        )
                 )
@@ -733,7 +720,7 @@ pageTitle context element =
             , E.centerY
             , Background.color Color.neutral95
             , Border.roundEach { topLeft = 32, bottomLeft = 32, topRight = 32, bottomRight = 32 }
-            , Font.color Color.neutral40
+            , Font.color Color.neutral20
             , Font.center
             , smallShadow
             ]
@@ -745,7 +732,7 @@ dialogSectionRow : Context -> String -> E.Element msg -> E.Element msg
 dialogSectionRow context titleText content =
     E.row [ E.width E.fill, E.spacing <| context.em ]
         [ E.el
-            [ Font.color Color.neutral30
+            [ Font.color Color.neutral20
 
             -- , Font.bold
             , E.padding 0
@@ -761,7 +748,7 @@ dialogSection context titleText content =
     E.column [ E.width E.fill, E.spacing <| context.em // 2 ]
         [ E.el
             [ E.width E.fill
-            , Font.color Color.neutral30
+            , Font.color Color.neutral20
 
             -- , Font.bold
             , E.padding 0
@@ -775,7 +762,7 @@ dialogSection context titleText content =
 warningParagraph : List (E.Element msg) -> E.Element msg
 warningParagraph elements =
     E.row
-        [ Font.color Color.neutral20
+        [ Font.color Color.neutral10
         , E.centerY
         , E.spacing 12
         , E.width E.fill
@@ -802,7 +789,7 @@ warningPopup context elements =
             , E.spacing 12
             , E.height (E.shrink |> E.minimum 48)
             , E.centerX
-            , E.paddingEach { left = 24, right = 24, top = 12, bottom = 12 }
+            , E.paddingEach { left = 12, right = 12, top = 12, bottom = 12 }
             , E.spacing 6
             , Border.rounded 6
             , E.spacing 12
@@ -818,7 +805,11 @@ warningPopup context elements =
                     ]
                 <|
                     E.text "\u{F0D8}"
-            , E.width <| E.px 380
+            , if context.device.orientation == E.Landscape then
+                E.width <| E.px 360
+
+              else
+                E.width <| E.px 240
             , Font.center
             , Font.regular
             , notSelectable
@@ -827,8 +818,8 @@ warningPopup context elements =
             elements
 
 
-monthNavigationBar : Context -> { a | date : Date, today : Date } -> (Date -> msg) -> E.Element msg
-monthNavigationBar context model changeMsg =
+monthNavigationBar : Context -> Date.MonthYear -> (Date.MonthYear -> msg) -> E.Element msg
+monthNavigationBar context monthDisplayed changeMsg =
     let
         em =
             context.em
@@ -869,27 +860,26 @@ monthNavigationBar context model changeMsg =
                         [ E.width E.fill
                         , E.height E.fill
                         , Border.roundEach { topLeft = 32, bottomLeft = 32, topRight = 0, bottomRight = 0 }
-                        , Font.color Color.neutral30
+                        , Font.color Color.neutral20
                         , Background.color Color.neutral95
                         , Border.width 4
                         , Border.color Color.transparent
                         , focusVisibleOnly
-                        , transition
-                        , E.mouseDown [ Background.color Color.neutral90 ]
-                        , E.mouseOver [ Background.color Color.neutral98 ]
+                        , E.mouseDown [ Background.color Color.neutral80 ]
+                        , E.mouseOver [ Background.color Color.neutral90 ]
                         ]
                         { label =
                             E.row
                                 [ E.width E.fill ]
                                 [ if context.density == Comfortable then
                                     E.el [ E.centerX ]
-                                        (E.text (Date.getMonthName (Date.decrementMonth model.date)))
+                                        (E.text (Date.getMonthName (Date.previousMonth monthDisplayed.month)))
 
                                   else
                                     E.none
                                 , E.el [ E.centerX, iconFont ] (E.text "  \u{F060}  ")
                                 ]
-                        , onPress = Just (changeMsg (Date.decrementMonthUI model.date model.today))
+                        , onPress = Just (changeMsg (Date.decrementMonthYear monthDisplayed))
                         }
                     )
               )
@@ -907,10 +897,10 @@ monthNavigationBar context model changeMsg =
 
                           else
                             defaultFontSize context
-                        , Font.color Color.neutral30
+                        , Font.color Color.neutral20
                         , E.padding <| em // 4
                         ]
-                        (E.text (Date.getMonthFullName model.today model.date))
+                        (E.text (Date.getMonthYearName monthDisplayed))
                     )
               )
             , ( "next month button"
@@ -923,14 +913,13 @@ monthNavigationBar context model changeMsg =
                         [ E.width E.fill
                         , E.height E.fill
                         , Border.roundEach { topLeft = 0, bottomLeft = 0, topRight = 32, bottomRight = 32 }
-                        , Font.color Color.neutral30
+                        , Font.color Color.neutral20
                         , Background.color Color.neutral95
                         , Border.width 4
                         , Border.color Color.transparent
                         , focusVisibleOnly
-                        , transition
-                        , E.mouseDown [ Background.color Color.neutral90 ]
-                        , E.mouseOver [ Background.color Color.neutral98 ]
+                        , E.mouseDown [ Background.color Color.neutral80 ]
+                        , E.mouseOver [ Background.color Color.neutral90 ]
                         ]
                         { label =
                             E.row
@@ -938,113 +927,12 @@ monthNavigationBar context model changeMsg =
                                 [ E.el [ E.centerX, iconFont ] (E.text "  \u{F061}  ")
                                 , if context.density == Comfortable then
                                     E.el [ E.centerX ]
-                                        (E.text (Date.getMonthName (Date.incrementMonth model.date)))
+                                        (E.text (Date.getMonthName (Date.followingMonth monthDisplayed.month)))
 
                                   else
                                     E.none
                                 ]
-                        , onPress = Just (changeMsg (Date.incrementMonthUI model.date model.today))
-                        }
-                    )
-              )
-            ]
-        ]
-
-
-weekNavigationBar : Context -> { a | date : Date, today : Date } -> (Date -> msg) -> E.Element msg
-weekNavigationBar context model changeMsg =
-    let
-        em =
-            context.em
-    in
-    E.column
-        [ E.width E.fill
-        , E.paddingEach { top = 3, bottom = 8, left = 3, right = 3 }
-        ]
-        [ Keyed.row
-            [ E.width <| E.fill
-            , E.centerX
-            , E.alignTop
-            , E.spacing <| em // 4
-            ]
-            [ ( "previous week button"
-              , E.el
-                    [ E.height E.fill
-                    , E.paddingXY (em // 2) 0
-                    ]
-                    (Input.button
-                        [ E.width E.fill
-                        , E.height E.fill
-                        , E.padding 4
-                        , Border.roundEach { topLeft = 32, bottomLeft = 32, topRight = 32, bottomRight = 32 }
-                        , Font.color Color.neutral30
-                        , Background.color Color.neutral95
-                        , smallShadow
-                        , Border.width 4
-                        , Border.color Color.transparent
-                        , focusVisibleOnly
-                        , transition
-                        , E.mouseDown [ Background.color Color.neutral90 ]
-                        , E.mouseOver [ Background.color Color.neutral98 ]
-                        ]
-                        { label =
-                            E.row
-                                [ E.width E.fill ]
-                                [ E.el [ E.centerX, iconFont ] (E.text "  \u{F060}  ")
-                                ]
-                        , onPress = Just (changeMsg (Date.decrementWeek model.date))
-                        }
-                    )
-              )
-            , ( "current week header"
-              , E.el
-                    [ E.width E.fill
-                    , E.height <| E.px <| 2 * em + em // 2
-                    , notSelectable
-                    , E.paddingEach { left = 0, right = 0, top = 0, bottom = em // 4 }
-                    ]
-                    (E.el
-                        [ E.centerX
-                        , E.centerY
-                        , Font.center
-
-                        -- , Font.bold
-                        -- , smallFont context
-                        , Font.color Color.neutral30
-                        , E.padding 6
-                        ]
-                        (E.paragraph []
-                            [ E.text (Date.fancyWeekDescription model.today model.date) ]
-                        )
-                    )
-              )
-            , ( "next week button"
-              , E.el
-                    -- needed to circumvent focus bug in elm-ui
-                    [ E.height E.fill
-                    , E.paddingXY (em // 2) 0
-                    ]
-                    (Input.button
-                        [ E.width E.fill
-                        , E.height E.fill
-                        , E.padding 4
-                        , Border.roundEach { topLeft = 32, bottomLeft = 32, topRight = 32, bottomRight = 32 }
-                        , Font.color Color.neutral30
-                        , Background.color Color.neutral95
-                        , smallShadow
-                        , Border.width 4
-                        , Border.color Color.transparent
-                        , focusVisibleOnly
-                        , transition
-                        , E.mouseDown [ Background.color Color.neutral90 ]
-                        , E.mouseOver [ Background.color Color.neutral98 ]
-                        ]
-                        { label =
-                            E.row
-                                [ E.width E.fill ]
-                                [ E.el [ E.centerX, iconFont ] (E.text "  \u{F061}  ")
-                                ]
-                        , onPress = Just (changeMsg (Date.incrementWeek model.date))
+                        , onPress = Just (changeMsg (Date.incrementMonthYear monthDisplayed))
                         }
                     )
               )
@@ -1059,24 +947,14 @@ viewIcon txt =
 
 
 viewDate : Context -> Date -> E.Element msg
-viewDate context date =
-    E.paragraph
-        [ E.width E.fill
-        , Font.bold
-        , if context.density /= Comfortable then
-            defaultFontSize context
-
-          else
-            bigFont context
-        , Font.color Color.neutral30
-        , Font.center
-        ]
+viewDate _ date =
+    E.paragraph []
         [ E.text
             (Date.getWeekdayName date
                 ++ " "
                 ++ String.fromInt (Date.getDay date)
                 ++ " "
-                ++ Date.getMonthName date
+                ++ Date.getMonthName (Date.getMonth date)
             )
         ]
 
@@ -1215,7 +1093,8 @@ roundButton context { label, color, onPress } =
             context.em
     in
     Input.button
-        [ Background.color <|
+        [ E.htmlAttribute <| Html.Attributes.class "round-button"
+        , Background.color <|
             case color of
                 PlainButton ->
                     Color.neutral95
@@ -1228,7 +1107,7 @@ roundButton context { label, color, onPress } =
         , Font.color <|
             case color of
                 PlainButton ->
-                    Color.neutral30
+                    Color.neutral20
 
                 DangerButton ->
                     Color.white
@@ -1241,31 +1120,30 @@ roundButton context { label, color, onPress } =
         , Border.color Color.transparent
         , focusVisibleOnly
         , defaultShadow
-        , transition
         , E.paddingXY em (em // 4)
         , E.mouseDown
+            [ Background.color <|
+                case color of
+                    PlainButton ->
+                        Color.neutral80
+
+                    DangerButton ->
+                        Color.warning40
+
+                    MainButton ->
+                        Color.primary20
+            ]
+        , E.mouseOver
             [ Background.color <|
                 case color of
                     PlainButton ->
                         Color.neutral90
 
                     DangerButton ->
-                        Color.warning50
+                        Color.warning55
 
                     MainButton ->
                         Color.primary30
-            ]
-        , E.mouseOver
-            [ Background.color <|
-                case color of
-                    PlainButton ->
-                        Color.neutral98
-
-                    DangerButton ->
-                        Color.warning70
-
-                    MainButton ->
-                        Color.primary50
             ]
         , E.htmlAttribute <| Html.Attributes.class "focus-visible-only"
         ]
@@ -1304,7 +1182,6 @@ navigationButton context { icon, color, onPress } =
         , Border.width 4
         , Border.color Color.transparent
         , focusVisibleOnly
-        , transition
         , E.padding (em // 2)
         , E.mouseDown
             [ Font.color <|
@@ -1317,18 +1194,6 @@ navigationButton context { icon, color, onPress } =
 
                     MainButton ->
                         Color.primary30
-            ]
-        , E.mouseOver
-            [ Font.color <|
-                case color of
-                    PlainButton ->
-                        Color.primary50
-
-                    DangerButton ->
-                        Color.warning70
-
-                    MainButton ->
-                        Color.primary50
             ]
         , E.htmlAttribute <| Html.Attributes.class "focus-visible-only"
         ]
@@ -1343,7 +1208,8 @@ incomeButton :
     -> E.Element msg
 incomeButton context { onPress, label } =
     Input.button
-        [ E.width <| E.px <| 2 * context.bigEm + context.bigEm // 4
+        [ E.htmlAttribute <| Html.Attributes.class "round-button"
+        , E.width <| E.px <| 2 * context.bigEm + context.bigEm // 4
         , E.height <| E.px <| 2 * context.bigEm + context.bigEm // 4
         , Font.color Color.income30
         , Background.color Color.income90
@@ -1353,10 +1219,9 @@ incomeButton context { onPress, label } =
         , Border.color Color.transparent
         , focusVisibleOnly
         , defaultShadow
-        , transition
         , E.padding (context.em // 4)
-        , E.mouseDown [ Background.color Color.income80, Border.color Color.income80 ]
-        , E.mouseOver [ Background.color Color.income95, Border.color Color.income95 ]
+        , E.mouseDown [ Background.color Color.income70, Border.color Color.income70 ]
+        , E.mouseOver [ Background.color Color.income85, Border.color Color.income85 ]
         , E.htmlAttribute <| Html.Attributes.class "focus-visible-only"
         ]
         { onPress = Just onPress
@@ -1370,7 +1235,8 @@ expenseButton :
     -> E.Element msg
 expenseButton context { onPress, label } =
     Input.button
-        [ E.width <| E.px <| 2 * context.bigEm + context.bigEm // 4
+        [ E.htmlAttribute <| Html.Attributes.class "round-button"
+        , E.width <| E.px <| 2 * context.bigEm + context.bigEm // 4
         , E.height <| E.px <| 2 * context.bigEm + context.bigEm // 4
         , Background.color Color.expense90
         , Font.color Color.expense30
@@ -1380,10 +1246,9 @@ expenseButton context { onPress, label } =
         , Border.color Color.transparent
         , focusVisibleOnly
         , defaultShadow
-        , transition
         , E.padding (context.em // 4)
-        , E.mouseDown [ Background.color Color.expense80, Border.color Color.expense80 ]
-        , E.mouseOver [ Background.color Color.expense95, Border.color Color.expense95 ]
+        , E.mouseDown [ Background.color Color.expense70, Border.color Color.expense70 ]
+        , E.mouseOver [ Background.color Color.expense85, Border.color Color.expense85 ]
         , focusVisibleOnly
         ]
         { onPress = Just onPress
@@ -1399,12 +1264,12 @@ flatButton { onPress, label } =
         [ Background.color Color.transparent
         , Border.width 4
         , Border.color Color.transparent
+        , Border.rounded 4
         , focusVisibleOnly
-        , transition
         , E.paddingXY 20 4
         , Font.color Color.primary40
-        , E.mouseDown [ Font.color Color.primary30 ]
-        , E.mouseOver [ Font.color Color.primary50 ]
+        , E.mouseDown [ Background.color Color.neutral80 ]
+        , E.mouseOver [ Background.color Color.neutral95 ]
         , E.htmlAttribute <| Html.Attributes.class "focus-visible-only"
         ]
         { onPress = onPress
@@ -1456,7 +1321,6 @@ reconcileCheckBox context { state, onPress, background } =
         , focusVisibleOnly
         , E.padding 2
         , innerShadow
-        , transition
         , E.mouseDown [ Background.color Color.neutral90 ]
         , E.mouseOver []
         ]
@@ -1483,20 +1347,17 @@ radioButton context { onPress, icon, label, active } =
          , Border.width 4
          , Border.color Color.transparent
          , focusVisibleOnly
-         , transition
          ]
             ++ (if active then
                     [ Font.color Color.white
                     , Background.color Color.primary40
-                    , smallShadow
                     , E.mouseDown [ Background.color Color.primary30 ]
-                    , E.mouseOver [ Background.color Color.primary40 ]
                     ]
 
                 else
                     [ Font.color Color.primary40
                     , Background.color Color.white
-                    , E.mouseDown [ Background.color Color.neutral90 ]
+                    , E.mouseDown [ Background.color Color.neutral80 ]
                     , E.mouseOver [ Background.color Color.neutral95 ]
                     ]
                )
@@ -1540,7 +1401,7 @@ textInput args =
         , E.focused
             [ Border.color Color.focus85
             ]
-        , Font.color Color.neutral20
+        , Font.color Color.neutral10
         , E.htmlAttribute <| Html.Attributes.autocomplete False
         ]
         { label = args.label
@@ -1616,6 +1477,27 @@ onEnter msg =
         )
 
 
+animationClasses : Context -> Date.MonthYear -> Date.MonthYear -> ( String, String )
+animationClasses context monthDisplayed monthPrevious =
+    if context.animationDisabled then
+        ( "no-slide", "no-slide" )
+
+    else
+        let
+            suffix =
+                String.fromInt <| modBy 2 <| Date.monthToInt monthDisplayed.month
+        in
+        case Date.compareMonthYear monthDisplayed monthPrevious of
+            LT ->
+                ( "slide-from-left-" ++ suffix, "slide-to-left-" ++ suffix )
+
+            GT ->
+                ( "slide-from-right-" ++ suffix, "slide-to-right-" ++ suffix )
+
+            EQ ->
+                ( "no-slide", "no-slide" )
+
+
 
 -- HELP ELEMENTS
 
@@ -1658,7 +1540,7 @@ helpNumberedList listItems =
 helpListItem : List (E.Element msg) -> E.Element msg
 helpListItem texts =
     E.paragraph
-        [ Font.color Color.neutral30
+        [ Font.color Color.neutral20
         , E.padding 0
         ]
         texts
@@ -1681,8 +1563,6 @@ linkButton { label, onPress } =
         , Border.color Color.transparent
         , focusVisibleOnly
         , E.mouseDown [ Font.color Color.primary30 ]
-        , E.mouseOver [ Font.color Color.primary50 ]
-        , transition
         ]
         { label = label
         , onPress = onPress
@@ -1730,7 +1610,7 @@ title context txt =
     E.paragraph
         [ bigFont context
         , Font.bold
-        , Font.color Color.neutral30
+        , Font.color Color.neutral20
         ]
         [ E.text txt ]
 
@@ -1743,7 +1623,7 @@ verticalSpacer =
 paragraph : String -> E.Element msg
 paragraph txt =
     E.paragraph
-        [ Font.color Color.neutral30
+        [ Font.color Color.neutral20
         ]
         [ E.text txt ]
 
@@ -1751,7 +1631,7 @@ paragraph txt =
 paragraphParts : List (E.Element msg) -> E.Element msg
 paragraphParts parts =
     E.paragraph
-        [ Font.color Color.neutral30
+        [ Font.color Color.neutral20
         ]
         parts
 

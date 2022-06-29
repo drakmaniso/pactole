@@ -1,4 +1,4 @@
-module Page.Calendar exposing (dayView, viewMonth, viewWeek)
+module Page.Calendar exposing (viewContent, viewSelectedDate)
 
 import Date exposing (Date)
 import Element as E
@@ -19,11 +19,16 @@ import Ui.Color as Color
 -- THE CALENDAR
 
 
-viewMonth : Model -> E.Element Msg
-viewMonth model =
+viewContent : Model -> E.Element Msg
+viewContent model =
+    let
+        ( anim, animPrevious ) =
+            Ui.animationClasses model.context model.monthDisplayed model.monthPrevious
+    in
     E.column
         [ E.width E.fill
         , E.height E.fill
+        , E.clip
         , E.spacing <|
             if model.context.density == Ui.Comfortable then
                 4
@@ -37,51 +42,64 @@ viewMonth model =
             else
                 0
         ]
-        (Ui.monthNavigationBar model.context model Msg.SelectDate
-            :: weekDayNames model
-            :: (Date.weeksOfMonth model.date
-                    |> List.map
-                        (\week ->
-                            E.row
-                                [ E.width E.fill
-                                , E.height E.fill
-                                , E.clipY
-                                , E.spacing <|
-                                    if model.context.density == Ui.Comfortable then
-                                        4
+        [ Ui.monthNavigationBar model.context model.monthDisplayed Msg.DisplayMonth
+        , weekDayNames model
+        , E.el
+            [ E.width E.fill
+            , E.height E.fill
+            , E.clip
+            , Background.color Color.white
+            , E.behindContent <|
+                if model.context.animationDisabled then
+                    E.none
 
-                                    else
-                                        2
-                                ]
-                            <|
-                                List.map
-                                    (\day ->
-                                        if Date.getMonth day == Date.getMonth model.date then
-                                            calendarCell model day
-
-                                        else
-                                            E.el [ E.width E.fill, E.height E.fill ] E.none
-                                    )
-                                    week
-                        )
-               )
-        )
+                else
+                    viewAnimatedContent model model.monthPrevious animPrevious
+            ]
+            (viewAnimatedContent model model.monthDisplayed anim)
+        ]
 
 
-viewWeek : Model -> E.Element Msg
-viewWeek model =
+viewAnimatedContent : Model -> Date.MonthYear -> String -> E.Element Msg
+viewAnimatedContent model monthYear anim =
     E.column
         [ E.width E.fill
         , E.height E.fill
-        , E.spacing <| model.context.em // 4
+        , Background.color Color.white
+        , E.spacing <|
+            if model.context.density == Ui.Comfortable then
+                4
+
+            else
+                2
+        , E.htmlAttribute <| Html.Attributes.class anim
         ]
-        [ Ui.weekNavigationBar model.context model Msg.SelectDate
-        , weekDayNames model
-        , E.row [ E.width E.fill, E.height E.fill, E.spacing 2 ]
-            (Date.daysOfWeek model.date
-                |> List.map (\day -> calendarCell model day)
-            )
-        ]
+        (Date.weeksOfMonth monthYear
+            |> List.map
+                (\week ->
+                    E.row
+                        [ E.width E.fill
+                        , E.height E.fill
+                        , E.clipY
+                        , E.spacing <|
+                            if model.context.density == Ui.Comfortable then
+                                4
+
+                            else
+                                2
+                        ]
+                    <|
+                        List.map
+                            (\day ->
+                                if Date.getMonth day == monthYear.month then
+                                    calendarCell model day
+
+                                else
+                                    E.el [ E.width E.fill, E.height E.fill ] E.none
+                            )
+                            week
+                )
+        )
 
 
 weekDayNames : Model -> E.Element Msg
@@ -90,16 +108,13 @@ weekDayNames model =
         device =
             model.context.device
     in
-    if
-        (model.context.density == Ui.Comfortable && device.orientation == E.Landscape)
-            || (device.class == E.Phone && device.orientation == E.Landscape)
-    then
+    if model.context.density == Ui.Comfortable && device.orientation == E.Landscape then
         E.row
             [ E.width E.fill
             , E.alignBottom
             , Ui.smallFont model.context
             , Ui.notSelectable
-            , Font.color Color.neutral40
+            , Font.color Color.neutral20
             ]
             [ E.el [ E.width E.fill ] (E.el [ E.centerX ] (E.text "Lundi"))
             , E.el [ E.width E.fill ] (E.el [ E.centerX ] (E.text "Mardi"))
@@ -128,14 +143,11 @@ calendarCell model day =
                 E.Portrait ->
                     model.context.height // 70
 
-        device =
-            model.context.device
-
         smallEm =
             model.context.smallEm
 
         sel =
-            day == model.date
+            day == model.dateSelected
     in
     E.el
         -- Need to wrap the button in E.el because of elm-ui E.focused bug
@@ -150,21 +162,14 @@ calendarCell model day =
             , Border.width <|
                 case model.context.density of
                     Ui.Comfortable ->
-                        2
+                        4
 
                     Ui.Compact ->
                         2
 
                     Ui.Condensed ->
                         2
-            , Ui.transition
-            , Border.rounded
-                (if sel then
-                    (em // 4) + 4
-
-                 else
-                    em // 4
-                )
+            , Border.rounded (em // 4)
             , Border.color
                 (if sel then
                     Color.primary40
@@ -189,12 +194,12 @@ calendarCell model day =
                     )
                 ]
             , E.mouseOver
-                [ Background.color
+                [ Border.color
                     (if sel then
-                        Color.primary95
+                        Color.primary40
 
                      else
-                        Color.neutral98
+                        Color.neutral90
                     )
                 ]
             , Ui.focusVisibleOnly
@@ -226,7 +231,7 @@ calendarCell model day =
                             Font.color Color.black
 
                           else
-                            Font.color Color.neutral30
+                            Font.color Color.neutral20
                         ]
                       <|
                         if day == model.today && model.context.density == Ui.Comfortable then
@@ -234,11 +239,7 @@ calendarCell model day =
 
                         else
                             E.text <| String.fromInt <| Date.getDay day
-                    , if
-                        model.context.density
-                            == Ui.Comfortable
-                            || (device.class == E.Phone && device.orientation == E.Landscape)
-                      then
+                    , if model.context.density == Ui.Comfortable then
                         E.paragraph
                             [ E.width E.fill
                             , E.height E.fill
@@ -291,9 +292,6 @@ cellContentFor model day =
                 E.Portrait ->
                     model.context.height // 70
 
-        device =
-            model.context.device
-
         render transaction =
             let
                 future =
@@ -301,7 +299,7 @@ cellContentFor model day =
 
                 color =
                     if future then
-                        Color.neutral60
+                        Color.neutral50
 
                     else
                         Color.transactionColor (Money.isExpense transaction.amount)
@@ -309,11 +307,7 @@ cellContentFor model day =
                 parts =
                     Money.toStrings transaction.amount
             in
-            if
-                model.context.density
-                    == Ui.Comfortable
-                    || (device.class == E.Phone && device.orientation == E.Landscape)
-            then
+            if model.context.density == Ui.Comfortable then
                 E.el
                     [ Font.color Color.white
                     , Background.color color
@@ -362,8 +356,21 @@ cellContentFor model day =
 -- DAY VIEW
 
 
-dayView : Model -> E.Element Msg
-dayView model =
+viewSelectedDate : Model -> E.Element Msg
+viewSelectedDate model =
+    if Date.getMonthYear model.dateSelected == model.monthDisplayed then
+        dayView model model.dateSelected
+
+    else
+        E.column [ E.width E.fill, E.height E.fill ]
+            [ E.paragraph [ E.alignBottom, Font.center, Font.color Color.neutral50 ]
+                [ E.text "(choisir une date)" ]
+            , E.el [ E.alignBottom, E.height <| E.px model.context.em ] E.none
+            ]
+
+
+dayView : Model -> Date -> E.Element Msg
+dayView model date =
     let
         em =
             model.context.em
@@ -389,7 +396,7 @@ dayView model =
                                     { id = Nothing
                                     , isExpense = False
                                     , isRecurring = False
-                                    , date = model.date
+                                    , date = date
                                     , amount = ( "", Nothing )
                                     , description = ""
                                     , category = 0
@@ -403,7 +410,7 @@ dayView model =
                                     { id = Nothing
                                     , isExpense = True
                                     , isRecurring = False
-                                    , date = model.date
+                                    , date = date
                                     , amount = ( "", Nothing )
                                     , description = ""
                                     , category = 0
@@ -428,7 +435,7 @@ dayView model =
                                     { id = Nothing
                                     , isExpense = False
                                     , isRecurring = False
-                                    , date = model.date
+                                    , date = date
                                     , amount = ( "", Nothing )
                                     , description = ""
                                     , category = 0
@@ -442,7 +449,7 @@ dayView model =
                                     { id = Nothing
                                     , isExpense = True
                                     , isRecurring = False
-                                    , date = model.date
+                                    , date = date
                                     , amount = ( "", Nothing )
                                     , description = ""
                                     , category = 0
@@ -455,22 +462,33 @@ dayView model =
             , E.height <| E.fill
             , E.paddingXY 0 (em // 4)
             , E.spacing (em // 4)
-            , Font.color Color.neutral30
+            , Font.color Color.neutral20
             , Font.center
             , Ui.notSelectable
             , E.scrollbarY
             ]
             [ if model.context.device.orientation == E.Landscape && model.context.height > 28 * em then
-                E.el [ E.width E.fill, Font.color Color.neutral40, Ui.smallFont model.context ]
-                    (E.text <| Date.fancyDayDescription model.today model.date)
+                E.el [ E.width E.fill, Font.color Color.neutral20, Ui.smallFont model.context ]
+                    (E.text <| Date.fancyDayDescription model.today date)
 
               else
                 E.none
-            , Ui.viewDate model.context model.date
+            , E.el
+                [ E.width E.fill
+                , Font.bold
+                , if model.context.density /= Ui.Comfortable then
+                    Ui.defaultFontSize model.context
+
+                  else
+                    Ui.bigFont model.context
+                , Font.center
+                ]
+              <|
+                Ui.viewDate model.context date
             , E.column
                 [ E.width E.fill
                 ]
-                (dayContentFor model model.date)
+                (dayContentFor model date)
             ]
         ]
 
@@ -526,9 +544,8 @@ dayContentFor model day =
                     , Border.width 4
                     , Border.color Color.transparent
                     , Ui.focusVisibleOnly
-                    , E.mouseDown [ Background.color Color.neutral90 ]
+                    , E.mouseDown [ Background.color Color.neutral80 ]
                     , E.mouseOver [ Background.color Color.neutral95 ]
-                    , Ui.transition
                     ]
                     { onPress =
                         Just <|
@@ -573,7 +590,7 @@ dayContentFor model day =
                                 E.el
                                     [ E.width <| E.px <| em + em // 2
                                     , E.alignTop
-                                    , Font.color Color.neutral30
+                                    , Font.color Color.neutral20
                                     , Ui.iconFont
                                     , Font.center
                                     ]
@@ -584,7 +601,7 @@ dayContentFor model day =
                             , E.el
                                 [ E.width (E.fillPortion 2)
                                 , E.alignTop
-                                , Font.color Color.neutral30
+                                , Font.color Color.neutral20
                                 , Font.alignLeft
                                 ]
                                 (E.paragraph [] [ E.text (Ledger.getTransactionDescription transaction) ])
@@ -602,12 +619,12 @@ dayContentFor model day =
                 E.paragraph
                     [ E.width E.fill
                     , Font.center
-                    , Font.color Color.neutral40
+                    , Font.color Color.neutral50
                     , E.paddingXY 8 32
                     , Border.color Color.transparent
                     , Border.width 4
                     ]
-                    [ E.text "(Aucune opération)" ]
+                    [ E.text "(aucune opération)" ]
             ]
 
         t ->
