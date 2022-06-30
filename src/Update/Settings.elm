@@ -221,7 +221,7 @@ confirm model =
                         filename
             in
             ( { model | dialog = Nothing }
-            , File.Download.string sanitizedName "application/json" <|
+            , File.Download.string sanitizedName "application/vnd.drakmaniso.pactole" <|
                 Encode.encode 4 <|
                     Encode.object
                         [ ( "settings", Model.encodeSettings model.settings )
