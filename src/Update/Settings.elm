@@ -10,6 +10,7 @@ import Log
 import Model exposing (Model)
 import Money
 import Msg exposing (Msg)
+import Ports
 import String
 import Ui
 
@@ -208,7 +209,10 @@ confirm model =
                         , animationDisabled = db.settings.animationDisabled
                         }
               }
-            , Cmd.none
+            , Ports.toServiceWorker
+                ( "install database"
+                , Model.encodeDatabase db
+                )
             )
 
         Just (Model.ExportDialog filename) ->

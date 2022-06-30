@@ -88,63 +88,50 @@ proceedWithInstallation model data =
     in
     Ports.toServiceWorker
         ( "install database"
-          --TODO: wrong message?
-        , Encode.object
-            [ ( "serviceVersion", Encode.string model.serviceVersion )
-            , ( "accounts"
-              , Encode.list Encode.object
-                    [ [ ( "id", Encode.int 1 ), ( "name", Encode.string data.firstAccount ) ]
-                    ]
-              )
-            , ( "ledger"
-              , Encode.list Ledger.encodeTransaction
-                    [ { id = 1
-                      , account = 1
-                      , date = data.date
-                      , amount = data.initialBalance
-                      , description = "Solde initial"
-                      , category = 0
-                      , checked = False
-                      }
-                    ]
-              )
-            , ( "recurring", Encode.list Encode.object [] )
-            , ( "categories"
-              , Encode.list Encode.object
-                    [ [ ( "id", Encode.int 1 )
-                      , ( "name", Encode.string "Maison" )
-                      , ( "icon", Encode.string "\u{F015}" )
-                      ]
-                    , [ ( "id", Encode.int 2 )
-                      , ( "name", Encode.string "Santé" )
-                      , ( "icon", Encode.string "\u{F0F1}" )
-                      ]
-                    , [ ( "id", Encode.int 3 )
-                      , ( "name", Encode.string "Nourriture" )
-                      , ( "icon", Encode.string "\u{F2E7}" )
-                      ]
-                    , [ ( "id", Encode.int 4 )
-                      , ( "name", Encode.string "Vêtements" )
-                      , ( "icon", Encode.string "\u{F553}" )
-                      ]
-                    , [ ( "id", Encode.int 5 )
-                      , ( "name", Encode.string "Transports" )
-                      , ( "icon", Encode.string "\u{F5E4}" )
-                      ]
-                    , [ ( "id", Encode.int 6 )
-                      , ( "name", Encode.string "Loisirs" )
-                      , ( "icon", Encode.string "\u{F5CA}" )
-                      ]
-                    , [ ( "id", Encode.int 7 )
-                      , ( "name", Encode.string "Banque" )
-                      , ( "icon", Encode.string "\u{F19C}" )
-                      ]
-                    ]
-              )
-            , ( "settings"
-              , Model.encodeSettings defaultSettings
-              )
-            ]
+        , Model.encodeDatabase
+            { serviceVersion = model.serviceVersion
+            , accounts = [ ( 1, data.firstAccount ) ]
+            , categories =
+                [ ( 1
+                  , { name = "Maison"
+                    , icon = "\u{F015}"
+                    }
+                  )
+                , ( 2
+                  , { name = "Santé"
+                    , icon = "\u{F0F1}"
+                    }
+                  )
+                , ( 3
+                  , { name = "Nourriture"
+                    , icon = "\u{F2E7}"
+                    }
+                  )
+                , ( 4
+                  , { name = "Vêtements"
+                    , icon = "\u{F553}"
+                    }
+                  )
+                , ( 5
+                  , { name = "Transports"
+                    , icon = "\u{F5E4}"
+                    }
+                  )
+                , ( 6
+                  , { name = "Loisirs"
+                    , icon = "\u{F5CA}"
+                    }
+                  )
+                , ( 7
+                  , { name = "Banque"
+                    , icon = "\u{F19C}"
+                    }
+                  )
+                ]
+            , ledger = Ledger.initialLedger data.date data.initialBalance
+            , recurring = Ledger.empty
+            , settings = defaultSettings
+            }
         )
 
 

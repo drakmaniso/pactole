@@ -18,6 +18,7 @@ module Model exposing
     , defaultSettings
     , encodeAccounts
     , encodeCategories
+    , encodeDatabase
     , encodeSettings
     , firstAccount
     , pageKey
@@ -297,7 +298,7 @@ type alias RecurringData =
 
 type alias Database =
     { settings : Settings
-    , accounts : List ( Int, String )
+    , accounts : List ( Int, String ) --TODO: should be a Dict
     , categories :
         List
             ( Int
@@ -309,6 +310,18 @@ type alias Database =
     , recurring : Ledger
     , serviceVersion : String
     }
+
+
+encodeDatabase : Database -> Encode.Value
+encodeDatabase db =
+    Encode.object
+        [ ( "settings", encodeSettings db.settings )
+        , ( "accounts", encodeAccounts <| Dict.fromList db.accounts )
+        , ( "categories", encodeCategories <| Dict.fromList db.categories )
+        , ( "ledger", Ledger.encode db.ledger )
+        , ( "recurring", Ledger.encode db.recurring )
+        , ( "serviceVersion", Encode.string db.serviceVersion )
+        ]
 
 
 firstAccount : List ( Int, String ) -> Int
