@@ -2,6 +2,7 @@ module Model exposing
     ( AccountData
     , Category
     , CategoryData
+    , Database
     , Dialog(..)
     , InstallationData
     , Model
@@ -18,6 +19,7 @@ module Model exposing
     , encodeAccounts
     , encodeCategories
     , encodeSettings
+    , firstAccount
     , pageKey
     )
 
@@ -237,7 +239,7 @@ decodeSettings =
         (Decode.oneOf [ Decode.field "font" Decode.string, Decode.succeed "Andika New Basic" ])
         (Decode.oneOf [ Decode.field "fontSize" Decode.int, Decode.succeed 0 ])
         (Decode.oneOf [ Decode.field "deviceClass" Ui.decodeDeviceClass, Decode.succeed Ui.AutoClass ])
-        (Decode.oneOf [ Decode.field "animationDisabled" Decode.bool, Decode.succeed False])
+        (Decode.oneOf [ Decode.field "animationDisabled" Decode.bool, Decode.succeed False ])
 
 
 
@@ -252,7 +254,7 @@ type Dialog
     | CategoryDialog CategoryData
     | DeleteCategoryDialog Int
     | RecurringDialog RecurringData
-    | ImportDialog
+    | ImportDialog Database
     | ExportDialog
     | FontDialog String
     | UserErrorDialog String
@@ -291,3 +293,29 @@ type alias RecurringData =
     , category : Int
     , dueDate : String
     }
+
+
+type alias Database =
+    { settings : Settings
+    , accounts : List ( Int, String )
+    , categories :
+        List
+            ( Int
+            , { name : String
+              , icon : String
+              }
+            )
+    , ledger : Ledger
+    , recurring : Ledger
+    , serviceVersion : String
+    }
+
+
+firstAccount : List ( Int, String ) -> Int
+firstAccount accounts =
+    case accounts |> List.sortBy (\( _, name ) -> name) of
+        head :: _ ->
+            Tuple.first head
+
+        _ ->
+            -1

@@ -2,11 +2,13 @@ module Update.Settings exposing (confirm, update)
 
 import Database
 import Date
+import Dict
 import Log
 import Model exposing (Model)
 import Money
 import Msg exposing (Msg)
 import String
+import Ui
 
 
 update : Msg.SettingsMsg -> Model -> ( Model, Cmd Msg )
@@ -179,9 +181,26 @@ confirm model =
                         }
                     )
 
-        Just Model.ImportDialog ->
-            ( { model | dialog = Nothing }
-            , Database.importDatabase
+        Just (Model.ImportDialog db) ->
+            ( { model
+                | dialog = Nothing
+                , settings = db.settings
+                , accounts = Dict.fromList db.accounts
+                , account = Model.firstAccount db.accounts
+                , categories = Dict.fromList db.categories
+                , ledger = db.ledger
+                , recurring = db.recurring
+                , page = Model.CalendarPage
+                , context =
+                    Ui.classifyContext
+                        { width = model.context.width
+                        , height = model.context.height
+                        , fontSize = db.settings.fontSize
+                        , deviceClass = db.settings.deviceClass
+                        , animationDisabled = db.settings.animationDisabled
+                        }
+              }
+            , Cmd.none
             )
 
         Just Model.ExportDialog ->

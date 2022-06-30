@@ -95,6 +95,27 @@ self.addEventListener('message', event => {
       broadcast('persistent storage granted', { granted: msg.content })
       break
 
+    // Installation
+
+    case 'install database':
+      try {
+        const {
+          settings, recurring, accounts, categories, ledger
+        } = msg.content
+        setSettings(settings)
+          .then(() => setAccounts(accounts))
+          .then(() => setCategories(categories))
+          .then(() => setAllTransactions('recurring', recurring))
+          .then(() => setAllTransactions('ledger', ledger))
+          .then(() => broadcast('update whole database', msg.content))
+          .catch(err => error(`install database: ${err}`))
+
+      }
+      catch (err) {
+        error(`install database: ${err}`)
+      }
+      break
+
     // Settings
 
     case 'store settings':
@@ -293,28 +314,7 @@ self.addEventListener('message', event => {
       }
       break
 
-    case 'broadcast import database':
-      try {
-        const {
-          settings, recurring, accounts, categories, ledger
-        } = msg.content
-        setSettings(settings)
-          .then(() => setAccounts(accounts))
-          .then(() => setCategories(categories))
-          .then(() => setAllTransactions('recurring', recurring))
-          .then(() => setAllTransactions('ledger', ledger))
-          .then(() => broadcast('update whole database', msg.content))
-          .catch(err => error(`broadcast import database: ${err}`))
-
-      }
-      catch (err) {
-        error(`broadcast import database: ${err}`)
-      }
-      break
-
-    case 'user error':
-      broadcast('user error', msg.content)
-      break
+    // Unknown message
 
     default:
       const e = `Unknown message \"${msg.title}\" with content: ${msg.content}`

@@ -1,19 +1,25 @@
 module Msg exposing (DatabaseMsg(..), InstallMsg(..), Msg(..), SettingsMsg(..), TransactionMsg(..))
 
 import Date exposing (Date)
+import File exposing (File)
 import Json.Decode as Decode
 import Ledger
 import Model
 
 
 type Msg
-    = ChangePage Model.Page
+    = OnApplicationStart ()
+    | ChangePage Model.Page
     | OpenDialog Model.Dialog
     | CloseDialog
     | ConfirmDialog
+    | RequestImportFile
+    | ReadImportFile File
+    | ProcessImportFile String
     | OnPopState ()
     | OnLeftSwipe ()
     | OnRightSwipe ()
+    | OnUserError String
     | DisplayMonth Date.MonthYear
     | SelectDate Date
     | SelectAccount Int
@@ -29,7 +35,6 @@ type InstallMsg
     = ChangeInstallName String
     | ChangeInstallBalance String
     | ProceedWithInstall
-    | ImportInstall
 
 
 type DatabaseMsg

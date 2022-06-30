@@ -10,12 +10,10 @@ module Database exposing
     , deleteTransaction
     , exportDatabase
     , exportFileName
-    , firstAccount
-    , importDatabase
+    , fromServiceWorker
     , msgFromService
     , proceedWithInstallation
     , processRecurringTransactions
-    , receive
     , renameAccount
     , renameCategory
     , replaceRecurringTransaction
@@ -23,14 +21,13 @@ module Database exposing
     , requestWholeDatabase
     , storeSettings
     , update
-    , upgradeSettingsToV2
     )
 
 import Date exposing (Date)
 import Dict
 import Json.Decode as Decode
 import Json.Encode as Encode
-import Ledger exposing (Ledger)
+import Ledger
 import Log
 import Model exposing (Model)
 import Money exposing (Money)
@@ -72,17 +69,17 @@ update msg model =
 
 requestWholeDatabase : Cmd msg
 requestWholeDatabase =
-    Ports.sendToSW ( "request whole database", Encode.null )
+    Ports.toServiceWorker ( "request whole database", Encode.null )
 
 
 storeSettings : Model.Settings -> Cmd msg
 storeSettings settings =
-    Ports.sendToSW ( "store settings", Model.encodeSettings settings )
+    Ports.toServiceWorker ( "store settings", Model.encodeSettings settings )
 
 
 createAccount : String -> Cmd msg
 createAccount name =
-    Ports.sendToSW ( "create account", Encode.string name )
+    Ports.toServiceWorker ( "create account", Encode.string name )
 
 
 proceedWithInstallation : Model -> { firstAccount : String, initialBalance : Money, date : Date } -> Cmd msg
@@ -91,8 +88,9 @@ proceedWithInstallation model data =
         defaultSettings =
             Model.defaultSettings
     in
-    Ports.sendToSW
-        ( "broadcast import database"
+    Ports.toServiceWorker
+        ( "install database"
+          --TODO: wrong message?
         , Encode.object
             [ ( "serviceVersion", Encode.string model.serviceVersion )
             , ( "accounts"
@@ -154,7 +152,7 @@ proceedWithInstallation model data =
 
 renameAccount : Int -> String -> Cmd msg
 renameAccount account newName =
-    Ports.sendToSW
+    Ports.toServiceWorker
         ( "rename account"
         , Encode.object
             [ ( "id", Encode.int account )
@@ -165,7 +163,7 @@ renameAccount account newName =
 
 deleteAccount : Int -> Cmd msg
 deleteAccount account =
-    Ports.sendToSW
+    Ports.toServiceWorker
         ( "delete account"
         , Encode.int account
         )
@@ -173,7 +171,7 @@ deleteAccount account =
 
 createCategory : String -> String -> Cmd msg
 createCategory name icon =
-    Ports.sendToSW
+    Ports.toServiceWorker
         ( "create category"
         , Encode.object
             [ ( "name", Encode.string name )
@@ -184,7 +182,7 @@ createCategory name icon =
 
 renameCategory : Int -> String -> String -> Cmd msg
 renameCategory id name icon =
-    Ports.sendToSW
+    Ports.toServiceWorker
         ( "rename category"
         , Encode.object
             [ ( "id", Encode.int id )
@@ -196,7 +194,7 @@ renameCategory id name icon =
 
 deleteCategory : Int -> Cmd msg
 deleteCategory id =
-    Ports.sendToSW
+    Ports.toServiceWorker
         ( "delete category"
         , Encode.int id
         )
@@ -204,7 +202,7 @@ deleteCategory id =
 
 createTransaction : Ledger.NewTransaction -> Cmd msg
 createTransaction transaction =
-    Ports.sendToSW
+    Ports.toServiceWorker
         ( "create transaction"
         , Ledger.encodeNewTransaction transaction
         )
@@ -212,7 +210,7 @@ createTransaction transaction =
 
 replaceTransaction : Ledger.Transaction -> Cmd msg
 replaceTransaction transaction =
-    Ports.sendToSW
+    Ports.toServiceWorker
         ( "replace transaction"
         , Ledger.encodeTransaction transaction
         )
@@ -220,7 +218,7 @@ replaceTransaction transaction =
 
 deleteTransaction : Int -> Cmd msg
 deleteTransaction id =
-    Ports.sendToSW
+    Ports.toServiceWorker
         ( "delete transaction"
         , Encode.object
             [ ( "id", Encode.int id )
@@ -230,7 +228,7 @@ deleteTransaction id =
 
 createRecurringTransaction : Ledger.NewTransaction -> Cmd msg
 createRecurringTransaction transaction =
-    Ports.sendToSW
+    Ports.toServiceWorker
         ( "create recurring transaction"
         , Ledger.encodeNewTransaction transaction
         )
@@ -238,7 +236,7 @@ createRecurringTransaction transaction =
 
 replaceRecurringTransaction : Ledger.Transaction -> Cmd msg
 replaceRecurringTransaction transaction =
-    Ports.sendToSW
+    Ports.toServiceWorker
         ( "replace recurring transaction"
         , Ledger.encodeTransaction transaction
         )
@@ -246,7 +244,7 @@ replaceRecurringTransaction transaction =
 
 deleteRecurringTransaction : Int -> Cmd msg
 deleteRecurringTransaction id =
-    Ports.sendToSW
+    Ports.toServiceWorker
         ( "delete recurring transaction"
         , Encode.object
             [ ( "id", Encode.int id )
@@ -286,18 +284,13 @@ exportDatabase model =
             ]
 
 
-importDatabase : Cmd msg
-importDatabase =
-    Ports.selectImport ()
-
-
 
 -- FROM THE SERVICE WORKER
 
 
-receive : Sub Msg
-receive =
-    Ports.receive (Msg.ForDatabase << Msg.FromServiceWorker)
+fromServiceWorker : Sub Msg
+fromServiceWorker =
+    Ports.fromServiceWorker (Msg.ForDatabase << Msg.FromServiceWorker)
 
 
 msgFromService : ( String, Decode.Value ) -> Model -> ( Model, Cmd Msg )
@@ -309,9 +302,6 @@ msgFromService ( title, content ) model =
             }
     in
     case title of
-        "start application" ->
-            ( model, Ports.sendToSW ( "request whole database", Encode.null ) )
-
         "persistent storage granted" ->
             case Decode.decodeValue (Decode.at [ "granted" ] Decode.bool) content of
                 Ok granted ->
@@ -339,7 +329,7 @@ msgFromService ( title, content ) model =
                     ( { model
                         | settings = db.settings
                         , accounts = Dict.fromList db.accounts
-                        , account = firstAccount db.accounts
+                        , account = Model.firstAccount db.accounts
                         , categories = Dict.fromList db.categories
                         , ledger = db.ledger
                         , recurring = db.recurring
@@ -365,7 +355,6 @@ msgFromService ( title, content ) model =
                       else
                         Cmd.none
                     )
-                        |> upgradeSettingsToV2 content
                         |> processRecurringTransactions
 
                 Err e ->
@@ -447,14 +436,6 @@ msgFromService ( title, content ) model =
                 Err e ->
                     Log.error (Decode.errorToString e) ( model, Cmd.none )
 
-        "user error" ->
-            case Decode.decodeValue Decode.string content of
-                Ok msg ->
-                    ( { model | dialog = Just (Model.UserErrorDialog msg) }, Cmd.none )
-
-                _ ->
-                    ( { model | errors = model.errors ++ [ "ERROR: undecodable javascript in \"user error\" message" ] }, Cmd.none )
-
         "javascript error" ->
             case Decode.decodeValue Decode.string content of
                 Ok msg ->
@@ -471,40 +452,7 @@ msgFromService ( title, content ) model =
 -- UTILITIES
 
 
-upgradeSettingsToV2 : Decode.Value -> ( Model, Cmd msg ) -> ( Model, Cmd msg )
-upgradeSettingsToV2 json ( model, previousCmds ) =
-    let
-        decoder =
-            Decode.field "settings"
-                (Decode.oneOf
-                    [ Decode.field "recurringTransactions" (Decode.list Ledger.decodeNewTransaction)
-                    , Decode.succeed []
-                    ]
-                )
-    in
-    case Decode.decodeValue decoder json of
-        Ok [] ->
-            ( model, previousCmds )
-
-        Ok recurring ->
-            let
-                cmds =
-                    recurring
-                        |> List.map
-                            (\t ->
-                                createRecurringTransaction t
-                            )
-            in
-            ( model, Cmd.batch (previousCmds :: storeSettings model.settings :: cmds) )
-
-        Err e ->
-            Log.error ("decoding database: " ++ Decode.errorToString e)
-                ( model
-                , previousCmds
-                )
-
-
-decodeDB : Decode.Decoder { settings : Model.Settings, accounts : List ( Int, String ), categories : List ( Int, { name : String, icon : String } ), ledger : Ledger, recurring : Ledger, serviceVersion : String }
+decodeDB : Decode.Decoder Model.Database
 decodeDB =
     Decode.map6
         (\s a c l r srd ->
@@ -522,16 +470,6 @@ decodeDB =
         (Decode.field "ledger" Ledger.decode)
         (Decode.field "recurring" Ledger.decode)
         (Decode.field "serviceVersion" Decode.string)
-
-
-firstAccount : List ( Int, String ) -> Int
-firstAccount accounts =
-    case accounts |> List.sortBy (\( _, name ) -> name) of
-        head :: _ ->
-            Tuple.first head
-
-        _ ->
-            -1
 
 
 processRecurringTransactions : ( Model, Cmd Msg ) -> ( Model, Cmd Msg )

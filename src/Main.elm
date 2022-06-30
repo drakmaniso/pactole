@@ -15,9 +15,13 @@ import Element.Border as Border
 import Element.Font as Font
 import Element.Input as Input
 import Element.Keyed as Keyed
+import File
+import File.Select
 import Html.Attributes
 import Json.Decode as Decode
+import Json.Encode as Encode
 import Ledger
+import Log
 import Model exposing (Model)
 import Msg exposing (Msg)
 import Page.Calendar as Calendar
@@ -143,6 +147,9 @@ init flags _ _ =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        Msg.OnApplicationStart () ->
+            ( model, Ports.toServiceWorker ( "request whole database", Encode.null ) )
+
         Msg.ChangePage page ->
             ( { model | page = page, monthPrevious = model.monthDisplayed }
             , Cmd.none
@@ -168,6 +175,28 @@ update msg model =
 
         Msg.CloseDialog ->
             ( { model | dialog = Nothing }, Cmd.none )
+
+        Msg.RequestImportFile ->
+            ( model, File.Select.file [ "application/json" ] Msg.ReadImportFile )
+
+        Msg.ReadImportFile file ->
+            ( model, Task.perform Msg.ProcessImportFile (File.toString file) )
+
+        Msg.ProcessImportFile content ->
+            case Decode.decodeString Database.decodeDB content of
+                Ok db ->
+                    ( { model | dialog = Just <| Model.ImportDialog db }, Cmd.none )
+
+                Err e ->
+                    Log.error ("decoding database: " ++ Decode.errorToString e) <|
+                        ( { model
+                            | dialog =
+                                Just <|
+                                    Model.UserErrorDialog
+                                        "Le fichier choisi ne semble pas être une sauvegarde Pactole."
+                          }
+                        , Cmd.none
+                        )
 
         Msg.OnPopState () ->
             case ( model.dialog, model.page ) of
@@ -198,6 +227,9 @@ update msg model =
             ( { model | monthDisplayed = Date.decrementMonthYear model.monthDisplayed, monthPrevious = model.monthDisplayed }
             , Cmd.none
             )
+
+        Msg.OnUserError errmsg ->
+            ( { model | dialog = Just (Model.UserErrorDialog errmsg) }, Cmd.none )
 
         Msg.SelectAccount accountID ->
             --TODO: check that accountID corresponds to an account
@@ -247,10 +279,12 @@ update msg model =
 subscriptions : Model -> Sub Msg
 subscriptions _ =
     Sub.batch
-        [ Database.receive
+        [ Ports.onApplicationStart Msg.OnApplicationStart
+        , Database.fromServiceWorker
         , Ports.onPopState Msg.OnPopState
         , Ports.onLeftSwipe Msg.OnLeftSwipe
         , Ports.onRightSwipe Msg.OnRightSwipe
+        , Ports.onUserError Msg.OnUserError
         , Browser.Events.onResize (\width height -> Msg.WindowResize { width = width, height = height })
         ]
 
@@ -447,8 +481,8 @@ viewDialog model dialog =
         Model.RecurringDialog data ->
             Dialog.Settings.viewRecurringDialog model data
 
-        Model.ImportDialog ->
-            Dialog.Settings.viewImportDialog model
+        Model.ImportDialog data ->
+            Dialog.Settings.viewImportDialog model data
 
         Model.ExportDialog ->
             Dialog.Settings.viewExportDialog model

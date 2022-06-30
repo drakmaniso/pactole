@@ -305,13 +305,13 @@
             }
             const app = Elm.Main.init({ flags: flags })
 
-            // Connect service worker JS to Elm code
+            // Connect service worker to Elm runtime
 
             navigator.serviceWorker.onmessage = event => {
               log(`Received "${event.data.title}".`)
-              app.ports.receive.send([event.data.title, event.data.content])
+              app.ports.fromServiceWorker.send([event.data.title, event.data.content])
             }
-            app.ports.sendToSW.subscribe(function (args) {
+            app.ports.toServiceWorker.subscribe(function (args) {
               try {
                 [title, content] = args
                 sendToServiceWorker(title, content)
@@ -369,7 +369,7 @@
               yTouch = null
             }
 
-            // Connect Elm code to window JS
+            // Connect Elm runtime to window JS
 
             app.ports.error.subscribe(
               msg => console.error(`[ELM] ${msg}`)
@@ -377,15 +377,12 @@
             app.ports.exportDatabase.subscribe(
               db => exportDatabase(db)
             )
-            app.ports.selectImport.subscribe(
-              _ => selectImport()
-            )
             app.ports.requestStoragePersistence.subscribe(
               _ => requestStoragePersistence()
             )
 
             log(`Starting Elm application.`)
-            app.ports.receive.send(["start application", null])
+            app.ports.onApplicationStart.send(null)
           })
           .catch(err => fatalError(`no response from navigator.storage.persisted()`))
 
@@ -433,36 +430,6 @@
       a.href = window.URL.createObjectURL(blob)
       a.download = `${filename}`
       a.click()
-    }
-
-    function selectImport() {
-      var input = document.createElement("input")
-      input.type = "file"
-      input.accept = ".json"
-      input.addEventListener("change", processSelectedImportFile, false)
-      input.click()
-    }
-
-    function processSelectedImportFile() {
-      if (this.files.length != 1) {
-        console.error(`[CLIENT] wrong number of selected files: ${this.files.length}`)
-        sendToServiceWorker("user error", "impossible d'importer plus d'un fichier à la fois")
-        return
-      }
-      const file = this.files[0]
-      console.log(`[CLIENT] file selected for import: "${file.name}"`)
-      const reader = new FileReader()
-      reader.onload = (event) => {
-        try {
-          const db = JSON.parse(event.target.result)
-          sendToServiceWorker("broadcast import database", db)
-        }
-        catch (err) {
-          console.error(`[CLIENT] error in file selected for import: ${err} `)
-          sendToServiceWorker("user error", "impossible de lire le fichier choisi")
-        }
-      }
-      reader.readAsText(file)
     }
 
     function log(msg) {

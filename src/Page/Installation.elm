@@ -143,7 +143,7 @@ viewInstallation model installation =
                 , Ui.linkButton
                     { label =
                         Ui.text "récupérer une sauvegarde"
-                    , onPress = Just (Msg.ImportInstall |> Msg.ForInstallation)
+                    , onPress = Just Msg.RequestImportFile
                     }
                 , Ui.text "."
                 ]

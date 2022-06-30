@@ -14,6 +14,7 @@ import Database
 import Dict
 import Element as E
 import Element.Font as Font
+import Ledger
 import Model exposing (Model)
 import Msg exposing (Msg)
 import Ui
@@ -313,8 +314,13 @@ viewRecurringDialog model submodel =
         }
 
 
-viewImportDialog : Model -> E.Element Msg
-viewImportDialog model =
+viewImportDialog : Model -> Model.Database -> E.Element Msg
+viewImportDialog model db =
+    let
+        transactions =
+            Ledger.getAllTransactions db.ledger
+    in
+    --TODO: less scary dialog if import during installation
     Ui.dialog model.context
         { key = "import dialog"
         , content =
@@ -331,11 +337,26 @@ viewImportDialog model =
                     [ E.text "Remplacer toutes les données?" ]
                 , E.el []
                     (Ui.warningParagraph
-                        [ E.el [ Font.bold ] (E.text "Toutes les opérations et les réglages vont être ")
-                        , E.el [ Font.bold ] (E.text "définitivement supprimés!")
-                        , E.text " Ils seront remplacés par le contenu du fichier sélectionné."
+                        [ E.text "Cette action va "
+                        , E.el [ Font.bold ] <| E.text "définitivement supprimer"
+                        , E.text " toutes les opérations et les réglages actuels."
                         ]
                     )
+                , Ui.paragraph
+                    """
+                    Contenu de la sauvegarde:
+                    """
+                , Ui.helpList
+                    [ Ui.paragraph <|
+                        "comptes: "
+                            ++ (String.concat <| List.intersperse ", " <| List.sort <| List.map Tuple.second db.accounts)
+                    , Ui.paragraph <|
+                        "opérations: "
+                            ++ (String.fromInt <| List.length transactions)
+
+                    --TODO: show first and last transaction
+                    , Ui.paragraph <| "version de Pactole: " ++ db.serviceVersion
+                    ]
                 ]
         , close =
             { label = E.text "Annuler"

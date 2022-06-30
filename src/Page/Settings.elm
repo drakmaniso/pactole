@@ -77,7 +77,7 @@ configBackup model =
             , label = E.row [ E.spacing 12 ] [ Ui.saveIcon, E.text "Faire une copie de sauvegarde" ]
             }
         , Ui.roundButton model.context
-            { onPress = Msg.OpenDialog <| Model.ImportDialog
+            { onPress = Msg.RequestImportFile
             , color = Ui.PlainButton
             , label = E.row [ E.spacing 12 ] [ Ui.loadIcon, E.text "Récupérer une sauvegarde" ]
             }
