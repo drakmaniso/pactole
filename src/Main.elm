@@ -484,8 +484,8 @@ viewDialog model dialog =
         Model.ImportDialog data ->
             Dialog.Settings.viewImportDialog model data
 
-        Model.ExportDialog ->
-            Dialog.Settings.viewExportDialog model
+        Model.ExportDialog data ->
+            Dialog.Settings.viewExportDialog model data
 
         Model.FontDialog data ->
             Dialog.Settings.viewFontDialog model data

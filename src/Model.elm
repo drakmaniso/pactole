@@ -255,7 +255,7 @@ type Dialog
     | DeleteCategoryDialog Int
     | RecurringDialog RecurringData
     | ImportDialog Database
-    | ExportDialog
+    | ExportDialog String
     | FontDialog String
     | UserErrorDialog String
 

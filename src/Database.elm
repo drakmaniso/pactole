@@ -8,8 +8,6 @@ module Database exposing
     , deleteCategory
     , deleteRecurringTransaction
     , deleteTransaction
-    , exportDatabase
-    , exportFileName
     , fromServiceWorker
     , msgFromService
     , proceedWithInstallation
@@ -25,6 +23,7 @@ module Database exposing
 
 import Date exposing (Date)
 import Dict
+import File.Download
 import Json.Decode as Decode
 import Json.Encode as Encode
 import Ledger
@@ -250,38 +249,6 @@ deleteRecurringTransaction id =
             [ ( "id", Encode.int id )
             ]
         )
-
-
-exportFileName : Model -> String
-exportFileName model =
-    let
-        today =
-            model.today
-
-        year =
-            Date.getYear today |> String.fromInt |> String.padLeft 4 '0'
-
-        month =
-            Date.getMonth today |> Date.getMonthNumber |> String.fromInt |> String.padLeft 2 '0'
-
-        day =
-            Date.getDay today |> String.fromInt |> String.padLeft 2 '0'
-    in
-    "Pactole-" ++ year ++ "-" ++ month ++ "-" ++ day ++ ".json"
-
-
-exportDatabase : Model -> Cmd msg
-exportDatabase model =
-    Ports.exportDatabase <|
-        Encode.object
-            [ ( "filename", Encode.string <| exportFileName model )
-            , ( "settings", Model.encodeSettings model.settings )
-            , ( "recurring", Ledger.encode model.recurring )
-            , ( "accounts", Model.encodeAccounts model.accounts )
-            , ( "categories", Model.encodeCategories model.categories )
-            , ( "ledger", Ledger.encode model.ledger )
-            , ( "serviceVersion", Encode.string model.serviceVersion )
-            ]
 
 
 

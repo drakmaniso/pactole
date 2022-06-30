@@ -374,9 +374,6 @@
             app.ports.error.subscribe(
               msg => console.error(`[ELM] ${msg}`)
             )
-            app.ports.exportDatabase.subscribe(
-              db => exportDatabase(db)
-            )
             app.ports.requestStoragePersistence.subscribe(
               _ => requestStoragePersistence()
             )
@@ -419,17 +416,6 @@
           })
         }
       })
-    }
-
-    function exportDatabase(database) {
-      let filename = database.filename
-
-      let blob = new Blob([JSON.stringify(database, null, 4)], { type: "text/plain;charset=utf-8" })
-
-      var a = document.createElement("a")
-      a.href = window.URL.createObjectURL(blob)
-      a.download = `${filename}`
-      a.click()
     }
 
     function log(msg) {

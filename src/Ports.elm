@@ -1,6 +1,5 @@
 port module Ports exposing
     ( error
-    , exportDatabase
     , fromServiceWorker
     , historyBack
     , onApplicationStart
@@ -43,9 +42,6 @@ port historyBack : () -> Cmd msg
 
 
 port error : String -> Cmd msg
-
-
-port exportDatabase : Encode.Value -> Cmd msg
 
 
 port requestStoragePersistence : () -> Cmd msg

@@ -72,7 +72,7 @@ configBackup model =
             faire une copie de sauvegarde, transférer le fichier et le récupérer sur le nouvel appareil.
             """
         , Ui.roundButton model.context
-            { onPress = Msg.OpenDialog <| Model.ExportDialog
+            { onPress = Msg.OpenDialog <| Model.ExportDialog <| exportFileName model
             , color = Ui.PlainButton
             , label = E.row [ E.spacing 12 ] [ Ui.saveIcon, E.text "Faire une copie de sauvegarde" ]
             }
@@ -381,3 +381,25 @@ secretDiagnosticsButton model =
             { label = E.text ("version " ++ model.serviceVersion)
             , onPress = Just (Msg.ChangePage Model.DiagnosticsPage)
             }
+
+
+
+-- UTILS
+
+
+exportFileName : Model -> String
+exportFileName model =
+    let
+        today =
+            model.today
+
+        year =
+            Date.getYear today |> String.fromInt |> String.padLeft 4 '0'
+
+        month =
+            Date.getMonth today |> Date.getMonthNumber |> String.fromInt |> String.padLeft 2 '0'
+
+        day =
+            Date.getDay today |> String.fromInt |> String.padLeft 2 '0'
+    in
+    "Pactole-" ++ year ++ "-" ++ month ++ "-" ++ day ++ ".json"

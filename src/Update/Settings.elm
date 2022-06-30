@@ -3,6 +3,9 @@ module Update.Settings exposing (confirm, update)
 import Database
 import Date
 import Dict
+import File.Download
+import Json.Encode as Encode
+import Ledger
 import Log
 import Model exposing (Model)
 import Money
@@ -21,6 +24,11 @@ update msg model =
 
         Msg.ChangeSettingsName name ->
             case model.dialog of
+                Just (Model.ExportDialog _) ->
+                    ( { model | dialog = Just (Model.ExportDialog name) }
+                    , Cmd.none
+                    )
+
                 Just (Model.AccountDialog data) ->
                     ( { model | dialog = Just (Model.AccountDialog { data | name = name }) }
                     , Cmd.none
@@ -203,9 +211,26 @@ confirm model =
             , Cmd.none
             )
 
-        Just Model.ExportDialog ->
+        Just (Model.ExportDialog filename) ->
+            let
+                sanitizedName =
+                    if String.right 5 filename /= ".json" then
+                        filename ++ ".json"
+
+                    else
+                        filename
+            in
             ( { model | dialog = Nothing }
-            , Database.exportDatabase model
+            , File.Download.string sanitizedName "application/json" <|
+                Encode.encode 4 <|
+                    Encode.object
+                        [ ( "settings", Model.encodeSettings model.settings )
+                        , ( "recurring", Ledger.encode model.recurring )
+                        , ( "accounts", Model.encodeAccounts model.accounts )
+                        , ( "categories", Model.encodeCategories model.categories )
+                        , ( "ledger", Ledger.encode model.ledger )
+                        , ( "serviceVersion", Encode.string model.serviceVersion )
+                        ]
             )
 
         Just (Model.UserErrorDialog _) ->

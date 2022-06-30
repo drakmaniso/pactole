@@ -374,8 +374,8 @@ viewImportDialog model db =
         }
 
 
-viewExportDialog : Model -> E.Element Msg
-viewExportDialog model =
+viewExportDialog : Model -> String -> E.Element Msg
+viewExportDialog model filename =
     Ui.dialog model.context
         { key = "export dialog"
         , content =
@@ -389,22 +389,17 @@ viewExportDialog model =
                     [ Ui.bigFont model.context
                     , Font.bold
                     ]
-                    [ E.text "Sauvegarder les données?" ]
+                    [ E.text "Sauvegarder les données" ]
+                , Ui.textInput
+                    { label = Ui.labelAbove model.context "Nom du fichier:"
+                    , text = filename
+                    , onChange = \n -> Msg.ForSettings <| Msg.ChangeSettingsName n
+                    }
                 , E.paragraph
                     []
-                    [ E.text "Toutes les données de Pactole vont être enregistrées dans le dans le fichier suivant:"
-                    ]
-                , E.row
-                    [ Ui.bigFont model.context
-                    , E.width E.fill
-                    ]
-                    [ E.el [ E.width E.fill ] E.none
-                    , E.text (Database.exportFileName model)
-                    , E.el [ E.width E.fill ] E.none
-                    ]
-                , E.paragraph
-                    []
-                    [ E.text "Il sera placé dans le dossier des téléchargements."
+                    [ E.text "Le fichier sera placé dans le "
+                    , E.el [ Font.bold ] <| E.text "dossier des téléchargements"
+                    , E.text "."
                     ]
                 ]
         , close =
