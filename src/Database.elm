@@ -343,6 +343,7 @@ msgFromService ( title, content ) model =
                         , categories = Dict.fromList db.categories
                         , ledger = db.ledger
                         , recurring = db.recurring
+                        , serviceVersion = db.serviceVersion
                         , page =
                             if List.isEmpty db.accounts then
                                 Model.InstallationPage defaultInstallationData
