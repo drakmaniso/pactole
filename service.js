@@ -24,7 +24,7 @@ const version = 2
 const staticCacheName = "pactole-cache-2"
 
 // Used to force an update on client-side
-const serviceVersion = "1.5.1"
+const serviceVersion = "1.5.2"
 
 
 self.addEventListener('install', event => {
@@ -107,7 +107,9 @@ self.addEventListener('message', event => {
           .then(() => setCategories(categories))
           .then(() => setAllTransactions('recurring', recurring))
           .then(() => setAllTransactions('ledger', ledger))
-          .then(() => broadcast('update whole database', msg.content))
+          /* .then(() => broadcast('update whole database', msg.content)) */
+          .then(() => requestWholeDatabase())
+          .then(db => broadcast('update whole database', db))
           .catch(err => error(`install database: ${err}`))
 
       }
