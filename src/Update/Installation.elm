@@ -44,9 +44,6 @@ update msg model =
                     , Cmd.none
                     )
 
-                Msg.ImportInstall ->
-                    ( model, Database.importDatabase )
-
         _ ->
             ( model, Cmd.none )
                 |> Log.error "what?"

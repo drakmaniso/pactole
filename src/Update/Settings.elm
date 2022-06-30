@@ -2,11 +2,17 @@ module Update.Settings exposing (confirm, update)
 
 import Database
 import Date
+import Dict
+import File.Download
+import Json.Encode as Encode
+import Ledger
 import Log
 import Model exposing (Model)
 import Money
 import Msg exposing (Msg)
+import Ports
 import String
+import Ui
 
 
 update : Msg.SettingsMsg -> Model -> ( Model, Cmd Msg )
@@ -19,6 +25,11 @@ update msg model =
 
         Msg.ChangeSettingsName name ->
             case model.dialog of
+                Just (Model.ExportDialog _) ->
+                    ( { model | dialog = Just (Model.ExportDialog name) }
+                    , Cmd.none
+                    )
+
                 Just (Model.AccountDialog data) ->
                     ( { model | dialog = Just (Model.AccountDialog { data | name = name }) }
                     , Cmd.none
@@ -179,14 +190,51 @@ confirm model =
                         }
                     )
 
-        Just Model.ImportDialog ->
-            ( { model | dialog = Nothing }
-            , Database.importDatabase
+        Just (Model.ImportDialog db) ->
+            ( { model
+                | dialog = Nothing
+                , settings = db.settings
+                , accounts = Dict.fromList db.accounts
+                , account = Model.firstAccount db.accounts
+                , categories = Dict.fromList db.categories
+                , ledger = db.ledger
+                , recurring = db.recurring
+                , page = Model.CalendarPage
+                , context =
+                    Ui.classifyContext
+                        { width = model.context.width
+                        , height = model.context.height
+                        , fontSize = db.settings.fontSize
+                        , deviceClass = db.settings.deviceClass
+                        , animationDisabled = db.settings.animationDisabled
+                        }
+              }
+            , Ports.toServiceWorker
+                ( "install database"
+                , Model.encodeDatabase db
+                )
             )
 
-        Just Model.ExportDialog ->
+        Just (Model.ExportDialog filename) ->
+            let
+                sanitizedName =
+                    if String.right 8 filename /= ".pactole" then
+                        filename ++ ".pactole"
+
+                    else
+                        filename
+            in
             ( { model | dialog = Nothing }
-            , Database.exportDatabase model
+            , File.Download.string sanitizedName "application/vnd.drakmaniso.pactole" <|
+                Encode.encode 4 <|
+                    Encode.object
+                        [ ( "settings", Model.encodeSettings model.settings )
+                        , ( "recurring", Ledger.encode model.recurring )
+                        , ( "accounts", Model.encodeAccounts model.accounts )
+                        , ( "categories", Model.encodeCategories model.categories )
+                        , ( "ledger", Ledger.encode model.ledger )
+                        , ( "serviceVersion", Encode.string model.serviceVersion )
+                        ]
             )
 
         Just (Model.UserErrorDialog _) ->

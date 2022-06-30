@@ -1,14 +1,14 @@
 port module Ports exposing
     ( error
-    , exportDatabase
+    , fromServiceWorker
     , historyBack
+    , onApplicationStart
     , onLeftSwipe
     , onPopState
     , onRightSwipe
-    , receive
+    , onUserError
     , requestStoragePersistence
-    , selectImport
-    , sendToSW
+    , toServiceWorker
     )
 
 import Json.Decode as Decode
@@ -19,6 +19,9 @@ import Json.Encode as Encode
 -- From Window Javascript
 
 
+port onApplicationStart : (() -> msg) -> Sub msg
+
+
 port onPopState : (() -> msg) -> Sub msg
 
 
@@ -26,6 +29,9 @@ port onLeftSwipe : (() -> msg) -> Sub msg
 
 
 port onRightSwipe : (() -> msg) -> Sub msg
+
+
+port onUserError : (String -> msg) -> Sub msg
 
 
 
@@ -38,12 +44,6 @@ port historyBack : () -> Cmd msg
 port error : String -> Cmd msg
 
 
-port exportDatabase : Encode.Value -> Cmd msg
-
-
-port selectImport : () -> Cmd msg
-
-
 port requestStoragePersistence : () -> Cmd msg
 
 
@@ -51,11 +51,11 @@ port requestStoragePersistence : () -> Cmd msg
 -- To Service Worker
 
 
-port sendToSW : ( String, Encode.Value ) -> Cmd msg
+port toServiceWorker : ( String, Encode.Value ) -> Cmd msg
 
 
 
 -- From Service Worker
 
 
-port receive : (( String, Decode.Value ) -> msg) -> Sub msg
+port fromServiceWorker : (( String, Decode.Value ) -> msg) -> Sub msg

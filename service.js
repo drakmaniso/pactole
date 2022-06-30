@@ -24,7 +24,7 @@ const version = 2
 const staticCacheName = "pactole-cache-2"
 
 // Used to force an update on client-side
-const serviceVersion = "1.5.1"
+const serviceVersion = "1.5.2"
 
 
 self.addEventListener('install', event => {
@@ -93,6 +93,29 @@ self.addEventListener('message', event => {
 
     case 'persistent storage granted':
       broadcast('persistent storage granted', { granted: msg.content })
+      break
+
+    // Installation
+
+    case 'install database':
+      try {
+        const {
+          settings, recurring, accounts, categories, ledger
+        } = msg.content
+        setSettings(settings)
+          .then(() => setAccounts(accounts))
+          .then(() => setCategories(categories))
+          .then(() => setAllTransactions('recurring', recurring))
+          .then(() => setAllTransactions('ledger', ledger))
+          /* .then(() => broadcast('update whole database', msg.content)) */
+          .then(() => requestWholeDatabase())
+          .then(db => broadcast('update whole database', db))
+          .catch(err => error(`install database: ${err}`))
+
+      }
+      catch (err) {
+        error(`install database: ${err}`)
+      }
       break
 
     // Settings
@@ -293,28 +316,7 @@ self.addEventListener('message', event => {
       }
       break
 
-    case 'broadcast import database':
-      try {
-        const {
-          settings, recurring, accounts, categories, ledger
-        } = msg.content
-        setSettings(settings)
-          .then(() => setAccounts(accounts))
-          .then(() => setCategories(categories))
-          .then(() => setAllTransactions('recurring', recurring))
-          .then(() => setAllTransactions('ledger', ledger))
-          .then(() => broadcast('update whole database', msg.content))
-          .catch(err => error(`broadcast import database: ${err}`))
-
-      }
-      catch (err) {
-        error(`broadcast import database: ${err}`)
-      }
-      break
-
-    case 'user error':
-      broadcast('user error', msg.content)
-      break
+    // Unknown message
 
     default:
       const e = `Unknown message \"${msg.title}\" with content: ${msg.content}`

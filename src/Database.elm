@@ -8,14 +8,10 @@ module Database exposing
     , deleteCategory
     , deleteRecurringTransaction
     , deleteTransaction
-    , exportDatabase
-    , exportFileName
-    , firstAccount
-    , importDatabase
+    , fromServiceWorker
     , msgFromService
     , proceedWithInstallation
     , processRecurringTransactions
-    , receive
     , renameAccount
     , renameCategory
     , replaceRecurringTransaction
@@ -23,14 +19,13 @@ module Database exposing
     , requestWholeDatabase
     , storeSettings
     , update
-    , upgradeSettingsToV2
     )
 
 import Date exposing (Date)
 import Dict
 import Json.Decode as Decode
 import Json.Encode as Encode
-import Ledger exposing (Ledger)
+import Ledger
 import Log
 import Model exposing (Model)
 import Money exposing (Money)
@@ -72,17 +67,17 @@ update msg model =
 
 requestWholeDatabase : Cmd msg
 requestWholeDatabase =
-    Ports.sendToSW ( "request whole database", Encode.null )
+    Ports.toServiceWorker ( "request whole database", Encode.null )
 
 
 storeSettings : Model.Settings -> Cmd msg
 storeSettings settings =
-    Ports.sendToSW ( "store settings", Model.encodeSettings settings )
+    Ports.toServiceWorker ( "store settings", Model.encodeSettings settings )
 
 
 createAccount : String -> Cmd msg
 createAccount name =
-    Ports.sendToSW ( "create account", Encode.string name )
+    Ports.toServiceWorker ( "create account", Encode.string name )
 
 
 proceedWithInstallation : Model -> { firstAccount : String, initialBalance : Money, date : Date } -> Cmd msg
@@ -91,70 +86,58 @@ proceedWithInstallation model data =
         defaultSettings =
             Model.defaultSettings
     in
-    Ports.sendToSW
-        ( "broadcast import database"
-        , Encode.object
-            [ ( "serviceVersion", Encode.string model.serviceVersion )
-            , ( "accounts"
-              , Encode.list Encode.object
-                    [ [ ( "id", Encode.int 1 ), ( "name", Encode.string data.firstAccount ) ]
-                    ]
-              )
-            , ( "ledger"
-              , Encode.list Ledger.encodeTransaction
-                    [ { id = 1
-                      , account = 1
-                      , date = data.date
-                      , amount = data.initialBalance
-                      , description = "Solde initial"
-                      , category = 0
-                      , checked = False
-                      }
-                    ]
-              )
-            , ( "recurring", Encode.list Encode.object [] )
-            , ( "categories"
-              , Encode.list Encode.object
-                    [ [ ( "id", Encode.int 1 )
-                      , ( "name", Encode.string "Maison" )
-                      , ( "icon", Encode.string "\u{F015}" )
-                      ]
-                    , [ ( "id", Encode.int 2 )
-                      , ( "name", Encode.string "Santé" )
-                      , ( "icon", Encode.string "\u{F0F1}" )
-                      ]
-                    , [ ( "id", Encode.int 3 )
-                      , ( "name", Encode.string "Nourriture" )
-                      , ( "icon", Encode.string "\u{F2E7}" )
-                      ]
-                    , [ ( "id", Encode.int 4 )
-                      , ( "name", Encode.string "Vêtements" )
-                      , ( "icon", Encode.string "\u{F553}" )
-                      ]
-                    , [ ( "id", Encode.int 5 )
-                      , ( "name", Encode.string "Transports" )
-                      , ( "icon", Encode.string "\u{F5E4}" )
-                      ]
-                    , [ ( "id", Encode.int 6 )
-                      , ( "name", Encode.string "Loisirs" )
-                      , ( "icon", Encode.string "\u{F5CA}" )
-                      ]
-                    , [ ( "id", Encode.int 7 )
-                      , ( "name", Encode.string "Banque" )
-                      , ( "icon", Encode.string "\u{F19C}" )
-                      ]
-                    ]
-              )
-            , ( "settings"
-              , Model.encodeSettings defaultSettings
-              )
-            ]
+    Ports.toServiceWorker
+        ( "install database"
+        , Model.encodeDatabase
+            { serviceVersion = model.serviceVersion
+            , accounts = [ ( 1, data.firstAccount ) ]
+            , categories =
+                [ ( 1
+                  , { name = "Maison"
+                    , icon = "\u{F015}"
+                    }
+                  )
+                , ( 2
+                  , { name = "Santé"
+                    , icon = "\u{F0F1}"
+                    }
+                  )
+                , ( 3
+                  , { name = "Nourriture"
+                    , icon = "\u{F2E7}"
+                    }
+                  )
+                , ( 4
+                  , { name = "Vêtements"
+                    , icon = "\u{F553}"
+                    }
+                  )
+                , ( 5
+                  , { name = "Transports"
+                    , icon = "\u{F5E4}"
+                    }
+                  )
+                , ( 6
+                  , { name = "Loisirs"
+                    , icon = "\u{F5CA}"
+                    }
+                  )
+                , ( 7
+                  , { name = "Banque"
+                    , icon = "\u{F19C}"
+                    }
+                  )
+                ]
+            , ledger = Ledger.initialLedger data.date data.initialBalance
+            , recurring = Ledger.empty
+            , settings = defaultSettings
+            }
         )
 
 
 renameAccount : Int -> String -> Cmd msg
 renameAccount account newName =
-    Ports.sendToSW
+    Ports.toServiceWorker
         ( "rename account"
         , Encode.object
             [ ( "id", Encode.int account )
@@ -165,7 +148,7 @@ renameAccount account newName =
 
 deleteAccount : Int -> Cmd msg
 deleteAccount account =
-    Ports.sendToSW
+    Ports.toServiceWorker
         ( "delete account"
         , Encode.int account
         )
@@ -173,7 +156,7 @@ deleteAccount account =
 
 createCategory : String -> String -> Cmd msg
 createCategory name icon =
-    Ports.sendToSW
+    Ports.toServiceWorker
         ( "create category"
         , Encode.object
             [ ( "name", Encode.string name )
@@ -184,7 +167,7 @@ createCategory name icon =
 
 renameCategory : Int -> String -> String -> Cmd msg
 renameCategory id name icon =
-    Ports.sendToSW
+    Ports.toServiceWorker
         ( "rename category"
         , Encode.object
             [ ( "id", Encode.int id )
@@ -196,7 +179,7 @@ renameCategory id name icon =
 
 deleteCategory : Int -> Cmd msg
 deleteCategory id =
-    Ports.sendToSW
+    Ports.toServiceWorker
         ( "delete category"
         , Encode.int id
         )
@@ -204,7 +187,7 @@ deleteCategory id =
 
 createTransaction : Ledger.NewTransaction -> Cmd msg
 createTransaction transaction =
-    Ports.sendToSW
+    Ports.toServiceWorker
         ( "create transaction"
         , Ledger.encodeNewTransaction transaction
         )
@@ -212,7 +195,7 @@ createTransaction transaction =
 
 replaceTransaction : Ledger.Transaction -> Cmd msg
 replaceTransaction transaction =
-    Ports.sendToSW
+    Ports.toServiceWorker
         ( "replace transaction"
         , Ledger.encodeTransaction transaction
         )
@@ -220,7 +203,7 @@ replaceTransaction transaction =
 
 deleteTransaction : Int -> Cmd msg
 deleteTransaction id =
-    Ports.sendToSW
+    Ports.toServiceWorker
         ( "delete transaction"
         , Encode.object
             [ ( "id", Encode.int id )
@@ -230,7 +213,7 @@ deleteTransaction id =
 
 createRecurringTransaction : Ledger.NewTransaction -> Cmd msg
 createRecurringTransaction transaction =
-    Ports.sendToSW
+    Ports.toServiceWorker
         ( "create recurring transaction"
         , Ledger.encodeNewTransaction transaction
         )
@@ -238,7 +221,7 @@ createRecurringTransaction transaction =
 
 replaceRecurringTransaction : Ledger.Transaction -> Cmd msg
 replaceRecurringTransaction transaction =
-    Ports.sendToSW
+    Ports.toServiceWorker
         ( "replace recurring transaction"
         , Ledger.encodeTransaction transaction
         )
@@ -246,7 +229,7 @@ replaceRecurringTransaction transaction =
 
 deleteRecurringTransaction : Int -> Cmd msg
 deleteRecurringTransaction id =
-    Ports.sendToSW
+    Ports.toServiceWorker
         ( "delete recurring transaction"
         , Encode.object
             [ ( "id", Encode.int id )
@@ -254,50 +237,13 @@ deleteRecurringTransaction id =
         )
 
 
-exportFileName : Model -> String
-exportFileName model =
-    let
-        today =
-            model.today
-
-        year =
-            Date.getYear today |> String.fromInt |> String.padLeft 4 '0'
-
-        month =
-            Date.getMonth today |> Date.getMonthNumber |> String.fromInt |> String.padLeft 2 '0'
-
-        day =
-            Date.getDay today |> String.fromInt |> String.padLeft 2 '0'
-    in
-    "Pactole-" ++ year ++ "-" ++ month ++ "-" ++ day ++ ".json"
-
-
-exportDatabase : Model -> Cmd msg
-exportDatabase model =
-    Ports.exportDatabase <|
-        Encode.object
-            [ ( "filename", Encode.string <| exportFileName model )
-            , ( "settings", Model.encodeSettings model.settings )
-            , ( "recurring", Ledger.encode model.recurring )
-            , ( "accounts", Model.encodeAccounts model.accounts )
-            , ( "categories", Model.encodeCategories model.categories )
-            , ( "ledger", Ledger.encode model.ledger )
-            , ( "serviceVersion", Encode.string model.serviceVersion )
-            ]
-
-
-importDatabase : Cmd msg
-importDatabase =
-    Ports.selectImport ()
-
-
 
 -- FROM THE SERVICE WORKER
 
 
-receive : Sub Msg
-receive =
-    Ports.receive (Msg.ForDatabase << Msg.FromServiceWorker)
+fromServiceWorker : Sub Msg
+fromServiceWorker =
+    Ports.fromServiceWorker (Msg.ForDatabase << Msg.FromServiceWorker)
 
 
 msgFromService : ( String, Decode.Value ) -> Model -> ( Model, Cmd Msg )
@@ -309,9 +255,6 @@ msgFromService ( title, content ) model =
             }
     in
     case title of
-        "start application" ->
-            ( model, Ports.sendToSW ( "request whole database", Encode.null ) )
-
         "persistent storage granted" ->
             case Decode.decodeValue (Decode.at [ "granted" ] Decode.bool) content of
                 Ok granted ->
@@ -339,10 +282,11 @@ msgFromService ( title, content ) model =
                     ( { model
                         | settings = db.settings
                         , accounts = Dict.fromList db.accounts
-                        , account = firstAccount db.accounts
+                        , account = Model.firstAccount db.accounts
                         , categories = Dict.fromList db.categories
                         , ledger = db.ledger
                         , recurring = db.recurring
+                        , serviceVersion = db.serviceVersion
                         , page =
                             if List.isEmpty db.accounts then
                                 Model.InstallationPage defaultInstallationData
@@ -364,7 +308,6 @@ msgFromService ( title, content ) model =
                       else
                         Cmd.none
                     )
-                        |> upgradeSettingsToV2 content
                         |> processRecurringTransactions
 
                 Err e ->
@@ -446,14 +389,6 @@ msgFromService ( title, content ) model =
                 Err e ->
                     Log.error (Decode.errorToString e) ( model, Cmd.none )
 
-        "user error" ->
-            case Decode.decodeValue Decode.string content of
-                Ok msg ->
-                    ( { model | dialog = Just (Model.UserErrorDialog msg) }, Cmd.none )
-
-                _ ->
-                    ( { model | errors = model.errors ++ [ "ERROR: undecodable javascript in \"user error\" message" ] }, Cmd.none )
-
         "javascript error" ->
             case Decode.decodeValue Decode.string content of
                 Ok msg ->
@@ -470,40 +405,7 @@ msgFromService ( title, content ) model =
 -- UTILITIES
 
 
-upgradeSettingsToV2 : Decode.Value -> ( Model, Cmd msg ) -> ( Model, Cmd msg )
-upgradeSettingsToV2 json ( model, previousCmds ) =
-    let
-        decoder =
-            Decode.field "settings"
-                (Decode.oneOf
-                    [ Decode.field "recurringTransactions" (Decode.list Ledger.decodeNewTransaction)
-                    , Decode.succeed []
-                    ]
-                )
-    in
-    case Decode.decodeValue decoder json of
-        Ok [] ->
-            ( model, previousCmds )
-
-        Ok recurring ->
-            let
-                cmds =
-                    recurring
-                        |> List.map
-                            (\t ->
-                                createRecurringTransaction t
-                            )
-            in
-            ( model, Cmd.batch (previousCmds :: storeSettings model.settings :: cmds) )
-
-        Err e ->
-            Log.error ("decoding database: " ++ Decode.errorToString e)
-                ( model
-                , previousCmds
-                )
-
-
-decodeDB : Decode.Decoder { settings : Model.Settings, accounts : List ( Int, String ), categories : List ( Int, { name : String, icon : String } ), ledger : Ledger, recurring : Ledger, serviceVersion : String }
+decodeDB : Decode.Decoder Model.Database
 decodeDB =
     Decode.map6
         (\s a c l r srd ->
@@ -521,16 +423,6 @@ decodeDB =
         (Decode.field "ledger" Ledger.decode)
         (Decode.field "recurring" Ledger.decode)
         (Decode.field "serviceVersion" Decode.string)
-
-
-firstAccount : List ( Int, String ) -> Int
-firstAccount accounts =
-    case accounts |> List.sortBy (\( _, name ) -> name) of
-        head :: _ ->
-            Tuple.first head
-
-        _ ->
-            -1
 
 
 processRecurringTransactions : ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
