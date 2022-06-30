@@ -402,4 +402,4 @@ exportFileName model =
         day =
             Date.getDay today |> String.fromInt |> String.padLeft 2 '0'
     in
-    "Pactole-" ++ year ++ "-" ++ month ++ "-" ++ day ++ ".json"
+    "Pactole " ++ year ++ "-" ++ month ++ "-" ++ day

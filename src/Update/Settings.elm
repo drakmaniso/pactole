@@ -214,8 +214,8 @@ confirm model =
         Just (Model.ExportDialog filename) ->
             let
                 sanitizedName =
-                    if String.right 5 filename /= ".json" then
-                        filename ++ ".json"
+                    if String.right 8 filename /= ".pactole" then
+                        filename ++ ".pactole"
 
                     else
                         filename

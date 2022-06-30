@@ -177,7 +177,7 @@ update msg model =
             ( { model | dialog = Nothing }, Cmd.none )
 
         Msg.RequestImportFile ->
-            ( model, File.Select.file [ "application/json" ] Msg.ReadImportFile )
+            ( model, File.Select.file [ ".pactole,.json" ] Msg.ReadImportFile )
 
         Msg.ReadImportFile file ->
             ( model, Task.perform Msg.ProcessImportFile (File.toString file) )
