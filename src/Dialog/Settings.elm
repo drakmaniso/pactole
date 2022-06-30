@@ -10,7 +10,6 @@ module Dialog.Settings exposing
     , viewUserErrorDialog
     )
 
-import Database
 import Dict
 import Element as E
 import Element.Font as Font

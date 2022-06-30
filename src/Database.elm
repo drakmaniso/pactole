@@ -23,7 +23,6 @@ module Database exposing
 
 import Date exposing (Date)
 import Dict
-import File.Download
 import Json.Decode as Decode
 import Json.Encode as Encode
 import Ledger
