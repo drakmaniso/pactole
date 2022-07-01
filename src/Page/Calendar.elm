@@ -468,7 +468,7 @@ dayView model date =
             , E.scrollbarY
             ]
             [ if model.context.device.orientation == E.Landscape && model.context.height > 28 * em then
-                E.el [ E.width E.fill, Font.color Color.neutral20, Ui.smallFont model.context ]
+                E.el [ E.width E.fill, Font.color Color.neutral50, Ui.smallFont model.context ]
                     (E.text <| Date.fancyDayDescription model.today date)
 
               else

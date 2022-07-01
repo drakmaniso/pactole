@@ -4,7 +4,6 @@ import Date exposing (Date)
 import Element as E
 import Element.Background as Background
 import Element.Font as Font
-import Html.Attributes
 import Ledger
 import Model exposing (Model)
 import Msg exposing (Msg)
@@ -14,10 +13,6 @@ import Ui.Color as Color
 
 viewContent : Model -> E.Element Msg
 viewContent model =
-    let
-        ( anim, animPrevious ) =
-            Ui.animationClasses model.context model.monthDisplayed model.monthPrevious
-    in
     E.column
         [ E.width E.fill
         , E.height E.fill
@@ -42,34 +37,6 @@ viewContent model =
         ]
 
 
-
--- [ Ui.monthNavigationBar model.context model.monthDisplayed Msg.DisplayMonth
--- , E.el
---     [ E.width E.fill
---     , E.height E.fill
---     , E.clip
---     , E.behindContent <|
---         if model.context.animationDisabled then
---             E.none
---         else
---             viewAnimatedContent model model.monthPrevious animPrevious
---     ]
---     (viewAnimatedContent model model.monthDisplayed anim)
--- ]
--- viewAnimatedContent : Model -> Date.MonthYear -> String -> E.Element Msg
--- viewAnimatedContent model monthYear anim =
---     E.column
---         [ E.width E.fill
---         , E.height E.fill
---         , E.scrollbarY
---         , E.htmlAttribute <| Html.Attributes.class anim
---         , Background.color Color.white
---         ]
---         [ viewReconciled model monthYear
---         , viewTransactions model monthYear
---         ]
-
-
 viewReconciled : Model -> E.Element msg
 viewReconciled model =
     E.column
@@ -78,7 +45,7 @@ viewReconciled model =
             [ E.width E.fill ]
             [ E.el [ E.width E.fill ] E.none
             , E.el [ Ui.bigFont model.context ] (E.text "Solde pointé:")
-            , Ui.viewSum model.context (Ledger.getReconciled model.ledger model.account)
+            , Ui.viewBalance model.context (Ledger.getReconciled model.ledger model.account)
             , E.el [ E.width E.fill ] E.none
             ]
         ]
@@ -87,9 +54,6 @@ viewReconciled model =
 viewTransactions : Model -> E.Element Msg
 viewTransactions model =
     let
-        em =
-            model.context.em
-
         transactions =
             Ledger.getLastXMonthsTransactions model.ledger model.account model.today 6
     in
@@ -141,9 +105,7 @@ rowDate model date =
         , Font.color Color.neutral50
         ]
     <|
-        -- Ui.viewDate model.context date
-        E.text
-        <|
+        E.text <|
             Date.toString date
 
 
@@ -191,17 +153,6 @@ colReconciled model transaction bg =
             , state = transaction.checked
             , onPress = Just (Msg.ForDatabase <| Msg.CheckTransaction transaction (not transaction.checked))
             }
-
-
-colDate : Model -> Ledger.Transaction -> E.Element msg
-colDate model transaction =
-    let
-        em =
-            model.context.em
-    in
-    E.el
-        [ E.width <| E.minimum (3 * em) <| E.shrink, E.alignLeft, Font.alignLeft, E.centerY ]
-        (E.text (Date.toShortString transaction.date))
 
 
 colAmount : Model -> Ledger.Transaction -> Date -> E.Element msg

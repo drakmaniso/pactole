@@ -112,7 +112,7 @@ viewBalance model =
             E.el
                 [ Ui.smallFont model.context
                 , E.centerX
-                , Font.color Color.neutral20
+                , Font.color Color.neutral50
                 , Ui.notSelectable
                 ]
                 (E.text "Solde actuel:")
@@ -133,9 +133,8 @@ viewBalance model =
                 (E.text ("," ++ parts.cents))
             , E.el
                 [ Ui.bigFont model.context
-                , E.alignTop
                 ]
-                (E.text "€")
+                (E.text " €")
             ]
         ]
 
@@ -240,7 +239,7 @@ viewMobileBalance model =
                 [ Ui.defaultFontSize model.context, Font.bold ]
                 (E.text ("," ++ parts.cents))
             , E.el
-                [ Ui.defaultFontSize model.context, E.alignTop ]
-                (E.text "€")
+                [ Ui.defaultFontSize model.context ]
+                (E.text " €")
             ]
         )

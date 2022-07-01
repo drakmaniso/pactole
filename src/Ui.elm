@@ -68,6 +68,7 @@ module Ui exposing
     , title
     , toggleSwitch
     , verticalSpacer
+    , viewBalance
     , viewDate
     , viewIcon
     , viewMoney
@@ -1065,6 +1066,52 @@ viewSum context money =
             , Font.bold
             ]
             (E.text ("," ++ parts.cents))
+        ]
+
+
+viewBalance : Context -> Money.Money -> E.Element msg
+viewBalance context money =
+    let
+        parts =
+            Money.toStrings money
+
+        sign =
+            if parts.sign == "+" then
+                ""
+
+            else
+                parts.sign
+
+        color =
+            if parts.sign == "+" then
+                Color.neutral20
+
+            else
+                Color.warning60
+    in
+    E.row
+        [ E.width E.shrink
+        , E.height E.shrink
+        , E.paddingEach { top = 0, bottom = 0, left = 16, right = 16 }
+        , Font.color color
+        ]
+        [ E.el
+            [ bigFont context
+            , Font.alignRight
+            , Font.bold
+            ]
+            (E.text (sign ++ parts.units))
+        , E.el
+            [ defaultFontSize context
+            , Font.alignLeft
+            , E.alignBottom
+            , E.paddingXY 0 1
+            , Font.bold
+            ]
+            (E.text ("," ++ parts.cents))
+        , E.el
+            [ defaultFontSize context, E.alignBottom ]
+            (E.text " €")
         ]
 
 
