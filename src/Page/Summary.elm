@@ -2,6 +2,7 @@ module Page.Summary exposing (viewDesktop, viewMobile)
 
 import Dict
 import Element as E
+import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
 import Element.Input as Input
@@ -40,7 +41,7 @@ viewAccounts model =
     in
     case model.accounts |> Dict.toList |> List.sortBy (\( _, name ) -> name) of
         [ ( _, name ) ] ->
-            E.el [ Ui.notSelectable, Font.center, E.centerX, E.centerY ]
+            E.el [ Ui.notSelectable, Font.center, Ui.bigFont model.context, E.centerX, E.centerY ]
                 (E.text name)
 
         accounts ->
@@ -148,7 +149,8 @@ viewMobile model =
             [ E.width E.fill
             , E.clipX
             , E.spacing <| model.context.em // 4
-            , E.paddingXY (model.context.em // 4) (model.context.em // 2)
+            , E.padding <| model.context.em // 4
+            , Background.color Color.primary95
             ]
             [ viewMobileAccounts model
             , viewMobileBalance model
@@ -163,11 +165,11 @@ viewMobileAccounts model =
             E.el
                 [ Ui.notSelectable
                 , Font.center
-                , E.alignLeft
+                , E.centerX
                 , E.centerY
                 , E.padding (model.context.em // 4)
                 ]
-                (E.text name)
+                (E.text <| name ++ ":")
 
         accounts ->
             E.el [ Font.center, E.alignLeft, E.centerY ] <|
@@ -217,7 +219,7 @@ viewMobileBalance model =
                 Color.warning60
     in
     E.el
-        [ E.alignRight
+        [ E.centerX
         , E.centerY
         , E.padding (model.context.em // 4)
         , Border.rounded (model.context.em // 4)
@@ -233,13 +235,13 @@ viewMobileBalance model =
         (E.paragraph
             [ Font.alignRight, E.alignRight, Font.color color, Ui.notSelectable ]
             [ E.el
-                [ Ui.bigFont model.context, Font.bold ]
+                [ Ui.defaultFontSize model.context, Font.bold ]
                 (E.text (sign ++ parts.units))
             , E.el
-                [ Ui.defaultFontSize model.context, Font.bold ]
+                [ Ui.smallFont model.context, Font.bold ]
                 (E.text ("," ++ parts.cents))
             , E.el
-                [ Ui.defaultFontSize model.context ]
+                [ Ui.smallFont model.context ]
                 (E.text " €")
             ]
         )

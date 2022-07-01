@@ -198,13 +198,13 @@ income70 =
 
 primary95 : E.Color
 primary95 =
-    hex 0x00DCEDFF
+    hex 0x00E9F2FB
 
 
 primary90 : E.Color
 primary90 =
     -- hex 0x00E8F2FC
-    hex 0x00D4E5F7
+    hex 0x00D3E5F7
 
 
 primary85 : E.Color

@@ -4,6 +4,7 @@ import Date exposing (Date)
 import Element as E
 import Element.Background as Background
 import Element.Font as Font
+import Html.Attributes
 import Ledger
 import Model exposing (Model)
 import Msg exposing (Msg)
@@ -20,17 +21,11 @@ viewContent model =
         ]
         [ viewReconciled model
         , E.el
-            [ E.height <| E.px 2
-            , E.width <| E.maximum (32 * model.context.em) <| E.fill
-            , E.centerX
-            , Background.color Color.neutral80
-            ]
-            E.none
-        , E.el
             [ E.width E.fill
             , E.height E.fill
             , E.scrollbarY
             , E.clipX
+            , E.htmlAttribute <| Html.Attributes.class "scrollbox"
             ]
           <|
             viewTransactions model
@@ -40,11 +35,17 @@ viewContent model =
 viewReconciled : Model -> E.Element msg
 viewReconciled model =
     E.column
-        [ E.width E.fill, E.padding <| model.context.em, E.spacing 24, Font.color Color.neutral20 ]
+        [ E.width E.fill
+        , E.padding <| model.context.em // 2
+        , Font.color Color.neutral20
+        ]
         [ E.row
             [ E.width E.fill ]
             [ E.el [ E.width E.fill ] E.none
-            , E.el [ Ui.bigFont model.context ] (E.text "Solde pointé:")
+            , E.el
+                [ Ui.bigFont model.context
+                ]
+                (E.text "Solde pointé:")
             , Ui.viewBalance model.context (Ledger.getReconciled model.ledger model.account)
             , E.el [ E.width E.fill ] E.none
             ]
@@ -117,10 +118,12 @@ rowTransaction model idx transaction =
 
         bg =
             if Basics.remainderBy 2 idx == 0 then
-                Color.neutral95
+                --Color.neutral95
+                E.rgba 0 0 0 0.04
 
             else
-                Color.neutral90
+                --Color.neutral90
+                E.rgba 0 0 0 0.08
     in
     E.row
         [ E.width <| E.maximum (24 * em) <| E.fill
@@ -129,15 +132,15 @@ rowTransaction model idx transaction =
         , E.spacing (em // 2)
         , Background.color bg
         ]
-        [ colReconciled model transaction bg
+        [ colReconciled model transaction
         , colCategory model transaction
         , colDescription model transaction
         , colAmount model transaction model.today
         ]
 
 
-colReconciled : Model -> Ledger.Transaction -> E.Color -> E.Element Msg
-colReconciled model transaction bg =
+colReconciled : Model -> Ledger.Transaction -> E.Element Msg
+colReconciled model transaction =
     let
         em =
             model.context.em
@@ -149,8 +152,7 @@ colReconciled model transaction bg =
         ]
     <|
         Ui.reconcileCheckBox model.context
-            { background = bg
-            , state = transaction.checked
+            { state = transaction.checked
             , onPress = Just (Msg.ForDatabase <| Msg.CheckTransaction transaction (not transaction.checked))
             }
 
@@ -185,8 +187,7 @@ colCategory model transaction =
 colDescription : Model -> Ledger.Transaction -> E.Element msg
 colDescription _ transaction =
     E.paragraph
-        [ E.width E.fill
-        , E.centerY
+        [ E.centerY
         ]
     <|
         [ E.text <|

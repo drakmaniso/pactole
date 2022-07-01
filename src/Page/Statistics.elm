@@ -53,18 +53,22 @@ viewAnimatedContent model monthYear anim =
         , E.height E.fill
         , E.scrollbarY
         , E.htmlAttribute <| Html.Attributes.class anim
+        , E.htmlAttribute <| Html.Attributes.class "scrollbox"
         , Background.color Color.white
         ]
-        [ viewMonthBalance model monthYear
-        , viewMonthFutureWarning model monthYear
-        , E.column
+        [ E.column
             [ E.width E.fill
             , E.height E.fill
             ]
             [ E.el [ E.height E.fill ] E.none
             , viewItem model
                 ""
-                "Entrées d'argent: "
+                (if model.context.device.class == E.Phone then
+                    "Entrées: "
+
+                 else
+                    "Entrées d'argent: "
+                )
                 (Ledger.getIncomeForMonth model.ledger model.account monthYear model.today)
             , if model.settings.categoriesEnabled then
                 viewCategories model monthYear
@@ -82,7 +86,21 @@ viewAnimatedContent model monthYear anim =
                     ""
                     "Dépenses: "
                     (Ledger.getExpenseForMonth model.ledger model.account monthYear model.today)
-            , E.text " "
+            , E.el [ E.height <| E.px model.context.smallEm ] E.none
+            , E.row
+                [ E.height <| E.px 2
+                , E.width <| E.maximum (20 * model.context.em) <| E.fill
+                , E.centerX
+                ]
+                [ E.el [ E.width <| E.px model.context.em ] E.none
+                , E.el [ E.width E.fill, E.height E.fill, Background.color Color.neutral70 ] E.none
+                , E.el [ E.width <| E.px model.context.em ] E.none
+                ]
+            , E.el [ E.height <| E.px model.context.smallEm ] E.none
+            , viewItem model
+                ""
+                "Bilan du mois: "
+                (Ledger.getTotalForMonth model.ledger model.account monthYear model.today)
             , E.el [ E.height E.fill ] E.none
             ]
         ]
@@ -103,7 +121,7 @@ viewMonthBalance model monthYear =
         , E.el
             [ Ui.bigFont model.context, Font.alignRight ]
             (E.text "Bilan du mois: ")
-        , Ui.viewSum model.context monthBal
+        , Ui.viewBalance model.context monthBal
         , E.el [ E.width (E.fillPortion 2) ] E.none
         ]
 
@@ -151,7 +169,12 @@ viewItem model icon description money =
     in
     E.row
         [ E.centerX
-        , E.padding <| em // 2
+        , E.padding <|
+            if model.context.device.class == E.Phone then
+                em // 4
+
+            else
+                em // 2
         , Font.color Color.neutral20
         , E.spacing <| em // 2
         , E.width E.fill

@@ -114,7 +114,7 @@ weekDayNames model =
             , E.alignBottom
             , Ui.smallFont model.context
             , Ui.notSelectable
-            , Font.color Color.neutral20
+            , Font.color Color.neutral50
             ]
             [ E.el [ E.width E.fill ] (E.el [ E.centerX ] (E.text "Lundi"))
             , E.el [ E.width E.fill ] (E.el [ E.centerX ] (E.text "Mardi"))
@@ -379,93 +379,14 @@ dayView model date =
         [ E.width E.fill
         , E.height E.fill
         , E.clip
-        , E.inFront <|
-            if model.context.device.orientation == E.Portrait then
-                E.column
-                    [ E.alignBottom
-                    , E.alignRight
-                    , E.spacing (em // 2)
-                    , E.paddingXY (em // 2) (em // 2)
-                    , Background.color Color.transparent
-                    ]
-                    [ Ui.incomeButton model.context
-                        { label = Ui.incomeIcon
-                        , onPress =
-                            Msg.OpenDialog <|
-                                Model.TransactionDialog
-                                    { id = Nothing
-                                    , isExpense = False
-                                    , isRecurring = False
-                                    , date = date
-                                    , amount = ( "", Nothing )
-                                    , description = ""
-                                    , category = 0
-                                    }
-                        }
-                    , Ui.expenseButton model.context
-                        { label = Ui.expenseIcon
-                        , onPress =
-                            Msg.OpenDialog <|
-                                Model.TransactionDialog
-                                    { id = Nothing
-                                    , isExpense = True
-                                    , isRecurring = False
-                                    , date = date
-                                    , amount = ( "", Nothing )
-                                    , description = ""
-                                    , category = 0
-                                    }
-                        }
-                    ]
-
-            else
-                E.row
-                    [ E.centerX
-                    , E.alignBottom
-                    , E.spacing em
-                    , E.paddingXY em (em // 2)
-                    , Border.roundEach { topLeft = model.context.bigEm, topRight = model.context.bigEm, bottomLeft = 0, bottomRight = 0 }
-                    , Background.color Color.translucentWhite
-                    ]
-                    [ Ui.incomeButton model.context
-                        { label = Ui.incomeIcon
-                        , onPress =
-                            Msg.OpenDialog <|
-                                Model.TransactionDialog
-                                    { id = Nothing
-                                    , isExpense = False
-                                    , isRecurring = False
-                                    , date = date
-                                    , amount = ( "", Nothing )
-                                    , description = ""
-                                    , category = 0
-                                    }
-                        }
-                    , Ui.expenseButton model.context
-                        { label = Ui.expenseIcon
-                        , onPress =
-                            Msg.OpenDialog <|
-                                Model.TransactionDialog
-                                    { id = Nothing
-                                    , isExpense = True
-                                    , isRecurring = False
-                                    , date = date
-                                    , amount = ( "", Nothing )
-                                    , description = ""
-                                    , category = 0
-                                    }
-                        }
-                    ]
         ]
         [ E.column
             [ E.width E.fill
             , E.height <| E.fill
             , E.paddingXY 0 (em // 4)
-            , E.spacing (em // 4)
             , Font.color Color.neutral20
             , Font.center
             , Ui.notSelectable
-            , E.scrollbarY
             ]
             [ if model.context.device.orientation == E.Landscape && model.context.height > 28 * em then
                 E.el [ E.width E.fill, Font.color Color.neutral50, Ui.smallFont model.context ]
@@ -481,14 +402,55 @@ dayView model date =
 
                   else
                     Ui.bigFont model.context
+                , E.paddingXY 0 4
                 , Font.center
                 ]
               <|
                 Ui.viewDate model.context date
             , E.column
                 [ E.width E.fill
+                , E.height E.fill
+                , E.scrollbarY
+                , E.htmlAttribute <| Html.Attributes.class "scrollbox"
                 ]
                 (dayContentFor model date)
+            , E.row
+                [ E.centerX
+                , E.alignBottom
+                , E.spacing em
+                , E.paddingEach
+                    { top = em // 4, bottom = em // 4, left = em // 2, right = em // 2 }
+                , Background.color Color.transparent
+                ]
+                [ Ui.incomeButton model.context
+                    { label = Ui.incomeIcon
+                    , onPress =
+                        Msg.OpenDialog <|
+                            Model.TransactionDialog
+                                { id = Nothing
+                                , isExpense = False
+                                , isRecurring = False
+                                , date = date
+                                , amount = ( "", Nothing )
+                                , description = ""
+                                , category = 0
+                                }
+                    }
+                , Ui.expenseButton model.context
+                    { label = Ui.expenseIcon
+                    , onPress =
+                        Msg.OpenDialog <|
+                            Model.TransactionDialog
+                                { id = Nothing
+                                , isExpense = True
+                                , isRecurring = False
+                                , date = date
+                                , amount = ( "", Nothing )
+                                , description = ""
+                                , category = 0
+                                }
+                    }
+                ]
             ]
         ]
 

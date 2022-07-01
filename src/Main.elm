@@ -619,7 +619,7 @@ pageWithSidePanel model { panel, page } =
             [ E.width (E.fillPortion 3)
             , E.height E.fill
             ]
-            ( Model.pageKey model.page, E.el [ E.width E.fill, E.height E.fill, E.scrollbarY ] page )
+            ( Model.pageKey model.page, page )
         ]
 
 
@@ -651,23 +651,15 @@ pageWithTopNavBar model topElements elements =
             ]
             [ E.column
                 [ E.width E.fill
-                , E.htmlAttribute <| Html.Attributes.class "panel-shadow"
                 , E.htmlAttribute <| Html.Attributes.style "z-index" "2"
                 ]
                 (navigationBar model :: topElements)
             , E.column
-                ([ E.width E.fill
-                 , E.height E.fill
-                 , E.spacing <| model.context.em // 4
-                 , E.paddingEach { top = model.context.em // 2, bottom = 0, left = 0, right = 0 }
-                 ]
-                    ++ (if model.context.device.orientation == E.Portrait then
-                            [ E.scrollbarY ]
-
-                        else
-                            []
-                       )
-                )
+                [ E.width E.fill
+                , E.height E.fill
+                , E.spacing <| model.context.em // 4
+                , E.padding 0
+                ]
                 elements
             ]
         )
