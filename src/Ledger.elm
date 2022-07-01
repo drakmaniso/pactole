@@ -14,6 +14,7 @@ module Ledger exposing
     , getCategoryTotalForMonth
     , getExpenseForMonth
     , getIncomeForMonth
+    , getLastXMonthsTransactions
     , getNotReconciledBeforeMonth
     , getReconciled
     , getRecurringTransactionsForDate
@@ -135,6 +136,35 @@ getTransactionsForMonth (Ledger transactions) account monthYear today =
             )
         |> List.sortWith
             (\a b -> Date.compare a.date b.date)
+
+
+getLastXMonthsTransactions : Ledger -> Int -> Date -> Int -> List Transaction
+getLastXMonthsTransactions (Ledger transactions) account today nbMonths =
+    let
+        firstMonth =
+            today |> Date.getMonthYear |> decrement nbMonths
+
+        decrement nb m =
+            if nb <= 1 then
+                m
+
+            else
+                decrement (nb - 1) (m |> Date.decrementMonthYear)
+    in
+    transactions
+        |> List.filter (\t -> t.account == account)
+        |> List.filter
+            (\t ->
+                -- Don't include future transactions
+                (Date.compare t.date today /= GT)
+                    && (Date.compareMonthYear
+                            (t.date |> Date.getMonthYear)
+                            firstMonth
+                            /= LT
+                       )
+            )
+        |> List.sortWith
+            (\a b -> Date.compare b.date a.date)
 
 
 getTotalForMonth : Ledger -> Int -> Date.MonthYear -> Date -> Money.Money

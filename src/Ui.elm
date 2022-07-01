@@ -1315,7 +1315,12 @@ reconcileCheckBox context { state, onPress, background } =
         , E.width <| E.px <| 2 * em
         , E.height <| E.px <| 2 * em
         , E.alignRight
-        , Background.color (E.rgba 1 1 1 1)
+        , Background.color <|
+            if state then
+                Color.transparent
+
+            else
+                Color.white
         , Border.width 4
         , Border.color background
         , focusVisibleOnly

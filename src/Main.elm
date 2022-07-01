@@ -224,12 +224,20 @@ update msg model =
             )
 
         Msg.OnRightSwipe () ->
-            ( { model | monthDisplayed = Date.decrementMonthYear model.monthDisplayed, monthPrevious = model.monthDisplayed }
-            , Cmd.none
-            )
+            if model.page == Model.CalendarPage || model.page == Model.StatisticsPage then
+                ( { model | monthDisplayed = Date.decrementMonthYear model.monthDisplayed, monthPrevious = model.monthDisplayed }
+                , Cmd.none
+                )
+
+            else
+                ( model, Cmd.none )
 
         Msg.OnUserError errmsg ->
-            ( { model | dialog = Just (Model.UserErrorDialog errmsg) }, Cmd.none )
+            if model.page == Model.CalendarPage || model.page == Model.StatisticsPage then
+                ( { model | dialog = Just (Model.UserErrorDialog errmsg) }, Cmd.none )
+
+            else
+                ( model, Cmd.none )
 
         Msg.SelectAccount accountID ->
             --TODO: check that accountID corresponds to an account
@@ -651,7 +659,7 @@ pageWithTopNavBar model topElements elements =
                 ([ E.width E.fill
                  , E.height E.fill
                  , E.spacing <| model.context.em // 4
-                 , E.paddingXY 0 (model.context.em // 2)
+                 , E.paddingEach { top = model.context.em // 2, bottom = 0, left = 0, right = 0 }
                  ]
                     ++ (if model.context.device.orientation == E.Portrait then
                             [ E.scrollbarY ]
