@@ -388,32 +388,37 @@ dayView model date =
             , Font.center
             , Ui.notSelectable
             ]
-            [ if model.context.device.orientation == E.Landscape && model.context.height > 28 * em then
-                E.el [ E.width E.fill, Font.color Color.neutral50, Ui.smallFont model.context ]
-                    (E.text <| Date.fancyDayDescription model.today date)
-
-              else
-                E.none
-            , E.el
-                [ E.width E.fill
-                , Font.bold
-                , if model.context.density /= Ui.Comfortable then
-                    Ui.defaultFontSize model.context
-
-                  else
-                    Ui.bigFont model.context
-                , E.paddingXY 0 4
-                , Font.center
-                ]
-              <|
-                Ui.viewDate model.context date
-            , E.column
+            [ E.column
                 [ E.width E.fill
                 , E.height E.fill
                 , E.scrollbarY
                 , E.htmlAttribute <| Html.Attributes.class "scrollbox"
                 ]
-                (dayContentFor model date)
+                [ if model.context.device.orientation == E.Landscape && model.context.height > 28 * em then
+                    E.el [ E.width E.fill, Font.color Color.neutral50, Ui.smallFont model.context ]
+                        (E.text <| Date.fancyDayDescription model.today date)
+
+                  else
+                    E.none
+                , E.el
+                    [ E.width E.fill
+                    , Font.bold
+                    , if model.context.density /= Ui.Comfortable then
+                        Ui.defaultFontSize model.context
+
+                      else
+                        Ui.bigFont model.context
+                    , E.paddingXY 0 4
+                    , Font.center
+                    ]
+                  <|
+                    Ui.viewDate model.context date
+                , E.column
+                    [ E.width E.fill
+                    , E.height E.fill
+                    ]
+                    (dayContentFor model date)
+                ]
             , E.row
                 [ E.centerX
                 , E.alignBottom

@@ -3,10 +3,13 @@ module Page.Reconcile exposing (viewContent)
 import Date exposing (Date)
 import Element as E
 import Element.Background as Background
+import Element.Border as Border
 import Element.Font as Font
+import Element.Input as Input
 import Html.Attributes
 import Ledger
 import Model exposing (Model)
+import Money
 import Msg exposing (Msg)
 import Ui
 import Ui.Color as Color
@@ -65,25 +68,25 @@ viewTransactions model =
         ]
         (transactions
             |> List.foldr
-                (\t ( l, idx, d ) ->
+                (\t ( rows, d ) ->
                     let
                         newRow =
-                            rowTransaction model idx t
+                            rowTransaction model t
                     in
-                    if Date.compare d t.date /= EQ && List.length l /= 0 then
-                        ( newRow :: rowDate model d :: l, idx + 1, t.date )
+                    if Date.compare d t.date /= EQ && List.length rows /= 0 then
+                        ( newRow :: rowDate model d :: rows, t.date )
 
                     else
-                        ( newRow :: l, idx + 1, t.date )
+                        ( newRow :: rows, t.date )
                 )
-                ( [], 0, Date.default )
-            |> (\( l, _, d ) ->
-                    case l of
+                ( [], Date.default )
+            |> (\( rows, d ) ->
+                    case rows of
                         _ :: _ ->
-                            rowDate model d :: l
+                            rowDate model d :: rows
 
                         _ ->
-                            l
+                            rows
                )
         )
 
@@ -110,33 +113,58 @@ rowDate model date =
             Date.toString date
 
 
-rowTransaction : Model -> Int -> Ledger.Transaction -> E.Element Msg
-rowTransaction model idx transaction =
+rowTransaction : Model -> Ledger.Transaction -> E.Element Msg
+rowTransaction model transaction =
     let
         em =
             model.context.em
-
-        bg =
-            if Basics.remainderBy 2 idx == 0 then
-                --Color.neutral95
-                E.rgba 0 0 0 0.04
-
-            else
-                --Color.neutral90
-                E.rgba 0 0 0 0.08
     in
     E.row
         [ E.width <| E.maximum (24 * em) <| E.fill
         , E.centerX
         , E.paddingXY (em // 2) (em // 4)
-        , E.spacing (em // 2)
-        , Background.color bg
+        , E.spacing 0
         ]
         [ colReconciled model transaction
-        , colCategory model transaction
-        , colDescription model transaction
-        , colAmount model transaction model.today
+        , buttonTransaction model transaction
         ]
+
+
+buttonTransaction : Model -> Ledger.Transaction -> E.Element Msg
+buttonTransaction model transaction =
+    let
+        em =
+            model.context.em
+    in
+    Input.button
+        [ E.width <| E.maximum (20 * em) <| E.fill
+        , E.padding <| em // 4 + em // 8
+        , Border.width 4
+        , Border.color Color.transparent
+        , Ui.focusVisibleOnly
+        , E.mouseDown [ Background.color Color.neutral80 ]
+        , E.mouseOver [ Background.color Color.neutral95 ]
+        ]
+        { onPress =
+            Just <|
+                Msg.OpenDialog <|
+                    Model.TransactionDialog
+                        { id = Just transaction.id
+                        , isExpense = Money.isExpense transaction.amount
+                        , isRecurring = False
+                        , date = transaction.date
+                        , amount = ( Money.toInput transaction.amount, Nothing )
+                        , description = transaction.description
+                        , category = transaction.category
+                        }
+        , label =
+            E.row
+                [ E.width E.fill, E.height E.fill ]
+                [ colAmount model transaction model.today
+                , colCategory model transaction
+                , colDescription model transaction
+                ]
+        }
 
 
 colReconciled : Model -> Ledger.Transaction -> E.Element Msg
@@ -176,9 +204,25 @@ colCategory model transaction =
             Model.category transaction.category model
     in
     if model.settings.categoriesEnabled then
-        E.el
-            [ E.width <| E.minimum (em + em // 2) <| E.shrink, E.centerX, Font.center, Ui.iconFont ]
-            (E.text <| category.icon ++ " ")
+        if transaction.category == 0 then
+            E.el
+                [ E.width <| E.minimum (2 * em + em // 2) <| E.shrink
+                , E.centerX
+                , Font.center
+                , Font.color Color.neutral80
+                , Font.bold
+                ]
+                (E.text "•")
+
+        else
+            E.el
+                [ E.width <| E.minimum (2 * em + em // 2) <| E.shrink
+                , E.centerX
+                , Font.center
+                , Font.color Color.neutral20
+                , Ui.iconFont
+                ]
+                (E.text <| category.icon)
 
     else
         E.none

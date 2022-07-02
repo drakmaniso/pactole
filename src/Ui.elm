@@ -970,7 +970,7 @@ viewMoney context money future =
             Money.isZero money
     in
     E.paragraph
-        [ E.width <| E.minimum (4 * em + em // 2) <| E.fill
+        [ E.width <| E.minimum (4 * em + em // 4) <| E.fill
         , E.alignRight
         , Font.alignRight
         , if future then
@@ -1349,15 +1349,21 @@ reconcileCheckBox context { state, onPress } =
     Input.button
         [ Font.color Color.primary40
         , Font.center
-        , E.width <| E.px <| 2 * em
-        , E.height <| E.px <| 2 * em
+        , E.width <| E.px <| 1 * em + em // 2
+        , E.height <| E.px <| 1 * em + em // 2
         , E.alignRight
         , Background.color <| E.rgba 1 1 1 0.5
         , Border.width 0
         , Border.color Color.transparent
+        , if state then
+            Border.color Color.transparent
+
+          else
+            innerShadow
+
+        -- Border.color Color.neutral70
         , focusVisibleOnly
         , E.padding 2
-        , innerShadow
         , E.mouseDown [ Background.color Color.neutral90 ]
         , E.mouseOver []
         ]
