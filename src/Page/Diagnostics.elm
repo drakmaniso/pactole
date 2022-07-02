@@ -2,6 +2,7 @@ module Page.Diagnostics exposing (view)
 
 import Element as E
 import Element.Font as Font
+import Html.Attributes
 import Model exposing (Model)
 import Msg exposing (Msg)
 import Ui
@@ -13,60 +14,61 @@ view model =
     E.column
         [ E.width E.fill
         , E.height E.fill
-        , E.padding <|
-            if model.context.device.orientation == E.Landscape then
-                4
-
-            else
-                0
         ]
-        [ Ui.pageTitle model.context (E.text "System Diagnostics")
-        , E.textColumn
+        [ Ui.pageTitle model.context (E.text "SYSTEM DIAGNOSTICS")
+        , E.column
             [ E.width E.fill
-            , Ui.smallFont model.context
-            , Font.family [ Font.monospace ]
-            , E.padding <| model.context.em
-            , E.spacing <| model.context.em // 2
+            , E.height E.fill
+            , E.scrollbarY
+            , E.htmlAttribute <| Html.Attributes.class "scrollbox"
             ]
-            [ E.paragraph [] [ E.text "System info:" ]
-            , if model.isStoragePersisted then
-                E.paragraph [] [ E.text "- storage is persisted" ]
-
-              else
-                E.paragraph [ Font.color Color.warning60 ] [ E.text "- storage is NOT persisted!" ]
-            , E.paragraph [] [ E.text <| "- width = " ++ String.fromInt model.context.width ++ ", height = " ++ String.fromInt model.context.height ]
-            , E.paragraph []
-                [ E.text <|
-                    "- orientation = "
-                        ++ (case model.context.device.orientation of
-                                E.Landscape ->
-                                    "landscape"
-
-                                E.Portrait ->
-                                    "portrait"
-                           )
+            [ E.textColumn
+                [ E.width E.fill
+                , Ui.smallFont model.context
+                , Font.family [ Font.monospace ]
+                , E.padding <| model.context.em
+                , E.spacing <| model.context.em // 2
                 ]
-            , E.paragraph []
-                [ E.text <|
-                    "- device class = "
-                        ++ (case model.context.device.class of
-                                E.Phone ->
-                                    "phone"
+                [ E.paragraph [] [ E.text "System info:" ]
+                , if model.isStoragePersisted then
+                    E.paragraph [] [ E.text "- storage is persisted" ]
 
-                                E.Tablet ->
-                                    "tablet"
+                  else
+                    E.paragraph [ Font.color Color.warning60 ] [ E.text "- storage is NOT persisted!" ]
+                , E.paragraph [] [ E.text <| "- width = " ++ String.fromInt model.context.width ++ ", height = " ++ String.fromInt model.context.height ]
+                , E.paragraph []
+                    [ E.text <|
+                        "- orientation = "
+                            ++ (case model.context.device.orientation of
+                                    E.Landscape ->
+                                        "landscape"
 
-                                E.Desktop ->
-                                    "desktop"
+                                    E.Portrait ->
+                                        "portrait"
+                               )
+                    ]
+                , E.paragraph []
+                    [ E.text <|
+                        "- device class = "
+                            ++ (case model.context.device.class of
+                                    E.Phone ->
+                                        "phone"
 
-                                E.BigDesktop ->
-                                    "big desktop"
-                           )
+                                    E.Tablet ->
+                                        "tablet"
+
+                                    E.Desktop ->
+                                        "desktop"
+
+                                    E.BigDesktop ->
+                                        "big desktop"
+                               )
+                    ]
+                , E.paragraph []
+                    [ E.text <| "- font size = " ++ String.fromInt model.context.em ]
+                , Ui.verticalSpacer
+                , errorLog model
                 ]
-            , E.paragraph []
-                [ E.text <| "- font size = " ++ String.fromInt model.context.em ]
-            , Ui.verticalSpacer
-            , errorLog model
             ]
         ]
 

@@ -54,13 +54,14 @@ module Ui exposing
     , radio
     , radioButton
     , radioOption
-    , radioRowOption
     , reconcileCheckBox
     , roundButton
     , roundCorners
     , saveIcon
     , scale
+    , settingsIcon
     , smallFont
+    , smallShadow
     , smallerFont
     , text
     , textColumn
@@ -68,6 +69,7 @@ module Ui exposing
     , title
     , toggleSwitch
     , verticalSpacer
+    , viewBalance
     , viewDate
     , viewIcon
     , viewMoney
@@ -421,6 +423,12 @@ loadIcon =
         (E.text "\u{F2EA}")
 
 
+settingsIcon : E.Element msg
+settingsIcon =
+    E.el [ iconFont, E.centerX ]
+        (E.text "\u{F013}")
+
+
 
 -- CONTAINERS
 
@@ -441,12 +449,10 @@ dialog context { key, content, close, actions } =
             , E.column
                 [ E.width E.fill
                 , E.height E.fill
-                , E.spacing <| context.em // 2
                 ]
                 [ E.row
                     [ E.width E.fill
-                    , Background.color Color.neutral95
-                    , E.htmlAttribute <| Html.Attributes.class "panel-shadow"
+                    , Background.color Color.primary85
                     , E.htmlAttribute <| Html.Attributes.style "z-index" "2"
                     ]
                     (navigationButton context close
@@ -646,41 +652,6 @@ radioOption context value element =
                 ]
 
 
-radioRowOption : value -> E.Element msg -> Input.Option value msg
-radioRowOption value element =
-    Input.optionWith
-        value
-        (\state ->
-            E.el
-                ([ E.centerX
-                 , E.centerY
-                 , E.paddingXY 16 7
-                 , Border.rounded 3
-                 , Border.width 4
-                 , Border.color Color.transparent
-                 ]
-                    ++ (case state of
-                            Input.Idle ->
-                                [ Font.color Color.neutral20
-                                , E.mouseDown [ Background.color Color.neutral80 ]
-                                , E.mouseOver [ Background.color Color.neutral95 ]
-                                ]
-
-                            Input.Focused ->
-                                []
-
-                            Input.Selected ->
-                                [ Font.color (E.rgb 1 1 1)
-                                , Background.color Color.primary40
-                                , smallShadow
-                                , E.mouseDown [ Background.color Color.primary30 ]
-                                ]
-                       )
-                )
-                element
-        )
-
-
 
 -- ELEMENTS
 
@@ -718,11 +689,8 @@ pageTitle context element =
             , E.padding <| em // 4
             , E.width E.fill
             , E.centerY
-            , Background.color Color.neutral95
-            , Border.roundEach { topLeft = 32, bottomLeft = 32, topRight = 32, bottomRight = 32 }
             , Font.color Color.neutral20
             , Font.center
-            , smallShadow
             ]
             element
         ]
@@ -847,38 +815,29 @@ monthNavigationBar context monthDisplayed changeMsg =
             [ E.width <| E.fill
             , E.centerX
             , E.alignTop
-            , Background.color Color.neutral95
-            , Border.roundEach { topLeft = 32, bottomLeft = 32, topRight = 32, bottomRight = 32 }
-            , smallShadow
             ]
             [ ( "previous month button"
               , E.el
-                    [ E.width (E.fillPortion 2)
+                    [ E.width (E.fillPortion 1)
                     , E.height E.fill
                     ]
                     (Input.button
                         [ E.width E.fill
                         , E.height E.fill
-                        , Border.roundEach { topLeft = 32, bottomLeft = 32, topRight = 0, bottomRight = 0 }
-                        , Font.color Color.neutral20
-                        , Background.color Color.neutral95
+                        , Border.rounded 32
+                        , Font.color Color.primary40
                         , Border.width 4
                         , Border.color Color.transparent
                         , focusVisibleOnly
                         , E.mouseDown [ Background.color Color.neutral80 ]
-                        , E.mouseOver [ Background.color Color.neutral90 ]
+                        , E.mouseOver [ Background.color Color.neutral95 ]
                         ]
                         { label =
-                            E.row
-                                [ E.width E.fill ]
-                                [ if context.density == Comfortable then
-                                    E.el [ E.centerX ]
-                                        (E.text (Date.getMonthName (Date.previousMonth monthDisplayed.month)))
+                            if context.density == Comfortable then
+                                E.el [ E.centerX, iconFont, biggestFont context ] (E.text "  \u{F060}  ")
 
-                                  else
-                                    E.none
-                                , E.el [ E.centerX, iconFont ] (E.text "  \u{F060}  ")
-                                ]
+                            else
+                                E.el [ E.centerX, iconFont ] (E.text "  \u{F060}  ")
                         , onPress = Just (changeMsg (Date.decrementMonthYear monthDisplayed))
                         }
                     )
@@ -906,32 +865,26 @@ monthNavigationBar context monthDisplayed changeMsg =
             , ( "next month button"
               , E.el
                     -- needed to circumvent focus bug in elm-ui
-                    [ E.width (E.fillPortion 2)
+                    [ E.width (E.fillPortion 1)
                     , E.height E.fill
                     ]
                     (Input.button
                         [ E.width E.fill
                         , E.height E.fill
-                        , Border.roundEach { topLeft = 0, bottomLeft = 0, topRight = 32, bottomRight = 32 }
-                        , Font.color Color.neutral20
-                        , Background.color Color.neutral95
+                        , Border.rounded 32
+                        , Font.color Color.primary40
                         , Border.width 4
                         , Border.color Color.transparent
                         , focusVisibleOnly
                         , E.mouseDown [ Background.color Color.neutral80 ]
-                        , E.mouseOver [ Background.color Color.neutral90 ]
+                        , E.mouseOver [ Background.color Color.neutral95 ]
                         ]
                         { label =
-                            E.row
-                                [ E.width E.fill ]
-                                [ E.el [ E.centerX, iconFont ] (E.text "  \u{F061}  ")
-                                , if context.density == Comfortable then
-                                    E.el [ E.centerX ]
-                                        (E.text (Date.getMonthName (Date.followingMonth monthDisplayed.month)))
+                            if context.density == Comfortable then
+                                E.el [ E.centerX, iconFont, biggestFont context ] (E.text "  \u{F061}  ")
 
-                                  else
-                                    E.none
-                                ]
+                            else
+                                E.el [ E.centerX, iconFont ] (E.text "  \u{F061}  ")
                         , onPress = Just (changeMsg (Date.incrementMonthYear monthDisplayed))
                         }
                     )
@@ -989,7 +942,7 @@ viewMoney context money future =
             Money.isZero money
     in
     E.paragraph
-        [ E.width <| E.minimum (4 * em + em // 2) <| E.fill
+        [ E.width <| E.minimum (4 * em + em // 4) <| E.fill
         , E.alignRight
         , Font.alignRight
         , if future then
@@ -1065,6 +1018,52 @@ viewSum context money =
             , Font.bold
             ]
             (E.text ("," ++ parts.cents))
+        ]
+
+
+viewBalance : Context -> Money.Money -> E.Element msg
+viewBalance context money =
+    let
+        parts =
+            Money.toStrings money
+
+        sign =
+            if parts.sign == "+" then
+                ""
+
+            else
+                parts.sign
+
+        color =
+            if parts.sign == "+" then
+                Color.neutral20
+
+            else
+                Color.warning60
+    in
+    E.row
+        [ E.width E.shrink
+        , E.height E.shrink
+        , E.paddingEach { top = 0, bottom = 0, left = 16, right = 16 }
+        , Font.color color
+        ]
+        [ E.el
+            [ bigFont context
+            , Font.alignRight
+            , Font.bold
+            ]
+            (E.text (sign ++ parts.units))
+        , E.el
+            [ defaultFontSize context
+            , Font.alignLeft
+            , E.alignBottom
+            , E.paddingXY 0 1
+            , Font.bold
+            ]
+            (E.text ("," ++ parts.cents))
+        , E.el
+            [ defaultFontSize context, E.alignBottom ]
+            (E.text " €")
         ]
 
 
@@ -1210,7 +1209,12 @@ incomeButton context { onPress, label } =
     Input.button
         [ E.htmlAttribute <| Html.Attributes.class "round-button"
         , E.width <| E.px <| 2 * context.bigEm + context.bigEm // 4
-        , E.height <| E.px <| 2 * context.bigEm + context.bigEm // 4
+        , E.height <|
+            if context.device.class /= E.Phone then
+                E.px <| 2 * context.bigEm + context.bigEm // 4
+
+            else
+                E.px <| context.bigEm + context.bigEm // 2
         , Font.color Color.income30
         , Background.color Color.income90
         , Font.center
@@ -1237,7 +1241,12 @@ expenseButton context { onPress, label } =
     Input.button
         [ E.htmlAttribute <| Html.Attributes.class "round-button"
         , E.width <| E.px <| 2 * context.bigEm + context.bigEm // 4
-        , E.height <| E.px <| 2 * context.bigEm + context.bigEm // 4
+        , E.height <|
+            if context.device.class /= E.Phone then
+                E.px <| 2 * context.bigEm + context.bigEm // 4
+
+            else
+                E.px <| context.bigEm + context.bigEm // 2
         , Background.color Color.expense90
         , Font.color Color.expense30
         , Font.center
@@ -1302,9 +1311,9 @@ iconButton { onPress, icon } =
 
 reconcileCheckBox :
     Context
-    -> { state : Bool, onPress : Maybe msg, background : E.Color }
+    -> { state : Bool, onPress : Maybe msg }
     -> E.Element msg
-reconcileCheckBox context { state, onPress, background } =
+reconcileCheckBox context { state, onPress } =
     let
         em =
             context.em
@@ -1312,15 +1321,21 @@ reconcileCheckBox context { state, onPress, background } =
     Input.button
         [ Font.color Color.primary40
         , Font.center
-        , E.width <| E.px <| 2 * em
-        , E.height <| E.px <| 2 * em
+        , E.width <| E.px <| 1 * em + em // 2
+        , E.height <| E.px <| 1 * em + em // 2
         , E.alignRight
-        , Background.color (E.rgba 1 1 1 1)
-        , Border.width 4
-        , Border.color background
+        , Background.color <| E.rgba 1 1 1 0.5
+        , Border.width 0
+        , Border.color Color.transparent
+        , if state then
+            Border.color Color.transparent
+
+          else
+            innerShadow
+
+        -- Border.color Color.neutral70
         , focusVisibleOnly
         , E.padding 2
-        , innerShadow
         , E.mouseDown [ Background.color Color.neutral90 ]
         , E.mouseOver []
         ]
@@ -1437,7 +1452,9 @@ moneyInput context args =
             [ Border.color Color.focus85
             ]
         , E.htmlAttribute <| Html.Attributes.id "dialog-focus"
-        , E.htmlAttribute <| Html.Attributes.autocomplete False
+
+        -- , E.htmlAttribute <| Html.Attributes.autocomplete False
+        , E.htmlAttribute <| Html.Attributes.attribute "autocomplete" "transaction-amount"
         , E.htmlAttribute <| Html.Attributes.attribute "inputmode" "numeric"
         , Font.color args.color
         , case Tuple.second args.state of
@@ -1562,7 +1579,7 @@ linkButton { label, onPress } =
         , Border.width 4
         , Border.color Color.transparent
         , focusVisibleOnly
-        , E.mouseDown [ Font.color Color.primary30 ]
+        , E.mouseDown [ Font.color Color.primary30, Background.color Color.neutral90 ]
         ]
         { label = label
         , onPress = onPress

@@ -166,7 +166,7 @@ viewAmount model data =
                     , Ui.notSelectable
                     , E.padding 0
                     ]
-                    (E.el []
+                    (E.el [ Font.bold, Ui.bigFont model.context ]
                         (if data.isExpense then
                             E.text "- "
 
@@ -187,7 +187,7 @@ viewAmount model data =
                     , Border.color (E.rgba 0 0 0 0)
                     , Ui.notSelectable
                     ]
-                    (E.el [ Font.color titleColor, Font.bold ] (E.text "€"))
+                    (E.el [ Font.color titleColor, Font.bold ] (E.text " €"))
                 ]
             )
 

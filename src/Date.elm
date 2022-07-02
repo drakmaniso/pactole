@@ -21,6 +21,7 @@ module Date exposing
     , getDay
     , getDayDiff
     , getMonth
+    , getMonthDiff
     , getMonthName
     , getMonthNumber
     , getMonthYear
@@ -534,6 +535,31 @@ getYear (Date date) =
 getDayDiff : Date -> Date -> Int
 getDayDiff (Date date1) (Date date2) =
     Calendar.getDayDiff date1 date2
+
+
+getMonthDiff : Date -> Date -> Int
+getMonthDiff a b =
+    let
+        amy =
+            getMonthYear a
+
+        am =
+            Calendar.monthToInt amy.month
+
+        bmy =
+            getMonthYear b
+
+        bm =
+            Calendar.monthToInt bmy.month
+    in
+    if amy.year < bmy.year then
+        0
+
+    else if amy.year == bmy.year then
+        Basics.max 0 (am - bm)
+
+    else
+        (12 * (amy.year - bmy.year)) + am + (12 - bm)
 
 
 firstDayOfMonth : MonthYear -> Date

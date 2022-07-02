@@ -5,6 +5,7 @@ import Dict
 import Element as E
 import Element.Background as Background
 import Element.Font as Font
+import Html.Attributes
 import Ledger
 import Model exposing (Model)
 import Money
@@ -19,19 +20,25 @@ view model =
     E.column
         [ E.width E.fill
         , E.height E.fill
-        , E.padding 3
         ]
-        [ Ui.pageTitle model.context (E.text "Configuration")
-        , Ui.textColumn model.context
-            [ Ui.verticalSpacer
-            , configBackup model
-            , configAccounts model
-            , configOptional model
-            , configRecurring model
-            , configAppearance model
-            , Ui.verticalSpacer
-            , Ui.verticalSpacer
-            , secretDiagnosticsButton model
+        [ Ui.pageTitle model.context (E.text "RÉGLAGES")
+        , E.column
+            [ E.width E.fill
+            , E.height E.fill
+            , E.scrollbarY
+            , E.htmlAttribute <| Html.Attributes.class "scrollbox"
+            ]
+            [ Ui.textColumn model.context
+                [ Ui.verticalSpacer
+                , configBackup model
+                , configAccounts model
+                , configOptional model
+                , configRecurring model
+                , configAppearance model
+                , Ui.verticalSpacer
+                , Ui.verticalSpacer
+                , secretDiagnosticsButton model
+                ]
             ]
         ]
 
