@@ -15,7 +15,7 @@ view model =
         [ E.width E.fill
         , E.height E.fill
         ]
-        [ Ui.pageTitle model.context (E.text "System Diagnostics")
+        [ Ui.pageTitle model.context (E.text "SYSTEM DIAGNOSTICS")
         , E.column
             [ E.width E.fill
             , E.height E.fill

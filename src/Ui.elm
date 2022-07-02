@@ -60,6 +60,7 @@ module Ui exposing
     , roundCorners
     , saveIcon
     , scale
+    , settingsIcon
     , smallFont
     , smallerFont
     , text
@@ -420,6 +421,12 @@ loadIcon : E.Element msg
 loadIcon =
     E.el [ iconFont, E.centerX ]
         (E.text "\u{F2EA}")
+
+
+settingsIcon : E.Element msg
+settingsIcon =
+    E.el [ iconFont, E.centerX ]
+        (E.text "\u{F013}")
 
 
 
