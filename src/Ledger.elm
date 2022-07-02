@@ -16,6 +16,7 @@ module Ledger exposing
     , getIncomeForMonth
     , getLastXMonthsTransactions
     , getNotReconciledBeforeMonth
+    , getOldestTransactionWhere
     , getReconciled
     , getRecurringTransactionsForDate
     , getTotalForMonth
@@ -165,6 +166,29 @@ getLastXMonthsTransactions (Ledger transactions) account today nbMonths =
             )
         |> List.sortWith
             (\a b -> Date.compare b.date a.date)
+
+
+getOldestTransactionWhere : Ledger -> (Transaction -> Bool) -> Maybe Transaction
+getOldestTransactionWhere (Ledger transactions) test =
+    transactions
+        |> List.foldl
+            (\current oldestSoFar ->
+                if test current then
+                    case oldestSoFar of
+                        Nothing ->
+                            Just current
+
+                        Just t ->
+                            if Date.compare t.date current.date == LT then
+                                Just t
+
+                            else
+                                Just current
+
+                else
+                    oldestSoFar
+            )
+            Nothing
 
 
 getTotalForMonth : Ledger -> Int -> Date.MonthYear -> Date -> Money.Money

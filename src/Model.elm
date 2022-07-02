@@ -48,6 +48,7 @@ type alias Model =
     , serviceVersion : String
     , context : Ui.Context
     , errors : List String
+    , nbMonthsDisplayed : Int
 
     -- Persistent Data
     , settings : Settings

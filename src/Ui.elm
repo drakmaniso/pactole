@@ -1607,7 +1607,7 @@ linkButton { label, onPress } =
         , Border.width 4
         , Border.color Color.transparent
         , focusVisibleOnly
-        , E.mouseDown [ Font.color Color.primary30 ]
+        , E.mouseDown [ Font.color Color.primary30, Background.color Color.neutral90 ]
         ]
         { label = label
         , onPress = onPress

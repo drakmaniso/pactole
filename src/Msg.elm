@@ -21,6 +21,7 @@ type Msg
     | OnRightSwipe ()
     | OnUserError String
     | DisplayMonth Date.MonthYear
+    | IncreaseNbMonthsDisplayed
     | SelectDate Date
     | SelectAccount Int
     | WindowResize { width : Int, height : Int }

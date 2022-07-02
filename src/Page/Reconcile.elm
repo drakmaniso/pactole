@@ -17,21 +17,35 @@ import Ui.Color as Color
 
 viewContent : Model -> E.Element Msg
 viewContent model =
+    let
+        em =
+            model.context.em
+    in
     E.column
         [ E.width E.fill
         , E.height E.fill
         , E.clip
         ]
         [ viewReconciled model
-        , E.el
+        , E.column
             [ E.width E.fill
             , E.height E.fill
             , E.scrollbarY
             , E.clipX
             , E.htmlAttribute <| Html.Attributes.class "scrollbox"
             ]
-          <|
-            viewTransactions model
+            [ viewTransactions model
+            , E.el [ E.centerX, E.paddingXY (em // 2) (em * 2) ] <|
+                Ui.flatButton
+                    { label =
+                        E.paragraph []
+                            [ E.el [ Ui.iconFont, E.paddingXY (em // 2) 0 ] <| E.text "\u{F063}"
+                            , E.text "  afficher plus  "
+                            , E.el [ Ui.iconFont, E.paddingXY (em // 2) 0 ] <| E.text "\u{F063}"
+                            ]
+                    , onPress = Just Msg.IncreaseNbMonthsDisplayed
+                    }
+            ]
         ]
 
 
@@ -59,7 +73,7 @@ viewTransactions : Model -> E.Element Msg
 viewTransactions model =
     let
         transactions =
-            Ledger.getLastXMonthsTransactions model.ledger model.account model.today 6
+            Ledger.getLastXMonthsTransactions model.ledger model.account model.today model.nbMonthsDisplayed
     in
     E.column
         [ E.width E.fill

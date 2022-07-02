@@ -135,6 +135,7 @@ init flags _ _ =
                 , animationDisabled = False
                 }
       , errors = []
+      , nbMonthsDisplayed = 2
       }
     , Cmd.none
     )
@@ -151,7 +152,25 @@ update msg model =
             ( model, Ports.toServiceWorker ( "request whole database", Encode.null ) )
 
         Msg.ChangePage page ->
-            ( { model | page = page, monthPrevious = model.monthDisplayed }
+            let
+                oldestUnchecked =
+                    Ledger.getOldestTransactionWhere model.ledger
+                        (\t -> not t.checked)
+
+                nbMonthsDisplayed =
+                    case oldestUnchecked of
+                        Nothing ->
+                            2
+
+                        Just t ->
+                            (1 + Date.getMonthDiff model.today t.date)
+                                |> Basics.max 2
+            in
+            ( { model
+                | page = page
+                , monthPrevious = model.monthDisplayed
+                , nbMonthsDisplayed = nbMonthsDisplayed
+              }
             , Cmd.none
             )
 
@@ -217,6 +236,9 @@ update msg model =
 
         Msg.DisplayMonth monthYear ->
             ( { model | monthDisplayed = monthYear, monthPrevious = model.monthDisplayed }, Cmd.none )
+
+        Msg.IncreaseNbMonthsDisplayed ->
+            ( { model | nbMonthsDisplayed = model.nbMonthsDisplayed + 1 }, Cmd.none )
 
         Msg.OnLeftSwipe () ->
             ( { model | monthDisplayed = Date.incrementMonthYear model.monthDisplayed, monthPrevious = model.monthDisplayed }
