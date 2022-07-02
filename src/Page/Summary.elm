@@ -45,7 +45,12 @@ viewAccounts model =
                 (E.text name)
 
         accounts ->
-            E.column [ Font.center, E.centerX, E.centerY, E.height <| E.minimum (3 * em) <| E.fill ]
+            E.column
+                [ Font.center
+                , E.centerX
+                , E.centerY
+                , E.height <| E.minimum (em * 2 + 4) <| E.shrink -- to prevent relayout when alt-tabbing
+                ]
                 [ E.el [ E.height E.fill ] E.none
                 , Input.radioRow
                     [ E.width E.shrink
@@ -62,7 +67,8 @@ viewAccounts model =
                     , options =
                         List.map
                             (\( account, name ) ->
-                                Ui.radioRowOption account
+                                radioRowOption model.context
+                                    account
                                     (E.text name)
                             )
                             accounts
@@ -165,11 +171,11 @@ viewMobileAccounts model =
             E.el
                 [ Ui.notSelectable
                 , Font.center
-                , E.centerX
+                , E.alignLeft
                 , E.centerY
                 , E.padding (model.context.em // 4)
                 ]
-                (E.text <| name ++ ":")
+                (E.text <| name)
 
         accounts ->
             E.el [ Font.center, E.alignLeft, E.centerY ] <|
@@ -188,7 +194,8 @@ viewMobileAccounts model =
                     , options =
                         List.map
                             (\( account, name ) ->
-                                Ui.radioRowOption account
+                                radioRowOption model.context
+                                    account
                                     (E.text name)
                             )
                             accounts
@@ -219,7 +226,7 @@ viewMobileBalance model =
                 Color.warning60
     in
     E.el
-        [ E.centerX
+        [ E.alignRight
         , E.centerY
         , E.padding (model.context.em // 4)
         , Border.rounded (model.context.em // 4)
@@ -244,4 +251,38 @@ viewMobileBalance model =
                 [ Ui.smallFont model.context ]
                 (E.text " €")
             ]
+        )
+
+
+radioRowOption : Ui.Context -> value -> E.Element msg -> Input.Option value msg
+radioRowOption context value element =
+    Input.optionWith
+        value
+        (\state ->
+            E.el
+                ([ E.centerX
+                 , E.centerY
+                 , E.paddingXY (context.em // 4) (context.em // 8)
+                 , Border.widthEach { bottom = 4, top = 0, left = 0, right = 0 }
+                 ]
+                    ++ (case state of
+                            Input.Idle ->
+                                [ Font.color Color.neutral20
+                                , Font.regular
+                                , Border.color Color.transparent
+                                , E.mouseDown [ Background.color Color.neutral80 ]
+                                , E.mouseOver [ Background.color Color.neutral95 ]
+                                ]
+
+                            Input.Focused ->
+                                []
+
+                            Input.Selected ->
+                                [ Font.color Color.neutral20
+                                , Border.color Color.primary40
+                                , Font.bold
+                                ]
+                       )
+                )
+                element
         )

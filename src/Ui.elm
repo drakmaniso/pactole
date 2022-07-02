@@ -54,7 +54,6 @@ module Ui exposing
     , radio
     , radioButton
     , radioOption
-    , radioRowOption
     , reconcileCheckBox
     , roundButton
     , roundCorners
@@ -62,6 +61,7 @@ module Ui exposing
     , scale
     , settingsIcon
     , smallFont
+    , smallShadow
     , smallerFont
     , text
     , textColumn
@@ -650,41 +650,6 @@ radioOption context value element =
                 [ dot state
                 , element
                 ]
-
-
-radioRowOption : value -> E.Element msg -> Input.Option value msg
-radioRowOption value element =
-    Input.optionWith
-        value
-        (\state ->
-            E.el
-                ([ E.centerX
-                 , E.centerY
-                 , E.paddingXY 16 7
-                 , Border.rounded 3
-                 , Border.width 4
-                 , Border.color Color.transparent
-                 ]
-                    ++ (case state of
-                            Input.Idle ->
-                                [ Font.color Color.neutral20
-                                , E.mouseDown [ Background.color Color.neutral80 ]
-                                , E.mouseOver [ Background.color Color.neutral95 ]
-                                ]
-
-                            Input.Focused ->
-                                []
-
-                            Input.Selected ->
-                                [ Font.color (E.rgb 1 1 1)
-                                , Background.color Color.primary40
-                                , smallShadow
-                                , E.mouseDown [ Background.color Color.primary30 ]
-                                ]
-                       )
-                )
-                element
-        )
 
 
 

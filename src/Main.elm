@@ -673,6 +673,7 @@ pageWithTopNavBar model topElements elements =
             ]
             [ E.column
                 [ E.width E.fill
+                , E.htmlAttribute <| Html.Attributes.class "panel-shadow"
                 , E.htmlAttribute <| Html.Attributes.style "z-index" "2"
                 ]
                 (navigationBar model :: topElements)
