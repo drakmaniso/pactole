@@ -40,6 +40,10 @@ viewAccounts model =
             model.context.em
     in
     case model.accounts |> Dict.toList |> List.sortBy (\( _, name ) -> name) of
+        [ ( _, "(sans nom)" ) ] ->
+            E.el [ Ui.notSelectable, Font.center, Ui.bigFont model.context, E.centerX, E.centerY ]
+                (E.text "")
+
         [ ( _, name ) ] ->
             E.el [ Ui.notSelectable, Font.center, Ui.bigFont model.context, E.centerX, E.centerY ]
                 (E.text name)
@@ -167,6 +171,16 @@ viewMobile model =
 viewMobileAccounts : Model -> E.Element Msg
 viewMobileAccounts model =
     case model.accounts |> Dict.toList |> List.sortBy (\( _, name ) -> name) of
+        [ ( _, "(sans nom)" ) ] ->
+            E.el
+                [ Ui.notSelectable
+                , Font.center
+                , E.alignLeft
+                , E.centerY
+                , E.padding (model.context.em // 4)
+                ]
+                (E.text <| "")
+
         [ ( _, name ) ] ->
             E.el
                 [ Ui.notSelectable
@@ -225,7 +239,7 @@ viewMobileBalance model =
             else
                 Color.warning60
     in
-    E.el
+    E.row
         [ E.alignRight
         , E.centerY
         , E.padding (model.context.em // 4)
@@ -239,9 +253,15 @@ viewMobileBalance model =
         , Font.color color
         , Ui.notSelectable
         ]
-        (E.paragraph
+        [ E.paragraph
             [ Font.alignRight, E.alignRight, Font.color color, Ui.notSelectable ]
             [ E.el
+                [ Ui.smallFont model.context
+                , E.centerX
+                , Ui.notSelectable
+                ]
+                (E.text "Solde: ")
+            , E.el
                 [ Ui.defaultFontSize model.context, Font.bold ]
                 (E.text (sign ++ parts.units))
             , E.el
@@ -251,7 +271,7 @@ viewMobileBalance model =
                 [ Ui.smallFont model.context ]
                 (E.text " €")
             ]
-        )
+        ]
 
 
 radioRowOption : Ui.Context -> value -> E.Element msg -> Input.Option value msg
@@ -262,7 +282,12 @@ radioRowOption context value element =
             E.el
                 ([ E.centerX
                  , E.centerY
-                 , E.paddingXY (context.em // 4) (context.em // 8)
+                 , E.paddingEach
+                    { left = context.em // 4
+                    , right = context.em // 4
+                    , bottom = context.em // 8
+                    , top = context.em // 8 + 4
+                    }
                  , Border.widthEach { bottom = 4, top = 0, left = 0, right = 0 }
                  ]
                     ++ (case state of
