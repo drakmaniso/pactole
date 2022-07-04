@@ -27,12 +27,12 @@ import Msg exposing (Msg)
 import Page.Calendar as Calendar
 import Page.Diagnostics as Diagnostics
 import Page.Help as Help
-import Page.Welcome as Installation
 import Page.Loading as Loading
 import Page.Reconcile as Reconcile
 import Page.Settings as Settings
 import Page.Statistics as Statistics
 import Page.Summary as Summary
+import Page.Welcome as Installation
 import Ports
 import Task
 import Ui
@@ -407,13 +407,21 @@ viewLandscapePage model =
         Model.HelpPage ->
             pageWithSidePanel model
                 { panel = logoPanel model
-                , page = Help.view model
+                , page =
+                    E.column [ E.width E.fill, E.height E.fill ]
+                        [ Ui.landscapePageTitle model.context Help.title
+                        , Help.view model
+                        ]
                 }
 
         Model.SettingsPage ->
             pageWithSidePanel model
                 { panel = logoPanel model
-                , page = Settings.view model
+                , page =
+                    E.column [ E.width E.fill, E.height E.fill ]
+                        [ Ui.landscapePageTitle model.context Settings.title
+                        , Settings.view model
+                        ]
                 }
 
         Model.StatisticsPage ->
@@ -441,7 +449,11 @@ viewLandscapePage model =
         Model.DiagnosticsPage ->
             pageWithSidePanel model
                 { panel = logoPanel model
-                , page = Diagnostics.view model
+                , page =
+                    E.column [ E.width E.fill, E.height E.fill ]
+                        [ Ui.landscapePageTitle model.context Diagnostics.title
+                        , Diagnostics.view model
+                        ]
                 }
 
 
@@ -457,25 +469,34 @@ viewPortraitPage model =
                 [ Installation.view model data ]
 
         Model.HelpPage ->
-            pageWithTopNavBar model [] [ Help.view model ]
+            pageWithTopNavBar model
+                (Ui.portraitPageTitle model.context Help.title)
+                []
+                [ Help.view model ]
 
         Model.SettingsPage ->
-            pageWithTopNavBar model [] [ Settings.view model ]
+            pageWithTopNavBar model
+                (Ui.portraitPageTitle model.context Settings.title)
+                []
+                [ Settings.view model ]
 
         Model.StatisticsPage ->
             pageWithTopNavBar model
+                (navigationBar model)
                 [ Summary.viewMobile model ]
                 [ Statistics.viewContent model
                 ]
 
         Model.ReconcilePage ->
             pageWithTopNavBar model
+                (navigationBar model)
                 [ Summary.viewMobile model ]
                 [ Reconcile.viewContent model
                 ]
 
         Model.CalendarPage ->
             pageWithTopNavBar model
+                (navigationBar model)
                 [ Summary.viewMobile model ]
                 [ E.el [ E.width E.fill, E.height <| E.fillPortion 1 ] <|
                     Calendar.viewContent model
@@ -484,7 +505,10 @@ viewPortraitPage model =
                 ]
 
         Model.DiagnosticsPage ->
-            pageWithTopNavBar model [] [ Diagnostics.view model ]
+            pageWithTopNavBar model
+                (Ui.portraitPageTitle model.context Diagnostics.title)
+                []
+                [ Diagnostics.view model ]
 
 
 viewDialog : Model -> Model.Dialog -> E.Element Msg
@@ -661,8 +685,8 @@ panelWithTwoParts { top, bottom } =
         ]
 
 
-pageWithTopNavBar : Model -> List (E.Element Msg) -> List (E.Element Msg) -> E.Element Msg
-pageWithTopNavBar model topElements elements =
+pageWithTopNavBar : Model -> E.Element Msg -> List (E.Element Msg) -> List (E.Element Msg) -> E.Element Msg
+pageWithTopNavBar model navbar topElements elements =
     Keyed.el [ E.width E.fill, E.height E.fill ]
         ( Model.pageKey model.page
         , E.column
@@ -676,7 +700,7 @@ pageWithTopNavBar model topElements elements =
                 , E.htmlAttribute <| Html.Attributes.class "panel-shadow"
                 , E.htmlAttribute <| Html.Attributes.style "z-index" "2"
                 ]
-                (navigationBar model :: topElements)
+                (navbar :: topElements)
             , E.column
                 [ E.width E.fill
                 , E.height E.fill
@@ -707,19 +731,23 @@ navigationBar model =
                 && model.settings.reconciliationEnabled
                 && (width < 22 * em)
 
-        navigationButton { targetPage, label } =
+        navigationButton { targetPage, label, showActive } =
+            let
+                active =
+                    showActive && model.page == targetPage
+            in
             Input.button
                 [ E.padding <| model.context.em // 2
                 , Border.color Color.transparent
                 , Background.color
-                    (if model.page == targetPage then
+                    (if active then
                         Color.primary40
 
                      else
                         Color.primary85
                     )
                 , Font.color
-                    (if model.page == targetPage then
+                    (if active then
                         Color.white
 
                      else
@@ -727,7 +755,7 @@ navigationBar model =
                     )
                 , E.mouseDown
                     [ Background.color
-                        (if model.page == targetPage then
+                        (if active then
                             Color.primary30
 
                          else
@@ -736,7 +764,7 @@ navigationBar model =
                     ]
                 , E.mouseOver
                     [ Background.color
-                        (if model.page == targetPage then
+                        (if active then
                             Color.primary40
 
                          else
@@ -760,6 +788,7 @@ navigationBar model =
           , navigationButton
                 { targetPage = Model.CalendarPage
                 , label = E.text "Pactole"
+                , showActive = True
                 }
           )
         , ( "statistics button"
@@ -773,6 +802,7 @@ navigationBar model =
 
                         else
                             E.text "Bilan"
+                    , showActive = True
                     }
 
             else
@@ -789,6 +819,7 @@ navigationBar model =
 
                         else
                             E.text "Pointer"
+                    , showActive = True
                     }
 
             else
@@ -810,6 +841,7 @@ navigationBar model =
                     navigationButton
                         { targetPage = Model.DiagnosticsPage
                         , label = E.el [ Font.color Color.warning60, Ui.iconFont, Ui.bigFont model.context ] (E.text "\u{F071}")
+                        , showActive = False
                         }
           )
         , ( "help button"
@@ -817,6 +849,7 @@ navigationBar model =
                 { targetPage = Model.HelpPage
                 , label =
                     E.el [ Ui.iconFont, Ui.bigFont model.context, E.centerX, E.paddingXY 0 0 ] (E.text "\u{F059}")
+                , showActive = False
                 }
           )
         ]

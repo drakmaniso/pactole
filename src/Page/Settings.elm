@@ -1,4 +1,4 @@
-module Page.Settings exposing (view)
+module Page.Settings exposing (title, view)
 
 import Date
 import Dict
@@ -14,14 +14,22 @@ import Ui
 import Ui.Color as Color
 
 
+title : { title : String, closeMsg : Msg, extraIcon : E.Element Msg, extraMsg : Maybe Msg }
+title =
+    { title = "RÉGLAGES"
+    , closeMsg = Msg.ChangePage Model.CalendarPage
+    , extraIcon = Ui.helpIcon
+    , extraMsg = Nothing -- Just <| Msg.ChangePage Model.HelpPage
+    }
+
+
 view : Model -> E.Element Msg
 view model =
     E.column
         [ E.width E.fill
         , E.height E.fill
         ]
-        [ Ui.pageTitle model.context (E.text "RÉGLAGES")
-        , E.column
+        [ E.column
             [ E.width E.fill
             , E.height E.fill
             , E.scrollbarY
