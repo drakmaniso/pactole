@@ -241,9 +241,13 @@ update msg model =
             ( { model | nbMonthsDisplayed = model.nbMonthsDisplayed + 1 }, Cmd.none )
 
         Msg.OnLeftSwipe () ->
-            ( { model | monthDisplayed = Date.incrementMonthYear model.monthDisplayed, monthPrevious = model.monthDisplayed }
-            , Cmd.none
-            )
+            if model.page == Model.CalendarPage || model.page == Model.StatisticsPage then
+                ( { model | monthDisplayed = Date.incrementMonthYear model.monthDisplayed, monthPrevious = model.monthDisplayed }
+                , Cmd.none
+                )
+
+            else
+                ( model, Cmd.none )
 
         Msg.OnRightSwipe () ->
             if model.page == Model.CalendarPage || model.page == Model.StatisticsPage then
