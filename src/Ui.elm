@@ -1323,7 +1323,12 @@ incomeButton :
 incomeButton context { onPress, label } =
     Input.button
         [ E.htmlAttribute <| Html.Attributes.class "round-button"
-        , E.width <| E.px <| 2 * context.bigEm + context.bigEm // 4
+        , E.width <|
+            if context.device.class /= E.Phone then
+                E.px <| 2 * context.bigEm + context.bigEm // 4
+
+            else
+                E.px <| 3 * context.bigEm
         , E.height <|
             if context.device.class /= E.Phone then
                 E.px <| 2 * context.bigEm + context.bigEm // 4
@@ -1355,7 +1360,12 @@ expenseButton :
 expenseButton context { onPress, label } =
     Input.button
         [ E.htmlAttribute <| Html.Attributes.class "round-button"
-        , E.width <| E.px <| 2 * context.bigEm + context.bigEm // 4
+        , E.width <|
+            if context.device.class /= E.Phone then
+                E.px <| 2 * context.bigEm + context.bigEm // 4
+
+            else
+                E.px <| 3 * context.bigEm
         , E.height <|
             if context.device.class /= E.Phone then
                 E.px <| 2 * context.bigEm + context.bigEm // 4
