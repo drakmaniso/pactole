@@ -20,7 +20,7 @@ view model =
             [ E.width E.fill
             , E.height E.fill
             , E.scrollbarY
-            , E.htmlAttribute <| Html.Attributes.class "scrollbox"
+            , Ui.scrollboxShadows
             ]
             [ E.textColumn
                 [ E.width E.fill

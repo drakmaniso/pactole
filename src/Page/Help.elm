@@ -26,7 +26,7 @@ view model =
             [ E.width E.fill
             , E.height E.fill
             , E.scrollbarY
-            , E.htmlAttribute <| Html.Attributes.class "scrollbox"
+            , Ui.scrollboxShadows
             ]
             [ Ui.textColumn model.context
                 [ Ui.verticalSpacer

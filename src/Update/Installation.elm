@@ -7,40 +7,20 @@ import Money
 import Msg exposing (Msg)
 
 
-update : Msg.InstallMsg -> Model -> ( Model, Cmd Msg )
+update : Msg.WelcomeMsg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case model.page of
-        Model.InstallationPage installation ->
+        Model.WelcomePage installation ->
             case msg of
                 Msg.ProceedWithInstall ->
-                    case Money.fromInput False (Tuple.first installation.initialBalance) of
-                        Ok initialBalance ->
-                            ( { model | page = Model.CalendarPage }
-                            , Database.proceedWithInstallation model
-                                { firstAccount = installation.firstAccount
-                                , initialBalance = initialBalance
-                                , date = model.today
-                                }
-                            )
-
-                        Err error ->
-                            ( { model
-                                | page =
-                                    Model.InstallationPage
-                                        { installation
-                                            | initialBalance = ( Tuple.first installation.initialBalance, Just error )
-                                        }
-                              }
-                            , Cmd.none
-                            )
-
-                Msg.ChangeInstallName newName ->
-                    ( { model | page = Model.InstallationPage { installation | firstAccount = newName } }
-                    , Cmd.none
+                    ( { model | page = Model.CalendarPage }
+                    , Database.proceedWithInstallation model
+                        { wantSimplified = installation.wantSimplified
+                        }
                     )
 
-                Msg.ChangeInstallBalance newBalance ->
-                    ( { model | page = Model.InstallationPage { installation | initialBalance = ( newBalance, Nothing ) } }
+                Msg.SetWantSimplified wantSimplified ->
+                    ( { model | page = Model.WelcomePage { installation | wantSimplified = wantSimplified } }
                     , Cmd.none
                     )
 

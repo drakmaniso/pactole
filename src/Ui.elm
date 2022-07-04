@@ -59,9 +59,11 @@ module Ui exposing
     , roundCorners
     , saveIcon
     , scale
+    , scrollboxShadows
     , settingsIcon
     , smallFont
     , smallShadow
+    , smallText
     , smallerFont
     , text
     , textColumn
@@ -288,6 +290,11 @@ smallShadow =
 innerShadow : E.Attribute msg
 innerShadow =
     Border.innerShadow { offset = ( 0, 1 ), size = 0, blur = 4, color = E.rgba 0 0 0 0.5 }
+
+
+scrollboxShadows : E.Attribute msg
+scrollboxShadows =
+    E.htmlAttribute <| Html.Attributes.class "scrollbox"
 
 
 
@@ -1661,3 +1668,8 @@ text txt =
 boldText : String -> E.Element msg
 boldText txt =
     E.el [ Font.bold ] (E.text txt)
+
+
+smallText : Context -> String -> E.Element msg
+smallText context txt =
+    E.el [ smallFont context ] (E.text txt)

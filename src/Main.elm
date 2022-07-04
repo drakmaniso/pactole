@@ -27,7 +27,7 @@ import Msg exposing (Msg)
 import Page.Calendar as Calendar
 import Page.Diagnostics as Diagnostics
 import Page.Help as Help
-import Page.Installation as Installation
+import Page.Welcome as Installation
 import Page.Loading as Loading
 import Page.Reconcile as Reconcile
 import Page.Settings as Settings
@@ -112,7 +112,7 @@ init flags _ _ =
         isStoragePersisted =
             Decode.decodeValue (Decode.at [ "isStoragePersisted" ] Decode.bool) flags |> Result.withDefault False
     in
-    ( { settings = Model.defaultSettings
+    ( { settings = Model.simplifiedDefaultSettings
       , today = today
       , isStoragePersisted = isStoragePersisted
       , monthDisplayed = Date.getMonthYear today
@@ -286,7 +286,7 @@ update msg model =
             else
                 ( { model | context = newContext }, Cmd.none )
 
-        Msg.ForInstallation m ->
+        Msg.ForWelcome m ->
             Update.Installation.update m model
 
         Msg.ForDatabase m ->
@@ -401,7 +401,7 @@ viewLandscapePage model =
         Model.LoadingPage ->
             Loading.view model
 
-        Model.InstallationPage data ->
+        Model.WelcomePage data ->
             Installation.view model data
 
         Model.HelpPage ->
@@ -452,7 +452,7 @@ viewPortraitPage model =
             E.column [ E.width E.fill, E.height E.fill ]
                 [ Loading.view model ]
 
-        Model.InstallationPage data ->
+        Model.WelcomePage data ->
             E.column [ E.width E.fill, E.height E.fill ]
                 [ Installation.view model data ]
 
@@ -586,7 +586,7 @@ document model { page, maybeDialog } =
                     ( Model.LoadingPage, _ ) ->
                         E.none
 
-                    ( Model.InstallationPage _, _ ) ->
+                    ( Model.WelcomePage _, _ ) ->
                         E.none
 
                     ( _, False ) ->

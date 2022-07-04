@@ -1,4 +1,4 @@
-module Msg exposing (DatabaseMsg(..), InstallMsg(..), Msg(..), SettingsMsg(..), TransactionMsg(..))
+module Msg exposing (DatabaseMsg(..), Msg(..), SettingsMsg(..), TransactionMsg(..), WelcomeMsg(..))
 
 import Date exposing (Date)
 import File exposing (File)
@@ -25,16 +25,15 @@ type Msg
     | SelectDate Date
     | SelectAccount Int
     | WindowResize { width : Int, height : Int }
-    | ForInstallation InstallMsg
+    | ForWelcome WelcomeMsg
     | ForDatabase DatabaseMsg
     | ForTransaction TransactionMsg
     | ForSettings SettingsMsg
     | NoOp
 
 
-type InstallMsg
-    = ChangeInstallName String
-    | ChangeInstallBalance String
+type WelcomeMsg
+    = SetWantSimplified Bool
     | ProceedWithInstall
 
 

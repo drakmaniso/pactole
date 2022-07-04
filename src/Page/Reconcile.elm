@@ -32,7 +32,7 @@ viewContent model =
             , E.height E.fill
             , E.scrollbarY
             , E.clipX
-            , E.htmlAttribute <| Html.Attributes.class "scrollbox"
+            , Ui.scrollboxShadows
             ]
             [ viewTransactions model
             , E.el [ E.centerX, E.paddingXY (em // 2) (em * 2) ] <|

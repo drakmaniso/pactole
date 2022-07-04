@@ -392,7 +392,7 @@ dayView model date =
                 [ E.width E.fill
                 , E.height E.fill
                 , E.scrollbarY
-                , E.htmlAttribute <| Html.Attributes.class "scrollbox"
+                , Ui.scrollboxShadows
                 ]
                 [ if model.context.device.orientation == E.Landscape && model.context.height > 28 * em then
                     E.el [ E.width E.fill, Font.color Color.neutral50, Ui.smallFont model.context ]

@@ -53,7 +53,7 @@ viewAnimatedContent model monthYear anim =
         , E.height E.fill
         , E.scrollbarY
         , E.htmlAttribute <| Html.Attributes.class anim
-        , E.htmlAttribute <| Html.Attributes.class "scrollbox"
+        , Ui.scrollboxShadows
         , Background.color Color.white
         ]
         [ E.column
