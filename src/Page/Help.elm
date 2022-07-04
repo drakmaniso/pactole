@@ -1,7 +1,6 @@
 module Page.Help exposing (view)
 
 import Element as E
-import Html.Attributes
 import Model exposing (Model)
 import Msg exposing (Msg)
 import Ui

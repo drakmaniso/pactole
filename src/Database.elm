@@ -21,14 +21,13 @@ module Database exposing
     , update
     )
 
-import Date exposing (Date)
+import Date
 import Dict
 import Json.Decode as Decode
 import Json.Encode as Encode
 import Ledger
 import Log
 import Model exposing (Model)
-import Money exposing (Money)
 import Msg exposing (Msg)
 import Ports
 import Ui

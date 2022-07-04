@@ -3,7 +3,6 @@ module Update.Installation exposing (update)
 import Database
 import Log
 import Model exposing (Model)
-import Money
 import Msg exposing (Msg)
 
 

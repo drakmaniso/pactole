@@ -2,7 +2,6 @@ module Page.Diagnostics exposing (view)
 
 import Element as E
 import Element.Font as Font
-import Html.Attributes
 import Model exposing (Model)
 import Msg exposing (Msg)
 import Ui

@@ -106,44 +106,6 @@ viewAnimatedContent model monthYear anim =
         ]
 
 
-viewMonthBalance : Model -> Date.MonthYear -> E.Element msg
-viewMonthBalance model monthYear =
-    let
-        monthBal =
-            Ledger.getTotalForMonth model.ledger model.account monthYear model.today
-    in
-    E.row
-        [ E.width E.fill
-        , E.padding model.context.em
-        , Font.color Color.neutral20
-        ]
-        [ E.el [ E.width (E.fillPortion 2) ] E.none
-        , E.el
-            [ Ui.bigFont model.context, Font.alignRight ]
-            (E.text "Bilan du mois: ")
-        , Ui.viewBalance model.context monthBal
-        , E.el [ E.width (E.fillPortion 2) ] E.none
-        ]
-
-
-viewMonthFutureWarning : Model -> Date.MonthYear -> E.Element Msg
-viewMonthFutureWarning model monthYear =
-    if
-        Ledger.hasFutureTransactionsForMonth model.recurring model.account monthYear model.today
-            || Ledger.hasFutureTransactionsForMonth model.ledger model.account monthYear model.today
-    then
-        E.paragraph
-            [ E.width E.fill
-            , Font.color Color.neutral50
-            , Font.center
-            ]
-            [ E.text "(sans compter les futures opérations)"
-            ]
-
-    else
-        E.none
-
-
 viewCategories : Model -> Date.MonthYear -> E.Element Msg
 viewCategories model monthYear =
     E.column

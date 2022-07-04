@@ -5,7 +5,6 @@ import Dict
 import Element as E
 import Element.Background as Background
 import Element.Font as Font
-import Html.Attributes
 import Ledger
 import Model exposing (Model)
 import Money
