@@ -63,6 +63,7 @@ viewAnimatedContent model monthYear anim =
             [ E.el [ E.height E.fill ] E.none
             , viewItem model
                 ""
+                False
                 (if model.context.device.class == E.Phone then
                     "Entrées: "
 
@@ -78,12 +79,14 @@ viewAnimatedContent model monthYear anim =
             , if model.settings.categoriesEnabled then
                 viewItem model
                     ""
+                    False
                     "Sans catégorie: "
                     (Ledger.getCategoryTotalForMonth model.ledger model.account monthYear model.today 0)
 
               else
                 viewItem model
                     ""
+                    False
                     "Dépenses: "
                     (Ledger.getExpenseForMonth model.ledger model.account monthYear model.today)
             , E.el [ E.height <| E.px model.context.smallEm ] E.none
@@ -99,6 +102,7 @@ viewAnimatedContent model monthYear anim =
             , E.el [ E.height <| E.px model.context.smallEm ] E.none
             , viewItem model
                 ""
+                True
                 "Bilan du mois: "
                 (Ledger.getTotalForMonth model.ledger model.account monthYear model.today)
             , E.el [ E.height E.fill ] E.none
@@ -117,14 +121,15 @@ viewCategories model monthYear =
                 (\( catID, category ) ->
                     viewItem model
                         category.icon
+                        False
                         (category.name ++ ": ")
                         (Ledger.getCategoryTotalForMonth model.ledger model.account monthYear model.today catID)
                 )
         )
 
 
-viewItem : Model -> String -> String -> Money.Money -> E.Element msg
-viewItem model icon description money =
+viewItem : Model -> String -> Bool -> String -> Money.Money -> E.Element msg
+viewItem model icon emphasis description money =
     let
         em =
             model.context.em
@@ -138,6 +143,15 @@ viewItem model icon description money =
             else
                 em // 2
         , Font.color Color.neutral20
+        , if emphasis then
+            if model.context.density == Ui.Comfortable then
+                Ui.bigFont model.context
+
+            else
+                Font.bold
+
+          else
+            Font.regular
         , E.spacing <| em // 2
         , E.width E.fill
         ]
