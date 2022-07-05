@@ -1,10 +1,18 @@
-module Page.Help exposing (view)
+module Page.Help exposing (title, view)
 
 import Element as E
-import Html.Attributes
 import Model exposing (Model)
 import Msg exposing (Msg)
 import Ui
+
+
+title : { title : String, closeMsg : Msg, extraIcon : E.Element Msg, extraMsg : Maybe Msg }
+title =
+    { title = "AIDE"
+    , closeMsg = Msg.ChangePage Model.CalendarPage
+    , extraIcon = Ui.settingsIcon
+    , extraMsg = Just <| Msg.ChangePage Model.SettingsPage
+    }
 
 
 view : Model -> E.Element Msg
@@ -17,16 +25,11 @@ view model =
         [ E.width E.fill
         , E.height E.fill
         ]
-        [ E.row [ E.width E.fill, E.paddingXY (em // 2) 0 ] <|
-            [ E.el [ E.width <| E.minimum (3 * em) <| E.shrink ] E.none
-            , Ui.pageTitle model.context (E.text "AIDE")
-            , E.el [ E.width <| E.minimum (3 * em) <| E.shrink ] <| Ui.flatButton { label = Ui.settingsIcon, onPress = Just <| Msg.ChangePage Model.SettingsPage }
-            ]
-        , E.column
+        [ E.column
             [ E.width E.fill
             , E.height E.fill
             , E.scrollbarY
-            , E.htmlAttribute <| Html.Attributes.class "scrollbox"
+            , Ui.scrollboxShadows
             ]
             [ Ui.textColumn model.context
                 [ Ui.verticalSpacer

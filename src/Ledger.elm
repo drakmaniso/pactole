@@ -25,7 +25,6 @@ module Ledger exposing
     , getTransactionsForDate
     , getTransactionsForMonth
     , hasFutureTransactionsForMonth
-    , initialLedger
     , newTransactionFromRecurring
     )
 
@@ -67,20 +66,6 @@ type alias NewTransaction =
 empty : Ledger
 empty =
     Ledger []
-
-
-initialLedger : Date -> Money.Money -> Ledger
-initialLedger date initialBalance =
-    Ledger
-        [ { id = 1
-          , account = 1
-          , date = date
-          , amount = initialBalance
-          , description = "Solde initial"
-          , category = 0
-          , checked = False
-          }
-        ]
 
 
 getBalance : Ledger -> Int -> Date -> Money.Money

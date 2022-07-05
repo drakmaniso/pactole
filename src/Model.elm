@@ -4,24 +4,25 @@ module Model exposing
     , CategoryData
     , Database
     , Dialog(..)
-    , InstallationData
     , Model
     , Page(..)
     , RecurringData
     , Settings
     , TransactionData
+    , WelcomeData
     , accountName
     , category
+    , completeDefaultSettings
     , decodeAccount
     , decodeCategories
     , decodeSettings
-    , defaultSettings
     , encodeAccounts
     , encodeCategories
     , encodeDatabase
     , encodeSettings
     , firstAccount
     , pageKey
+    , simplifiedDefaultSettings
     )
 
 import Date exposing (Date)
@@ -61,7 +62,7 @@ type alias Model =
 
 type Page
     = LoadingPage
-    | InstallationPage InstallationData
+    | WelcomePage WelcomeData
     | CalendarPage
     | StatisticsPage
     | ReconcilePage
@@ -76,7 +77,7 @@ pageKey page =
         LoadingPage ->
             "loading-page"
 
-        InstallationPage _ ->
+        WelcomePage _ ->
             "installation-page"
 
         CalendarPage ->
@@ -98,9 +99,8 @@ pageKey page =
             "diagnostics-page"
 
 
-type alias InstallationData =
-    { firstAccount : String
-    , initialBalance : ( String, Maybe String )
+type alias WelcomeData =
+    { wantSimplified : Bool
     }
 
 
@@ -193,8 +193,8 @@ type alias Settings =
     }
 
 
-defaultSettings : Settings
-defaultSettings =
+simplifiedDefaultSettings : Settings
+simplifiedDefaultSettings =
     { categoriesEnabled = False
     , reconciliationEnabled = False
     , summaryEnabled = False
@@ -203,6 +203,16 @@ defaultSettings =
     , fontSize = 0
     , deviceClass = Ui.AutoClass
     , animationDisabled = False
+    }
+
+
+completeDefaultSettings : Settings
+completeDefaultSettings =
+    { simplifiedDefaultSettings
+        | categoriesEnabled = True
+        , reconciliationEnabled = True
+        , summaryEnabled = True
+        , balanceWarning = 100
     }
 
 

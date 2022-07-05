@@ -1,12 +1,20 @@
-module Page.Diagnostics exposing (view)
+module Page.Diagnostics exposing (title, view)
 
 import Element as E
 import Element.Font as Font
-import Html.Attributes
 import Model exposing (Model)
 import Msg exposing (Msg)
 import Ui
 import Ui.Color as Color
+
+
+title : { title : String, closeMsg : Msg, extraIcon : E.Element Msg, extraMsg : Maybe Msg }
+title =
+    { title = "INFO"
+    , closeMsg = Msg.ChangePage Model.CalendarPage
+    , extraIcon = E.none
+    , extraMsg = Nothing
+    }
 
 
 view : Model -> E.Element Msg
@@ -15,12 +23,11 @@ view model =
         [ E.width E.fill
         , E.height E.fill
         ]
-        [ Ui.pageTitle model.context (E.text "SYSTEM DIAGNOSTICS")
-        , E.column
+        [ E.column
             [ E.width E.fill
             , E.height E.fill
             , E.scrollbarY
-            , E.htmlAttribute <| Html.Attributes.class "scrollbox"
+            , Ui.scrollboxShadows
             ]
             [ E.textColumn
                 [ E.width E.fill

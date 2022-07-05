@@ -21,14 +21,13 @@ module Database exposing
     , update
     )
 
-import Date exposing (Date)
+import Date
 import Dict
 import Json.Decode as Decode
 import Json.Encode as Encode
 import Ledger
 import Log
 import Model exposing (Model)
-import Money exposing (Money)
 import Msg exposing (Msg)
 import Ports
 import Ui
@@ -80,17 +79,21 @@ createAccount name =
     Ports.toServiceWorker ( "create account", Encode.string name )
 
 
-proceedWithInstallation : Model -> { firstAccount : String, initialBalance : Money, date : Date } -> Cmd msg
+proceedWithInstallation : Model -> { wantSimplified : Bool } -> Cmd msg
 proceedWithInstallation model data =
     let
-        defaultSettings =
-            Model.defaultSettings
+        settings =
+            if data.wantSimplified then
+                Model.simplifiedDefaultSettings
+
+            else
+                Model.completeDefaultSettings
     in
     Ports.toServiceWorker
         ( "install database"
         , Model.encodeDatabase
             { serviceVersion = model.serviceVersion
-            , accounts = [ ( 1, data.firstAccount ) ]
+            , accounts = [ ( 1, "(sans nom)" ) ]
             , categories =
                 [ ( 1
                   , { name = "Maison"
@@ -128,9 +131,9 @@ proceedWithInstallation model data =
                     }
                   )
                 ]
-            , ledger = Ledger.initialLedger data.date data.initialBalance
+            , ledger = Ledger.empty
             , recurring = Ledger.empty
-            , settings = defaultSettings
+            , settings = settings
             }
         )
 
@@ -250,8 +253,7 @@ msgFromService : ( String, Decode.Value ) -> Model -> ( Model, Cmd Msg )
 msgFromService ( title, content ) model =
     let
         defaultInstallationData =
-            { firstAccount = "Mon compte"
-            , initialBalance = ( "", Nothing )
+            { wantSimplified = False
             }
     in
     case title of
@@ -289,7 +291,7 @@ msgFromService ( title, content ) model =
                         , serviceVersion = db.serviceVersion
                         , page =
                             if List.isEmpty db.accounts then
-                                Model.InstallationPage defaultInstallationData
+                                Model.WelcomePage defaultInstallationData
 
                             else
                                 Model.CalendarPage
@@ -355,7 +357,7 @@ msgFromService ( title, content ) model =
                     ( { model
                         | accounts = Dict.empty
                         , account = -1
-                        , page = Model.InstallationPage defaultInstallationData
+                        , page = Model.WelcomePage defaultInstallationData
                       }
                     , Cmd.none
                     )

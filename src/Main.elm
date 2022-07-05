@@ -27,12 +27,12 @@ import Msg exposing (Msg)
 import Page.Calendar as Calendar
 import Page.Diagnostics as Diagnostics
 import Page.Help as Help
-import Page.Installation as Installation
 import Page.Loading as Loading
 import Page.Reconcile as Reconcile
 import Page.Settings as Settings
 import Page.Statistics as Statistics
 import Page.Summary as Summary
+import Page.Welcome as Installation
 import Ports
 import Task
 import Ui
@@ -112,7 +112,7 @@ init flags _ _ =
         isStoragePersisted =
             Decode.decodeValue (Decode.at [ "isStoragePersisted" ] Decode.bool) flags |> Result.withDefault False
     in
-    ( { settings = Model.defaultSettings
+    ( { settings = Model.simplifiedDefaultSettings
       , today = today
       , isStoragePersisted = isStoragePersisted
       , monthDisplayed = Date.getMonthYear today
@@ -174,11 +174,16 @@ update msg model =
             , Cmd.none
             )
 
-        Msg.OpenDialog dialog ->
+        Msg.OpenDialog focus dialog ->
             ( { model | dialog = Just dialog }
-            , Cmd.batch
-                [ Task.attempt (\_ -> Msg.NoOp) (Dom.focus "dialog-focus")
-                ]
+            , case focus of
+                Msg.FocusInput ->
+                    Cmd.batch
+                        [ Task.attempt (\_ -> Msg.NoOp) (Dom.focus "dialog-focus")
+                        ]
+
+                Msg.DontFocusInput ->
+                    Cmd.none
             )
 
         Msg.ConfirmDialog ->
@@ -241,9 +246,13 @@ update msg model =
             ( { model | nbMonthsDisplayed = model.nbMonthsDisplayed + 1 }, Cmd.none )
 
         Msg.OnLeftSwipe () ->
-            ( { model | monthDisplayed = Date.incrementMonthYear model.monthDisplayed, monthPrevious = model.monthDisplayed }
-            , Cmd.none
-            )
+            if model.page == Model.CalendarPage || model.page == Model.StatisticsPage then
+                ( { model | monthDisplayed = Date.incrementMonthYear model.monthDisplayed, monthPrevious = model.monthDisplayed }
+                , Cmd.none
+                )
+
+            else
+                ( model, Cmd.none )
 
         Msg.OnRightSwipe () ->
             if model.page == Model.CalendarPage || model.page == Model.StatisticsPage then
@@ -286,7 +295,7 @@ update msg model =
             else
                 ( { model | context = newContext }, Cmd.none )
 
-        Msg.ForInstallation m ->
+        Msg.ForWelcome m ->
             Update.Installation.update m model
 
         Msg.ForDatabase m ->
@@ -401,19 +410,27 @@ viewLandscapePage model =
         Model.LoadingPage ->
             Loading.view model
 
-        Model.InstallationPage data ->
+        Model.WelcomePage data ->
             Installation.view model data
 
         Model.HelpPage ->
             pageWithSidePanel model
                 { panel = logoPanel model
-                , page = Help.view model
+                , page =
+                    E.column [ E.width E.fill, E.height E.fill ]
+                        [ Ui.landscapePageTitle model.context Help.title
+                        , Help.view model
+                        ]
                 }
 
         Model.SettingsPage ->
             pageWithSidePanel model
                 { panel = logoPanel model
-                , page = Settings.view model
+                , page =
+                    E.column [ E.width E.fill, E.height E.fill ]
+                        [ Ui.landscapePageTitle model.context Settings.title
+                        , Settings.view model
+                        ]
                 }
 
         Model.StatisticsPage ->
@@ -441,7 +458,11 @@ viewLandscapePage model =
         Model.DiagnosticsPage ->
             pageWithSidePanel model
                 { panel = logoPanel model
-                , page = Diagnostics.view model
+                , page =
+                    E.column [ E.width E.fill, E.height E.fill ]
+                        [ Ui.landscapePageTitle model.context Diagnostics.title
+                        , Diagnostics.view model
+                        ]
                 }
 
 
@@ -452,30 +473,39 @@ viewPortraitPage model =
             E.column [ E.width E.fill, E.height E.fill ]
                 [ Loading.view model ]
 
-        Model.InstallationPage data ->
+        Model.WelcomePage data ->
             E.column [ E.width E.fill, E.height E.fill ]
                 [ Installation.view model data ]
 
         Model.HelpPage ->
-            pageWithTopNavBar model [] [ Help.view model ]
+            pageWithTopNavBar model
+                (Ui.portraitPageTitle model.context Help.title)
+                []
+                [ Help.view model ]
 
         Model.SettingsPage ->
-            pageWithTopNavBar model [] [ Settings.view model ]
+            pageWithTopNavBar model
+                (Ui.portraitPageTitle model.context Settings.title)
+                []
+                [ Settings.view model ]
 
         Model.StatisticsPage ->
             pageWithTopNavBar model
+                (navigationBar model)
                 [ Summary.viewMobile model ]
                 [ Statistics.viewContent model
                 ]
 
         Model.ReconcilePage ->
             pageWithTopNavBar model
+                (navigationBar model)
                 [ Summary.viewMobile model ]
                 [ Reconcile.viewContent model
                 ]
 
         Model.CalendarPage ->
             pageWithTopNavBar model
+                (navigationBar model)
                 [ Summary.viewMobile model ]
                 [ E.el [ E.width E.fill, E.height <| E.fillPortion 1 ] <|
                     Calendar.viewContent model
@@ -484,7 +514,10 @@ viewPortraitPage model =
                 ]
 
         Model.DiagnosticsPage ->
-            pageWithTopNavBar model [] [ Diagnostics.view model ]
+            pageWithTopNavBar model
+                (Ui.portraitPageTitle model.context Diagnostics.title)
+                []
+                [ Diagnostics.view model ]
 
 
 viewDialog : Model -> Model.Dialog -> E.Element Msg
@@ -586,7 +619,7 @@ document model { page, maybeDialog } =
                     ( Model.LoadingPage, _ ) ->
                         E.none
 
-                    ( Model.InstallationPage _, _ ) ->
+                    ( Model.WelcomePage _, _ ) ->
                         E.none
 
                     ( _, False ) ->
@@ -661,8 +694,8 @@ panelWithTwoParts { top, bottom } =
         ]
 
 
-pageWithTopNavBar : Model -> List (E.Element Msg) -> List (E.Element Msg) -> E.Element Msg
-pageWithTopNavBar model topElements elements =
+pageWithTopNavBar : Model -> E.Element Msg -> List (E.Element Msg) -> List (E.Element Msg) -> E.Element Msg
+pageWithTopNavBar model navbar topElements elements =
     Keyed.el [ E.width E.fill, E.height E.fill ]
         ( Model.pageKey model.page
         , E.column
@@ -676,7 +709,7 @@ pageWithTopNavBar model topElements elements =
                 , E.htmlAttribute <| Html.Attributes.class "panel-shadow"
                 , E.htmlAttribute <| Html.Attributes.style "z-index" "2"
                 ]
-                (navigationBar model :: topElements)
+                (navbar :: topElements)
             , E.column
                 [ E.width E.fill
                 , E.height E.fill
@@ -707,19 +740,23 @@ navigationBar model =
                 && model.settings.reconciliationEnabled
                 && (width < 22 * em)
 
-        navigationButton { targetPage, label } =
+        navigationButton { targetPage, label, showActive } =
+            let
+                active =
+                    showActive && model.page == targetPage
+            in
             Input.button
                 [ E.padding <| model.context.em // 2
                 , Border.color Color.transparent
                 , Background.color
-                    (if model.page == targetPage then
+                    (if active then
                         Color.primary40
 
                      else
                         Color.primary85
                     )
                 , Font.color
-                    (if model.page == targetPage then
+                    (if active then
                         Color.white
 
                      else
@@ -727,7 +764,7 @@ navigationBar model =
                     )
                 , E.mouseDown
                     [ Background.color
-                        (if model.page == targetPage then
+                        (if active then
                             Color.primary30
 
                          else
@@ -736,7 +773,7 @@ navigationBar model =
                     ]
                 , E.mouseOver
                     [ Background.color
-                        (if model.page == targetPage then
+                        (if active then
                             Color.primary40
 
                          else
@@ -760,6 +797,7 @@ navigationBar model =
           , navigationButton
                 { targetPage = Model.CalendarPage
                 , label = E.text "Pactole"
+                , showActive = True
                 }
           )
         , ( "statistics button"
@@ -773,6 +811,7 @@ navigationBar model =
 
                         else
                             E.text "Bilan"
+                    , showActive = True
                     }
 
             else
@@ -789,6 +828,7 @@ navigationBar model =
 
                         else
                             E.text "Pointer"
+                    , showActive = True
                     }
 
             else
@@ -810,6 +850,7 @@ navigationBar model =
                     navigationButton
                         { targetPage = Model.DiagnosticsPage
                         , label = E.el [ Font.color Color.warning60, Ui.iconFont, Ui.bigFont model.context ] (E.text "\u{F071}")
+                        , showActive = False
                         }
           )
         , ( "help button"
@@ -817,6 +858,7 @@ navigationBar model =
                 { targetPage = Model.HelpPage
                 , label =
                     E.el [ Ui.iconFont, Ui.bigFont model.context, E.centerX, E.paddingXY 0 0 ] (E.text "\u{F059}")
+                , showActive = False
                 }
           )
         ]
@@ -829,7 +871,7 @@ logoPanel _ =
             (E.row [ E.width E.fill, E.centerY ]
                 [ E.el [ E.width E.fill, E.height E.fill ] E.none
                 , E.image [ E.width (E.fillPortion 2) ]
-                    { src = "images/logo-512x512.png"
+                    { src = "images/icon-512x512.png"
                     , description = "Pactole Logo"
                     }
                 , E.el [ E.width E.fill, E.height E.fill ] E.none

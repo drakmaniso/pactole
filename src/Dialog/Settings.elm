@@ -51,7 +51,7 @@ viewAccountDialog model data =
                     [ { label = E.text "Supprimer"
                       , icon = Ui.deleteIcon
                       , color = Ui.PlainButton
-                      , onPress = Msg.OpenDialog <| Model.DeleteAccountDialog accountId
+                      , onPress = Msg.OpenDialog Msg.DontFocusInput <| Model.DeleteAccountDialog accountId
                       }
                     , { label = E.text "  OK  "
                       , icon = E.text "  OK  "
@@ -160,7 +160,7 @@ viewCategoryDialog model submodel =
                     [ { label = E.text "Supprimer"
                       , icon = Ui.deleteIcon
                       , color = Ui.PlainButton
-                      , onPress = Msg.OpenDialog <| Model.DeleteCategoryDialog categoryId
+                      , onPress = Msg.OpenDialog Msg.DontFocusInput <| Model.DeleteCategoryDialog categoryId
                       }
                     , { label = E.text "  OK  "
                       , icon = E.text "  OK  "

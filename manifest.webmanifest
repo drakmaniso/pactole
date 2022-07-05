@@ -1,25 +1,27 @@
 {
 	"name": "Pactole",
 	"short_name": "Pactole",
+	"version": "1.5.4",
+	"description": "Gestion de budget personnel",
 	"icons": [
 		{
 			"src": "images/icon-512x512.png",
 			"sizes": "512x512",
-			"type": "image/png",
-			"purpose": "maskable"
+			"type": "image/png"
 		},
 		{
-			"src": "images/logo-512x512.png",
+			"src": "images/icon-maskable-512x512.png",
 			"sizes": "512x512",
-			"type": "image/png"
+			"type": "image/png",
+			"purpose": "maskable"
 		}
 	],
 	"splash_pages": null,
 	"start_url": "./",
 	"display": "standalone",
 	"background_color": "#ffffff",
-	"theme_color": "#536C18",
-	"orientation": "natural",
+	"theme_color": "#BED8F3",
+	"orientation": "any",
 	"screenshots": [
 		{
 			"src": "images/screenshot-360x640.webp",

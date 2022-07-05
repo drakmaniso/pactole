@@ -1,4 +1,4 @@
-module Msg exposing (DatabaseMsg(..), InstallMsg(..), Msg(..), SettingsMsg(..), TransactionMsg(..))
+module Msg exposing (DatabaseMsg(..), DialogFocus(..), Msg(..), SettingsMsg(..), TransactionMsg(..), WelcomeMsg(..))
 
 import Date exposing (Date)
 import File exposing (File)
@@ -10,7 +10,7 @@ import Model
 type Msg
     = OnApplicationStart ()
     | ChangePage Model.Page
-    | OpenDialog Model.Dialog
+    | OpenDialog DialogFocus Model.Dialog
     | CloseDialog
     | ConfirmDialog
     | RequestImportFile
@@ -25,16 +25,20 @@ type Msg
     | SelectDate Date
     | SelectAccount Int
     | WindowResize { width : Int, height : Int }
-    | ForInstallation InstallMsg
+    | ForWelcome WelcomeMsg
     | ForDatabase DatabaseMsg
     | ForTransaction TransactionMsg
     | ForSettings SettingsMsg
     | NoOp
 
 
-type InstallMsg
-    = ChangeInstallName String
-    | ChangeInstallBalance String
+type DialogFocus
+    = FocusInput
+    | DontFocusInput
+
+
+type WelcomeMsg
+    = SetWantSimplified Bool
     | ProceedWithInstall
 
 

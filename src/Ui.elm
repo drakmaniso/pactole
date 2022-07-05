@@ -29,6 +29,7 @@ module Ui exposing
     , flatButton
     , focusVisibleOnly
     , fontFamily
+    , helpIcon
     , helpImage
     , helpList
     , helpListItem
@@ -40,6 +41,7 @@ module Ui exposing
     , innerShadow
     , labelAbove
     , labelLeft
+    , landscapePageTitle
     , linkButton
     , loadIcon
     , minusIcon
@@ -47,10 +49,10 @@ module Ui exposing
     , monthNavigationBar
     , notSelectable
     , onEnter
-    , pageTitle
     , paragraph
     , paragraphParts
     , plusIcon
+    , portraitPageTitle
     , radio
     , radioButton
     , radioOption
@@ -59,9 +61,11 @@ module Ui exposing
     , roundCorners
     , saveIcon
     , scale
+    , scrollboxShadows
     , settingsIcon
     , smallFont
     , smallShadow
+    , smallText
     , smallerFont
     , text
     , textColumn
@@ -290,6 +294,11 @@ innerShadow =
     Border.innerShadow { offset = ( 0, 1 ), size = 0, blur = 4, color = E.rgba 0 0 0 0.5 }
 
 
+scrollboxShadows : E.Attribute msg
+scrollboxShadows =
+    E.htmlAttribute <| Html.Attributes.class "scrollbox"
+
+
 
 -- FONTS
 
@@ -429,6 +438,12 @@ settingsIcon =
         (E.text "\u{F013}")
 
 
+helpIcon : E.Element msg
+helpIcon =
+    E.el [ iconFont, E.centerX ]
+        (E.text "\u{F059}")
+
+
 
 -- CONTAINERS
 
@@ -454,6 +469,7 @@ dialog context { key, content, close, actions } =
                     [ E.width E.fill
                     , Background.color Color.primary85
                     , E.htmlAttribute <| Html.Attributes.style "z-index" "2"
+                    , E.htmlAttribute <| Html.Attributes.class "panel-shadow"
                     ]
                     (navigationButton context close
                         :: E.el [ E.width E.fill ] E.none
@@ -656,43 +672,142 @@ radioOption context value element =
 -- ELEMENTS
 
 
-pageTitle : Context -> E.Element msg -> E.Element msg
-pageTitle context element =
+landscapePageTitle :
+    Context
+    ->
+        { title : String
+        , closeMsg : msg
+        , extraIcon : E.Element msg
+        , extraMsg : Maybe msg
+        }
+    -> E.Element msg
+landscapePageTitle context content =
     let
         em =
             context.em
     in
     E.row
-        [ E.centerX
-        , E.width E.fill
-        , E.paddingEach
-            { top = 3
-            , bottom = em // 4
-            , left =
-                if context.density == Comfortable then
-                    2 * em
-
-                else
-                    em // 2
-            , right =
-                if context.density == Comfortable then
-                    2 * em
-
-                else
-                    em // 2
-            }
+        [ E.width E.fill
+        , E.paddingXY (em // 2) (em // 4)
         ]
-        [ E.el
-            [ bigFont context
-            , Font.center
-            , Font.bold
-            , E.padding <| em // 4
+    <|
+        [ if content.extraMsg == Nothing then
+            E.el [ E.width <| E.minimum (3 * em) <| E.shrink ] E.none
+
+          else
+            E.el [ E.width <| E.minimum (3 * em) <| E.shrink ] <|
+                flatButton
+                    { label = content.extraIcon
+                    , onPress = content.extraMsg
+                    }
+        , E.row
+            [ E.centerX
             , E.width E.fill
-            , E.centerY
-            , Font.color Color.neutral20
-            , Font.center
+            , E.paddingEach
+                { top = 3
+                , bottom = em // 4
+                , left =
+                    if context.density == Comfortable then
+                        2 * em
+
+                    else
+                        em // 2
+                , right =
+                    if context.density == Comfortable then
+                        2 * em
+
+                    else
+                        em // 2
+                }
             ]
-            element
+            [ E.el
+                [ bigFont context
+                , Font.center
+                , Font.bold
+                , E.padding <| em // 4
+                , E.width E.fill
+                , E.centerY
+                , Font.color Color.neutral20
+                , Font.center
+                ]
+              <|
+                E.text content.title
+            ]
+        , E.el [ E.width <| E.minimum (3 * em) <| E.shrink ] <|
+            flatButton
+                { label = closeIcon
+                , onPress = Just content.closeMsg
+                }
+        ]
+
+
+portraitPageTitle :
+    Context
+    ->
+        { title : String
+        , closeMsg : msg
+        , extraIcon : E.Element msg
+        , extraMsg : Maybe msg
+        }
+    -> E.Element msg
+portraitPageTitle context content =
+    let
+        em =
+            context.em
+    in
+    E.row
+        [ E.width E.fill
+        , Background.color Color.primary85
+        ]
+    <|
+        [ navigationButton context
+            { icon = closeIcon
+            , color = PlainButton
+            , onPress = content.closeMsg
+            }
+        , E.row
+            [ E.centerX
+            , E.width E.fill
+            , E.paddingEach
+                { top = 3
+                , bottom = em // 4
+                , left =
+                    if context.density == Comfortable then
+                        2 * em
+
+                    else
+                        em // 2
+                , right =
+                    if context.density == Comfortable then
+                        2 * em
+
+                    else
+                        em // 2
+                }
+            ]
+            [ E.el
+                [ bigFont context
+                , Font.center
+                , Font.bold
+                , E.padding <| em // 4
+                , E.width E.fill
+                , E.centerY
+                , Font.color Color.primary40
+                , Font.center
+                ]
+              <|
+                E.text content.title
+            ]
+        , case content.extraMsg of
+            Nothing ->
+                E.el [ E.width <| E.minimum (2 * em) <| E.shrink ] E.none
+
+            Just m ->
+                navigationButton context
+                    { icon = content.extraIcon
+                    , color = PlainButton
+                    , onPress = m
+                    }
         ]
 
 
@@ -1208,7 +1323,12 @@ incomeButton :
 incomeButton context { onPress, label } =
     Input.button
         [ E.htmlAttribute <| Html.Attributes.class "round-button"
-        , E.width <| E.px <| 2 * context.bigEm + context.bigEm // 4
+        , E.width <|
+            if context.device.class /= E.Phone then
+                E.px <| 2 * context.bigEm + context.bigEm // 4
+
+            else
+                E.px <| 3 * context.bigEm
         , E.height <|
             if context.device.class /= E.Phone then
                 E.px <| 2 * context.bigEm + context.bigEm // 4
@@ -1240,7 +1360,12 @@ expenseButton :
 expenseButton context { onPress, label } =
     Input.button
         [ E.htmlAttribute <| Html.Attributes.class "round-button"
-        , E.width <| E.px <| 2 * context.bigEm + context.bigEm // 4
+        , E.width <|
+            if context.device.class /= E.Phone then
+                E.px <| 2 * context.bigEm + context.bigEm // 4
+
+            else
+                E.px <| 3 * context.bigEm
         , E.height <|
             if context.device.class /= E.Phone then
                 E.px <| 2 * context.bigEm + context.bigEm // 4
@@ -1324,7 +1449,6 @@ reconcileCheckBox context { state, onPress } =
         , E.width <| E.px <| 1 * em + em // 2
         , E.height <| E.px <| 1 * em + em // 2
         , E.alignRight
-        , Background.color <| E.rgba 1 1 1 0.5
         , Border.width 0
         , Border.color Color.transparent
         , if state then
@@ -1661,3 +1785,8 @@ text txt =
 boldText : String -> E.Element msg
 boldText txt =
     E.el [ Font.bold ] (E.text txt)
+
+
+smallText : Context -> String -> E.Element msg
+smallText context txt =
+    E.el [ smallFont context ] (E.text txt)

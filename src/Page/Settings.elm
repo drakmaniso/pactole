@@ -1,11 +1,10 @@
-module Page.Settings exposing (view)
+module Page.Settings exposing (title, view)
 
 import Date
 import Dict
 import Element as E
 import Element.Background as Background
 import Element.Font as Font
-import Html.Attributes
 import Ledger
 import Model exposing (Model)
 import Money
@@ -15,18 +14,26 @@ import Ui
 import Ui.Color as Color
 
 
+title : { title : String, closeMsg : Msg, extraIcon : E.Element Msg, extraMsg : Maybe Msg }
+title =
+    { title = "RÉGLAGES"
+    , closeMsg = Msg.ChangePage Model.CalendarPage
+    , extraIcon = Ui.helpIcon
+    , extraMsg = Nothing -- Just <| Msg.ChangePage Model.HelpPage
+    }
+
+
 view : Model -> E.Element Msg
 view model =
     E.column
         [ E.width E.fill
         , E.height E.fill
         ]
-        [ Ui.pageTitle model.context (E.text "RÉGLAGES")
-        , E.column
+        [ E.column
             [ E.width E.fill
             , E.height E.fill
             , E.scrollbarY
-            , E.htmlAttribute <| Html.Attributes.class "scrollbox"
+            , Ui.scrollboxShadows
             ]
             [ Ui.textColumn model.context
                 [ Ui.verticalSpacer
@@ -79,7 +86,7 @@ configBackup model =
             faire une copie de sauvegarde, transférer le fichier et le récupérer sur le nouvel appareil.
             """
         , Ui.roundButton model.context
-            { onPress = Msg.OpenDialog <| Model.ExportDialog <| exportFileName model
+            { onPress = Msg.OpenDialog Msg.DontFocusInput <| Model.ExportDialog <| exportFileName model
             , color = Ui.PlainButton
             , label = E.row [ E.spacing 12 ] [ Ui.saveIcon, E.text "Faire une copie de sauvegarde" ]
             }
@@ -109,12 +116,12 @@ configAccounts model =
                     (\( id, name ) ->
                         Ui.flatButton
                             { label = E.text name
-                            , onPress = Just <| Msg.OpenDialog <| Model.AccountDialog { id = Just id, name = name }
+                            , onPress = Just <| Msg.OpenDialog Msg.DontFocusInput <| Model.AccountDialog { id = Just id, name = name }
                             }
                     )
             )
         , Ui.roundButton model.context
-            { onPress = Msg.OpenDialog <| Model.AccountDialog { id = Nothing, name = "" }
+            { onPress = Msg.OpenDialog Msg.FocusInput <| Model.AccountDialog { id = Nothing, name = "" }
             , color = Ui.PlainButton
             , label = E.row [] [ Ui.plusIcon, E.text "  Nouveau compte" ]
             }
@@ -194,12 +201,12 @@ configOptional model =
                                     [ Ui.viewIcon icon
                                     , E.text <| " " ++ name
                                     ]
-                            , onPress = Just <| Msg.OpenDialog <| Model.CategoryDialog { id = Just id, name = name, icon = icon }
+                            , onPress = Just <| Msg.OpenDialog Msg.DontFocusInput <| Model.CategoryDialog { id = Just id, name = name, icon = icon }
                             }
                     )
             )
         , Ui.roundButton model.context
-            { onPress = Msg.OpenDialog <| Model.CategoryDialog { id = Nothing, name = "", icon = " " }
+            { onPress = Msg.OpenDialog Msg.FocusInput <| Model.CategoryDialog { id = Nothing, name = "", icon = " " }
             , color = Ui.PlainButton
             , label = E.row [] [ Ui.plusIcon, E.text "  Nouvelle catégorie" ]
             }
@@ -223,7 +230,7 @@ configRecurring model =
                         Ui.flatButton
                             { onPress =
                                 Just <|
-                                    Msg.OpenDialog <|
+                                    Msg.OpenDialog Msg.DontFocusInput <|
                                         Model.RecurringDialog
                                             { id = Just t.id
                                             , account = t.account
@@ -252,7 +259,7 @@ configRecurring model =
             )
         , Ui.roundButton model.context
             { onPress =
-                Msg.OpenDialog <|
+                Msg.OpenDialog Msg.FocusInput <|
                     Model.RecurringDialog
                         { id = Nothing
                         , account = model.account
@@ -357,7 +364,7 @@ configAppearance model =
         , Ui.roundButton model.context
             { label = E.text "Changer la police de caractères"
             , color = Ui.PlainButton
-            , onPress = Msg.OpenDialog <| Model.FontDialog model.settings.font
+            , onPress = Msg.OpenDialog Msg.DontFocusInput <| Model.FontDialog model.settings.font
             }
         , Ui.verticalSpacer
         , Ui.radio model.context

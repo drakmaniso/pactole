@@ -13,7 +13,7 @@ const files = [
   'fonts/andika-new-basic-v15-latin-regular.woff2',
   'fonts/andika-new-basic-v15-latin-700.woff2',
   'images/icon-512x512.png',
-  'images/logo-512x512.png',
+  'images/icon-maskable-512x512.png',
 ]
 
 
@@ -24,7 +24,7 @@ const version = 2
 const staticCacheName = "pactole-cache-2"
 
 // Used to force an update on client-side
-const serviceVersion = "1.5.3"
+const serviceVersion = "1.5.4"
 
 
 self.addEventListener('install', event => {

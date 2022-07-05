@@ -6,7 +6,6 @@ import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
 import Element.Input as Input
-import Html.Attributes
 import Ledger
 import Model exposing (Model)
 import Money
@@ -32,7 +31,7 @@ viewContent model =
             , E.height E.fill
             , E.scrollbarY
             , E.clipX
-            , E.htmlAttribute <| Html.Attributes.class "scrollbox"
+            , Ui.scrollboxShadows
             ]
             [ viewTransactions model
             , E.el [ E.centerX, E.paddingXY (em // 2) (em * 2) ] <|
@@ -116,7 +115,7 @@ rowDate model date =
         , E.centerX
         , E.paddingEach
             { top = 2 * em
-            , bottom = em // 2
+            , bottom = em // 4
             , left = em // 4
             , right = em // 4
             }
@@ -136,7 +135,7 @@ rowTransaction model transaction =
     E.row
         [ E.width <| E.maximum (24 * em) <| E.fill
         , E.centerX
-        , E.paddingXY (em // 2) (em // 4)
+        , E.paddingXY (em // 2) (em // 8)
         , E.spacing 0
         ]
         [ colReconciled model transaction
@@ -161,7 +160,7 @@ buttonTransaction model transaction =
         ]
         { onPress =
             Just <|
-                Msg.OpenDialog <|
+                Msg.OpenDialog Msg.DontFocusInput <|
                     Model.TransactionDialog
                         { id = Just transaction.id
                         , isExpense = Money.isExpense transaction.amount
@@ -189,7 +188,7 @@ colReconciled model transaction =
     in
     E.el
         [ E.centerX
-        , E.centerY
+        , E.alignTop
         , E.padding (em // 4)
         ]
     <|
@@ -205,7 +204,7 @@ colAmount model transaction today =
         future =
             Date.compare transaction.date today == GT
     in
-    Ui.viewMoney model.context transaction.amount future
+    E.el [ E.alignTop ] <| Ui.viewMoney model.context transaction.amount future
 
 
 colCategory : Model -> Ledger.Transaction -> E.Element msg
@@ -222,6 +221,7 @@ colCategory model transaction =
             E.el
                 [ E.width <| E.minimum (2 * em + em // 2) <| E.shrink
                 , E.centerX
+                , E.alignTop
                 , Font.center
                 , Font.color Color.neutral80
                 , Font.bold
@@ -232,6 +232,7 @@ colCategory model transaction =
             E.el
                 [ E.width <| E.minimum (2 * em + em // 2) <| E.shrink
                 , E.centerX
+                , E.alignTop
                 , Font.center
                 , Font.color Color.neutral20
                 , Ui.iconFont
@@ -245,7 +246,7 @@ colCategory model transaction =
 colDescription : Model -> Ledger.Transaction -> E.Element msg
 colDescription _ transaction =
     E.paragraph
-        [ E.centerY
+        [ E.alignTop
         ]
     <|
         [ E.text <|
