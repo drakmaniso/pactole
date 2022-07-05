@@ -1,4 +1,4 @@
-module Msg exposing (DatabaseMsg(..), Msg(..), SettingsMsg(..), TransactionMsg(..), WelcomeMsg(..))
+module Msg exposing (DatabaseMsg(..), DialogFocus(..), Msg(..), SettingsMsg(..), TransactionMsg(..), WelcomeMsg(..))
 
 import Date exposing (Date)
 import File exposing (File)
@@ -10,7 +10,7 @@ import Model
 type Msg
     = OnApplicationStart ()
     | ChangePage Model.Page
-    | OpenDialog Model.Dialog
+    | OpenDialog DialogFocus Model.Dialog
     | CloseDialog
     | ConfirmDialog
     | RequestImportFile
@@ -30,6 +30,11 @@ type Msg
     | ForTransaction TransactionMsg
     | ForSettings SettingsMsg
     | NoOp
+
+
+type DialogFocus
+    = FocusInput
+    | DontFocusInput
 
 
 type WelcomeMsg

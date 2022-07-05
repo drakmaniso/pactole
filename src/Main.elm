@@ -174,11 +174,16 @@ update msg model =
             , Cmd.none
             )
 
-        Msg.OpenDialog dialog ->
+        Msg.OpenDialog focus dialog ->
             ( { model | dialog = Just dialog }
-            , Cmd.batch
-                [ Task.attempt (\_ -> Msg.NoOp) (Dom.focus "dialog-focus")
-                ]
+            , case focus of
+                Msg.FocusInput ->
+                    Cmd.batch
+                        [ Task.attempt (\_ -> Msg.NoOp) (Dom.focus "dialog-focus")
+                        ]
+
+                Msg.DontFocusInput ->
+                    Cmd.none
             )
 
         Msg.ConfirmDialog ->

@@ -160,7 +160,7 @@ buttonTransaction model transaction =
         ]
         { onPress =
             Just <|
-                Msg.OpenDialog <|
+                Msg.OpenDialog Msg.DontFocusInput <|
                     Model.TransactionDialog
                         { id = Just transaction.id
                         , isExpense = Money.isExpense transaction.amount

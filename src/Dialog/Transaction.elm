@@ -56,7 +56,7 @@ view model data =
                         [ { label = E.text "Supprimer"
                           , icon = Ui.deleteIcon
                           , color = Ui.PlainButton
-                          , onPress = Msg.OpenDialog <| Model.DeleteTransactionDialog id
+                          , onPress = Msg.OpenDialog Msg.DontFocusInput <| Model.DeleteTransactionDialog id
                           }
                         , { label = E.text "  OK  "
                           , icon = E.text "  OK  "

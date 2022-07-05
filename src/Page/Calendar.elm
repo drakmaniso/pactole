@@ -430,7 +430,7 @@ dayView model date =
                 [ Ui.incomeButton model.context
                     { label = Ui.incomeIcon
                     , onPress =
-                        Msg.OpenDialog <|
+                        Msg.OpenDialog Msg.FocusInput <|
                             Model.TransactionDialog
                                 { id = Nothing
                                 , isExpense = False
@@ -444,7 +444,7 @@ dayView model date =
                 , Ui.expenseButton model.context
                     { label = Ui.expenseIcon
                     , onPress =
-                        Msg.OpenDialog <|
+                        Msg.OpenDialog Msg.FocusInput <|
                             Model.TransactionDialog
                                 { id = Nothing
                                 , isExpense = True
@@ -517,7 +517,7 @@ dayContentFor model day =
                     { onPress =
                         Just <|
                             if transaction.isRecurring then
-                                Msg.OpenDialog <|
+                                Msg.OpenDialog Msg.DontFocusInput <|
                                     Model.TransactionDialog
                                         { id = Just transaction.id
                                         , isExpense = Money.isExpense transaction.amount
@@ -529,7 +529,7 @@ dayContentFor model day =
                                         }
 
                             else
-                                Msg.OpenDialog <|
+                                Msg.OpenDialog Msg.DontFocusInput <|
                                     Model.TransactionDialog
                                         { id = Just transaction.id
                                         , isExpense = Money.isExpense transaction.amount
