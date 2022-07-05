@@ -100,7 +100,7 @@ titleBanner model =
         , E.spacing 24
         ]
         [ E.image [ E.alignLeft, E.centerY, E.height <| E.px 64, E.width <| E.px 64 ]
-            { src = "images/logo-512x512.png"
+            { src = "images/icon-512x512.png"
             , description = "Pactole Logo"
             }
         , E.column

@@ -871,7 +871,7 @@ logoPanel _ =
             (E.row [ E.width E.fill, E.centerY ]
                 [ E.el [ E.width E.fill, E.height E.fill ] E.none
                 , E.image [ E.width (E.fillPortion 2) ]
-                    { src = "images/logo-512x512.png"
+                    { src = "images/icon-512x512.png"
                     , description = "Pactole Logo"
                     }
                 , E.el [ E.width E.fill, E.height E.fill ] E.none
