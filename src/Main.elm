@@ -175,15 +175,28 @@ update msg model =
             )
 
         Msg.OpenDialog focus dialog ->
+            let
+                noPreviousDialog =
+                    model.dialog == Nothing
+            in
             ( { model | dialog = Just dialog }
             , case focus of
                 Msg.FocusInput ->
                     Cmd.batch
-                        [ Task.attempt (\_ -> Msg.NoOp) (Dom.focus "dialog-focus")
+                        [ if noPreviousDialog then
+                            Ports.historyPushState ()
+
+                          else
+                            Cmd.none
+                        , Task.attempt (\_ -> Msg.NoOp) (Dom.focus "dialog-focus")
                         ]
 
                 Msg.DontFocusInput ->
-                    Cmd.none
+                    if noPreviousDialog then
+                        Ports.historyPushState ()
+
+                    else
+                        Cmd.none
             )
 
         Msg.ConfirmDialog ->
@@ -198,7 +211,7 @@ update msg model =
                     Update.Settings.confirm model
 
         Msg.CloseDialog ->
-            ( { model | dialog = Nothing }, Cmd.none )
+            ( { model | dialog = Nothing }, Ports.historyGo -1 )
 
         Msg.RequestImportFile ->
             ( model, File.Select.file [ ".pactole,.json" ] Msg.ReadImportFile )
@@ -227,14 +240,8 @@ update msg model =
                 ( Just _, _ ) ->
                     ( { model | dialog = Nothing, monthPrevious = model.monthDisplayed }, Cmd.none )
 
-                ( Nothing, Model.CalendarPage ) ->
-                    ( model, Ports.historyBack () )
-
-                ( Nothing, Model.SettingsPage ) ->
-                    ( { model | page = Model.HelpPage, monthPrevious = model.monthDisplayed }, Cmd.none )
-
                 ( Nothing, _ ) ->
-                    ( { model | page = Model.CalendarPage, monthPrevious = model.monthDisplayed }, Cmd.none )
+                    ( model, Cmd.none )
 
         Msg.SelectDate date ->
             ( { model | dateSelected = date }, Cmd.none )

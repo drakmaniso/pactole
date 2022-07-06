@@ -390,15 +390,16 @@
               }
             })
 
-            // Hijack back button
+            // Handle back button
 
-            history.pushState(null, document.title, location.href)
-            window.onpopstate = event => {
+            app.ports.historyPushState.subscribe(function (args) {
               history.pushState(null, document.title, location.href)
+            })
+            window.onpopstate = event => {
               app.ports.onPopState.send(null)
             }
-            app.ports.historyBack.subscribe(_ => {
-              history.go(-2)
+            app.ports.historyGo.subscribe(delta => {
+              history.go(delta)
             })
 
             // Handle Touch Horizontal Swipes
