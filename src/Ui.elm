@@ -26,6 +26,7 @@ module Ui exposing
     , errorIcon
     , expenseButton
     , expenseIcon
+    , externalLinkIcon
     , flatButton
     , focusVisibleOnly
     , fontFamily
@@ -442,6 +443,11 @@ helpIcon : E.Element msg
 helpIcon =
     E.el [ iconFont, E.centerX ]
         (E.text "\u{F059}")
+
+
+externalLinkIcon : E.Element msg
+externalLinkIcon =
+    E.el [ iconFont, E.centerX ] <| E.text "\u{F35D}"
 
 
 
