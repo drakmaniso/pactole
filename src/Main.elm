@@ -747,23 +747,19 @@ navigationBar model =
                 && model.settings.reconciliationEnabled
                 && (width < 22 * em)
 
-        navigationButton { targetPage, label, showActive } =
-            let
-                active =
-                    showActive && model.page == targetPage
-            in
+        navigationButton { targetPage, label, isActive } =
             Input.button
                 [ E.padding <| model.context.em // 2
                 , Border.color Color.transparent
                 , Background.color
-                    (if active then
+                    (if isActive model.page then
                         Color.primary40
 
                      else
                         Color.primary85
                     )
                 , Font.color
-                    (if active then
+                    (if isActive model.page then
                         Color.white
 
                      else
@@ -771,7 +767,7 @@ navigationBar model =
                     )
                 , E.mouseDown
                     [ Background.color
-                        (if active then
+                        (if isActive model.page then
                             Color.primary30
 
                          else
@@ -780,7 +776,7 @@ navigationBar model =
                     ]
                 , E.mouseOver
                     [ Background.color
-                        (if active then
+                        (if isActive model.page then
                             Color.primary40
 
                          else
@@ -804,7 +800,7 @@ navigationBar model =
           , navigationButton
                 { targetPage = Model.CalendarPage
                 , label = E.text "Pactole"
-                , showActive = True
+                , isActive = \p -> p == Model.CalendarPage
                 }
           )
         , ( "statistics button"
@@ -818,7 +814,7 @@ navigationBar model =
 
                         else
                             E.text "Bilan"
-                    , showActive = True
+                    , isActive = \p -> p == Model.StatisticsPage
                     }
 
             else
@@ -835,7 +831,7 @@ navigationBar model =
 
                         else
                             E.text "Pointer"
-                    , showActive = True
+                    , isActive = \p -> p == Model.ReconcilePage
                     }
 
             else
@@ -857,7 +853,7 @@ navigationBar model =
                     navigationButton
                         { targetPage = Model.DiagnosticsPage
                         , label = E.el [ Font.color Color.warning60, Ui.iconFont, Ui.bigFont model.context ] (E.text "\u{F071}")
-                        , showActive = False
+                        , isActive = \p -> p == Model.DiagnosticsPage
                         }
           )
         , ( "help button"
@@ -865,7 +861,7 @@ navigationBar model =
                 { targetPage = Model.HelpPage
                 , label =
                     E.el [ Ui.iconFont, Ui.bigFont model.context, E.centerX, E.paddingXY 0 0 ] (E.text "\u{F059}")
-                , showActive = False
+                , isActive = \p -> p == Model.HelpPage || p == Model.SettingsPage
                 }
           )
         ]
