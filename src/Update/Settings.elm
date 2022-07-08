@@ -238,7 +238,7 @@ confirm model =
                     ( "install database"
                     , Model.encodeDatabase db
                     )
-                , Ports.historyGo -1
+                , Cmd.none
                 ]
             )
 

@@ -91,7 +91,7 @@ viewBalance model =
             Ledger.getBalance model.ledger model.account model.today
 
         parts =
-            Money.toStrings balance
+            Money.toStringParts balance
 
         sign =
             if parts.sign == "+" then
@@ -223,7 +223,7 @@ viewMobileBalance model =
             Ledger.getBalance model.ledger model.account model.today
 
         parts =
-            Money.toStrings balance
+            Money.toStringParts balance
 
         sign =
             if parts.sign == "+" then

@@ -305,7 +305,7 @@ cellContentFor model day =
                         Color.transactionColor (Money.isExpense transaction.amount)
 
                 parts =
-                    Money.toStrings transaction.amount
+                    Money.toStringParts transaction.amount
             in
             if model.context.density == Ui.Comfortable then
                 E.el

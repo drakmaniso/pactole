@@ -1054,7 +1054,7 @@ viewMoney context money future =
                 ""
 
         parts =
-            Money.toStrings money
+            Money.toStringParts money
 
         isExpense =
             Money.isExpense money
@@ -1116,7 +1116,7 @@ viewSum : Context -> Money.Money -> E.Element msg
 viewSum context money =
     let
         parts =
-            Money.toStrings money
+            Money.toStringParts money
     in
     E.row
         [ E.width E.shrink
@@ -1146,7 +1146,7 @@ viewBalance : Context -> Money.Money -> E.Element msg
 viewBalance context money =
     let
         parts =
-            Money.toStrings money
+            Money.toStringParts money
 
         sign =
             if parts.sign == "+" then
@@ -1567,12 +1567,12 @@ moneyInput :
     -> E.Element msg
 moneyInput context args =
     let
-        minWidth =
-            6 * context.em
+        maxWidth =
+            12 * context.em
     in
     Input.text
         [ E.paddingXY 8 12
-        , E.width E.fill -- (E.shrink |> E.minimum minWidth)
+        , E.width (E.fill |> E.maximum maxWidth)
         , E.alignLeft
         , Border.width 4
         , Border.color Color.white
@@ -1583,9 +1583,7 @@ moneyInput context args =
             ]
         , E.htmlAttribute <| Html.Attributes.id "dialog-focus"
         , E.htmlAttribute <| Html.Attributes.autocomplete False
-
-        -- , E.htmlAttribute <| Html.Attributes.attribute "autocomplete" "transaction-amount"
-        , E.htmlAttribute <| Html.Attributes.attribute "inputmode" "numeric"
+        , E.htmlAttribute <| Html.Attributes.attribute "inputmode" "decimal"
         , Font.color args.color
         , case Tuple.second args.state of
             Just error ->

@@ -246,7 +246,7 @@ configRecurring model =
                     (\t ->
                         let
                             m =
-                                Money.toStrings t.amount
+                                Money.toStringParts t.amount
                         in
                         Ui.flatButton
                             { onPress =

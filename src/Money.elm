@@ -7,8 +7,9 @@ module Money exposing
     , isGreaterOrEqualThan
     , isZero
     , parse
+    , toIntForTestingPurposeOnly
     , toString
-    , toStrings
+    , toStringParts
     , zero
     )
 
@@ -18,6 +19,11 @@ import Json.Encode as Encode
 
 type Money
     = Money Int -- Money (units*100 + cents)
+
+
+toIntForTestingPurposeOnly : Money -> Int
+toIntForTestingPurposeOnly (Money repr) =
+    repr
 
 
 zero : Money
@@ -45,8 +51,8 @@ add (Money a) (Money b) =
     Money (a + b)
 
 
-toStrings : Money -> { sign : String, units : String, cents : String }
-toStrings (Money m) =
+toStringParts : Money -> { sign : String, units : String, cents : String }
+toStringParts (Money m) =
     { sign =
         if m < 0 then
             "-"
