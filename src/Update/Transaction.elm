@@ -72,7 +72,7 @@ confirm : Model -> Model.TransactionData -> ( Model, Cmd Msg )
 confirm model data =
     case
         ( data.id
-        , Money.fromInput data.isExpense (Tuple.first data.amount)
+        , Money.parse data.isExpense (Tuple.first data.amount)
         )
     of
         ( Just id, Ok amount ) ->

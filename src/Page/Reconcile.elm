@@ -166,7 +166,7 @@ buttonTransaction model transaction =
                         , isExpense = Money.isExpense transaction.amount
                         , isRecurring = False
                         , date = transaction.date
-                        , amount = ( Money.toInput transaction.amount, Nothing )
+                        , amount = ( Money.toString transaction.amount, Nothing )
                         , description = transaction.description
                         , category = transaction.category
                         }

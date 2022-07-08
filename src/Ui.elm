@@ -1572,7 +1572,7 @@ moneyInput context args =
     in
     Input.text
         [ E.paddingXY 8 12
-        , E.width (E.shrink |> E.minimum minWidth)
+        , E.width E.fill -- (E.shrink |> E.minimum minWidth)
         , E.alignLeft
         , Border.width 4
         , Border.color Color.white
@@ -1582,9 +1582,9 @@ moneyInput context args =
             [ Border.color Color.focus85
             ]
         , E.htmlAttribute <| Html.Attributes.id "dialog-focus"
+        , E.htmlAttribute <| Html.Attributes.autocomplete False
 
-        -- , E.htmlAttribute <| Html.Attributes.autocomplete False
-        , E.htmlAttribute <| Html.Attributes.attribute "autocomplete" "transaction-amount"
+        -- , E.htmlAttribute <| Html.Attributes.attribute "autocomplete" "transaction-amount"
         , E.htmlAttribute <| Html.Attributes.attribute "inputmode" "numeric"
         , Font.color args.color
         , case Tuple.second args.state of

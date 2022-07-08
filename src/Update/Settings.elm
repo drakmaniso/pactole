@@ -187,7 +187,7 @@ confirm model =
                             , account = data.account
                             , amount =
                                 Result.withDefault Money.zero
-                                    (Money.fromInput data.isExpense data.amount)
+                                    (Money.parse data.isExpense data.amount)
                             , description = data.description
                             , category = data.category
                             , date = dueDate
@@ -205,7 +205,7 @@ confirm model =
                             , account = data.account
                             , amount =
                                 Result.withDefault Money.zero
-                                    (Money.fromInput data.isExpense data.amount)
+                                    (Money.parse data.isExpense data.amount)
                             , description = data.description
                             , category = data.category
                             , checked = False
