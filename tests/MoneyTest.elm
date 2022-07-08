@@ -79,6 +79,30 @@ suite =
                 expectFromInput False
                     (intToMoneyString a ++ " - " ++ intToMoneyString b)
                     (a - b)
+        , fuzz2 (Fuzz.intRange 0 100000) (Fuzz.intRange 0 100000) "Fuzzing addition in expense" <|
+            \a b ->
+                expectFromInput True
+                    (intToMoneyString a ++ " + " ++ intToMoneyString b)
+                    -(a + b)
+        , fuzz2 (Fuzz.intRange 0 100000) (Fuzz.intRange 0 100000) "Fuzzing substraction in expense" <|
+            \a b ->
+                expectFromInput True
+                    (intToMoneyString a ++ " - " ++ intToMoneyString b)
+                    -(a - b)
+        , fuzz2 (Fuzz.intRange 0 10000) (Fuzz.intRange 0 99) "Fuzzing double parsing" <|
+            \units cents ->
+                expectFromInput False
+                    (case
+                        (String.fromInt units ++ "," ++ (String.fromInt cents |> String.padLeft 2 '0'))
+                            |> Money.parse False
+                     of
+                        Ok money ->
+                            Money.absToString money
+
+                        Err err ->
+                            err
+                    )
+                    (100 * units + cents)
         , describe "All ints from 0 to 1000"
             (List.range 0 1000 |> List.map (\i -> testInput (String.fromInt i) (i * 100)))
         , describe "All values from 0 to 100.00"

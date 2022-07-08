@@ -1,5 +1,6 @@
 module Money exposing
     ( Money
+    , absToString
     , add
     , decode
     , encode
@@ -8,7 +9,6 @@ module Money exposing
     , isZero
     , parse
     , toIntForTestingPurposeOnly
-    , toString
     , toStringParts
     , zero
     )
@@ -69,8 +69,8 @@ toStringParts (Money m) =
     }
 
 
-toString : Money -> String
-toString (Money money) =
+absToString : Money -> String
+absToString (Money money) =
     let
         units =
             abs (money // 100)

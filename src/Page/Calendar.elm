@@ -523,7 +523,7 @@ dayContentFor model day =
                                         , isExpense = Money.isExpense transaction.amount
                                         , isRecurring = True
                                         , date = transaction.date
-                                        , amount = ( Money.toString transaction.amount, Nothing )
+                                        , amount = ( Money.absToString transaction.amount, Nothing )
                                         , description = transaction.description
                                         , category = transaction.category
                                         }
@@ -535,7 +535,7 @@ dayContentFor model day =
                                         , isExpense = Money.isExpense transaction.amount
                                         , isRecurring = False
                                         , date = transaction.date
-                                        , amount = ( Money.toString transaction.amount, Nothing )
+                                        , amount = ( Money.absToString transaction.amount, Nothing )
                                         , description = transaction.description
                                         , category = transaction.category
                                         }
