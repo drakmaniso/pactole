@@ -73,35 +73,51 @@ viewTransactions model =
     let
         transactions =
             Ledger.getLastXMonthsTransactions model.ledger model.account model.today model.nbMonthsDisplayed
+
+        transByDate =
+            Ledger.groupTransactionsByDate transactions
     in
     E.column
         [ E.width E.fill
         , E.height E.fill
         , Font.color Color.neutral20
         ]
-        (transactions
-            |> List.foldr
-                (\t ( rows, d ) ->
-                    let
-                        newRow =
-                            rowTransaction model t
-                    in
-                    if Date.compare d t.date /= EQ && List.length rows /= 0 then
-                        ( newRow :: rowDate model d :: rows, t.date )
-
-                    else
-                        ( newRow :: rows, t.date )
+        (transByDate
+            |> List.map
+                (\( transaction, group ) ->
+                    E.column [ E.width E.fill ] <|
+                        rowDate model transaction.date
+                            :: (transaction
+                                    :: group
+                                    |> Ledger.fusionMultipartTransactions
+                                    |> List.map (\t -> rowTransaction model t)
+                               )
                 )
-                ( [], Date.default )
-            |> (\( rows, d ) ->
-                    case rows of
-                        _ :: _ ->
-                            rowDate model d :: rows
-
-                        _ ->
-                            rows
-               )
         )
+
+
+
+-- (transactions
+--     |> List.foldr
+--         (\t ( rows, d ) ->
+--             let
+--                 newRow =
+--                     rowTransaction model t
+--             in
+--             if Date.compare d t.date /= EQ && List.length rows /= 0 then
+--                 ( newRow :: rowDate model d :: rows, t.date )
+--             else
+--                 ( newRow :: rows, t.date )
+--         )
+--         ( [], Date.default )
+--     |> (\( rows, d ) ->
+--             case rows of
+--                 _ :: _ ->
+--                     rowDate model d :: rows
+--                 _ ->
+--                     rows
+--        )
+-- )
 
 
 rowDate : Model -> Date -> E.Element Msg
