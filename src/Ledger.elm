@@ -8,7 +8,6 @@ module Ledger exposing
     , encode
     , encodeNewTransaction
     , encodeTransaction
-    , fusionMultipartTransactions
     , getActivatedRecurringTransactions
     , getAllTransactions
     , getBalance
@@ -151,9 +150,6 @@ getLastXMonthsTransactions (Ledger transactions) account today nbMonths =
                             /= LT
                        )
             )
-        --TODO: remove
-        |> List.sortWith
-            (\a b -> Date.compare b.date a.date)
 
 
 groupTransactionsByDate : List Transaction -> List ( Transaction, List Transaction )
@@ -173,50 +169,6 @@ groupTransactionsByDate transactions =
 
                         else
                             ( current, [] ) :: result
-            )
-            []
-
-
-isMultipartTransaction transaction =
-    case String.uncons transaction.description of
-        Just ( '*', _ ) ->
-            True
-
-        _ ->
-            False
-
-
-fusionMultipartTransactions : List Transaction -> List Transaction
-fusionMultipartTransactions transactions =
-    transactions
-        |> List.sortBy .description
-        |> List.foldr
-            (\current result ->
-                case result of
-                    [] ->
-                        [ current ]
-
-                    previous :: rest ->
-                        if
-                            isMultipartTransaction current
-                                && current.description
-                                == previous.description
-                                && current.account
-                                == previous.account
-                                && current.date
-                                == previous.date
-                                && current.checked
-                                == previous.checked
-                        then
-                            { current
-                                | amount = Money.add current.amount previous.amount
-                                , id = -1
-                                , category = -1
-                            }
-                                :: rest
-
-                        else
-                            current :: result
             )
             []
 
