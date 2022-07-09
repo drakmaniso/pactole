@@ -10,6 +10,7 @@ module Ui exposing
     , biggestFont
     , boldText
     , borderWidth
+    , buttonDisableable
     , checkIcon
     , classifyContext
     , closeIcon
@@ -480,7 +481,7 @@ dialog context { key, content, close, actions } =
                     (navigationButton context close
                         :: E.el [ E.width E.fill ] E.none
                         :: List.map
-                            (\button -> navigationButton context button)
+                            (\b -> navigationButton context b)
                             actions
                     )
                 , E.el [ E.padding <| context.em // 2, E.width E.fill, E.height E.fill, E.clipX ]
@@ -499,7 +500,7 @@ dialog context { key, content, close, actions } =
                     E.el [ E.width E.fill ] E.none
                         :: roundButton context close
                         :: List.map
-                            (\button -> roundButton context button)
+                            (\b -> roundButton context b)
                             actions
         in
         Keyed.el [ E.width E.fill, E.height E.fill ] <|
@@ -1190,6 +1191,23 @@ viewBalance context money =
 
 
 -- INTERACTIVE ELEMENTS
+
+
+buttonDisableable :
+    List (E.Attribute msg)
+    ->
+        { label : E.Element msg
+        , onPress : Maybe msg
+        , disabled : Bool
+        }
+    -> E.Element msg
+buttonDisableable attributes { label, onPress, disabled } =
+    if disabled then
+        E.el attributes label
+
+    else
+        Input.button attributes
+            { label = label, onPress = onPress }
 
 
 type ButtonColor
