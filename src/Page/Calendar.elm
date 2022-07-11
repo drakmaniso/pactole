@@ -162,11 +162,6 @@ calendarCell model day disabled =
         (Ui.buttonDisableable
             [ E.width E.fill
             , E.height E.fill
-
-            -- , if disabled then
-            --     E.htmlAttribute <| Html.Attributes.tabindex -1
-            --   else
-            --     E.htmlAttribute <| Html.Attributes.classList []
             , E.clip
             , Border.width <|
                 case model.context.density of
