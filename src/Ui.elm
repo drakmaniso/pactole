@@ -10,6 +10,7 @@ module Ui exposing
     , biggestFont
     , boldText
     , borderWidth
+    , buttonDisableable
     , checkIcon
     , classifyContext
     , closeIcon
@@ -26,6 +27,7 @@ module Ui exposing
     , errorIcon
     , expenseButton
     , expenseIcon
+    , externalLinkIcon
     , flatButton
     , focusVisibleOnly
     , fontFamily
@@ -444,6 +446,11 @@ helpIcon =
         (E.text "\u{F059}")
 
 
+externalLinkIcon : E.Element msg
+externalLinkIcon =
+    E.el [ iconFont, E.centerX ] <| E.text "\u{F35D}"
+
+
 
 -- CONTAINERS
 
@@ -474,7 +481,7 @@ dialog context { key, content, close, actions } =
                     (navigationButton context close
                         :: E.el [ E.width E.fill ] E.none
                         :: List.map
-                            (\button -> navigationButton context button)
+                            (\b -> navigationButton context b)
                             actions
                     )
                 , E.el [ E.padding <| context.em // 2, E.width E.fill, E.height E.fill, E.clipX ]
@@ -493,7 +500,7 @@ dialog context { key, content, close, actions } =
                     E.el [ E.width E.fill ] E.none
                         :: roundButton context close
                         :: List.map
-                            (\button -> roundButton context button)
+                            (\b -> roundButton context b)
                             actions
         in
         Keyed.el [ E.width E.fill, E.height E.fill ] <|
@@ -1048,7 +1055,7 @@ viewMoney context money future =
                 ""
 
         parts =
-            Money.toStrings money
+            Money.toStringParts money
 
         isExpense =
             Money.isExpense money
@@ -1110,7 +1117,7 @@ viewSum : Context -> Money.Money -> E.Element msg
 viewSum context money =
     let
         parts =
-            Money.toStrings money
+            Money.toStringParts money
     in
     E.row
         [ E.width E.shrink
@@ -1140,7 +1147,7 @@ viewBalance : Context -> Money.Money -> E.Element msg
 viewBalance context money =
     let
         parts =
-            Money.toStrings money
+            Money.toStringParts money
 
         sign =
             if parts.sign == "+" then
@@ -1184,6 +1191,23 @@ viewBalance context money =
 
 
 -- INTERACTIVE ELEMENTS
+
+
+buttonDisableable :
+    List (E.Attribute msg)
+    ->
+        { label : E.Element msg
+        , onPress : Maybe msg
+        , disabled : Bool
+        }
+    -> E.Element msg
+buttonDisableable attributes { label, onPress, disabled } =
+    if disabled then
+        E.el attributes label
+
+    else
+        Input.button attributes
+            { label = label, onPress = onPress }
 
 
 type ButtonColor
@@ -1561,12 +1585,12 @@ moneyInput :
     -> E.Element msg
 moneyInput context args =
     let
-        minWidth =
-            6 * context.em
+        maxWidth =
+            12 * context.em
     in
     Input.text
         [ E.paddingXY 8 12
-        , E.width (E.shrink |> E.minimum minWidth)
+        , E.width (E.fill |> E.maximum maxWidth)
         , E.alignLeft
         , Border.width 4
         , Border.color Color.white
@@ -1576,10 +1600,8 @@ moneyInput context args =
             [ Border.color Color.focus85
             ]
         , E.htmlAttribute <| Html.Attributes.id "dialog-focus"
-
-        -- , E.htmlAttribute <| Html.Attributes.autocomplete False
-        , E.htmlAttribute <| Html.Attributes.attribute "autocomplete" "transaction-amount"
-        , E.htmlAttribute <| Html.Attributes.attribute "inputmode" "numeric"
+        , E.htmlAttribute <| Html.Attributes.autocomplete False
+        , E.htmlAttribute <| Html.Attributes.attribute "inputmode" "decimal"
         , Font.color args.color
         , case Tuple.second args.state of
             Just error ->

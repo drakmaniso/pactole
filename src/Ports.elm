@@ -1,7 +1,8 @@
 port module Ports exposing
     ( error
     , fromServiceWorker
-    , historyBack
+    , historyGo
+    , historyPushState
     , onApplicationStart
     , onLeftSwipe
     , onPopState
@@ -38,7 +39,10 @@ port onUserError : (String -> msg) -> Sub msg
 -- To Window Javascript
 
 
-port historyBack : () -> Cmd msg
+port historyPushState : () -> Cmd msg
+
+
+port historyGo : Int -> Cmd msg
 
 
 port error : String -> Cmd msg

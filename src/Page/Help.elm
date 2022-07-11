@@ -35,7 +35,7 @@ view model =
                 [ Ui.verticalSpacer
                 , Ui.paragraph
                     """
-                    Pactole est une application très simple de gestion de budget.
+                    Pactole est une application très simple pour faire ses comptes.
                     Elle est destinée aux personnes pour qui les applications 
                     traditionnelles sont trop complexes.
                     """
@@ -76,8 +76,8 @@ view model =
                         """
                     , Ui.paragraph
                         """
-                        Appuyez sur le bouton "-" pour créer une nouvelle dépense,
-                        ou bien sur le bouton "+" pour créer une nouvelle entrée d'argent.
+                        Appuyez sur le bouton "-" pour une dépense,
+                        ou bien sur le bouton "+" pour une entrée d'argent.
                         """
                     , Ui.paragraph
                         """

@@ -50,7 +50,7 @@ viewContent model =
             , E.clip
             , Background.color Color.white
             , E.behindContent <|
-                if model.context.animationDisabled then
+                if model.context.animationDisabled || model.monthDisplayed == model.monthPrevious then
                     E.none
 
                 else
@@ -62,6 +62,10 @@ viewContent model =
 
 viewAnimatedContent : Model -> Date.MonthYear -> String -> E.Element Msg
 viewAnimatedContent model monthYear anim =
+    let
+        disabled =
+            monthYear /= model.monthDisplayed
+    in
     E.column
         [ E.width E.fill
         , E.height E.fill
@@ -92,7 +96,7 @@ viewAnimatedContent model monthYear anim =
                         List.map
                             (\day ->
                                 if Date.getMonth day == monthYear.month then
-                                    calendarCell model day
+                                    calendarCell model day disabled
 
                                 else
                                     E.el [ E.width E.fill, E.height E.fill ] E.none
@@ -129,8 +133,8 @@ weekDayNames model =
         E.none
 
 
-calendarCell : Model -> Date -> E.Element Msg
-calendarCell model day =
+calendarCell : Model -> Date -> Bool -> E.Element Msg
+calendarCell model day disabled =
     let
         em =
             model.context.em
@@ -155,7 +159,7 @@ calendarCell model day =
         , E.height E.fill
         , E.clipY
         ]
-        (Input.button
+        (Ui.buttonDisableable
             [ E.width E.fill
             , E.height E.fill
             , E.clip
@@ -274,6 +278,7 @@ calendarCell model day =
                                 (cellContentFor model day)
                     ]
             , onPress = Just (Msg.SelectDate day)
+            , disabled = disabled
             }
         )
 
@@ -305,7 +310,7 @@ cellContentFor model day =
                         Color.transactionColor (Money.isExpense transaction.amount)
 
                 parts =
-                    Money.toStrings transaction.amount
+                    Money.toStringParts transaction.amount
             in
             if model.context.density == Ui.Comfortable then
                 E.el
@@ -523,7 +528,7 @@ dayContentFor model day =
                                         , isExpense = Money.isExpense transaction.amount
                                         , isRecurring = True
                                         , date = transaction.date
-                                        , amount = ( Money.toInput transaction.amount, Nothing )
+                                        , amount = ( Money.absToString transaction.amount, Nothing )
                                         , description = transaction.description
                                         , category = transaction.category
                                         }
@@ -535,7 +540,7 @@ dayContentFor model day =
                                         , isExpense = Money.isExpense transaction.amount
                                         , isRecurring = False
                                         , date = transaction.date
-                                        , amount = ( Money.toInput transaction.amount, Nothing )
+                                        , amount = ( Money.absToString transaction.amount, Nothing )
                                         , description = transaction.description
                                         , category = transaction.category
                                         }

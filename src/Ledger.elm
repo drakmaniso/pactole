@@ -24,6 +24,7 @@ module Ledger exposing
     , getTransactionDescription
     , getTransactionsForDate
     , getTransactionsForMonth
+    , groupTransactionsByDate
     , hasFutureTransactionsForMonth
     , newTransactionFromRecurring
     )
@@ -149,8 +150,27 @@ getLastXMonthsTransactions (Ledger transactions) account today nbMonths =
                             /= LT
                        )
             )
-        |> List.sortWith
-            (\a b -> Date.compare b.date a.date)
+
+
+groupTransactionsByDate : List Transaction -> List ( Transaction, List Transaction )
+groupTransactionsByDate transactions =
+    transactions
+        |> List.sortWith (\a b -> Date.compare b.date a.date)
+        |> List.reverse
+        |> List.foldl
+            (\current result ->
+                case result of
+                    [] ->
+                        [ ( current, [] ) ]
+
+                    ( previous, group ) :: rest ->
+                        if Date.compare current.date previous.date == EQ then
+                            ( current, previous :: group ) :: rest
+
+                        else
+                            ( current, [] ) :: result
+            )
+            []
 
 
 getOldestTransactionWhere : Ledger -> (Transaction -> Bool) -> Maybe Transaction

@@ -112,34 +112,52 @@ confirm model =
             case data.id of
                 Just accountId ->
                     ( { model | dialog = Nothing }
-                    , Database.renameAccount accountId (sanitizeName data.name)
+                    , Cmd.batch
+                        [ Database.renameAccount accountId (sanitizeName data.name)
+                        , Ports.historyGo -1
+                        ]
                     )
 
                 Nothing ->
                     ( { model | dialog = Nothing }
-                    , Database.createAccount (sanitizeName data.name)
+                    , Cmd.batch
+                        [ Database.createAccount (sanitizeName data.name)
+                        , Ports.historyGo -1
+                        ]
                     )
 
         Just (Model.DeleteAccountDialog id) ->
             ( { model | dialog = Nothing }
-            , Database.deleteAccount id
+            , Cmd.batch
+                [ Database.deleteAccount id
+                , Ports.historyGo -1
+                ]
             )
 
         Just (Model.CategoryDialog data) ->
             case data.id of
                 Just categoryId ->
                     ( { model | dialog = Nothing }
-                    , Database.renameCategory categoryId data.name data.icon
+                    , Cmd.batch
+                        [ Database.renameCategory categoryId data.name data.icon
+                        , Ports.historyGo -1
+                        ]
                     )
 
                 Nothing ->
                     ( { model | dialog = Nothing }
-                    , Database.createCategory (sanitizeName data.name) data.icon
+                    , Cmd.batch
+                        [ Database.createCategory (sanitizeName data.name) data.icon
+                        , Ports.historyGo -1
+                        ]
                     )
 
         Just (Model.DeleteCategoryDialog id) ->
             ( { model | dialog = Nothing }
-            , Database.deleteCategory id
+            , Cmd.batch
+                [ Database.deleteCategory id
+                , Ports.historyGo -1
+                ]
             )
 
         Just (Model.RecurringDialog data) ->
@@ -163,31 +181,37 @@ confirm model =
             case data.id of
                 Just recurringId ->
                     ( { model | dialog = Nothing }
-                    , Database.replaceRecurringTransaction
-                        { id = recurringId
-                        , account = data.account
-                        , amount =
-                            Result.withDefault Money.zero
-                                (Money.fromInput data.isExpense data.amount)
-                        , description = data.description
-                        , category = data.category
-                        , date = dueDate
-                        , checked = False
-                        }
+                    , Cmd.batch
+                        [ Database.replaceRecurringTransaction
+                            { id = recurringId
+                            , account = data.account
+                            , amount =
+                                Result.withDefault Money.zero
+                                    (Money.parse data.isExpense data.amount)
+                            , description = data.description
+                            , category = data.category
+                            , date = dueDate
+                            , checked = False
+                            }
+                        , Ports.historyGo -1
+                        ]
                     )
 
                 Nothing ->
                     ( { model | dialog = Nothing }
-                    , Database.createRecurringTransaction
-                        { date = dueDate
-                        , account = data.account
-                        , amount =
-                            Result.withDefault Money.zero
-                                (Money.fromInput data.isExpense data.amount)
-                        , description = data.description
-                        , category = data.category
-                        , checked = False
-                        }
+                    , Cmd.batch
+                        [ Database.createRecurringTransaction
+                            { date = dueDate
+                            , account = data.account
+                            , amount =
+                                Result.withDefault Money.zero
+                                    (Money.parse data.isExpense data.amount)
+                            , description = data.description
+                            , category = data.category
+                            , checked = False
+                            }
+                        , Ports.historyGo -1
+                        ]
                     )
 
         Just (Model.ImportDialog db) ->
@@ -209,10 +233,13 @@ confirm model =
                         , animationDisabled = db.settings.animationDisabled
                         }
               }
-            , Ports.toServiceWorker
-                ( "install database"
-                , Model.encodeDatabase db
-                )
+            , Cmd.batch
+                [ Ports.toServiceWorker
+                    ( "install database"
+                    , Model.encodeDatabase db
+                    )
+                , Cmd.none
+                ]
             )
 
         Just (Model.ExportDialog filename) ->
@@ -239,7 +266,7 @@ confirm model =
 
         Just (Model.UserErrorDialog _) ->
             ( { model | dialog = Nothing }
-            , Cmd.none
+            , Ports.historyGo -1
             )
 
         Just (Model.FontDialog fontName) ->
@@ -248,7 +275,10 @@ confirm model =
                     model.settings
             in
             ( { model | dialog = Nothing }
-            , Database.storeSettings { settings | font = fontName }
+            , Cmd.batch
+                [ Database.storeSettings { settings | font = fontName }
+                , Ports.historyGo -1
+                ]
             )
 
         Just (Model.TransactionDialog _) ->

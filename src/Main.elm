@@ -175,15 +175,28 @@ update msg model =
             )
 
         Msg.OpenDialog focus dialog ->
+            let
+                noPreviousDialog =
+                    model.dialog == Nothing
+            in
             ( { model | dialog = Just dialog }
             , case focus of
                 Msg.FocusInput ->
                     Cmd.batch
-                        [ Task.attempt (\_ -> Msg.NoOp) (Dom.focus "dialog-focus")
+                        [ if noPreviousDialog then
+                            Ports.historyPushState ()
+
+                          else
+                            Cmd.none
+                        , Task.attempt (\_ -> Msg.NoOp) (Dom.focus "dialog-focus")
                         ]
 
                 Msg.DontFocusInput ->
-                    Cmd.none
+                    if noPreviousDialog then
+                        Ports.historyPushState ()
+
+                    else
+                        Cmd.none
             )
 
         Msg.ConfirmDialog ->
@@ -198,7 +211,7 @@ update msg model =
                     Update.Settings.confirm model
 
         Msg.CloseDialog ->
-            ( { model | dialog = Nothing }, Cmd.none )
+            ( { model | dialog = Nothing }, Ports.historyGo -1 )
 
         Msg.RequestImportFile ->
             ( model, File.Select.file [ ".pactole,.json" ] Msg.ReadImportFile )
@@ -227,14 +240,8 @@ update msg model =
                 ( Just _, _ ) ->
                     ( { model | dialog = Nothing, monthPrevious = model.monthDisplayed }, Cmd.none )
 
-                ( Nothing, Model.CalendarPage ) ->
-                    ( model, Ports.historyBack () )
-
-                ( Nothing, Model.SettingsPage ) ->
-                    ( { model | page = Model.HelpPage, monthPrevious = model.monthDisplayed }, Cmd.none )
-
                 ( Nothing, _ ) ->
-                    ( { model | page = Model.CalendarPage, monthPrevious = model.monthDisplayed }, Cmd.none )
+                    ( model, Cmd.none )
 
         Msg.SelectDate date ->
             ( { model | dateSelected = date }, Cmd.none )
@@ -740,23 +747,19 @@ navigationBar model =
                 && model.settings.reconciliationEnabled
                 && (width < 22 * em)
 
-        navigationButton { targetPage, label, showActive } =
-            let
-                active =
-                    showActive && model.page == targetPage
-            in
+        navigationButton { targetPage, label, isActive } =
             Input.button
                 [ E.padding <| model.context.em // 2
                 , Border.color Color.transparent
                 , Background.color
-                    (if active then
+                    (if isActive model.page then
                         Color.primary40
 
                      else
                         Color.primary85
                     )
                 , Font.color
-                    (if active then
+                    (if isActive model.page then
                         Color.white
 
                      else
@@ -764,7 +767,7 @@ navigationBar model =
                     )
                 , E.mouseDown
                     [ Background.color
-                        (if active then
+                        (if isActive model.page then
                             Color.primary30
 
                          else
@@ -773,7 +776,7 @@ navigationBar model =
                     ]
                 , E.mouseOver
                     [ Background.color
-                        (if active then
+                        (if isActive model.page then
                             Color.primary40
 
                          else
@@ -797,7 +800,7 @@ navigationBar model =
           , navigationButton
                 { targetPage = Model.CalendarPage
                 , label = E.text "Pactole"
-                , showActive = True
+                , isActive = \p -> p == Model.CalendarPage
                 }
           )
         , ( "statistics button"
@@ -811,7 +814,7 @@ navigationBar model =
 
                         else
                             E.text "Bilan"
-                    , showActive = True
+                    , isActive = \p -> p == Model.StatisticsPage
                     }
 
             else
@@ -828,7 +831,7 @@ navigationBar model =
 
                         else
                             E.text "Pointer"
-                    , showActive = True
+                    , isActive = \p -> p == Model.ReconcilePage
                     }
 
             else
@@ -850,7 +853,7 @@ navigationBar model =
                     navigationButton
                         { targetPage = Model.DiagnosticsPage
                         , label = E.el [ Font.color Color.warning60, Ui.iconFont, Ui.bigFont model.context ] (E.text "\u{F071}")
-                        , showActive = False
+                        , isActive = \p -> p == Model.DiagnosticsPage
                         }
           )
         , ( "help button"
@@ -858,7 +861,7 @@ navigationBar model =
                 { targetPage = Model.HelpPage
                 , label =
                     E.el [ Ui.iconFont, Ui.bigFont model.context, E.centerX, E.paddingXY 0 0 ] (E.text "\u{F059}")
-                , showActive = False
+                , isActive = \p -> p == Model.HelpPage || p == Model.SettingsPage
                 }
           )
         ]

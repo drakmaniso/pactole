@@ -73,6 +73,7 @@ viewTransactions model =
     let
         transactions =
             Ledger.getLastXMonthsTransactions model.ledger model.account model.today model.nbMonthsDisplayed
+                |> Ledger.groupTransactionsByDate
     in
     E.column
         [ E.width E.fill
@@ -80,27 +81,15 @@ viewTransactions model =
         , Font.color Color.neutral20
         ]
         (transactions
-            |> List.foldr
-                (\t ( rows, d ) ->
-                    let
-                        newRow =
-                            rowTransaction model t
-                    in
-                    if Date.compare d t.date /= EQ && List.length rows /= 0 then
-                        ( newRow :: rowDate model d :: rows, t.date )
-
-                    else
-                        ( newRow :: rows, t.date )
+            |> List.map
+                (\( transaction, group ) ->
+                    E.column [ E.width E.fill ] <|
+                        rowDate model transaction.date
+                            :: (transaction
+                                    :: group
+                                    |> List.map (\t -> rowTransaction model t)
+                               )
                 )
-                ( [], Date.default )
-            |> (\( rows, d ) ->
-                    case rows of
-                        _ :: _ ->
-                            rowDate model d :: rows
-
-                        _ ->
-                            rows
-               )
         )
 
 
@@ -166,7 +155,7 @@ buttonTransaction model transaction =
                         , isExpense = Money.isExpense transaction.amount
                         , isRecurring = False
                         , date = transaction.date
-                        , amount = ( Money.toInput transaction.amount, Nothing )
+                        , amount = ( Money.absToString transaction.amount, Nothing )
                         , description = transaction.description
                         , category = transaction.category
                         }

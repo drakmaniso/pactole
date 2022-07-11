@@ -6,6 +6,7 @@ import Log
 import Model exposing (Model)
 import Money
 import Msg exposing (Msg)
+import Ports
 
 
 update : Msg.TransactionMsg -> Model -> ( Model, Cmd Msg )
@@ -60,7 +61,10 @@ update msg model =
 confirmDelete : Model -> Int -> ( Model, Cmd Msg )
 confirmDelete model data =
     ( { model | dialog = Nothing }
-    , Database.deleteTransaction data
+    , Cmd.batch
+        [ Database.deleteTransaction data
+        , Ports.historyGo -1
+        ]
     )
 
 
@@ -68,7 +72,7 @@ confirm : Model -> Model.TransactionData -> ( Model, Cmd Msg )
 confirm model data =
     case
         ( data.id
-        , Money.fromInput data.isExpense (Tuple.first data.amount)
+        , Money.parse data.isExpense (Tuple.first data.amount)
         )
     of
         ( Just id, Ok amount ) ->
@@ -79,27 +83,33 @@ confirm model data =
                         |> Maybe.withDefault False
             in
             ( { model | dialog = Nothing }
-            , Database.replaceTransaction
-                { id = id
-                , account = model.account
-                , date = data.date
-                , amount = amount
-                , description = data.description
-                , category = data.category
-                , checked = checked
-                }
+            , Cmd.batch
+                [ Database.replaceTransaction
+                    { id = id
+                    , account = model.account
+                    , date = data.date
+                    , amount = amount
+                    , description = data.description
+                    , category = data.category
+                    , checked = checked
+                    }
+                , Ports.historyGo -1
+                ]
             )
 
         ( Nothing, Ok amount ) ->
             ( { model | dialog = Nothing }
-            , Database.createTransaction
-                { account = model.account
-                , date = data.date
-                , amount = amount
-                , description = data.description
-                , category = data.category
-                , checked = False
-                }
+            , Cmd.batch
+                [ Database.createTransaction
+                    { account = model.account
+                    , date = data.date
+                    , amount = amount
+                    , description = data.description
+                    , category = data.category
+                    , checked = False
+                    }
+                , Ports.historyGo -1
+                ]
             )
 
         ( _, Err amountError ) ->

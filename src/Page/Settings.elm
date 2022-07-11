@@ -44,7 +44,28 @@ view model =
                 , configAppearance model
                 , Ui.verticalSpacer
                 , Ui.verticalSpacer
-                , secretDiagnosticsButton model
+                , E.row [ E.width E.fill ] <|
+                    [ E.el
+                        [ E.centerX, Ui.smallFont model.context ]
+                      <|
+                        Ui.linkButton
+                            { label = E.text ("version " ++ model.serviceVersion)
+                            , onPress = Just (Msg.ChangePage Model.DiagnosticsPage)
+                            }
+                    , E.newTabLink
+                        [ E.alignRight
+                        , Ui.smallFont model.context
+                        , Font.color Color.primary40
+                        ]
+                        { url = "./privacy-policy.html"
+                        , label =
+                            E.paragraph []
+                                [ E.el [ Font.underline ] <| E.text "privacy policy"
+                                , E.text " "
+                                , Ui.externalLinkIcon
+                                ]
+                        }
+                    ]
                 ]
             ]
         ]
@@ -225,7 +246,7 @@ configRecurring model =
                     (\t ->
                         let
                             m =
-                                Money.toStrings t.amount
+                                Money.toStringParts t.amount
                         in
                         Ui.flatButton
                             { onPress =
@@ -235,7 +256,7 @@ configRecurring model =
                                             { id = Just t.id
                                             , account = t.account
                                             , isExpense = Money.isExpense t.amount
-                                            , amount = Money.toInput t.amount
+                                            , amount = Money.absToString t.amount
                                             , description = t.description
                                             , category = t.category
                                             , dueDate = String.fromInt <| Date.getDay t.date
@@ -384,17 +405,6 @@ configAppearance model =
             }
         , Ui.verticalSpacer
         ]
-
-
-secretDiagnosticsButton : Model -> E.Element Msg
-secretDiagnosticsButton model =
-    E.el
-        [ E.centerX, Ui.smallFont model.context ]
-    <|
-        Ui.linkButton
-            { label = E.text ("version " ++ model.serviceVersion)
-            , onPress = Just (Msg.ChangePage Model.DiagnosticsPage)
-            }
 
 
 
