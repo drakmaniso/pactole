@@ -25,6 +25,7 @@ module Model exposing
     , simplifiedDefaultSettings
     )
 
+import Browser.Dom as Dom
 import Date exposing (Date)
 import Dict
 import Json.Decode as Decode
@@ -50,6 +51,7 @@ type alias Model =
     , context : Ui.Context
     , errors : List String
     , nbMonthsDisplayed : Int
+    , reconcileViewport : Maybe Dom.Viewport
 
     -- Persistent Data
     , settings : Settings

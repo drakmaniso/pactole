@@ -136,6 +136,7 @@ init flags _ _ =
                 }
       , errors = []
       , nbMonthsDisplayed = 2
+      , reconcileViewport = Nothing
       }
     , Cmd.none
     )
@@ -166,13 +167,34 @@ update msg model =
                             (1 + Date.getMonthDiff model.today t.date)
                                 |> Basics.max 2
             in
-            ( { model
-                | page = page
-                , monthPrevious = model.monthDisplayed
-                , nbMonthsDisplayed = nbMonthsDisplayed
-              }
-            , Cmd.none
-            )
+            if model.page == Model.ReconcilePage then
+                ( model
+                , Dom.getViewportOf "reconcile-viewport"
+                    |> Task.attempt (Msg.SetReconcileViewport page)
+                )
+
+            else
+                ( { model
+                    | page = page
+                    , monthPrevious = model.monthDisplayed
+                    , nbMonthsDisplayed = nbMonthsDisplayed
+                  }
+                , if page == Model.ReconcilePage then
+                    let
+                        ( x, y ) =
+                            case model.reconcileViewport of
+                                Just viewport ->
+                                    ( viewport.viewport.x, viewport.viewport.y )
+
+                                Nothing ->
+                                    ( 0, 0 )
+                    in
+                    Dom.setViewportOf "reconcile-viewport" x y
+                        |> Task.attempt (\_ -> Msg.NoOp)
+
+                  else
+                    Cmd.none
+                )
 
         Msg.OpenDialog focus dialog ->
             let
@@ -301,6 +323,20 @@ update msg model =
 
             else
                 ( { model | context = newContext }, Cmd.none )
+
+        Msg.SetReconcileViewport page result ->
+            case result of
+                Ok viewport ->
+                    ( { model
+                        | page = page
+                        , monthPrevious = model.monthDisplayed
+                        , reconcileViewport = Just viewport
+                      }
+                    , Cmd.none
+                    )
+
+                Err _ ->
+                    ( model, Cmd.none )
 
         Msg.ForWelcome m ->
             Update.Installation.update m model
