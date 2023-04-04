@@ -3,8 +3,6 @@ module Ui exposing
     , Context
     , Density(..)
     , DeviceClass(..)
-    , previousButton
-    , nextButton
     , animationClasses
     , backIcon
     , bigFont
@@ -51,12 +49,14 @@ module Ui exposing
     , minusIcon
     , moneyInput
     , monthNavigationBar
+    , nextButton
     , notSelectable
     , onEnter
     , paragraph
     , paragraphParts
     , plusIcon
     , portraitPageTitle
+    , previousButton
     , radio
     , radioButton
     , radioOption
@@ -948,7 +948,6 @@ monthNavigationBar context monthDisplayed changeMsg =
                     (previousButton context
                         (Just (changeMsg (Date.decrementMonthYear monthDisplayed)))
                     )
-
               )
             , ( "current month header"
               , E.el
@@ -1311,31 +1310,30 @@ navigationButton context { icon, color, onPress } =
 
 previousButton : Context -> Maybe msg -> E.Element msg
 previousButton context onPress =
-    (Input.button
-            [ E.width E.fill
-            , E.height E.fill
-            , Border.rounded 32
-            , Font.color Color.primary40
-            , Border.width 4
-            , Border.color Color.transparent
-            , focusVisibleOnly
-            , E.mouseDown [ Background.color Color.neutral80 ]
-            , E.mouseOver [ Background.color Color.neutral95 ]
-            ]
-            { label =
-                if context.density == Comfortable then
-                    E.el [ E.centerX, iconFont, biggestFont context ] (E.text "  \u{F060}  ")
+    Input.button
+        [ E.width E.fill
+        , E.height E.fill
+        , Border.rounded 32
+        , Font.color Color.primary40
+        , Border.width 4
+        , Border.color Color.transparent
+        , focusVisibleOnly
+        , E.mouseDown [ Background.color Color.neutral80 ]
+        , E.mouseOver [ Background.color Color.neutral95 ]
+        ]
+        { label =
+            if context.density == Comfortable then
+                E.el [ E.centerX, iconFont, biggestFont context ] (E.text "  \u{F060}  ")
 
-                else
-                    E.el [ E.centerX, iconFont ] (E.text "  \u{F060}  ")
-            , onPress = onPress
-            }
-        )
+            else
+                E.el [ E.centerX, iconFont ] (E.text "  \u{F060}  ")
+        , onPress = onPress
+        }
 
 
 nextButton : Context -> Maybe msg -> E.Element msg
 nextButton context onPress =
-    (Input.button
+    Input.button
         [ E.width E.fill
         , E.height E.fill
         , Border.rounded 32
@@ -1354,7 +1352,7 @@ nextButton context onPress =
                 E.el [ E.centerX, iconFont ] (E.text "  \u{F061}  ")
         , onPress = onPress
         }
-    )
+
 
 incomeButton :
     Context

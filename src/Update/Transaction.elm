@@ -24,7 +24,6 @@ update msg model =
                 _ ->
                     ( model, Cmd.none ) |> Log.error "unexpected DialogChangeDate message"
 
-
         Msg.ChangeTransactionAmount amount ->
             case model.dialog of
                 Just (Model.TransactionDialog dialog) ->
