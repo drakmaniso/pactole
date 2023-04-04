@@ -88,7 +88,11 @@ viewBalance model =
             model.context.em
 
         balance =
-            Ledger.getBalance model.ledger model.account model.today
+            if model.settings.showMonthTotal then
+                Ledger.getTotalForMonth model.ledger model.account model.monthDisplayed model.today
+
+            else
+                Ledger.getBalance model.ledger model.account model.today
 
         parts =
             Money.toStringParts balance
@@ -126,7 +130,12 @@ viewBalance model =
                 , Font.color Color.neutral50
                 , Ui.notSelectable
                 ]
-                (E.text "Solde actuel:")
+                (if model.settings.showMonthTotal then
+                    E.text "Total du mois:"
+
+                 else
+                    E.text "Solde actuel:"
+                )
 
           else
             E.none

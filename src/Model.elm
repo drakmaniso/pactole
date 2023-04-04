@@ -188,6 +188,7 @@ type alias Settings =
     , reconciliationEnabled : Bool
     , summaryEnabled : Bool
     , balanceWarning : Int
+    , showMonthTotal : Bool
     , font : String
     , fontSize : Int
     , deviceClass : Ui.DeviceClass
@@ -201,6 +202,7 @@ simplifiedDefaultSettings =
     , reconciliationEnabled = False
     , summaryEnabled = False
     , balanceWarning = 100
+    , showMonthTotal = False
     , font = "Andika New Basic"
     , fontSize = 0
     , deviceClass = Ui.AutoClass
@@ -225,6 +227,7 @@ encodeSettings settings =
         , ( "reconciliationEnabled", Encode.bool settings.reconciliationEnabled )
         , ( "summaryEnabled", Encode.bool settings.summaryEnabled )
         , ( "balanceWarning", Encode.int settings.balanceWarning )
+        , ( "showMonthTotal", Encode.bool settings.showMonthTotal )
         , ( "font", Encode.string settings.font )
         , ( "fontSize", Encode.int settings.fontSize )
         , ( "deviceClass", Ui.encodeDeviceClass settings.deviceClass )
@@ -234,22 +237,49 @@ encodeSettings settings =
 
 decodeSettings : Decode.Decoder Settings
 decodeSettings =
-    Decode.map8
-        (\cat rec summ balwarn font fontSize deviceClass animationDisabled ->
+    Decode.map2
+        (\part1 part2 ->
+            { categoriesEnabled = part1.categoriesEnabled
+            , reconciliationEnabled = part1.reconciliationEnabled
+            , summaryEnabled = part1.summaryEnabled
+            , balanceWarning = part1.balanceWarning
+            , showMonthTotal = part1.showMonthTotal
+            , font = part2.font
+            , fontSize = part2.fontSize
+            , deviceClass = part2.deviceClass
+            , animationDisabled = part2.animationDisabled
+            }
+        )
+        decodeSettingsPart1
+        decodeSettingsPart2
+
+
+decodeSettingsPart1 =
+    Decode.map5
+        (\cat rec summ balwarn showmonth ->
             { categoriesEnabled = cat
             , reconciliationEnabled = rec
             , summaryEnabled = summ
             , balanceWarning = balwarn
-            , font = font
-            , fontSize = fontSize
-            , deviceClass = deviceClass
-            , animationDisabled = animationDisabled
+            , showMonthTotal = showmonth
             }
         )
         (Decode.oneOf [ Decode.field "categoriesEnabled" Decode.bool, Decode.succeed False ])
         (Decode.oneOf [ Decode.field "reconciliationEnabled" Decode.bool, Decode.succeed False ])
         (Decode.oneOf [ Decode.field "summaryEnabled" Decode.bool, Decode.succeed False ])
         (Decode.oneOf [ Decode.field "balanceWarning" Decode.int, Decode.succeed 100 ])
+        (Decode.oneOf [ Decode.field "showMonthTotal" Decode.bool, Decode.succeed False ])
+
+
+decodeSettingsPart2 =
+    Decode.map4
+        (\font fontSize deviceClass animationDisabled ->
+            { font = font
+            , fontSize = fontSize
+            , deviceClass = deviceClass
+            , animationDisabled = animationDisabled
+            }
+        )
         (Decode.oneOf [ Decode.field "font" Decode.string, Decode.succeed "Andika New Basic" ])
         (Decode.oneOf [ Decode.field "fontSize" Decode.int, Decode.succeed 0 ])
         (Decode.oneOf [ Decode.field "deviceClass" Ui.decodeDeviceClass, Decode.succeed Ui.AutoClass ])

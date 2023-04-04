@@ -147,6 +147,22 @@ configAccounts model =
             , label = E.row [] [ Ui.plusIcon, E.text "  Nouveau compte" ]
             }
         , Ui.verticalSpacer
+        , Ui.paragraph "Dans le calendrier, afficher:"
+        , E.row [ E.spacing 4 ]
+            [ Ui.radioButton model.context
+                { onPress = Just <| Msg.ForDatabase <| Msg.StoreSettings { settings | showMonthTotal = False }
+                , icon = ""
+                , label = "Solde actuel"
+                , active = not settings.showMonthTotal
+                }
+            , Ui.radioButton model.context
+                { onPress = Just <| Msg.ForDatabase <| Msg.StoreSettings { settings | showMonthTotal = True }
+                , icon = ""
+                , label = "Total du mois"
+                , active = settings.showMonthTotal
+                }
+            ]
+        , Ui.verticalSpacer
         , Ui.paragraph "Avertissement lorsque le solde passe en dessous de:"
         , E.row [ E.spacing 12 ]
             [ Ui.flatButton
