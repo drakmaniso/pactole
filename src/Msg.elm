@@ -51,7 +51,8 @@ type DatabaseMsg
 
 
 type TransactionMsg
-    = ChangeTransactionAmount String
+    = ChangeTransactionDate Date
+    | ChangeTransactionAmount String
     | ChangeTransactionDescription String
     | ChangeTransactionCategory Int
 

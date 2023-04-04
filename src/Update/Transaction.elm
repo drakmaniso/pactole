@@ -12,6 +12,19 @@ import Ports
 update : Msg.TransactionMsg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        Msg.ChangeTransactionDate date ->
+            case model.dialog of
+                Just (Model.TransactionDialog dialog) ->
+                    ( { model
+                        | dialog = Just <| Model.TransactionDialog { dialog | date = date }
+                      }
+                    , Cmd.none
+                    )
+
+                _ ->
+                    ( model, Cmd.none ) |> Log.error "unexpected DialogChangeDate message"
+
+
         Msg.ChangeTransactionAmount amount ->
             case model.dialog of
                 Just (Model.TransactionDialog dialog) ->
