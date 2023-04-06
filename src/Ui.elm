@@ -700,15 +700,7 @@ landscapePageTitle context content =
         , E.paddingXY (em // 2) (em // 4)
         ]
     <|
-        [ if content.extraMsg == Nothing then
-            E.el [ E.width <| E.minimum (3 * em) <| E.shrink ] E.none
-
-          else
-            E.el [ E.width <| E.minimum (3 * em) <| E.shrink ] <|
-                flatButton
-                    { label = content.extraIcon
-                    , onPress = content.extraMsg
-                    }
+        [ E.el [ E.width <| E.minimum (3 * em) <| E.shrink ] E.none
         , E.row
             [ E.centerX
             , E.width E.fill
@@ -742,11 +734,15 @@ landscapePageTitle context content =
               <|
                 E.text content.title
             ]
-        , E.el [ E.width <| E.minimum (3 * em) <| E.shrink ] <|
-            flatButton
-                { label = closeIcon
-                , onPress = Just content.closeMsg
-                }
+        , if content.extraMsg == Nothing then
+            E.el [ E.width <| E.minimum (3 * em) <| E.shrink ] E.none
+
+          else
+            E.el [ E.width <| E.minimum (3 * em) <| E.shrink ] <|
+                flatButton
+                    { label = content.extraIcon
+                    , onPress = content.extraMsg
+                    }
         ]
 
 
