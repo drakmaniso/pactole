@@ -390,7 +390,12 @@ plusIcon =
 checkIcon : E.Element msg
 checkIcon =
     E.el [ iconFont, E.centerX ]
-        (E.text "\u{F00C}")
+        -- Checkmarck: F00C
+        -- Checkmarck in square: F14A
+        -- Cross: F00D
+        -- Big square: F45C
+        -- Small square: F0C8
+        (E.text "\u{F0C8}")
 
 
 warningIcon : E.Element msg
@@ -1485,13 +1490,7 @@ reconcileCheckBox context { state, onPress } =
         , E.alignRight
         , Border.width 0
         , Border.color Color.transparent
-        , if state then
-            Border.color Color.transparent
-
-          else
-            innerShadow
-
-        -- Border.color Color.neutral70
+        , innerShadow
         , focusVisibleOnly
         , E.padding 2
         , E.mouseDown [ Background.color Color.neutral90 ]
