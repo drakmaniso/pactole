@@ -231,7 +231,12 @@ colCategory model transaction =
                 (E.text <| category.icon)
 
     else
-        E.none
+        E.el
+            [ E.width <| E.minimum (em // 2) <| E.shrink
+            , E.centerX
+            , E.alignTop
+            ]
+            E.none
 
 
 colDescription : Model -> Ledger.Transaction -> E.Element msg
