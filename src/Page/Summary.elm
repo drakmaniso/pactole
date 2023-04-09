@@ -274,9 +274,10 @@ viewMobileBalance model =
                 , Ui.notSelectable
                 ]
                 (if model.settings.showMonthTotal then
-                    (E.text "Total du mois: ")
-                else
-                    (E.text "Solde: ")
+                    E.text "Total du mois: "
+
+                 else
+                    E.text "Solde: "
                 )
             , E.el
                 [ Ui.defaultFontSize model.context, Font.bold ]
