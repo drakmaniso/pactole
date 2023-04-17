@@ -36,7 +36,7 @@ view model =
                 , Ui.paragraph
                     """
                     Pactole est une application très simple pour faire ses comptes.
-                    Elle est destinée aux personnes pour qui les applications 
+                    Elle est destinée aux personnes pour qui les applications
                     traditionnelles sont trop complexes.
                     """
                 , Ui.verticalSpacer
@@ -50,14 +50,14 @@ view model =
                     (case model.context.device.orientation of
                         E.Landscape ->
                             """
-                            Vous pouvez choisir un jour en appuyant dessus.
+                            Vous pouvez choisir un jour en cliquant dessus.
                             La liste des opérations de ce jour s'affiche dans la
                             partie à gauche du calendrier.
                             """
 
                         E.Portrait ->
                             """
-                            Vous pouvez choisir un jour en appuyant dessus.
+                            Vous pouvez choisir un jour en cliquant dessus.
                             La liste des opérations de ce jour s'affiche en dessous
                             du calendrier.
                             """
@@ -72,28 +72,20 @@ view model =
                 , Ui.helpList
                     [ Ui.paragraph
                         """
-                        Dans le calendrier, appuyez sur le jour voulu.
+                        Dans le calendrier, cliquez sur le jour voulu.
                         """
                     , Ui.paragraph
                         """
-                        Appuyez sur le bouton "-" pour une dépense,
+                        cliquez sur le bouton "-" pour une dépense,
                         ou bien sur le bouton "+" pour une entrée d'argent.
                         """
                     , Ui.paragraph
                         """
-                        Une boite de dialogue va s'ouvrir.
+                        Entrez le montant de l'opération et la description.
                         """
                     , Ui.paragraph
                         """
-                        Entrez le montant de l'opération.
-                        """
-                    , Ui.paragraph
-                        """
-                        Entrez une description.
-                        """
-                    , Ui.paragraph
-                        """
-                        Appuyez sur le bouton "OK" pour confirmer la création de l'opération.
+                        cliquez sur le bouton "OK" pour confirmer la création de l'opération.
                         """
                     ]
                 , Ui.verticalSpacer
@@ -101,26 +93,22 @@ view model =
                 , Ui.helpList
                     [ Ui.paragraph
                         """
-                        Dans le calendrier, appuyez sur le jour où se trouve l'opération.
+                        Dans le calendrier, cliquez sur le jour où se trouve l'opération.
                         """
                     , Ui.paragraph <|
                         case model.context.device.orientation of
                             E.Landscape ->
                                 """
-                                Dans la partie de gauche, appuyez sur l'opération que vous voulez supprimer.
+                                Dans la partie de gauche, cliquez sur l'opération que vous voulez supprimer.
                                 """
 
                             E.Portrait ->
                                 """
-                                En dessous du calendrier, appuyez sur l'opération que vous voulez supprimer.
+                                En dessous du calendrier, cliquez sur l'opération que vous voulez supprimer.
                                 """
                     , Ui.paragraph
                         """
-                        Une boite de dialogue va s'ouvrir.
-                        """
-                    , Ui.paragraph
-                        """
-                        Appuyez sur le bouton "Supprimer".
+                        cliquez sur le bouton "Supprimer".
                         """
                     ]
                 , Ui.verticalSpacer
@@ -128,42 +116,26 @@ view model =
                 , Ui.helpList
                     [ Ui.paragraph
                         """
-                        Dans le calendrier, appuyez sur le jour où se trouve l'opération.
+                        Dans le calendrier, cliquez sur le jour où se trouve l'opération.
                         """
                     , Ui.paragraph <|
                         case model.context.device.orientation of
                             E.Landscape ->
                                 """
-                                Dans la partie de gauche, appuyez sur l'opération que vous voulez supprimer.
+                                Dans la partie de gauche, cliquez sur l'opération que vous voulez supprimer.
                                 """
 
                             E.Portrait ->
                                 """
-                                En dessous du calendrier, appuyez sur l'opération que vous voulez supprimer.
+                                En dessous du calendrier, cliquez sur l'opération que vous voulez supprimer.
                                 """
                     , Ui.paragraph
                         """
-                        Une boite de dialogue va s'ouvrir.
+                        Changez le montant, la description ou la date de l'opération.
                         """
                     , Ui.paragraph
                         """
-                        Changez le montant et la description de l'opération.
-                        """
-                    , Ui.paragraph
-                        """
-                        Appuyez sur le bouton "OK" pour confirmer les changements.
-                        """
-                    ]
-                , Ui.verticalSpacer
-                , Ui.title model.context "Comment changer la date d'une opération?"
-                , Ui.helpList
-                    [ Ui.paragraph
-                        """
-                        Supprimez l'opération existante.
-                        """
-                    , Ui.paragraph
-                        """
-                        Entrez une nouvelle opération à la date voulue.
+                        cliquez sur le bouton "OK" pour confirmer les changements.
                         """
                     ]
                 , Ui.verticalSpacer
@@ -172,7 +144,7 @@ view model =
                     [ Ui.text
                         """
                         Certaines fonctionnalités supplémentaires de Pactole sont désactivées par
-                        défaut. Si vous voulez les utiliser, vous pouvez les activer dans les 
+                        défaut. Si vous voulez les utiliser, vous pouvez les activer dans les
                         """
                     , Ui.linkButton
                         { label =
