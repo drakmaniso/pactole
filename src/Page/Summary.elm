@@ -88,7 +88,11 @@ viewBalance model =
             model.context.em
 
         balance =
-            Ledger.getBalance model.ledger model.account model.today
+            if model.settings.showMonthTotal then
+                Ledger.getTotalForMonth model.ledger model.account model.monthDisplayed model.today
+
+            else
+                Ledger.getBalance model.ledger model.account model.today
 
         parts =
             Money.toStringParts balance
@@ -126,7 +130,12 @@ viewBalance model =
                 , Font.color Color.neutral50
                 , Ui.notSelectable
                 ]
-                (E.text "Solde actuel:")
+                (if model.settings.showMonthTotal then
+                    E.text "Total du mois:"
+
+                 else
+                    E.text "Solde actuel:"
+                )
 
           else
             E.none
@@ -220,7 +229,11 @@ viewMobileBalance : Model -> E.Element msg
 viewMobileBalance model =
     let
         balance =
-            Ledger.getBalance model.ledger model.account model.today
+            if model.settings.showMonthTotal then
+                Ledger.getTotalForMonth model.ledger model.account model.monthDisplayed model.today
+
+            else
+                Ledger.getBalance model.ledger model.account model.today
 
         parts =
             Money.toStringParts balance
@@ -260,7 +273,12 @@ viewMobileBalance model =
                 , E.centerX
                 , Ui.notSelectable
                 ]
-                (E.text "Solde: ")
+                (if model.settings.showMonthTotal then
+                    E.text "Total du mois: "
+
+                 else
+                    E.text "Solde: "
+                )
             , E.el
                 [ Ui.defaultFontSize model.context, Font.bold ]
                 (E.text (sign ++ parts.units))

@@ -77,8 +77,16 @@ view model data =
 
 viewDate : Model -> Model.TransactionData -> E.Element Msg
 viewDate model data =
-    E.el [ E.width E.fill, E.paddingEach { left = 0, right = 0, top = 0, bottom = 0 // 2 } ] <|
-        E.el
+    E.row [ E.width E.fill, E.paddingEach { left = 0, right = 0, top = 0, bottom = 0 // 2 } ]
+        [ if data.isRecurring then
+            E.none
+
+          else
+            E.el []
+                (Ui.previousButton model.context
+                    (Just (Msg.ForTransaction (Msg.ChangeTransactionDate (Date.decrementDay data.date))))
+                )
+        , E.el
             [ E.width E.fill
             , E.centerX
             , Font.bold
@@ -89,8 +97,17 @@ viewDate model data =
                 Ui.bigFont model.context
             , Font.center
             ]
-        <|
+          <|
             Ui.viewDate model.context data.date
+        , if data.isRecurring then
+            E.none
+
+          else
+            E.el []
+                (Ui.nextButton model.context
+                    (Just (Msg.ForTransaction (Msg.ChangeTransactionDate (Date.incrementDay data.date))))
+                )
+        ]
 
 
 viewAmount : Model -> Model.TransactionData -> E.Element Msg

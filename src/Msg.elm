@@ -1,5 +1,6 @@
 module Msg exposing (DatabaseMsg(..), DialogFocus(..), Msg(..), SettingsMsg(..), TransactionMsg(..), WelcomeMsg(..))
 
+import Browser.Dom as Dom
 import Date exposing (Date)
 import File exposing (File)
 import Json.Decode as Decode
@@ -25,6 +26,7 @@ type Msg
     | SelectDate Date
     | SelectAccount Int
     | WindowResize { width : Int, height : Int }
+    | SetReconcileViewport Model.Page (Result Dom.Error Dom.Viewport)
     | ForWelcome WelcomeMsg
     | ForDatabase DatabaseMsg
     | ForTransaction TransactionMsg
@@ -49,7 +51,8 @@ type DatabaseMsg
 
 
 type TransactionMsg
-    = ChangeTransactionAmount String
+    = ChangeTransactionDate Date
+    | ChangeTransactionAmount String
     | ChangeTransactionDescription String
     | ChangeTransactionCategory Int
 
